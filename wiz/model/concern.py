@@ -4,6 +4,8 @@ from typing import Dict
 import inflection
 import yaml
 
+from wiz.model.step import Step
+
 
 class Concern:
 
@@ -13,6 +15,10 @@ class Concern:
   @classmethod
   def defaults_fname(cls):
     return ''
+
+  @classmethod
+  def step(cls, name) -> Step:
+    raise NotImplementedError
 
   @classmethod
   def defaults(cls) -> Dict[str, str]:
