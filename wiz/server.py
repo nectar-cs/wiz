@@ -30,8 +30,9 @@ def ensure_broker_connected():
   if "/api/status" not in request.path:
     broker.check_connected_or_raise()
 
-def start(_model_class):
+def start(_model_class, default_backend):
   broker.connect()
   app.config['model_class'] = _model_class
+  app.config['default_backend'] = default_backend
   app.config["cmd"] = ["bash"]
   app.run(host='0.0.0.0', port=5001)

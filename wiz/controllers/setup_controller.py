@@ -11,7 +11,6 @@ PARTS_PATH = f'{STEPS_PATH}/<step_id>/parts'
 controller = Blueprint('setup_controller', __name__)
 
 
-
 @controller.route(CONCERNS_PATH)
 def concerns():
   meta_objects = [concern.meta() for concern in model_class().concerns()]
