@@ -2,11 +2,16 @@ from typing import Tuple
 
 from wiz.core import core, utils
 
+class TemplaterBridge:
+  #
+  pass
 
 class TemplatingBackend:
   # I intake a dictionary
   # Wait I should live in the separate docker image
   pass
+
+
 
 class ErbTemplatingBackend:
   # Mount the ConfigMap to filesystem
@@ -17,7 +22,16 @@ class ErbTemplatingBackend:
 
   # Alternatively, there can be a file-pointer in the wiz app
   # and things get easier e.g apply by_file[file1 file2]
+  pass
 
+
+class HelmTemplatingBackend:
+  # assuming repo is on helm hub
+  # call with list of res identifiers: [svc:this deploy:that]
+  # mount the configmap to the filesystem
+  # yamls << helm template . -f /mounted/path/values
+  # [k apply yaml for yaml in yamls if matches(yaml, identifiers)]
+  pass
 
 class K8KatTemplatingBackend:
   pass
@@ -36,7 +50,6 @@ class HelmBackend(Backend):
     pass
 
 class PythonBackend(Backend):
-
   @classmethod
   def commit_values(cls, assignments: [Tuple[str, any]]):
     master_map = core.master_map().json('master')
