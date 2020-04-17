@@ -4,47 +4,30 @@ from typing import Dict
 import inflection
 import yaml
 
+from wiz.core.resolve import find_step_class
 from wiz.model.step import Step
 
 
 class Concern:
 
-  def next_step(self, crt_step):
-    return None
+  def __init__(self, config):
+    self.config = config
+    self.key = config.get('key')
+    self.name = config.get('name')
+    self.description = config.get('description')
+    # self._step_keys = config.
 
-  @classmethod
-  def defaults_fname(cls):
-    return ''
+  def meta(self):
+    keys = ['key', 'name', 'description']
+    return {k: self.__dict__[k] for k in keys}
 
-  @classmethod
-  def step(cls, name) -> Step:
-    raise NotImplementedError
+  def steps(self):
+    dicts = self.config.get('steps', [])
+    trans = lambda d: find_step_class(d.key, Step)(d)
+    return [trans(sub_tree) for sub_tree in dicts]
 
-  @classmethod
-  def defaults(cls) -> Dict[str, str]:
-    with open(cls.defaults_fname(), 'r') as stream:
-      yaml_concerns = yaml.safe_load(stream)['concerns']
-      return [d for d in yaml_concerns if d['key'] == cls.key()][0]
 
-  @classmethod
-  def key(cls) -> str:
-    pre_concern = cls.__name__.split('Concern')[0]
-    return inflection.underscore(pre_concern)
 
-  @classmethod
-  def friendly_name(cls):
-    return cls.defaults()['friendly_name']
+# def first_step(self):
 
-  @classmethod
-  def description(cls):
-    return cls.defaults()['description']
 
-  @classmethod
-  def meta(cls):
-    return dict(
-      key=cls.key(),
-      name=cls.friendly_name(),
-      description=cls.description()
-    )
-
-  pass

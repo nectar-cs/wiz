@@ -18,6 +18,10 @@ for controller in controllers:
 
 CORS(app)
 
+@app.route('/api/ping')
+def ping():
+  return jsonify(ping='pong')
+
 @app.errorhandler(BrokerConnException)
 def all_exception_handler(error):
   return jsonify(dict(

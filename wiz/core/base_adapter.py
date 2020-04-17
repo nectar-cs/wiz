@@ -17,7 +17,7 @@ class ErbTemplatingBackend:
 
   # Alternatively, there can be a file-pointer in the wiz app
   # and things get easier e.g apply by_file[file1 file2]
-
+  pass
 
 class K8KatTemplatingBackend:
   pass
