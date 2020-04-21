@@ -1,0 +1,42 @@
+steps:
+  - key: decide_cluster_storage
+    fields:
+      - is_cluster_storage
+    next:
+      if: 'is_cluster_storage = true'
+      then: decide_managed_pvc
+      else: locate_external_db
+    commit: 'save'
+
+  - key: locate_external_db
+    fields:
+      - host
+      - port
+      - user
+      - password
+    watch:
+      - 'secret:external_db_creds'
+    next: done
+
+  - key: decide_cluster_storage
+    fields:
+      - is_managed_pvc
+    watch:
+      - 'pvc:main'
+    next:
+      if: 'is_managed_pvc = true'
+      then: set_db_secrets
+      else: locate_external_pvc
+
+  - key: locate_external_pvc
+    fields:
+      - pvc_name
+
+  - key: set_db_secrets
+    watch:
+      - 'secret:db'
+      - 'deploy:db'
+      - 'svc:pg'
+    parts:
+      - user
+      - password

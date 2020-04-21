@@ -18,6 +18,10 @@ for controller in controllers:
 
 CORS(app)
 
+@app.route('/api/ping')
+def ping():
+  return jsonify(ping='pong')
+
 @app.errorhandler(BrokerConnException)
 def all_exception_handler(error):
   return jsonify(dict(
@@ -30,9 +34,8 @@ def ensure_broker_connected():
   if "/api/status" not in request.path:
     broker.check_connected_or_raise()
 
-def start(_model_class, default_backend):
+def start():
   broker.connect()
-  app.config['model_class'] = _model_class
-  app.config['default_backend'] = default_backend
   app.config["cmd"] = ["bash"]
-  app.run(host='0.0.0.0', port=5001)
+  port = 5000 if broker.is_in_cluster_auth() else 5001
+  app.run(host='0.0.0.0', port=port)
