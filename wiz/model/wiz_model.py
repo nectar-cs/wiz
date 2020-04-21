@@ -17,7 +17,7 @@ class WizModel:
 
   @classmethod
   def inflate_all(cls):
-    keys = [c['key'] for c in wiz_globals.concern_configs]
+    keys = [c['key'] for c in wiz_globals.configs['concerns']]
     return [cls.inflate(key) for key in keys]
 
   @classmethod
