@@ -1,39 +1,50 @@
 import json
-
 from flask import Blueprint, jsonify, request
 
-from wiz.model.wizard import Wizard
+from wiz.model.concern import serial as concern_serial
+from wiz.model.step import serial as step_serial
+from wiz.model.concern.concern import Concern
 
 CONCERNS_PATH = '/api/concerns'
-STEPS_PATH = f'{CONCERNS_PATH}/<concern_id>/steps'
-PARTS_PATH = f'{STEPS_PATH}/<step_id>/fields'
+CONCERN_PATH = f'/{CONCERNS_PATH}/<concern_id>'
+STEPS_PATH = f'{CONCERN_PATH}/steps'
+STEP_PATH = f'{STEPS_PATH}/<step_id>'
+FIELD_PATH = f'{STEP_PATH}/fields/<field_id>'
 
 controller = Blueprint('setup_controller', __name__)
 
 
 @controller.route(CONCERNS_PATH)
-def concerns():
-  meta_objects = [concern.meta() for concern in model_class().concerns()]
-  return jsonify(data=meta_objects)
+def concerns_index():
+  concerns = Concern.all()
+  dicts = [concern_serial.standard(c) for c in concerns]
+  return jsonify(data=dicts)
 
-@controller.route(f'{STEPS_PATH}/<step_id>')
-def step(concern_id, step_id):
-  concern = model_class().concern(concern_id)
-  _step = concern.step
+def concerns_show():
+  pass
+
+@controller.route(f'{STEP_PATH}/first_step')
+def first_step_show(concern_id):
+  concern = find_concern(concern_id)
+  step = concern.first_step()
+  serialized = step_serial.standard(step)
+  return jsonify(serialized)
+
+@controller.route(STEP_PATH)
+def steps_show(concern_id, step_id):
+  pass
+
+
 
 
 @controller.route(f'{STEPS_PATH}/<step_id>')
 def next_step(step_id):
-
-
-@controller.route(f'{PARTS_PATH}/<part_id>')
-def validate_part(concern_id, step_id, part_id):
   pass
+
+
+def find_concern(key):
+  return Concern.inflate(key)
 
 def inflate_step_state():
   raw_state = request.headers.get('step_state')
   return json.loads(raw_state)
-
-def model_class() -> Wizard:
-  from wiz.server import app
-  return app.config['model_class']

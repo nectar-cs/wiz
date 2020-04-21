@@ -1,0 +1,14 @@
+concerns:
+
+  - key: storage
+    title: Primary Storage
+    description: "Mosaic needs a database to run in your cluster
+    alongside the application. The following steps will let you
+    choose how storage is allocated and how the database is secured."
+    steps:
+      - decide_cluster_storage
+      - locate_external_db
+      - decide_cluster_storage
+      - locate_external_pvc
+      - set_db_secrets
+
