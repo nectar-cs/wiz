@@ -13,6 +13,7 @@ def validate_custom_classes(classes):
   if duplicates:
     raise RuntimeError(f'Duplicate keys found: {duplicates}')
 
+
 def find_class(candidates, key: str):
   matches = [c for c in candidates if c.key == key]
   return matches[0] if len(matches) else None
@@ -35,9 +36,14 @@ class WizGlobals:
     self.step_state = StepState({})
 
   def set_configs(self, **kwargs):
-    self.concern_configs = kwargs['concern_configs']
-    self.step_configs = kwargs['step_configs']
-    self.field_configs = kwargs['field_configs']
+    self.concern_configs = kwargs.get('concerns')
+    self.step_configs = kwargs.get('steps')
+    self.field_configs = kwargs.get('fields')
+
+  def set_subclasses(self, **kwargs):
+    self.concern_classes = kwargs.get('concerns')
+    self.step_classes = kwargs.get('steps')
+    self.field_classes = kwargs.get('fields')
 
   def concern_config(self, key):
     return find_config(self.concern_configs, key)
@@ -47,18 +53,6 @@ class WizGlobals:
 
   def field_config(self, key):
     return find_config(self.field_configs, key)
-
-  def set_concern_classes(self, *classes: [any]):
-    validate_custom_classes(classes)
-    self.concern_classes = classes
-
-  def set_step_classes(self, *classes: [any]):
-    validate_custom_classes(classes)
-    self.step_classes = classes
-
-  def set_field_classes(self, *classes: [any]):
-    validate_custom_classes(classes)
-    self.field_classes = classes
 
   def concern_class(self, key: str):
     return find_class(self.concern_classes, key)

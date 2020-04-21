@@ -10,10 +10,6 @@ class Concern:
     self.title = config['title']
     self.description = config['description']
 
-  def meta(self):
-    keys = ['key', 'name', 'description']
-    return {k: self.__dict__[k] for k in keys}
-
   def first_step_key(self) -> str:
     return self.config['steps'][0]
 
@@ -26,7 +22,7 @@ class Concern:
   def inflate(cls, key):
     custom_subclass = wiz_globals.concern_class(key)
     host_class = custom_subclass or cls
-    config = [c for c in wiz_globals.tree if c['key']][0]
+    config = [c for c in wiz_globals.concern_configs if c['key']][0]
     return host_class(config)
 
   @classmethod
