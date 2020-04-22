@@ -9,7 +9,7 @@ class Step(WizModel):
     super().__init__(config)
 
   def next_step_key(self, state) -> str:
-    root = self.config.get('')
+    root = self.config.get('next')
     return expr.eval_next_expr(root, state)
 
   def field(self, key) -> Field:

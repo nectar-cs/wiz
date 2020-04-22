@@ -24,15 +24,19 @@ def concerns_index():
   return jsonify(data=dicts)
 
 
-def concerns_show():
-  pass
-
-
 @controller.route(STEP_PATH)
 def steps_show(concern_id, step_id):
   step = find_step(concern_id, step_id)
   serialized = step_serial.standard(step)
   return jsonify(data=serialized)
+
+
+@controller.route(f'{STEP_PATH}/next')
+def steps_next_id(concern_id, step_id):
+  state = inflate_step_state()
+  step = find_step(concern_id, step_id)
+  next_step_id = step.next_step_key(state)
+  return jsonify(data=next_step_id)
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
@@ -77,4 +81,4 @@ def inflate_step_state():
     message = message_bytes.decode('ascii')
     return json.loads(message)
   except:
-    return None
+    return dict()

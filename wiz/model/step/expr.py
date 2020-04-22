@@ -8,8 +8,7 @@ def eval_next_expr(root, values: Dict[str, str]) -> str:
     return root
   elif type(root) == dict:
     if is_ift_tree(root):
-      conditions: [Dict[str, str]] = root.get('if')
-      logic_key = eval_cond_tree(conditions, values)
+      logic_key = eval_cond_tree(root.get('if'), values)
       return root[logic_key]
     else:
       raise RuntimeError(f"Can't process {root}")
