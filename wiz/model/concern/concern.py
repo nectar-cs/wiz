@@ -14,6 +14,5 @@ class Concern(WizModel):
 
   def step(self, key) -> Step:
     step_key = [s for s in self.config['steps'] if s == key][0]
-    step_config = wiz_globals.step_config(step_key)
-    return Step.inflate(step_config)
+    return Step.inflate(step_key)
 

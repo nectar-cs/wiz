@@ -5,6 +5,7 @@ from flask_cors import CORS
 
 from k8_kat.auth.kube_broker import BrokerConnException, broker
 from wiz.controllers import setup_controller
+from wiz.core import utils
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -32,10 +33,11 @@ def all_exception_handler(error):
 @app.before_request
 def ensure_broker_connected():
   if "/api/status" not in request.path:
-    broker.check_connected_or_raise()
+    # broker.check_connected_or_raise()
+    pass
 
 def start():
-  broker.connect()
+  # broker.connect()
   app.config["cmd"] = ["bash"]
   port = 5000 if broker.is_in_cluster_auth() else 5001
   app.run(host='0.0.0.0', port=port)

@@ -13,10 +13,8 @@ def validate_custom_classes(classes):
   if duplicates:
     raise RuntimeError(f'Duplicate keys found: {duplicates}')
 
-
-def find_object(candidates, key):
-  matches = [config for config in candidates if config['key'] == key]
-  return matches[0] if len(matches) else None
+def validate_config_hash(config_hash):
+  pass
 
 def category_default() -> Dict[str, any]:
   return dict(concerns=[], steps=[], fields=[])
@@ -28,6 +26,7 @@ class WizGlobals:
     self.subclasses = category_default()
 
   def set_configs(self, **kwargs):
+    validate_config_hash(kwargs)
     self.configs = {**category_default(), **kwargs}
 
   def set_subclasses(self, **kwargs):

@@ -26,10 +26,9 @@ class Step(WizModel):
     else:
       return self.state.value(str_rep)
 
-  def field(self, key):
-    field_key = [s for s in self.config['fields'] if s == key][0]
-    field_config = wiz_globals.step_config(field_key)
-    return Field.inflate(field_config)
+  def field(self, key) -> Field:
+    step_key = [s for s in self.config['fields'] if s == key][0]
+    return Step.inflate(step_key)
 
   def fields(self):
     return [self.field(key) for key in self.config['fields']]

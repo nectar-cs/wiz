@@ -30,7 +30,7 @@ def concerns_show():
 def steps_show(concern_id, step_id):
   step = find_step(concern_id, step_id)
   serialized = step_serial.standard(step)
-  return jsonify(serialized)
+  return jsonify(data=serialized)
 
 
 @controller.route(f'{STEP_PATH}/next')
