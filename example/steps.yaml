@@ -3,7 +3,10 @@ steps:
     fields:
       - is_cluster_storage
     next:
-      if: 'is_cluster_storage = true'
+      if:
+        - field: is_cluster_storage
+          type: equality
+          check_against: 'false'
       then: decide_managed_pvc
       else: locate_external_db
     commit: 'save'

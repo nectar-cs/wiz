@@ -4,8 +4,8 @@ from typing import Dict
 class Validator:
   def __init__(self, config: Dict[str, any]):
     self.check = str(config['check_against']).lower()
-    self.message = config['message']
-    self.tone = config['tone'].lower()
+    self.message = config.get('message')
+    self.tone = config.get('tone', 'error').lower()
 
     if self.tone not in ['warning', 'error']:
       raise RuntimeError(f'Tone must be warning or error, got {self.tone}')

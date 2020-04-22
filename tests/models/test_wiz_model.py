@@ -4,7 +4,7 @@ from wiz.core.wiz_globals import wiz_globals as wg
 from wiz.model.concern.concern import Concern
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
-from wiz.model.wiz_model import WizModel
+from wiz.model.base.wiz_model import WizModel
 
 SUBCLASSES: [WizModel] = [Concern, Step, Field]
 

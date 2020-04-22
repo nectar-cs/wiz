@@ -25,7 +25,7 @@ def state_head(original_payload):
   message_bytes = message.encode('ascii')
   base64_bytes = base64.b64encode(message_bytes)
   base64_message = base64_bytes.decode('ascii')
-  return {'step_state': base64_message}
+  return dict(step_state=base64_message)
 
 
 class TestConcern(unittest.TestCase):
@@ -69,7 +69,7 @@ class TestConcern(unittest.TestCase):
       )))
 
 
-  def test_fields_validate_when_nothing(self):
+  def test_fields_validate_when_valid(self):
     wg.set_configs(
       concerns=[g_con_conf(k='c1', s=['s1'])],
       steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
@@ -83,12 +83,26 @@ class TestConcern(unittest.TestCase):
     self.assertEqual(body, dict(status='valid'))
 
 
-  def test_state_header(self):
-    payload = dict(data='ping')
-    headers = state_head(payload)
+def test_fields_validate_when_not_valid(self):
+    wg.set_configs(
+      concerns=[g_con_conf(k='c1', s=['s1'])],
+      steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
+      fields=[g_field(k='f1', c='foo', t='warning', m='bar')]
+    )
 
-    with app.test_client() as client:
-      response = client.get('/api/concerns-echo-state',headers=headers)
-      out = json.loads(response.data)
-      self.assertEqual(out, dict(pong=payload))
+    endpoint = '/api/concerns/c1/steps/s1/fields/f1/validate'
+    state = dict(f1='foo')
+    response = app.test_client().post(endpoint, headers=state_head(state))
+    body = json.loads(response.data)['data']
+    self.assertEqual(body, dict(status='warning', message='bar'))
+
+
+def test_state_header(self):
+  payload = dict(data='ping')
+  headers = state_head(payload)
+
+  with app.test_client() as client:
+    response = client.get('/api/concerns-echo-state',headers=headers)
+    out = json.loads(response.data)
+    self.assertEqual(out, dict(pong=payload))
 

@@ -69,7 +69,6 @@ def find_field(concern_key, step_key, field_id) -> Field:
   return step.field(field_id)
 
 
-
 def inflate_step_state():
   try:
     base64_message = request.headers.get('step_state')

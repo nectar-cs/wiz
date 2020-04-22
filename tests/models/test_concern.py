@@ -11,7 +11,7 @@ class TestConcern(unittest.TestCase):
     wg.clear()
 
   def test_first_step_key(self):
-    wg.set_configs(concerns=[g_con_conf(s=['s2', 's1'])])
+    wg.set_configs(concerns=[g_con_conf(k='k', s=['s2', 's1'])])
     actual = Concern.inflate('k').first_step_key()
     self.assertEqual(actual, 's2')
 

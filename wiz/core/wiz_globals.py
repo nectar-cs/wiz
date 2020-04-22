@@ -1,7 +1,5 @@
 from typing import Dict
 
-from wiz.model.step_state import StepState
-
 
 def validate_custom_classes(classes):
   for concern_class in classes:

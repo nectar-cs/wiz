@@ -1,6 +1,5 @@
-from wiz.core.wiz_globals import wiz_globals
 from wiz.model.step.step import Step
-from wiz.model.wiz_model import WizModel
+from wiz.model.base.wiz_model import WizModel
 
 
 class Concern(WizModel):
