@@ -1,17 +1,15 @@
 import unittest
-from tests.models.helpers import g_con_conf, g_conf
+from tests.models.helpers import  g_conf
 from wiz.core.wiz_globals import wiz_globals as wg
 from wiz.model.concern.concern import Concern
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
 from wiz.model.wiz_model import WizModel
 
-SUBCLASSES: [WizModel] = [Concern]
+SUBCLASSES: [WizModel] = [Concern, Step, Field]
 
 class TestWizModel(unittest.TestCase):
 
-  def setUp(self) -> None:
-    self.crt_subclass: WizModel = None
 
   @property
   def crt_conf_category(self) -> str:
@@ -55,7 +53,7 @@ class TestWizModel(unittest.TestCase):
     })
 
     wg.set_subclasses(**{self.crt_conf_category: [Sub]})
-    sub, norm = Concern.inflate('sub'), Concern.inflate('norm')
+    sub, norm = self.crt_subclass.inflate('sub'), self.crt_subclass.inflate('norm')
 
     self.assertEqual(type(sub), Sub)
     self.assertEqual(sub.title, 'Override')

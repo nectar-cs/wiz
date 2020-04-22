@@ -5,6 +5,8 @@ class WizModel:
 
   def __init__(self, config):
     self.config = config
+    self.key = config['key']
+    self.title = config.get('title')
 
   @classmethod
   def inflate(cls, key, config=None):
@@ -17,7 +19,7 @@ class WizModel:
 
   @classmethod
   def inflate_all(cls):
-    keys = [c['key'] for c in wiz_globals.configs['concerns']]
+    keys = [c['key'] for c in wiz_globals.configs[cls.type_key()]]
     return [cls.inflate(key) for key in keys]
 
   @classmethod

@@ -1,13 +1,13 @@
 from wiz.core.wiz_globals import wiz_globals
 from wiz.model.field.field import Field
+from wiz.model.wiz_model import WizModel
 
-class Step:
+
+class Step(WizModel):
 
   def __init__(self, config):
-    self.config = config
-    self.key = config['key']
-    self.title = config['title']
-    self.state = wiz_globals.step_state
+    super().__init__(config)
+    # self.state = wiz_globals.step_state
 
   def next_step_key(self):
     root = self.config.get('')
@@ -36,12 +36,6 @@ class Step:
 
   def apply(self):
     pass
-
-  @classmethod
-  def inflate(cls, config):
-    custom_subclass = wiz_globals.step_class(config['key'])
-    host_class = custom_subclass or cls
-    return host_class(config)
 
 
 
