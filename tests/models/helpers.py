@@ -14,9 +14,10 @@ def g_con_conf(**kwargs):
   )
 
 def g_conf(**kwargs):
-  key = kwargs.get('k', 'key')
+  key = kwargs.pop('k', 'key')
 
   return dict(
     key=key,
-    title=kwargs.get('t', f'{key}.title'),
+    title=kwargs.pop('t', f'{key}.title'),
+    **kwargs
   )

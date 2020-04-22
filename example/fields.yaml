@@ -16,9 +16,9 @@ fields:
   - key: "storage.own_pvc_name"
     title: "Point to the the PersistentVolumeClaim you want to use"
     type: choice
-    on:
-      - type: equals
-        check: false
+    validations:
+      - type: equality
+        check_against: 'false'
         message: "You will be responsible for managing the PVC over time."
         tone: "warning"
 

@@ -10,11 +10,12 @@ class Field(WizModel):
     self.options = config.get('options')
 
   def validators(self):
-    return [Validator.inflate(c) for c in self.config['on']]
+    validation_configs = self.config.get('validations', [])
+    return [Validator.inflate(c) for c in validation_configs]
 
   def validate(self, value):
     for validator in self.validators():
       tone, message = validator.validate(value)
       if tone and message:
         return [tone, message]
-    return None
+    return [None, None]

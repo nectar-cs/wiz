@@ -1,7 +1,9 @@
+from typing import Dict
+
+
 class Validator:
-  def __init__(self, config, checker=None):
-    self.checker = checker
-    self.check = config['check']
+  def __init__(self, config: Dict[str, any]):
+    self.check = str(config['check_against']).lower()
     self.message = config['message']
     self.tone = config['tone'].lower()
 
@@ -9,10 +11,7 @@ class Validator:
       raise RuntimeError(f'Tone must be warning or error, got {self.tone}')
 
   def perform(self, value):
-    if self.checker:
-      self.checker(value, self.check)
-    else:
-      raise NotImplementedError
+    raise NotImplementedError
 
   def validate(self, value):
     if self.perform(value):
@@ -24,10 +23,16 @@ class Validator:
   def inflate(cls, config):
     _type = config['type']
     if _type == 'equality':
-      op = lambda x, y: str(x).lower() == str(y).lower()
-      return Validator(config, op)
+      return EqValidator(config)
     elif _type == 'inequality':
-      op = lambda x, y: str(x).lower() != str(y).lower()
-      return Validator(config, op)
+      return NeqValidator(config)
     else:
       raise RuntimeError(f"Don't know validation type {_type}")
+
+class EqValidator(Validator):
+  def perform(self, value):
+    return self.check == str(value).lower()
+
+class NeqValidator(EqValidator):
+  def perform(self, value):
+    return not super().perform(value)

@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request
 
 from wiz.model.concern import serial as concern_serial
+from wiz.model.field.field import Field
 from wiz.model.step import serial as step_serial
 from wiz.model.concern.concern import Concern
 from wiz.model.step.step import Step
@@ -34,13 +35,19 @@ def steps_show(concern_id, step_id):
   return jsonify(data=serialized)
 
 
-@controller.route(f'{STEP_PATH}/next')
-def steps_next(step_id):
-  pass
+@controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
+def fields_validate(concern_id, step_id, field_id):
+  state = inflate_step_state()
+  field = find_field(concern_id, step_id, field_id)
+  tone, message = field.validate(state[field_id])
+  if tone and message:
+    return jsonify(data=dict(status=tone, message=message))
+  else:
+    return jsonify(data=dict(status='valid'))
 
 
-@controller.route('/api/concerns-ping-state')
-def ping_state():
+@controller.route('/api/concerns-echo-state')
+def echo_state():
   inflated_state = inflate_step_state()
   if inflated_state:
     return jsonify(pong=inflated_state)
@@ -55,6 +62,12 @@ def find_concern(key) -> Concern:
 def find_step(concern_key, step_key) -> Step:
   concern = find_concern(concern_key)
   return concern.step(step_key)
+
+
+def find_field(concern_key, step_key, field_id) -> Field:
+  step = find_step(concern_key, step_key)
+  return step.field(field_id)
+
 
 
 def inflate_step_state():
