@@ -10,7 +10,6 @@ SUBCLASSES: [WizModel] = [Concern, Step, Field]
 
 class TestWizModel(unittest.TestCase):
 
-
   @property
   def crt_conf_category(self) -> str:
     return self.crt_subclass.type_key()
@@ -75,6 +74,7 @@ class TestWizModel(unittest.TestCase):
     for subclass in SUBCLASSES:
       self.crt_subclass = subclass
       self.run_inflate_with_subclass()
+
 
 if __name__ == '__main__':
   unittest.main()

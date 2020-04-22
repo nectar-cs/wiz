@@ -12,12 +12,10 @@ class TestConcern(unittest.TestCase):
   def setUp(self) -> None:
     wg.clear()
 
-
   def test_concerns_index_empty(self):
     response = app.test_client().get('/api/concerns')
     body = json.loads(response.data)
     self.assertEqual(body, dict(data=[]))
-
 
   def test_concerns_index_with_data(self):
     wg.set_configs(concerns=[g_con_conf(k='foo', t='Foo', d='Bar', s=['s1', 's2'])])
@@ -31,7 +29,6 @@ class TestConcern(unittest.TestCase):
           description='Bar',
           first_step_id='s1'
         )]))
-
 
   def test_steps_show_when_exists(self):
     wg.set_configs(
@@ -47,7 +44,6 @@ class TestConcern(unittest.TestCase):
         title='Foo'
       )))
 
-
   def test_fields_validate_when_valid(self):
     wg.set_configs(
       concerns=[g_con_conf(k='c1', s=['s1'])],
@@ -60,7 +56,6 @@ class TestConcern(unittest.TestCase):
     response = app.test_client().post(endpoint, headers=state_head(state))
     body = json.loads(response.data)['data']
     self.assertEqual(body, dict(status='valid'))
-
 
   def test_fields_validate_when_not_valid(self):
       wg.set_configs(
@@ -75,7 +70,6 @@ class TestConcern(unittest.TestCase):
       body = json.loads(response.data)['data']
       self.assertEqual(body, dict(status='warning', message='bar'))
 
-
   def test_step_next_simple(self):
     wg.set_configs(
       concerns=[g_con_conf(k='c1', s=['s1'])],
@@ -87,7 +81,6 @@ class TestConcern(unittest.TestCase):
     body = json.loads(response.data)['data']
     self.assertEqual(body, 'foo-baz')
 
-
   def test_state_header(self):
     payload = dict(data='ping')
     headers = state_head(payload)
@@ -96,7 +89,6 @@ class TestConcern(unittest.TestCase):
       response = client.get('/api/concerns-echo-state',headers=headers)
       out = json.loads(response.data)
       self.assertEqual(out, dict(pong=payload))
-
 
 
 def g_field(k='f', c='Check', m='Message', t='warning'):

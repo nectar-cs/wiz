@@ -20,10 +20,12 @@ class TestConcern(unittest.TestCase):
       concerns=[g_con_conf(k='c1', s=['s1', 's2'])],
       steps=[g_conf(k='s1', t='foo')]
     )
+
     c1 = Concern.inflate('c1')
     s1 = c1.step('s1')
     self.assertEqual(s1.key, 's1')
     self.assertEqual(s1.title, 'foo')
+
 
 if __name__ == '__main__':
   unittest.main()
