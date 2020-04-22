@@ -8,8 +8,8 @@ class Concern(WizModel):
   def __init__(self, config):
     super().__init__(config)
     self.key = config['key']
-    self.title = config['title']
-    self.description = config['description']
+    self.title = config.get('title')
+    self.description = config.get('description')
 
   def first_step_key(self) -> str:
     return self.config['steps'][0]

@@ -13,7 +13,7 @@ def g_con_conf(**kwargs):
     steps=kwargs.get('s', bkp_steps)
   )
 
-def g_step_conf(**kwargs):
+def g_conf(**kwargs):
   key = kwargs.get('k', 'key')
 
   return dict(
