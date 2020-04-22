@@ -1,3 +1,4 @@
+import base64
 import json
 from flask import Blueprint, jsonify, request
 
@@ -38,6 +39,15 @@ def steps_next(step_id):
   pass
 
 
+@controller.route('/api/concerns-ping-state')
+def ping_state():
+  inflated_state = inflate_step_state()
+  if inflated_state:
+    return jsonify(pong=inflated_state)
+  else:
+    return dict("Decode Failed")
+
+
 def find_concern(key) -> Concern:
   return Concern.inflate(key)
 
@@ -48,5 +58,11 @@ def find_step(concern_key, step_key) -> Step:
 
 
 def inflate_step_state():
-  raw_state = request.headers.get('step_state')
-  return json.loads(raw_state)
+  try:
+    base64_message = request.headers.get('step_state')
+    base64_bytes = base64_message.encode('ascii')
+    message_bytes = base64.b64decode(base64_bytes)
+    message = message_bytes.decode('ascii')
+    return json.loads(message)
+  except:
+    return None
