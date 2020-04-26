@@ -24,7 +24,7 @@ steps:
 
   - id: "Run Tests"
     name: 'gcr.io/cloud-builders/docker'
-    waitFor: []
+    waitFor: ["Build Image"]
     args:
       - "run"
       - "wiz:dev"
