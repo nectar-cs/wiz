@@ -1,0 +1,31 @@
+images:
+  - "gcr.io/nectar-bazaar/wiz:dev"
+
+steps:
+  - id: "Pull Cached Image"
+    name: 'gcr.io/cloud-builders/docker'
+    waitFor: []
+    args:
+      - "pull"
+      - "gcr.io/nectar-bazaar/wiz:dev"
+
+  - id: "Build Image"
+    name: 'gcr.io/cloud-builders/docker'
+    waitFor: ["Pull Cached Image"]
+    args:
+      - "build"
+      - "."
+      - "--cache-from"
+      - "gcr.io/nectar-bazaar/wiz:dev"
+      - "-t"
+      - "wiz:dev"
+      - "-t"
+      - "gcr.io/nectar-bazaar/wiz:dev"
+
+  - id: "Run Tests"
+    name: 'gcr.io/cloud-builders/docker'
+    waitFor: []
+    args:
+      - "run"
+      - "wiz:dev"
+      - "-m unittest"

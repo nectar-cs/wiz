@@ -1,4 +1,4 @@
 from wiz import server
 
 if __name__ == '__main__':
-	server.start(None)
+	server.start()

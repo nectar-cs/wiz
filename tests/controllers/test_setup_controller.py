@@ -12,6 +12,11 @@ class TestConcern(unittest.TestCase):
   def setUp(self) -> None:
     wg.clear()
 
+  def test_ping(self):
+    response = app.test_client().get('/api/ping')
+    body = json.loads(response.data)
+    self.assertEqual(body, dict(ping='pong'))
+
   def test_concerns_index_empty(self):
     response = app.test_client().get('/api/concerns')
     body = json.loads(response.data)
