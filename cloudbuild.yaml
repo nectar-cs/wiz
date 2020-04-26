@@ -28,4 +28,5 @@ steps:
     args:
       - "run"
       - "wiz:dev"
-      - "-m unittest"
+      - "-m"
+      - "unittest"
