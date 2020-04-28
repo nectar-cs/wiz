@@ -1,5 +1,7 @@
-import unittest
+import yaml
 
+from k8_kat.res.pod.kat_pod import KatPod
+from k8_kat.res.svc.kat_svc import KatSvc
 from tests.test_helpers.cluster_test import ClusterTest
 from tests.test_helpers.helper import simple_tec_setup
 from wiz.core import tec_prep, tec_client
@@ -26,6 +28,9 @@ def g_res_list(*tuples):
   return [g_res(t) for t in tuples]
 
 
+def find_pod_svc(ns):
+  return [KatPod.find(ns, 'pod'), KatSvc.find(ns, 'service')]
+
 class TestTecClient(ClusterTest):
 
   def test_deep_set(self):
@@ -48,10 +53,29 @@ class TestTecClient(ClusterTest):
     self.assertEqual(result, [res_list[0]])
 
   def test_gen_raw_manifest(self):
-    wiz_globals.ns = 'n1'
     tec_prep.create('n1', simple_tec_setup())
     tec_client.tec_pod().wait_until_running()
-    res_list = tec_client.gen_raw_manifest()
+    res_list = tec_client.load_raw_manifest()
     kinds = sorted([r['kind'] for r in res_list])
     self.assertEqual(len(res_list), 2)
     self.assertEqual(kinds, sorted(['Pod', 'Service']))
+
+  def test_write_manifest(self):
+    wiz_globals.ns = 'n2'
+    tec_prep.create('n2', simple_tec_setup())
+    tec_client.tec_pod().wait_until_running()
+    tec_client.write_manifest([g_rule("Pod:*")])
+    file = open(tec_client.tmp_file_mame).read()
+    logical = list(yaml.load_all(file, Loader=yaml.FullLoader))
+    self.assertEqual(len(logical), 1)
+
+  def test_apply(self):
+    pod, svc = find_pod_svc('n3')
+    self.assertEqual([pod, svc], [None, None])
+    wiz_globals.ns = 'n3'
+    tec_prep.create('n3', simple_tec_setup())
+    tec_client.tec_pod().wait_until_running()
+    tec_client.apply([g_rule("*:*")])
+    pod, svc = find_pod_svc('n3')
+    self.assertIsNotNone(pod)
+    self.assertIsNotNone(svc)

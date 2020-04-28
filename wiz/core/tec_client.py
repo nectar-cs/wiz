@@ -3,6 +3,7 @@ from typing import Tuple, Dict, List
 
 import yaml
 
+from k8_kat.auth.kube_broker import broker
 from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core.res_match_rule import ResMatchRule
@@ -27,11 +28,11 @@ def commit_values(assignments: [Tuple[str, any]]):
 
 
 def apply(rules: List[ResMatchRule]):
-  write_manifest(tmp_file_mame, rules)
-  kubectl_apply(tmp_file_mame)
+  write_manifest(rules)
+  kubectl_apply()
 
 
-def gen_raw_manifest() -> List[K8sRes]:
+def load_raw_manifest() -> List[K8sRes]:
   result = tec_pod().shell_exec(interpolate_cmd)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
@@ -49,18 +50,23 @@ def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes
   return [res for res in res_list if decide_res(res)]
 
 
-def write_manifest(fname, rules: List[ResMatchRule]):
-  all_res = gen_raw_manifest()
+def write_manifest(rules: List[ResMatchRule]):
+  all_res = load_raw_manifest()
   filtered = filter_res(all_res, rules)
   composed = yaml.dump_all(filtered)
-  with open(fname, 'w') as file:
+  with open(tmp_file_mame, 'w') as file:
     file.write(composed)
 
 
-def kubectl_apply(fname):
-  subprocess.check_output(
-    f"kubectl apply -f {fname}"
-  )
+def kubectl_apply():
+  kubectl_bin = "kubectl"
+  cmd = f"{kubectl_bin} apply -f {tmp_file_mame} -n {wiz_globals.ns}"
+
+  if not broker.is_in_cluster_auth():
+    if broker.connect_config.get('context'):
+      cmd = f"{cmd} --context={broker.connect_config['context']}"
+
+  return subprocess.check_output(cmd.split(" "))
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):
@@ -70,4 +76,3 @@ def deep_set(dict_root: Dict, names: List[str], value: any):
     if not dict_root.get(names[0]):
       dict_root[names[0]] = dict()
     deep_set(dict_root[names[0]], names[1:], value)
-
