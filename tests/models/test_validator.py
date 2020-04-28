@@ -60,4 +60,3 @@ class TestEqValidator(unittest.TestCase):
     v = EqValidator(g_conf(c='true'))
     self.assertTrue(v.perform('true'))
     self.assertTrue(v.perform(True))
-

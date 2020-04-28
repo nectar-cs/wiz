@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4ca0824b4dcc6131baa76087c0b8fc9c21d74681543443c7686e7f058f4f3302"
+            "sha256": "5b23eec4d4da7cc28aafda26305888472fdd3ccbafdd6f62c35fe0b324975610"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,10 +40,10 @@
         },
         "click": {
             "hashes": [
-                "sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc",
-                "sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a"
+                "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a",
+                "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"
             ],
-            "version": "==7.1.1"
+            "version": "==7.1.2"
         },
         "flask": {
             "hashes": [
@@ -99,11 +99,11 @@
         },
         "k8-kat": {
             "hashes": [
-                "sha256:20fe5f505c7fc4a91af712c31b7e5f666aa0d8b3aed9bf7a62f22b02f91be858",
-                "sha256:cf28ba7cb219a8c8a6b93383863dbda5b73e5b28aa49dd219f038d5141e9e5db"
+                "sha256:63241029be3bf169463a729f3342f68d23838aaabd714396f7371609c33c4882",
+                "sha256:bd281bc04c0887e2ae1b1b189584f5a6a5ecb7c6d0c973c9cb39fd5b3be3fc94"
             ],
             "index": "pypi",
-            "version": "==0.0.233"
+            "version": "==0.0.235"
         },
         "kubernetes": {
             "hashes": [
@@ -242,6 +242,15 @@
             "index": "pypi",
             "version": "==1.12.0"
         },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:6e95524d8a547a91e08f404ae485bbb71962de46967e1b71a0cb89af24e761c5",
+                "sha256:79ee589a3caca649a9bfd2a8de4709837400dfa00b6cc81962a1e6a1815969ae",
+                "sha256:f8d2bd89d25bc39dabe7d23df520442fa1d8969b82544370e03d88b5a591c392"
+            ],
+            "index": "pypi",
+            "version": "==3.7.4.2"
+        },
         "urllib3": {
             "hashes": [
                 "sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527",
@@ -275,10 +284,10 @@
         },
         "click": {
             "hashes": [
-                "sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc",
-                "sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a"
+                "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a",
+                "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"
             ],
-            "version": "==7.1.1"
+            "version": "==7.1.2"
         },
         "decorator": {
             "hashes": [

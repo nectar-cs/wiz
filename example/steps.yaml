@@ -18,7 +18,7 @@ steps:
       - user
       - password
     watch:
-      - 'secret:external_db_creds'
+      - 'secret:*'
     next: done
 
   - key: decide_cluster_storage

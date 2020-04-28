@@ -19,6 +19,7 @@ six = "~=1.12.0"
 inflection = "*"
 python-dotenv = "*"
 k8-kat="*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.6"
