@@ -9,7 +9,9 @@ from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.types import K8sRes
 from wiz.core.wiz_globals import wiz_globals
 
+tec_pod_name = 'ted'
 tmp_file_mame = '/tmp/man.yaml'
+interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
 def master_map():
   return KatMap.find(wiz_globals.ns, 'master')
@@ -30,10 +32,12 @@ def apply(rules: List[ResMatchRule]):
 
 
 def gen_raw_manifest() -> List[K8sRes]:
-  exec_prefix = "pipenv run python3 app.py"
-  pod = KatPod.find(wiz_globals.ns, 'ted')
-  result = pod.shell_exec(exec_prefix)
+  result = tec_pod().shell_exec(interpolate_cmd)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
+
+
+def tec_pod():
+  return KatPod.find(wiz_globals.ns, tec_pod_name)
 
 
 def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes]:
@@ -59,7 +63,7 @@ def kubectl_apply(fname):
   )
 
 
-def deep_set(dict_root: Dict, names: [str], value: any):
+def deep_set(dict_root: Dict, names: List[str], value: any):
   if len(names) == 1:
     dict_root[names[0]] = value
   else:
