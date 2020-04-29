@@ -20,6 +20,8 @@ inflection = "*"
 python-dotenv = "*"
 k8-kat="*"
 typing-extensions = "*"
+coverage = "*"
+codecov = "*"
 
 [requires]
 python_version = "3.6"
