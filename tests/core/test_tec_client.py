@@ -13,10 +13,12 @@ from wiz.core.wiz_globals import wiz_globals
 
 class TestTecClient(ClusterTest):
 
-  @classmethod
-  def setUpClass(cls) -> None:
-    super(TestTecClient, cls).setUpClass()
-    cls.n1, cls.n2, cls.n3, cls.n4 = ns_factory.request(4)
+  def setUp(self) -> None:
+    self.ns, = ns_factory.request(1)
+    wiz_globals.ns = self.ns
+
+  def tearDown(self) -> None:
+    ns_factory.relinquish(self.ns)
 
   def test_deep_set(self):
     root = dict(x='x', y='y')
@@ -38,7 +40,8 @@ class TestTecClient(ClusterTest):
     self.assertEqual(result, [res_list[0]])
 
   def test_gen_raw_manifest(self):
-    tec_prep.create(self.n1, simple_tec_setup())
+    create_base_master_map(self.ns)
+    tec_prep.create(self.ns, simple_tec_setup())
     tec_client.tec_pod().wait_until_running()
     res_list = tec_client.load_raw_manifest()
     kinds = sorted([r['kind'] for r in res_list])
@@ -46,8 +49,8 @@ class TestTecClient(ClusterTest):
     self.assertEqual(kinds, sorted(['Pod', 'Service']))
 
   def test_write_manifest(self):
-    wiz_globals.ns = self.n2
-    tec_prep.create(self.n2, simple_tec_setup())
+    create_base_master_map(self.ns)
+    tec_prep.create(self.ns, simple_tec_setup())
     tec_client.tec_pod().wait_until_running()
     tec_client.write_manifest([g_rule("Pod:*")])
     file = open(tec_client.tmp_file_mame).read()
@@ -55,22 +58,56 @@ class TestTecClient(ClusterTest):
     self.assertEqual(len(logical), 1)
 
   def test_apply(self):
-    pod, svc = find_pod_svc(self.n3)
+    create_base_master_map(self.ns)
+    pod, svc = find_pod_svc(self.ns)
     self.assertEqual([pod, svc], [None, None])
-    wiz_globals.ns = self.n3
-    tec_prep.create(self.n3, simple_tec_setup())
+    tec_prep.create(self.ns, simple_tec_setup())
     tec_client.tec_pod().wait_until_running()
     tec_client.apply([g_rule("*:*")])
-    pod, svc = find_pod_svc(self.n3)
+    pod, svc = find_pod_svc(self.ns)
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
 
   def test_commit_values(self):
-    create_base_master_map(self.n4)
-    wiz_globals.ns = self.n4
+    create_base_master_map(self.ns)
     tec_client.commit_values([('foo', 'bar')])
-    new_values = tec_client.master_map().json('master')
+    new_values = tec_client.master_map().yaml('master')
     self.assertEqual(new_values, dict(foo='bar'))
+
+  def test_commit_and_load(self):
+    create_base_master_map(self.ns)
+    tec_prep.create(self.ns, simple_tec_setup())
+
+    wiz_globals.ns = self.ns
+    tec_client.commit_values([
+      ('service.name', 'updated-service'),
+      ('service.port', 81)
+    ])
+    tec_client.tec_pod().wait_until_running()
+    new_res = tec_client.load_raw_manifest()
+    svc = [r for r in new_res if r['kind'] == 'Service'][0]
+    self.assertEqual(svc['metadata']['name'], 'updated-service')
+    # noinspection PyTypeChecker,PyTypedDict
+    self.assertEqual(svc['spec']['ports'][0]['port'], 81)
+    self.assertIsNotNone(svc)
+
+  def test_integration(self):
+    create_base_master_map(self.ns)
+    tec_prep.create(self.ns, simple_tec_setup())
+
+    wiz_globals.ns = self.ns
+    tec_client.commit_values([
+      ('service.name', 'updated-service'),
+      ('service.port', 81)
+    ])
+    tec_client.tec_pod().wait_until_running()
+    tec_client.write_manifest([])
+    tec_client.kubectl_apply()
+    svc = KatSvc.find(self.ns, 'updated-service')
+    self.assertIsNotNone(svc)
+    self.assertEqual(svc.from_port, 81)
+
+
 
 def g_rule(expr):
   return ResMatchRule(expr)

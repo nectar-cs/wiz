@@ -1,15 +1,18 @@
+import time
 from typing import List
 
+from k8_kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1PodSpec, V1Container, \
   V1EnvVar, V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
 
 from k8_kat.auth.kube_broker import broker
+from wiz.core import utils
 
 pod_name = 'ted'
 
-def create(ns, app) -> V1Pod:
-  return broker.coreV1.create_namespaced_pod(
+def create(ns, app) -> None:
+  broker.coreV1.create_namespaced_pod(
     namespace=ns,
     body=V1Pod(
       metadata=V1ObjectMeta(
@@ -36,7 +39,7 @@ def create(ns, app) -> V1Pod:
             name='init',
             image='gcr.io/nectar-bazaar/teds:latest',
             args=[app['te_type'], 'init'],
-            image_pull_policy='Always',
+            image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
             env=env_vars(app)
           ),
@@ -47,7 +50,7 @@ def create(ns, app) -> V1Pod:
             image='gcr.io/nectar-bazaar/teds:latest',
             command=["/bin/sh", "-c", "--"],
             args=["while true; do sleep 10; done;"],
-            image_pull_policy='Always',
+            image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
             env=env_vars(app)
           )
@@ -55,6 +58,9 @@ def create(ns, app) -> V1Pod:
       )
     )
   )
+
+  while not KatPod.find(ns, pod_name):
+    time.sleep(0.2)
 
 
 def volume_mounts() -> List[V1VolumeMount]:
@@ -88,4 +94,8 @@ def env_vars(app) -> List[V1EnvVar]:
       name='WORKING_DIR',
       value='/tmp/work'
     ),
+    V1EnvVar(
+      name='OVERRIDES_PATH',
+      value='/values/master'
+    )
   ]

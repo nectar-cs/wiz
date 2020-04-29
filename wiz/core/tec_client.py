@@ -21,14 +21,15 @@ def master_map():
 
 def commit_values(assignments: [Tuple[str, any]]):
   config_map = master_map()
-  existing_config = config_map.json('master')
+  existing_config = config_map.yaml('master')
   for assignment in assignments:
     fqhk_array = assignment[0].split('.')
     value = assignment[1]
     deep_set(existing_config, fqhk_array, value)
 
-  config_map.raw.data['master'] = json.dumps(existing_config)
+  config_map.raw.data['master'] = yaml.dump(existing_config)
   config_map.patch()
+
 
 def apply(rules: List[ResMatchRule]):
   write_manifest(rules)
@@ -47,12 +48,15 @@ def tec_pod():
 
 
 def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes]:
-  def decide_res(res):
-    for rule in rules:
-      if rule.evaluate(res):
-        return True
-    return False
-  return [res for res in res_list if decide_res(res)]
+  if rules:
+    def decide_res(res):
+      for rule in rules:
+        if rule.evaluate(res):
+          return True
+      return False
+    return [res for res in res_list if decide_res(res)]
+  else:
+    return res_list
 
 
 def write_manifest(rules: List[ResMatchRule]):

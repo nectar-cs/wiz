@@ -1,5 +1,7 @@
 import json
 
+import yaml
+
 from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
@@ -28,6 +30,6 @@ def create_base_master_map(ns):
         namespace=ns,
         name='master'
       ),
-      data=dict(master=json.dumps({}))
+      data=dict(master=yaml.dump({}))
     )
   )

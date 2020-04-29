@@ -17,7 +17,7 @@ class TestTecPrep(ClusterTest):
 
   @classmethod
   def tearDownClass(cls) -> None:
-    # ns_factory.relinquish_all()
+    ns_factory.relinquish_all()
     pass
 
   def test_create(self):
@@ -33,4 +33,3 @@ class TestTecPrep(ClusterTest):
     parsed = list(yaml.load_all(out, Loader=yaml.FullLoader))
     self.assertGreater(len(parsed), 0)
 
-    
