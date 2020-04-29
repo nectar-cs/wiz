@@ -1,32 +1,55 @@
 images:
-  - "gcr.io/nectar-bazaar/wiz:dev"
+  - "gcr.io/nectar-bazaar/wiz:latest"
 
 steps:
+
+  - id: "Pull Kind Cluster CI Image"
+    name: 'gcr.io/cloud-builders/docker'
+    waitFor: []
+    args:
+      - "pull"
+      - "gcr.io/nectar-bazaar/kind-ci-cluster"
+
   - id: "Pull Cached Image"
     name: 'gcr.io/cloud-builders/docker'
     waitFor: []
     args:
       - "pull"
-      - "gcr.io/nectar-bazaar/wiz:dev"
+      - "gcr.io/nectar-bazaar/wiz:latest"
 
-  - id: "Build Image"
+  - id: "Build Test Image"
     name: 'gcr.io/cloud-builders/docker'
     waitFor: ["Pull Cached Image"]
     args:
       - "build"
       - "."
       - "--cache-from"
-      - "gcr.io/nectar-bazaar/wiz:dev"
+      - "gcr.io/nectar-bazaar/wiz:latest"
+      - "--build-arg"
+      - "CODECOV_TOKEN=${_CODECOV_TOKEN}"
       - "-t"
-      - "wiz:dev"
+      - "wiz:latest"
       - "-t"
-      - "gcr.io/nectar-bazaar/wiz:dev"
+      - "gcr.io/nectar-bazaar/wiz:latest"
+      - "-t"
+      - "test-image:latest"
 
-  - id: "Run Tests"
+  - id: "Run Tests in Virtual Cluster"
     name: 'gcr.io/cloud-builders/docker'
-    waitFor: ["Build Image"]
+    waitFor: ["Pull Kind Cluster CI Image", "Build Test Image"]
     args:
       - "run"
-      - "wiz:dev"
-      - "-m"
-      - "unittest"
+      - "-v"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "--net=host"
+      - "gcr.io/nectar-bazaar/kind-ci-cluster:latest"
+
+  - id: "Publish"
+    name: 'gcr.io/cloud-builders/docker'
+    waitFor: ["Run Tests in Virtual Cluster"]
+    args:
+      - 'run'
+      - "--env"
+      - "PASSWORD=${_PASSWORD}"
+      - 'wiz:latest'
+      - "publish"

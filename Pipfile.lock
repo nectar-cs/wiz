@@ -99,11 +99,11 @@
         },
         "k8-kat": {
             "hashes": [
-                "sha256:63241029be3bf169463a729f3342f68d23838aaabd714396f7371609c33c4882",
-                "sha256:bd281bc04c0887e2ae1b1b189584f5a6a5ecb7c6d0c973c9cb39fd5b3be3fc94"
+                "sha256:25ebe9b7e9c4a7dc6a7a2d169c09fccab2ed8c9c6bbca957fc991d56b0202c27",
+                "sha256:abf1c78a2d08aadcf955662aaeb5cc4b7c4b95f6c8ab784908c2419eb93dfe0b"
             ],
             "index": "pypi",
-            "version": "==0.0.235"
+            "version": "==0.0.302"
         },
         "kubernetes": {
             "hashes": [
