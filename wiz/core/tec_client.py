@@ -1,3 +1,4 @@
+import json
 import subprocess
 from typing import Tuple, Dict, List
 
@@ -19,13 +20,15 @@ def master_map():
 
 
 def commit_values(assignments: [Tuple[str, any]]):
-  existing_config = master_map().json('master')
+  config_map = master_map()
+  existing_config = config_map.json('master')
   for assignment in assignments:
     fqhk_array = assignment[0].split('.')
     value = assignment[1]
     deep_set(existing_config, fqhk_array, value)
-  master_map().set_json('master', master_map)
 
+  config_map.raw.data['master'] = json.dumps(existing_config)
+  config_map.patch()
 
 def apply(rules: List[ResMatchRule]):
   write_manifest(rules)
@@ -33,7 +36,9 @@ def apply(rules: List[ResMatchRule]):
 
 
 def load_raw_manifest() -> List[K8sRes]:
-  result = tec_pod().shell_exec(interpolate_cmd)
+  pod = tec_pod()
+  pod.trigger()
+  result = pod.shell_exec(interpolate_cmd)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 

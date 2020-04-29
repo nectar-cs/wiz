@@ -4,7 +4,7 @@ from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.res.svc.kat_svc import KatSvc
 from k8_kat.utils.testing import ns_factory
 from tests.test_helpers.cluster_test import ClusterTest
-from tests.test_helpers.helper import simple_tec_setup
+from tests.test_helpers.helper import simple_tec_setup, create_base_master_map
 from wiz.core import tec_prep, tec_client
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.tec_client import deep_set, filter_res
@@ -16,7 +16,7 @@ class TestTecClient(ClusterTest):
   @classmethod
   def setUpClass(cls) -> None:
     super(TestTecClient, cls).setUpClass()
-    cls.n1, cls.n2, cls.n3 = ns_factory.request(3)
+    cls.n1, cls.n2, cls.n3, cls.n4 = ns_factory.request(4)
 
   def test_deep_set(self):
     root = dict(x='x', y='y')
@@ -65,7 +65,12 @@ class TestTecClient(ClusterTest):
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
 
-
+  def test_commit_values(self):
+    create_base_master_map(self.n4)
+    wiz_globals.ns = self.n4
+    tec_client.commit_values([('foo', 'bar')])
+    new_values = tec_client.master_map().json('master')
+    self.assertEqual(new_values, dict(foo='bar'))
 
 def g_rule(expr):
   return ResMatchRule(expr)

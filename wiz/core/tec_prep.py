@@ -1,13 +1,15 @@
+from typing import List
+
 from kubernetes.client import V1Pod, V1ObjectMeta, \
-  V1PodSpec, V1Container,\
-  V1EnvVar, V1Volume, V1VolumeMount
+  V1PodSpec, V1Container, \
+  V1EnvVar, V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
 
 from k8_kat.auth.kube_broker import broker
 
 pod_name = 'ted'
 
-def create(ns, app):
-  broker.coreV1.create_namespaced_pod(
+def create(ns, app) -> V1Pod:
+  return broker.coreV1.create_namespaced_pod(
     namespace=ns,
     body=V1Pod(
       metadata=V1ObjectMeta(
@@ -21,6 +23,12 @@ def create(ns, app):
           V1Volume(
             name='shared',
             empty_dir={}
+          ),
+          V1Volume(
+            name='master-config-map',
+            config_map=V1ConfigMapVolumeSource(
+              name='master'
+            )
           )
         ],
         init_containers=[
@@ -29,7 +37,7 @@ def create(ns, app):
             image='gcr.io/nectar-bazaar/teds:latest',
             args=[app['te_type'], 'init'],
             image_pull_policy='Always',
-            volume_mounts=[volume_mount()],
+            volume_mounts=volume_mounts(),
             env=env_vars(app)
           ),
         ],
@@ -40,7 +48,7 @@ def create(ns, app):
             command=["/bin/sh", "-c", "--"],
             args=["while true; do sleep 10; done;"],
             image_pull_policy='Always',
-            volume_mounts=[volume_mount()],
+            volume_mounts=volume_mounts(),
             env=env_vars(app)
           )
         ]
@@ -49,14 +57,20 @@ def create(ns, app):
   )
 
 
-def volume_mount():
-  return V1VolumeMount(
-    name='shared',
-    mount_path='/tmp/work'
-  )
+def volume_mounts() -> List[V1VolumeMount]:
+  return [
+    V1VolumeMount(
+      name='shared',
+      mount_path='/tmp/work'
+    ),
+    V1VolumeMount(
+      name='master-config-map',
+      mount_path='/values'
+    ),
+  ]
 
 
-def env_vars(app):
+def env_vars(app) -> List[V1EnvVar]:
   return [
     V1EnvVar(
       name='REPO_NAME',
