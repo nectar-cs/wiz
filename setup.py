@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-  name="nectar-bay",
+  name="nectar-wiz",
   version="0.0.1",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
-  description="Cluster App Manager Backend",
+  description="App Wizard",
   long_description=long_description,
   long_description_content_type="text/markdown",
-  url="https://github.com/nectar-cs/k8-kat",
+  url="https://github.com/nectar-cs/wiz",
   packages=setuptools.find_packages(),
   classifiers=[
     "Programming Language :: Python :: 3",

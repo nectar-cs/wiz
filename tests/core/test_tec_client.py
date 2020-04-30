@@ -14,10 +14,12 @@ from wiz.core.wiz_globals import wiz_globals
 class TestTecClient(ClusterTest):
 
   def setUp(self) -> None:
+    super().setUp()
     self.ns, = ns_factory.request(1)
     wiz_globals.ns = self.ns
 
   def tearDown(self) -> None:
+    super().tearDown()
     ns_factory.relinquish(self.ns)
 
   def test_deep_set(self):

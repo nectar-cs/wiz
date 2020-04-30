@@ -3,6 +3,15 @@ images:
 
 steps:
 
+  - id: "Fetch Secrets"
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    waitFor: []
+    args:
+      - '-c'
+      - 'gcloud secrets versions access latest --secret=wiz-codecov-token > covp.txt;
+         gcloud secrets versions access latest --secret=pypi-password > pypip.txt'
+
   - id: "Pull Kind Cluster CI Image"
     name: 'gcr.io/cloud-builders/docker'
     waitFor: []
@@ -19,14 +28,14 @@ steps:
 
   - id: "Build Test Image"
     name: 'gcr.io/cloud-builders/docker'
-    waitFor: ["Pull Cached Image"]
+    waitFor: ["Pull Cached Image", "Fetch Secrets"]
     args:
       - "build"
       - "."
       - "--cache-from"
       - "gcr.io/nectar-bazaar/wiz:latest"
       - "--build-arg"
-      - "CODECOV_TOKEN=${_CODECOV_TOKEN}"
+      - "CODECOV_TOKEN=$(cat covp.txt)"
       - "-t"
       - "wiz:latest"
       - "-t"
@@ -50,6 +59,6 @@ steps:
     args:
       - 'run'
       - "--env"
-      - "PASSWORD=${_PASSWORD}"
+      - "PASSWORD=$(cat pypip.txt)"
       - 'wiz:latest'
       - "publish"

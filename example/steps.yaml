@@ -9,7 +9,7 @@ steps:
           check_against: 'false'
       then: decide_managed_pvc
       else: locate_external_db
-    commit: 'save'
+    res: []
 
   - key: locate_external_db
     fields:
@@ -17,8 +17,10 @@ steps:
       - port
       - user
       - password
-    watch:
-      - 'secret:*'
+    apply: true
+    res:
+      - 'Secret:ext_db'
+      - 'PersistentVolumeClaim:*'
     next: done
 
   - key: decide_cluster_storage
