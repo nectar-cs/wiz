@@ -14,13 +14,13 @@ tec_pod_name = 'ted'
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
-def master_map():
-  return KatMap.find(wiz_globals.ns, 'master')
+def master_map() -> KatMap:
+  return KatMap.find('master', wiz_globals.ns)
 
 
 def commit_values(assignments: [Tuple[str, any]]):
   config_map = master_map()
-  existing_config = config_map.yaml('master')
+  existing_config = config_map.yget()
   for assignment in assignments:
     fqhk_array = assignment[0].split('.')
     value = assignment[1]
@@ -42,8 +42,8 @@ def load_raw_manifest() -> List[K8sRes]:
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
-def tec_pod():
-  return KatPod.find(wiz_globals.ns, tec_pod_name)
+def tec_pod() -> KatPod:
+  return KatPod.find(tec_pod_name, wiz_globals.ns)
 
 
 def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes]:

@@ -24,7 +24,7 @@ class TestTecPrep(ClusterTest):
     create_base_master_map(self.ns)
     tec_prep.create(self.ns, tec_setup())
 
-    ted_pod = KatPod.find(self.ns, tec_prep.pod_name)
+    ted_pod = KatPod.find(tec_prep.pod_name, self.ns)
     self.assertIsNotNone(ted_pod)
     self.assertTrue(ted_pod.wait_until(ted_pod.is_running, 360))
 

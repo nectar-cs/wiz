@@ -59,7 +59,7 @@ def create(ns, app) -> None:
     )
   )
 
-  while not KatPod.find(ns, pod_name):
+  while not KatPod.find(pod_name, ns):
     time.sleep(0.2)
 
 

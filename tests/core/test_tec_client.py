@@ -73,7 +73,7 @@ class TestTecClient(ClusterTest):
   def test_commit_values(self):
     create_base_master_map(self.ns)
     tec_client.commit_values([('foo', 'bar')])
-    new_values = tec_client.master_map().yaml('master')
+    new_values = tec_client.master_map().yget()
     self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):
@@ -105,7 +105,7 @@ class TestTecClient(ClusterTest):
     tec_client.tec_pod().wait_until_running()
     tec_client.write_manifest([])
     tec_client.kubectl_apply()
-    svc = KatSvc.find(self.ns, 'updated-service')
+    svc = KatSvc.find('updated-service', self.ns)
     self.assertIsNotNone(svc)
     self.assertEqual(svc.from_port, 81)
 
@@ -130,4 +130,4 @@ def g_res_list(*tuples):
 
 
 def find_pod_svc(ns):
-  return [KatPod.find(ns, 'pod'), KatSvc.find(ns, 'service')]
+  return [KatPod.find('pod', ns), KatSvc.find('service', ns)]

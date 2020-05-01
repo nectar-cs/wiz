@@ -1,7 +1,7 @@
 import unittest
 
 import dotenv
-from k8_kat.utils.testing import ci_perms, test_env, ns_factory
+from k8_kat.utils.testing import ci_perms, ns_factory
 
 
 class ClusterTest(unittest.TestCase):

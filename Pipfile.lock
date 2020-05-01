@@ -231,11 +231,11 @@
         },
         "k8-kat": {
             "hashes": [
-                "sha256:1e265c1ead09b797cc40a902eec4c88282c7eb96dc6f1e3c2f1a6d4a0a070290",
-                "sha256:41caf3a526de780e6fdbfe5465e11738b17548d45b94ff6202681689b67a4bb1"
+                "sha256:5a5991a2d9119e33e96d4f66e9ca431dafc376623845c2c33321ce181e1e1ac7",
+                "sha256:d12a78f1b3b157a2567eff312a522c425f76019d71c915de9387bdc2e0f659ee"
             ],
             "index": "pypi",
-            "version": "==0.0.303"
+            "version": "==0.0.123"
         },
         "keyring": {
             "hashes": [
