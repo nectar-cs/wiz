@@ -1,28 +1,26 @@
-fields:
+- key: "storage.type"
+  title: "Storage strategy"
+  type: choice
+  options:
+    - key: internal
+      value: "Internal - Keep the database in the cluster"
+    - key: external
+      value: "External - Connect to a database outside the cluster"
 
-  - key: "storage.type"
-    title: "Storage strategy"
-    type: choice
-    options:
-      - key: internal
-        value: "Internal - Keep the database in the cluster"
-      - key: external
-        value: "External - Connect to a database outside the cluster"
+- key: "storage.managed_pvc"
+  title: "Have Nectar manage the volume for the database?"
+  type: boolean
 
-  - key: "storage.managed_pvc"
-    title: "Have Nectar manage the volume for the database?"
-    type: boolean
+- key: "storage.own_pvc_name"
+  title: "Point to the the PersistentVolumeClaim you want to use"
+  type: choice
+  validations:
+    - type: equality
+      check_against: 'false'
+      message: "You will be responsible for managing the PVC over time."
+      tone: "warning"
 
-  - key: "storage.own_pvc_name"
-    title: "Point to the the PersistentVolumeClaim you want to use"
-    type: choice
-    validations:
-      - type: equality
-        check_against: 'false'
-        message: "You will be responsible for managing the PVC over time."
-        tone: "warning"
-
-  - key: "storage.external_db_addr"
-    title: "Find the thing"
-    type: input
-    info: "The database must be PostgreSQL version 9.2 or above"
+- key: "storage.external_db_addr"
+  title: "Find the thing"
+  type: input
+  info: "The database must be PostgreSQL version 9.2 or above"

@@ -1,47 +1,46 @@
-steps:
-  - key: decide_cluster_storage
-    fields:
-      - is_cluster_storage
-    next:
-      if:
-        - field: is_cluster_storage
-          type: equality
-          check_against: 'false'
-      then: decide_managed_pvc
-      else: locate_external_db
-    res: []
+- key: decide_cluster_storage
+  fields:
+    - is_cluster_storage
+  next:
+    if:
+      - field: is_cluster_storage
+        type: equality
+        check_against: 'false'
+    then: decide_managed_pvc
+    else: locate_external_db
+  res: []
 
-  - key: locate_external_db
-    fields:
-      - host
-      - port
-      - user
-      - password
-    apply: true
-    res:
-      - 'Secret:ext_db'
-      - 'PersistentVolumeClaim:*'
-    next: done
+- key: locate_external_db
+  fields:
+    - host
+    - port
+    - user
+    - password
+  apply: true
+  res:
+    - 'Secret:ext_db'
+    - 'PersistentVolumeClaim:*'
+  next: done
 
-  - key: decide_cluster_storage
-    fields:
-      - is_managed_pvc
-    watch:
-      - 'pvc:main'
-    next:
-      if: 'is_managed_pvc = true'
-      then: set_db_secrets
-      else: locate_external_pvc
+- key: decide_cluster_storage
+  fields:
+    - is_managed_pvc
+  watch:
+    - 'pvc:main'
+  next:
+    if: 'is_managed_pvc = true'
+    then: set_db_secrets
+    else: locate_external_pvc
 
-  - key: locate_external_pvc
-    fields:
-      - pvc_name
+- key: locate_external_pvc
+  fields:
+    - pvc_name
 
-  - key: set_db_secrets
-    watch:
-      - 'secret:db'
-      - 'deploy:db'
-      - 'svc:pg'
-    parts:
-      - user
-      - password
+- key: set_db_secrets
+  watch:
+    - 'secret:db'
+    - 'deploy:db'
+    - 'svc:pg'
+  parts:
+    - user
+    - password

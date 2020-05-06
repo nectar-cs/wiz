@@ -4,10 +4,10 @@ from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.res.svc.kat_svc import KatSvc
 from k8_kat.utils.testing import ns_factory
 from tests.test_helpers.cluster_test import ClusterTest
-from tests.test_helpers.helper import simple_tec_setup, create_base_master_map
-from wiz.core import tec_prep, tec_client
+from tests.test_helpers.helper import simple_tedi_setup, create_base_master_map
+from wiz.core import tedi_prep, tedi_client
 from wiz.core.res_match_rule import ResMatchRule
-from wiz.core.tec_client import deep_set, filter_res
+from wiz.core.tedi_client import deep_set, filter_res
 from wiz.core.wiz_globals import wiz_globals
 
 
@@ -16,7 +16,8 @@ class TestTecClient(ClusterTest):
   def setUp(self) -> None:
     super().setUp()
     self.ns, = ns_factory.request(1)
-    wiz_globals.ns = self.ns
+
+    wiz_globals.ns_overwrite = self.ns
 
   def tearDown(self) -> None:
     super().tearDown()
@@ -43,19 +44,19 @@ class TestTecClient(ClusterTest):
 
   def test_gen_raw_manifest(self):
     create_base_master_map(self.ns)
-    tec_prep.create(self.ns, simple_tec_setup())
-    tec_client.tec_pod().wait_until_running()
-    res_list = tec_client.load_raw_manifest()
+    tedi_prep.create(self.ns, simple_tedi_setup())
+    tedi_client.tedi_pod().wait_until_running()
+    res_list = tedi_client.load_raw_manifest()
     kinds = sorted([r['kind'] for r in res_list])
     self.assertEqual(len(res_list), 2)
     self.assertEqual(kinds, sorted(['Pod', 'Service']))
 
   def test_write_manifest(self):
     create_base_master_map(self.ns)
-    tec_prep.create(self.ns, simple_tec_setup())
-    tec_client.tec_pod().wait_until_running()
-    tec_client.write_manifest([g_rule("Pod:*")])
-    file = open(tec_client.tmp_file_mame).read()
+    tedi_prep.create(self.ns, simple_tedi_setup())
+    tedi_client.tedi_pod().wait_until_running()
+    tedi_client.write_manifest([g_rule("Pod:*")])
+    file = open(tedi_client.tmp_file_mame).read()
     logical = list(yaml.load_all(file, Loader=yaml.FullLoader))
     self.assertEqual(len(logical), 1)
 
@@ -63,30 +64,30 @@ class TestTecClient(ClusterTest):
     create_base_master_map(self.ns)
     pod, svc = find_pod_svc(self.ns)
     self.assertEqual([pod, svc], [None, None])
-    tec_prep.create(self.ns, simple_tec_setup())
-    tec_client.tec_pod().wait_until_running()
-    tec_client.apply([g_rule("*:*")])
+    tedi_prep.create(self.ns, simple_tedi_setup())
+    tedi_client.tedi_pod().wait_until_running()
+    tedi_client.apply([g_rule("*:*")])
     pod, svc = find_pod_svc(self.ns)
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
 
   def test_commit_values(self):
     create_base_master_map(self.ns)
-    tec_client.commit_values([('foo', 'bar')])
-    new_values = tec_client.master_map().yget()
+    tedi_client.commit_values([('foo', 'bar')])
+    new_values = tedi_client.master_map().yget()
     self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):
     create_base_master_map(self.ns)
-    tec_prep.create(self.ns, simple_tec_setup())
+    tedi_prep.create(self.ns, simple_tedi_setup())
 
-    wiz_globals.ns = self.ns
-    tec_client.commit_values([
+    wiz_globals.ns_overwrite = self.ns
+    tedi_client.commit_values([
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])
-    tec_client.tec_pod().wait_until_running()
-    new_res = tec_client.load_raw_manifest()
+    tedi_client.tedi_pod().wait_until_running()
+    new_res = tedi_client.load_raw_manifest()
     svc = [r for r in new_res if r['kind'] == 'Service'][0]
     self.assertEqual(svc['metadata']['name'], 'updated-service')
     # noinspection PyTypeChecker,PyTypedDict
@@ -95,16 +96,16 @@ class TestTecClient(ClusterTest):
 
   def test_integration(self):
     create_base_master_map(self.ns)
-    tec_prep.create(self.ns, simple_tec_setup())
+    tedi_prep.create(self.ns, simple_tedi_setup())
 
-    wiz_globals.ns = self.ns
-    tec_client.commit_values([
+    wiz_globals.ns_overwrite = self.ns
+    tedi_client.commit_values([
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])
-    tec_client.tec_pod().wait_until_running()
-    tec_client.write_manifest([])
-    tec_client.kubectl_apply()
+    tedi_client.tedi_pod().wait_until_running()
+    tedi_client.write_manifest([])
+    tedi_client.kubectl_apply()
     svc = KatSvc.find('updated-service', self.ns)
     self.assertIsNotNone(svc)
     self.assertEqual(svc.from_port, 81)

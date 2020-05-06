@@ -1,7 +1,7 @@
 from typing import List
 
 from k8_kat.res.pod.kat_pod import KatPod
-from wiz.core import tec_client
+from wiz.core import tedi_client
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.wiz_globals import wiz_globals
 from wiz.model.field.field import Field
@@ -27,11 +27,11 @@ class Step(WizModel):
     return [self.field(key) for key in self.config['fields']]
 
   def commit(self, state):
-    tec_client.commit_values(state)
+    tedi_client.commit_values(state)
     rule_exprs = self.config.get('res', [])
     rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
     if self.should_apply():
-      tec_client.apply(rules)
+      tedi_client.apply(rules)
 
   def should_apply(self) -> bool:
     return self.config.get('apply', 'False').lower() == 'true'

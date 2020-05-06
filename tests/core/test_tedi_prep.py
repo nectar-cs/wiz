@@ -2,10 +2,12 @@ import yaml
 
 from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.utils.testing import ns_factory
-from tests.test_helpers.cluster_test import ClusterTest
-from tests.test_helpers.helper import tec_setup, create_base_master_map
 
-from wiz.core import tec_prep, tec_client
+from tests.test_helpers import helper
+from tests.test_helpers.cluster_test import ClusterTest
+from tests.test_helpers.helper import tedi_setup, create_base_master_map
+
+from wiz.core import tedi_prep, tedi_client
 
 
 class TestTecPrep(ClusterTest):
@@ -22,14 +24,14 @@ class TestTecPrep(ClusterTest):
 
   def test_create(self):
     create_base_master_map(self.ns)
-    tec_prep.create(self.ns, tec_setup())
+    tedi_prep.create(self.ns, helper.simple_tedi_setup())
 
-    ted_pod = KatPod.find(tec_prep.pod_name, self.ns)
+    ted_pod = KatPod.find(tedi_prep.pod_name, self.ns)
     self.assertIsNotNone(ted_pod)
     self.assertTrue(ted_pod.wait_until(ted_pod.is_running, 360))
 
-    out = ted_pod.shell_exec(tec_client.interpolate_cmd)
+    out = ted_pod.shell_exec(tedi_client.interpolate_cmd)
     self.assertIsNotNone(out)
     parsed = list(yaml.load_all(out, Loader=yaml.FullLoader))
     self.assertGreater(len(parsed), 0)
-
+  #

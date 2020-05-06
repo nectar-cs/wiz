@@ -7,9 +7,9 @@ from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1EnvVar, V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
 
 from k8_kat.auth.kube_broker import broker
-from wiz.core import utils
+from wiz.core import utils, wiz_globals
 
-pod_name = 'ted'
+pod_name = wiz_globals.tedi_pod_name
 
 def create(ns, app) -> None:
   broker.coreV1.create_namespaced_pod(

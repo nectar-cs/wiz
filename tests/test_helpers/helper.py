@@ -6,7 +6,7 @@ from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 
-def tec_setup():
+def tedi_setup():
   return dict(
     te_type='kerbi',
     te_repo_name='https://github.com/nectar-cs/charts-and-wizards.git',
@@ -14,7 +14,7 @@ def tec_setup():
   )
 
 
-def simple_tec_setup():
+def simple_tedi_setup():
   return dict(
     te_type='kerbi',
     te_repo_name='https://github.com/nectar-cs/charts-and-wizards.git',

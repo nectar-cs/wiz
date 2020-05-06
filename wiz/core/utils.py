@@ -53,7 +53,7 @@ def set_run_env(_run_env):
 
 
 def run_env() -> str:
-  return os.environ.get('KAT_ENV', 'production')
+  return os.environ.get('FLASK_ENV', 'production')
 
 
 def is_prod() -> bool:

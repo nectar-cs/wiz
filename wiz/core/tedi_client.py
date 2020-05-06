@@ -1,5 +1,5 @@
 import subprocess
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Optional
 
 import yaml
 
@@ -9,8 +9,8 @@ from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.types import K8sRes
 from wiz.core.wiz_globals import wiz_globals
+from wiz.core import wiz_globals as wg
 
-tec_pod_name = 'ted'
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
@@ -36,14 +36,17 @@ def apply(rules: List[ResMatchRule]):
 
 
 def load_raw_manifest() -> List[K8sRes]:
-  pod = tec_pod()
+  pod = tedi_pod()
   pod.trigger()
   result = pod.shell_exec(interpolate_cmd)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
-def tec_pod() -> KatPod:
-  return KatPod.find(tec_pod_name, wiz_globals.ns)
+def tedi_pod() -> Optional[KatPod]:
+  if wiz_globals.ns:
+    return KatPod.find(wg.tedi_pod_name, wiz_globals.ns)
+  else:
+    return None
 
 
 def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes]:
