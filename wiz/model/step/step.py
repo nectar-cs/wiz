@@ -14,6 +14,10 @@ class Step(WizModel):
   def __init__(self, config):
     super().__init__(config)
 
+  @property
+  def field_keys(self):
+    return self.config.get('fields', [])
+
   def next_step_key(self, state) -> str:
     root = self.config.get('next')
     return expr.eval_next_expr(root, state)
@@ -24,7 +28,7 @@ class Step(WizModel):
     return Field.inflate(step_key)
 
   def fields(self) -> List[Field]:
-    return [self.field(key) for key in self.config['fields']]
+    return [self.field(key) for key in self.field_keys]
 
   def commit(self, state):
     tedi_client.commit_values(state)

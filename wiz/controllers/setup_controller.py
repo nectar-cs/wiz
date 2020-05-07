@@ -41,9 +41,9 @@ def steps_next_id(concern_id, step_id):
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
 def fields_validate(concern_id, step_id, field_id):
-  state = inflate_step_state()
   field = find_field(concern_id, step_id, field_id)
-  tone, message = field.validate(state[field_id])
+  value = request.json['value']
+  tone, message = field.validate(value)
   if tone and message:
     return jsonify(data=dict(status=tone, message=message))
   else:

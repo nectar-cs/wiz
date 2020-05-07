@@ -37,7 +37,7 @@ def create(ns, app) -> None:
         init_containers=[
           V1Container(
             name='init',
-            image='gcr.io/nectar-bazaar/teds:latest',
+            image='gcr.io/nectar-bazaar/tedi:latest',
             args=[app['te_type'], 'init'],
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
@@ -47,7 +47,7 @@ def create(ns, app) -> None:
         containers=[
           V1Container(
             name='main',
-            image='gcr.io/nectar-bazaar/teds:latest',
+            image='gcr.io/nectar-bazaar/tedi:latest',
             command=["/bin/sh", "-c", "--"],
             args=["while true; do sleep 10; done;"],
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',

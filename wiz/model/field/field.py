@@ -6,7 +6,22 @@ class Field(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.options = config.get('options')
+
+  @property
+  def type(self):
+    return self.config['type']
+
+  @property
+  def options(self):
+    return self.config.get('options')
+
+  @property
+  def info(self):
+    return self.config.get('info')
+
+  @property
+  def default_value(self):
+    return self.config.get('default')
 
   def validators(self):
     validation_configs = self.config.get('validations', [])

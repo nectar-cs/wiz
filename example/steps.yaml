@@ -1,11 +1,12 @@
 - key: decide_cluster_storage
+  title: "Strategy"
   fields:
-    - is_cluster_storage
+    - "storage.type"
   next:
     if:
-      - field: is_cluster_storage
+      - field: "storage.type"
         type: equality
-        check_against: 'false'
+        check_against: 'internal'
     then: decide_managed_pvc
     else: locate_external_db
   res: []

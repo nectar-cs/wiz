@@ -38,16 +38,17 @@ class TestConcern(unittest.TestCase):
   def test_steps_show_when_exists(self):
     wg.set_configs(
       concerns=[g_con_conf(k='c1', s=['s1', 's2'])],
-      steps=[g_conf(k='s1', t='Foo')]
+      steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
+      fields=[dict(key='f1', title='Bar', type='choice', info='Inf',
+                   options=[dict(key='x', value='y')])]
     )
 
     response = app.test_client().get('/api/concerns/c1/steps/s1')
-    body = json.loads(response.data)
-    self.assertEqual(body, dict(
-      data=dict(
-        id='s1',
-        title='Foo'
-      )))
+    body = json.loads(response.data)['data']
+    self.assertEqual(body['id'], 's1')
+    self.assertEqual(body['title'], 'Foo')
+    self.assertEqual(len(body['fields']), 1)
+    self.assertEqual(body['fields'][0]['id'], 'f1')
 
   def test_fields_validate_when_valid(self):
     wg.set_configs(
