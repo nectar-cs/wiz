@@ -1,8 +1,8 @@
-- key: "storage.type"
+- key: "hub.storage.type"
   title: "Storage Strategy"
   info: "Where should the database be hosted?"
   type: select
-  default: external
+  default: internal
   options:
     - key: internal
       value: "Internal - Keep the database in the cluster"

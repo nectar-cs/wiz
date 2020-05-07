@@ -31,11 +31,12 @@ class Step(WizModel):
     return [self.field(key) for key in self.field_keys]
 
   def commit(self, state):
-    tedi_client.commit_values(state)
-    rule_exprs = self.config.get('res', [])
-    rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
+    tedi_client.commit_values(state.items())
     if self.should_apply():
+      rule_exprs = self.config.get('res', [])
+      rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
       tedi_client.apply(rules)
 
   def should_apply(self) -> bool:
-    return self.config.get('apply', 'False').lower() == 'true'
+    raw = self.config.get('apply', 'False')
+    return str(raw).lower() == 'true'

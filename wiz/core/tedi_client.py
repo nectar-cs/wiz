@@ -38,7 +38,9 @@ def apply(rules: List[ResMatchRule]):
 def load_raw_manifest() -> List[K8sRes]:
   pod = tedi_pod()
   pod.trigger()
-  result = pod.shell_exec(interpolate_cmd)
+  extras = wiz_globals.app.get('te_args', '')
+  command = f"{interpolate_cmd} --args \"[{extras}]\""
+  result = pod.shell_exec(command)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 

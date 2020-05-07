@@ -1,10 +1,11 @@
 - key: decide_cluster_storage
   title: "Strategy"
   fields:
-    - "storage.type"
+    - "hub.storage.type"
+  apply: false
   next:
     if:
-      - field: "storage.type"
+      - field: "hub.storage.type"
         type: equality
         check_against: 'internal'
     then: decide_managed_pvc

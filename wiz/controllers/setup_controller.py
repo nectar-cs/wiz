@@ -31,6 +31,15 @@ def steps_show(concern_id, step_id):
   return jsonify(data=serialized)
 
 
+@controller.route(f"{STEP_PATH}/submit", methods=['POST'])
+def step_submit(concern_id, step_id):
+  values = request.json['values']
+  step = find_step(concern_id, step_id)
+  step.commit(values)
+  status = 'working' if step.should_apply() else 'done'
+  return jsonify(status=status)
+
+
 @controller.route(f'{STEP_PATH}/next')
 def steps_next_id(concern_id, step_id):
   state = inflate_step_state()
