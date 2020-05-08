@@ -2,6 +2,7 @@ import base64
 import json
 from flask import Blueprint, jsonify, request
 
+from wiz.core import res_watch
 from wiz.model.concern import serial as concern_serial
 from wiz.model.field.field import Field
 from wiz.model.step import serial as step_serial
@@ -29,6 +30,14 @@ def steps_show(concern_id, step_id):
   step = find_step(concern_id, step_id)
   serialized = step_serial.standard(step)
   return jsonify(data=serialized)
+
+
+@controller.route(f"{STEP_PATH}/res")
+def watch_step_res(concern_id, step_id):
+  step = find_step(concern_id, step_id)
+  kinds = step.watch_res_kinds()
+  serialized_res_list = res_watch.glob(kinds)
+  return jsonify(data=serialized_res_list)
 
 
 @controller.route(f"{STEP_PATH}/submit", methods=['POST'])

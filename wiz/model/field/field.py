@@ -23,6 +23,11 @@ class Field(WizModel):
   def default_value(self):
     return self.config.get('default')
 
+  @property
+  def watch_res_kinds(self):
+    declared = self.config.get('res_watch', [])
+    return list(set(declared + ['ConfigMap']))
+
   def validators(self):
     validation_configs = self.config.get('validations', [])
     return [Validator.inflate(c) for c in validation_configs]

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from wiz.core import tedi_prep, tedi_client
+from wiz.core import tedi_prep, tedi_client, res_watch
 from wiz.core import wiz_globals
 
 controller = Blueprint('status_controller', __name__)
@@ -31,3 +31,4 @@ def init():
     wiz_globals.persist_ns_and_app(ns, app)
     tedi_prep.create(ns, app)
   return dict(status='preparing')
+

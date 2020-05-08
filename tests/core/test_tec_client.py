@@ -111,7 +111,6 @@ class TestTecClient(ClusterTest):
     self.assertEqual(svc.from_port, 81)
 
 
-
 def g_rule(expr):
   return ResMatchRule(expr)
 

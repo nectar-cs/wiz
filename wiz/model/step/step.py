@@ -40,3 +40,8 @@ class Step(WizModel):
   def should_apply(self) -> bool:
     raw = self.config.get('apply', 'False')
     return str(raw).lower() == 'true'
+
+  def watch_res_kinds(self):
+    field_kinds = [f.watch_res_kinds for f in self.fields()]
+    field_kinds = [item for sublist in field_kinds for item in sublist]
+    return list(set(field_kinds))
