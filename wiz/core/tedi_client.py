@@ -27,7 +27,7 @@ def commit_values(assignments: [Tuple[str, any]]):
     deep_set(existing_config, fqhk_array, value)
 
   config_map.raw.data['master'] = yaml.dump(existing_config)
-  config_map.patch()
+  config_map.touch(save=True)
 
 
 def apply(rules: List[ResMatchRule]):

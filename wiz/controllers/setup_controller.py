@@ -36,7 +36,7 @@ def steps_show(concern_id, step_id):
 def watch_step_res(concern_id, step_id):
   step = find_step(concern_id, step_id)
   kinds = step.watch_res_kinds()
-  serialized_res_list = res_watch.glob(kinds)
+  serialized_res_list = res_watch.glob(['ConfigMap', 'Pod', 'Deployment'])
   return jsonify(data=serialized_res_list)
 
 

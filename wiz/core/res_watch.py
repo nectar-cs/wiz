@@ -1,5 +1,7 @@
 from typing import Callable, Optional, List, Dict, Type
 
+from k8_kat.res.dep.kat_dep import KatDep
+
 from k8_kat.res.config_map.kat_map import KatMap
 
 from k8_kat.res.base.kat_res import KatRes
@@ -24,12 +26,21 @@ class Decorator:
   def extras(self) -> Dict:
     return {}
 
+  def updated_at(self):
+    return None
+
+  def short_desc(self):
+    annotations = self.res_instance.metadata.annotations
+    return (annotations or {}).get('short_desc')
+
   def serialize(self) -> Dict:
     return dict(
       kind=self.kind,
       name=self.name(),
+      short_desc=self.short_desc(),
       status=self.status(),
-      extras=self.extras()
+      extras=self.extras(),
+      updated_at=self.updated_at()
     )
 
 
@@ -41,6 +52,9 @@ class KatDecorator(Decorator):
 
   def status(self) -> str:
     return self.katified.ternary_status()
+
+  def updated_at(self):
+    return self.katified.updated_at()
 
 class ConfigMapDecorator(KatDecorator):
   @classmethod
@@ -58,15 +72,33 @@ class ConfigMapDecorator(KatDecorator):
       extra_data = self.katified.yget('master')
     return {**super().extras(), **extra_data}
 
+class DeploymentDecorator(KatDecorator):
+  @classmethod
+  def matches(cls, kind):
+    return kind == 'Deployment'
+
+  def short_desc(self):
+    # noinspection PyTypeChecker
+    dep: KatDep = self.katified
+    pod_state = f"{dep.ready_replicas}/{dep.desired_replicas} pods"
+    return f"{super().short_desc()} - {pod_state}"
 
 def decorator_classes():
-  return [ConfigMapDecorator, KatDecorator, Decorator]
+  return [
+    ConfigMapDecorator,
+    DeploymentDecorator,
+    KatDecorator,
+    Decorator
+  ]
 
 
 def resolve_kind_loader(kind) -> Optional[Callable]:
   kat_class = KatRes.find_res_class(kind)
   if kat_class:
-    return lambda ns: [k.raw for k in kat_class.list(ns)]
+    if kat_class.__name__  == 'KatPod':
+      return lambda ns: [k.raw for k in kat_class.list(ns) if not k.has_parent]
+    else:
+      return lambda ns: [k.raw for k in kat_class.list(ns)]
   else:
     return None
 

@@ -1,4 +1,8 @@
 import json
+import time
+
+import yaml
+from k8_kat.res.config_map.kat_map import KatMap
 
 from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 
@@ -20,29 +24,26 @@ class TestResWatch(ClusterTest):
     TestKatSvc.create_res('svc1', ns)
     TestKatConfigMap.create_res('map1', ns)
 
-    self.assertEqual(res_watch.glob(['Deployment']),
-      [{'kind': 'Deployment', 'name': 'dep1', 'status': 'pending', 'extras': {}}]
-    )
+    result = res_watch.glob(['Deployment'])
+    self.assertEqual(len(result), 1)
+    self.assertEqual(result[0]['name'], 'dep1')
+    self.assertIsNotNone(result[0]['updated_at'])
 
-    self.assertEqual(res_watch.glob(['Deployment', 'Service', 'ConfigMap']),
-      [
-        {'kind': 'Deployment', 'name': 'dep1', 'status': 'pending', 'extras': {}},
-        {'kind': 'Service', 'name': 'svc1', 'status': 'positive', 'extras': {}},
-        {'kind': 'ConfigMap', 'name': 'map1', 'status': 'positive', 'extras': {}}
-      ]
-    )
+    result = res_watch.glob(['Deployment', 'Service', 'ConfigMap'])
+    self.assertEqual(len(result), 3)
+    self.assertEqual(result[0]['name'], 'dep1')
+    self.assertEqual(result[1]['name'], 'svc1')
+    self.assertEqual(result[2]['name'], 'map1')
 
   def test_glob_master_cm(self):
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
-    TestKatConfigMap.create_res('master', ns, data=dict(master=json.dumps(dict(foo='bar'))))
-    self.assertEqual(
-      res_watch.glob(['ConfigMap']),
-      [{'kind': 'ConfigMap', 'name': 'master', 'status': 'positive', 'extras': {
-        'foo': 'bar'
-      }}]
-    )
-
+    data = dict(master=yaml.dump(dict(foo='bar')))
+    TestKatConfigMap.create_res('master', ns, data=data)
+    result = res_watch.glob(['ConfigMap'])
+    self.assertEqual(len(result), 1)
+    self.assertEqual(result[0]['name'], 'master')
+    self.assertEqual(result[0]['extras'], dict(foo='bar'))
 
   def tearDown(self) -> None:
     super().tearDown()
