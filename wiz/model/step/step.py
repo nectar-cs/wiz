@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core import tedi_client
@@ -18,9 +18,9 @@ class Step(WizModel):
   def field_keys(self):
     return self.config.get('fields', [])
 
-  def next_step_key(self, state) -> str:
+  def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.config.get('next')
-    return expr.eval_next_expr(root, state)
+    return expr.eval_next_expr(root, values)
 
   def field(self, key) -> Field:
     field_configs = self.config.get('fields', [])
@@ -36,6 +36,11 @@ class Step(WizModel):
       rule_exprs = self.config.get('res', [])
       rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
       tedi_client.apply(rules)
+
+  def status(self):
+    if not self.should_apply():
+      return 'done'
+    return 'done'
 
   def should_apply(self) -> bool:
     raw = self.config.get('apply', 'False')

@@ -29,6 +29,7 @@ def concerns_index():
 def steps_show(concern_id, step_id):
   step = find_step(concern_id, step_id)
   serialized = step_serial.standard(step)
+  print(serialized)
   return jsonify(data=serialized)
 
 
@@ -45,16 +46,23 @@ def step_submit(concern_id, step_id):
   values = request.json['values']
   step = find_step(concern_id, step_id)
   step.commit(values)
-  status = 'working' if step.should_apply() else 'done'
+  status = 'pending' if step.should_apply() else 'done'
   return jsonify(status=status)
 
 
-@controller.route(f'{STEP_PATH}/next')
-def steps_next_id(concern_id, step_id):
-  state = inflate_step_state()
+@controller.route(f"{STEP_PATH}/status")
+def step_status(concern_id, step_id):
   step = find_step(concern_id, step_id)
-  next_step_id = step.next_step_key(state)
-  return jsonify(data=next_step_id)
+  return jsonify(status=step.status())
+
+
+@controller.route(f'{STEP_PATH}/next', methods=['POST'])
+def steps_next_id(concern_id, step_id):
+  values = request.json['values']
+  print(f"CALLED WITH {values}")
+  step = find_step(concern_id, step_id)
+  next_step_id = step.next_step_id(values)
+  return jsonify(step_id=next_step_id)
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])

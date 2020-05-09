@@ -21,7 +21,7 @@ def is_ift_tree(root):
 def eval_cond_tree(conditions, values) -> str:
   outcome = True
   for condition in conditions:
-    value = values[condition.pop('field')]
+    value = values[condition['field']]
     result = evaluate_condition(condition, value)
     if not result:
       outcome = False

@@ -19,7 +19,6 @@ class Field(WizModel):
   def info(self):
     return self.config.get('info')
 
-  @property
   def default_value(self):
     return self.config.get('default')
 

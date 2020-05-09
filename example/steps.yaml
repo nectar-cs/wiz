@@ -1,5 +1,5 @@
 - key: decide_cluster_storage
-  title: "Strategy"
+  title: "Storage Strategy"
   fields:
     - "hub.storage.type"
   apply: false
@@ -8,41 +8,42 @@
       - field: "hub.storage.type"
         type: equality
         check_against: 'internal'
-    then: decide_managed_pvc
+    then: decide_pvc_strategy
     else: locate_external_db
   res: []
 
 - key: locate_external_db
+  title: "External DB"
   fields:
-    - host
-    - port
-    - user
-    - password
+    - "hub.storage.ext_db_host"
+    - "hub.storage.ext_db_port"
+    - "hub.storage.ext_db_user"
+    - "hub.storage.ext_db_pw"
   apply: true
   res:
     - 'Secret:ext_db'
     - 'PersistentVolumeClaim:*'
   next: done
 
-- key: decide_cluster_storage
+- key: decide_pvc_strategy
+  title: "PVC Strategy"
   fields:
-    - is_managed_pvc
-  watch:
-    - 'pvc:main'
+    - "hub.storage.managed_pvc"
   next:
-    if: 'is_managed_pvc = true'
+    if:
+      - field: "hub.storage.managed_pvc"
+        type: equality
+        check_against: 'true'
     then: set_db_secrets
     else: locate_external_pvc
 
 - key: locate_external_pvc
   fields:
-    - pvc_name
+    - "hub.storage.pvc_name"
+  next: set_db_secrets
 
 - key: set_db_secrets
-  watch:
-    - 'secret:db'
-    - 'deploy:db'
-    - 'svc:pg'
-  parts:
-    - user
-    - password
+  title: "Internal DB Credentials"
+  fields:
+    - "hub.storage.db_user"
+    - "hub.storage.db_password"

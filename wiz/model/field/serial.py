@@ -8,5 +8,5 @@ def embedded(field: Field):
     type=field.type,
     options=field.options,
     info=field.info,
-    default=field.default_value
+    default=field.default_value()
   )

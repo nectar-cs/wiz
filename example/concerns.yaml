@@ -4,9 +4,9 @@
   alongside the application. The following steps will let you
   choose how storage is allocated and how the database is secured."
   steps:
+    - set_db_secrets
     - decide_cluster_storage
     - locate_external_db
-    - decide_cluster_storage
+    - decide_pvc_strategy
     - locate_external_pvc
-    - set_db_secrets
 

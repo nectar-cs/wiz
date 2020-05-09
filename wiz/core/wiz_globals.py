@@ -79,7 +79,7 @@ class WizGlobals:
 
   def find_subclass(self, category, key: str):
     candidates = self.subclasses[category]
-    matches = [config for config in candidates if config.key() == key]
+    matches = [subclass for subclass in candidates if subclass.key() == key]
     return matches[0] if len(matches) else None
 
   def clear(self):

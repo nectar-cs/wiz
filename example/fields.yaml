@@ -14,27 +14,46 @@
       message: "You will be responsible for managing your own database."
       tone: "warning"
 
-- key: "storage.managed_pvc"
+- key: "hub.storage.managed_pvc"
   title: "Manage the in-cluster volume for me?"
   info: "Nectar can manage PersistentVolumeClaim automatically."
-  type: boolean
+  type: select
   default: true
+  options:
+    - key: true
+      value: "Yes - Nectar provisions the PVC"
+    - key: false
+      value: "No - You provision the PVC"
   validations:
     - type: equality
       check_against: 'false'
-      message: "You will be responsible for managing your own database."
+      message: "You will be asked to locate the PVC in the next step."
       tone: "warning"
 
-- key: "storage.own_pvc_name"
+- key: "hub.storage.pvc_name"
   title: "Point to the the PersistentVolumeClaim you want to use"
   type: select
+  options_source:
+    type: kubernetes_resources
+    query:
+      namespace:
+
   validations:
-    - type: equality
+    - type: res_exists
       check_against: 'false'
       message: "You will be responsible for managing the PVC over time."
-      tone: "warning"
+      tone: "error"
 
-- key: "storage.external_db_addr"
+- key: "hub.storage.external_db_addr"
   title: "Find the thing"
-  type: text-input
+  type: string
   info: "The database must be PostgreSQL version 9.2 or above"
+
+- key: "hub.storage.db_user"
+  title: "Database user"
+  default: postgres
+  type: text-input
+
+- key: "hub.storage.db_password"
+  title: "Database password"
+  type: text-input
