@@ -28,12 +28,16 @@ class Step(WizModel):
   def fields(self) -> List[Field]:
     return [self.field(key) for key in self.field_keys]
 
-  def commit(self, state):
-    tedi_client.commit_values(state.items())
+  def commit(self, values):
+    normal_values, inline_values = partition_values(self.fields(), values)
+
+    if normal_values:
+      tedi_client.commit_values(normal_values.items())
+
     if self.should_apply():
       rule_exprs = self.config.get('res', [])
       rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
-      tedi_client.apply(rules)
+      tedi_client.apply(rules, inline_values.items())
 
   def status(self):
     if not self.should_apply():
@@ -48,3 +52,13 @@ class Step(WizModel):
     field_kinds = [f.watch_res_kinds for f in self.fields()]
     field_kinds = [item for sublist in field_kinds for item in sublist]
     return list(set(field_kinds))
+
+
+def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
+  normal_values, inline_values = {}, {}
+  get_field = lambda k: [f for f in fields if f.key == k][0]
+  for key, value in values.items():
+    is_inline = get_field(key).is_inline
+    bucket = inline_values if is_inline else normal_values
+    bucket[key] = value
+  return [normal_values, inline_values]

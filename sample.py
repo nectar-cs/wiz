@@ -34,6 +34,5 @@ wiz_globals.set_subclasses(
   fields=[DbPasswordField]
 )
 
-wiz_globals.ns_overwrite = 'self-hosted-hub'
 dotenv.load_dotenv()
 server.start()

@@ -53,7 +53,9 @@
   title: "Database user"
   default: postgres
   type: text-input
+  inline: true
 
 - key: "hub.storage.db_password"
   title: "Database password"
   type: text-input
+  inline: true

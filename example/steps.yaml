@@ -47,3 +47,7 @@
   fields:
     - "hub.storage.db_user"
     - "hub.storage.db_password"
+  ephemeral: true
+  apply: true
+  res:
+    - "Secret:hub-pg"

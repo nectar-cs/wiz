@@ -1,5 +1,6 @@
 import subprocess
 from typing import Tuple, Dict, List, Optional
+from urllib.parse import quote
 
 import yaml
 
@@ -30,8 +31,8 @@ def commit_values(assignments: List[Tuple[str, any]]):
   config_map.touch(save=True)
 
 
-def apply(rules: List[ResMatchRule]):
-  write_manifest(rules)
+def apply(rules: List[ResMatchRule], inlines=None):
+  write_manifest(rules, inlines)
   kubectl_apply()
 
 
@@ -43,20 +44,19 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def load_raw_manifest(eph_assigns=None) -> List[K8sRes]:
+def load_raw_manifest(inlines=None) -> List[K8sRes]:
   pod = tedi_pod()
   pod.trigger()
   vendor_flags: str = wiz_globals.app.get('te_args', '')
-  inline_flags: str = fmt_inline_assigns(eph_assigns or {})
+  inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{vendor_flags} {inline_flags}"
-  all_flags = all_flags.replace(" ", "SPACE_CHAR")
-  command = f"{interpolate_cmd} --args [{all_flags}]"
+  command = f"{interpolate_cmd} --args [{quote(all_flags)}]"
   result = pod.shell_exec(command)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
-def write_manifest(rules: List[ResMatchRule]):
-  all_res = load_raw_manifest()
+def write_manifest(rules: List[ResMatchRule], inlines=None):
+  all_res = load_raw_manifest(inlines)
   filtered = filter_res(all_res, rules)
   composed = yaml.dump_all(filtered)
   with open(tmp_file_mame, 'w') as file:
@@ -84,7 +84,7 @@ def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes
 
 def kubectl_apply():
   kubectl_bin = "kubectl"
-  cmd = f"{kubectl_bin} apply -f {tmp_file_mame} -n {wiz_globals.ns}"
+  cmd = f"{kubectl_bin} apply -f {tmp_file_mame}"
 
   if not broker.is_in_cluster_auth():
     if broker.connect_config.get('context'):

@@ -27,6 +27,10 @@ class Field(WizModel):
     declared = self.config.get('res_watch', [])
     return list(set(declared + ['ConfigMap']))
 
+  @property
+  def is_inline(self):
+    return self.config.get('inline', False)
+
   def validators(self):
     validation_configs = self.config.get('validations', [])
     return [Validator.inflate(c) for c in validation_configs]
