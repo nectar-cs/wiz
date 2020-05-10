@@ -1,18 +1,12 @@
-import json
-import time
-
 import yaml
-from k8_kat.res.config_map.kat_map import KatMap
-
-from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 
 from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
 from k8_kat.tests.res.common.test_kat_dep import TestKatDep
 from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 from k8_kat.utils.testing import ns_factory
-from tests.test_helpers.cluster_test import ClusterTest
 from wiz.core import res_watch
 from wiz.core.wiz_globals import wiz_globals
+from wiz.test.test_helpers.cluster_test import ClusterTest
 
 
 class TestResWatch(ClusterTest):

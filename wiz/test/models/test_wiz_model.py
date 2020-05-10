@@ -1,10 +1,10 @@
 import unittest
-from tests.models.helpers import  g_conf
 from wiz.core.wiz_globals import wiz_globals as wg
 from wiz.model.concern.concern import Concern
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
 from wiz.model.base.wiz_model import WizModel
+from wiz.test.models.helpers import g_conf
 
 SUBCLASSES: [WizModel] = [Concern, Step, Field]
 
@@ -74,7 +74,3 @@ class TestWizModel(unittest.TestCase):
     for subclass in SUBCLASSES:
       self.crt_subclass = subclass
       self.run_inflate_with_subclass()
-
-
-if __name__ == '__main__':
-  unittest.main()

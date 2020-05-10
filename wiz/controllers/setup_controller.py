@@ -29,7 +29,6 @@ def concerns_index():
 def steps_show(concern_id, step_id):
   step = find_step(concern_id, step_id)
   serialized = step_serial.standard(step)
-  print(serialized)
   return jsonify(data=serialized)
 
 
@@ -59,7 +58,6 @@ def step_status(concern_id, step_id):
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])
 def steps_next_id(concern_id, step_id):
   values = request.json['values']
-  print(f"CALLED WITH {values}")
   step = find_step(concern_id, step_id)
   next_step_id = step.next_step_id(values)
   return jsonify(step_id=next_step_id)

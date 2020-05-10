@@ -1,10 +1,9 @@
-import base64
 import json
 import unittest
 
-from tests.models.helpers import g_conf, g_con_conf
 from wiz.core.wiz_globals import wiz_globals as wg
 from wiz.server import app
+from wiz.test.models.helpers import g_con_conf, g_conf
 
 
 class TestConcern(unittest.TestCase):
@@ -58,8 +57,7 @@ class TestConcern(unittest.TestCase):
     )
 
     endpoint = '/api/concerns/c1/steps/s1/fields/f1/validate'
-    state = dict(f1='bar')
-    response = app.test_client().post(endpoint, headers=state_head(state))
+    response = app.test_client().post(endpoint, json=dict(value='bar'))
     body = json.loads(response.data)['data']
     self.assertEqual(body, dict(status='valid'))
 
@@ -71,8 +69,8 @@ class TestConcern(unittest.TestCase):
       )
 
       endpoint = '/api/concerns/c1/steps/s1/fields/f1/validate'
-      state = dict(f1='foo')
-      response = app.test_client().post(endpoint, headers=state_head(state))
+      body = dict(value='foo')
+      response = app.test_client().post(endpoint, json=body)
       body = json.loads(response.data)['data']
       self.assertEqual(body, dict(status='warning', message='bar'))
 
@@ -83,18 +81,18 @@ class TestConcern(unittest.TestCase):
     )
 
     endpoint = '/api/concerns/c1/steps/s1/next'
-    response = app.test_client().get(endpoint)
-    body = json.loads(response.data)['data']
+    response = app.test_client().post(endpoint, json=dict(values={}))
+    body = json.loads(response.data)['step_id']
     self.assertEqual(body, 'foo-baz')
 
-  def test_state_header(self):
-    payload = dict(data='ping')
-    headers = state_head(payload)
-
-    with app.test_client() as client:
-      response = client.get('/api/concerns-echo-state',headers=headers)
-      out = json.loads(response.data)
-      self.assertEqual(out, dict(pong=payload))
+  # def test_state_header(self):
+  #   payload = dict(data='ping')
+  #   headers = state_head(payload)
+  #
+  #   with app.test_client() as client:
+  #     response = client.get('/api/concerns-echo-state',headers=headers)
+  #     out = json.loads(response.data)
+  #     self.assertEqual(out, dict(pong=payload))
 
 
 def g_field(k='f', c='Check', m='Message', t='warning'):
@@ -110,9 +108,9 @@ def g_field(k='f', c='Check', m='Message', t='warning'):
     ]
   )
 
-def state_head(original_payload):
-  message = json.dumps(original_payload)
-  message_bytes = message.encode('ascii')
-  base64_bytes = base64.b64encode(message_bytes)
-  base64_message = base64_bytes.decode('ascii')
-  return dict(step_state=base64_message)
+# def state_head(original_payload):
+#   message = json.dumps(original_payload)
+#   message_bytes = message.encode('ascii')
+#   base64_bytes = base64.b64encode(message_bytes)
+#   base64_message = base64_bytes.decode('ascii')
+#   return dict(step_state=base64_message)

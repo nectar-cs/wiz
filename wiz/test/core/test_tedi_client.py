@@ -3,12 +3,12 @@ import yaml
 from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.res.svc.kat_svc import KatSvc
 from k8_kat.utils.testing import ns_factory
-from tests.test_helpers.cluster_test import ClusterTest
-from tests.test_helpers.helper import simple_tedi_setup, create_base_master_map
 from wiz.core import tedi_prep, tedi_client
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.tedi_client import deep_set, filter_res
 from wiz.core.wiz_globals import wiz_globals
+from wiz.test.test_helpers.cluster_test import ClusterTest
+from wiz.test.test_helpers.helper import create_base_master_map, simple_tedi_setup
 
 
 class TestTecClient(ClusterTest):
