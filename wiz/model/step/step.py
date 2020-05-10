@@ -1,11 +1,9 @@
 from typing import List, Dict
 
-from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core import tedi_client
 from wiz.core.res_match_rule import ResMatchRule
-from wiz.core.wiz_globals import wiz_globals
-from wiz.model.field.field import Field
 from wiz.model.base.wiz_model import WizModel
+from wiz.model.field.field import Field
 from wiz.model.step import expr
 
 

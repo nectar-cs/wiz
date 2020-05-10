@@ -3,9 +3,6 @@ import os
 from json import JSONDecodeError
 from typing import Dict
 
-from k8_kat.auth.kube_broker import broker
-
-from wiz.core import utils
 
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
@@ -64,7 +61,7 @@ class WizGlobals:
 
   @property
   def app(self):
-    return read_ns_and_app()[1]
+    return read_ns_and_app()[1] or {}
 
   def set_configs(self, **kwargs):
     self.configs = {**category_default(), **kwargs}

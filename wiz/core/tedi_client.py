@@ -18,7 +18,7 @@ def master_map() -> KatMap:
   return KatMap.find('master', wiz_globals.ns)
 
 
-def commit_values(assignments: [Tuple[str, any]]):
+def commit_values(assignments: List[Tuple[str, any]]):
   config_map = master_map()
   existing_config = config_map.yget()
   for assignment in assignments:
@@ -35,13 +35,32 @@ def apply(rules: List[ResMatchRule]):
   kubectl_apply()
 
 
-def load_raw_manifest() -> List[K8sRes]:
+def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
+  expr_array = []
+  for str_assignment in str_assignments:
+    key_expr, value = str_assignment
+    expr_array.append(f"--set {key_expr}:{value}")
+  return " ".join(expr_array)
+
+
+def load_raw_manifest(eph_assigns=None) -> List[K8sRes]:
   pod = tedi_pod()
   pod.trigger()
-  extras = wiz_globals.app.get('te_args', '')
-  command = f"{interpolate_cmd} --args \"[{extras}]\""
+  vendor_flags: str = wiz_globals.app.get('te_args', '')
+  inline_flags: str = fmt_inline_assigns(eph_assigns or {})
+  all_flags: str = f"{vendor_flags} {inline_flags}"
+  all_flags = all_flags.replace(" ", "SPACE_CHAR")
+  command = f"{interpolate_cmd} --args [{all_flags}]"
   result = pod.shell_exec(command)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
+
+
+def write_manifest(rules: List[ResMatchRule]):
+  all_res = load_raw_manifest()
+  filtered = filter_res(all_res, rules)
+  composed = yaml.dump_all(filtered)
+  with open(tmp_file_mame, 'w') as file:
+    file.write(composed)
 
 
 def tedi_pod() -> Optional[KatPod]:
@@ -61,14 +80,6 @@ def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes
     return [res for res in res_list if decide_res(res)]
   else:
     return res_list
-
-
-def write_manifest(rules: List[ResMatchRule]):
-  all_res = load_raw_manifest()
-  filtered = filter_res(all_res, rules)
-  composed = yaml.dump_all(filtered)
-  with open(tmp_file_mame, 'w') as file:
-    file.write(composed)
 
 
 def kubectl_apply():

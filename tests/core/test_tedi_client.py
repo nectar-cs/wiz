@@ -37,6 +37,11 @@ class TestTecClient(ClusterTest):
     deep_set(root, ['x', 'x'], 'x')
     self.assertEqual(root, dict(x=dict(x='x')))
 
+  def test_fmt_inline_assigns(self):
+    str_assignments = [('foo.bar', 'baz'), ('x', 'y')]
+    actual = tedi_client.fmt_inline_assigns(str_assignments)
+    self.assertEqual(actual, "--set foo.bar:baz --set x:y")
+
   def test_filter_res(self):
     res_list = g_res_list(('k1', 'n1'), ('k1', 'n2'))
     result = filter_res(res_list, [g_rule("k1:n1")])
@@ -51,14 +56,22 @@ class TestTecClient(ClusterTest):
     self.assertEqual(len(res_list), 2)
     self.assertEqual(kinds, sorted(['Pod', 'Service']))
 
+  def test_gen_manifest_with_inlines(self):
+    create_base_master_map(self.ns)
+    tedi_prep.create(self.ns, simple_tedi_setup())
+    tedi_client.tedi_pod().wait_until_running()
+    res_list = tedi_client.load_raw_manifest([('service.name', 'inline')])
+    svc = [r for r in res_list if r['kind'] == 'Service'][0]
+    self.assertEqual(svc['metadata']['name'], 'inline')
+
   def test_write_manifest(self):
     create_base_master_map(self.ns)
     tedi_prep.create(self.ns, simple_tedi_setup())
     tedi_client.tedi_pod().wait_until_running()
     tedi_client.write_manifest([g_rule("Pod:*")])
-    file = open(tedi_client.tmp_file_mame).read()
-    logical = list(yaml.load_all(file, Loader=yaml.FullLoader))
-    self.assertEqual(len(logical), 1)
+    with open(tedi_client.tmp_file_mame) as file:
+      logical = list(yaml.load_all(file.read(), Loader=yaml.FullLoader))
+      self.assertEqual(len(logical), 1)
 
   def test_apply(self):
     create_base_master_map(self.ns)
