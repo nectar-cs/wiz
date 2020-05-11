@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from wiz.core import tedi_client
 from wiz.core.res_match_rule import ResMatchRule
@@ -15,6 +15,16 @@ class Step(WizModel):
   @property
   def field_keys(self):
     return self.config.get('fields', [])
+
+  @property
+  def res_selector_descs(self) -> List[Union[str, Dict]]:
+    return self.config.get('res', [])
+
+  @property
+  def applies(self) -> bool:
+    selectors = self.res_selector_descs
+    override = self.config.get('apply', None)
+    return override if override is not None else len(selectors) > 0
 
   def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.config.get('next')
@@ -34,24 +44,33 @@ class Step(WizModel):
     if normal_values:
       tedi_client.commit_values(normal_values.items())
 
-    if self.should_apply():
-      rule_exprs = self.config.get('res', [])
+    if self.applies:
+      rule_exprs = self.res_selector_descs
       rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
       tedi_client.apply(rules, inline_values.items())
 
+  def res_selectors(self) -> List[ResMatchRule]:
+    return [ResMatchRule(obj) for obj in self.res_selector_descs]
+
+  def affected_resources(self):
+    affected_res = []
+    for rule in self.res_selectors():
+      resources = rule.query()
+      affected_res += resources
+    return affected_res
+
   def status(self):
-    if not self.should_apply():
-      return 'done'
-    return 'done'
-
-  def should_apply(self) -> bool:
-    raw = self.config.get('apply', 'False')
-    return str(raw).lower() == 'true'
-
-  def watch_res_kinds(self):
-    field_kinds = [f.watch_res_kinds for f in self.fields()]
-    field_kinds = [item for sublist in field_kinds for item in sublist]
-    return list(set(field_kinds))
+    if not self.applies:
+      return 'positive'
+    resources = self.affected_resources()
+    res_statuses = set([r.ternary_status() for r in resources])
+    print(f"SET {res_statuses}")
+    if len(res_statuses) == 1:
+      return list(res_statuses)[0]
+    elif "negative" in res_statuses:
+      return "negative"
+    else:
+      return "pending"
 
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:

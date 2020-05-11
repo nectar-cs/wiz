@@ -19,10 +19,9 @@
     - "hub.storage.ext_db_port"
     - "hub.storage.ext_db_user"
     - "hub.storage.ext_db_pw"
-  apply: true
   res:
     - 'Secret:ext_db'
-    - 'PersistentVolumeClaim:*'
+    - 'PersistentVolumeClaim:'
   next: done
 
 - key: decide_pvc_strategy
@@ -48,6 +47,9 @@
     - "hub.storage.db_user"
     - "hub.storage.db_password"
   ephemeral: true
-  apply: true
+  next: done
   res:
     - "Secret:hub-pg"
+    - "PersistentVolumeClaim:*"
+    - "Deployment:postgres"
+    - "Service:postgres"

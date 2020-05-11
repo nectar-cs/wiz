@@ -8,7 +8,7 @@ from k8_kat.auth.kube_broker import broker
 from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core.res_match_rule import ResMatchRule
-from wiz.core.types import K8sRes
+from wiz.core.types import K8sResDict
 from wiz.core.wiz_globals import wiz_globals
 from wiz.core import wiz_globals as wg
 
@@ -44,7 +44,7 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def load_raw_manifest(inlines=None) -> List[K8sRes]:
+def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   pod = tedi_pod()
   pod.trigger()
   vendor_flags: str = wiz_globals.app.get('te_args', '')
@@ -70,7 +70,7 @@ def tedi_pod() -> Optional[KatPod]:
     return None
 
 
-def filter_res(res_list: List[K8sRes], rules: List[ResMatchRule]) -> List[K8sRes]:
+def filter_res(res_list: List[K8sResDict], rules: List[ResMatchRule]) -> List[K8sResDict]:
   if rules:
     def decide_res(res):
       for rule in rules:
