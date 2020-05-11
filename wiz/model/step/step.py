@@ -64,7 +64,6 @@ class Step(WizModel):
       return 'positive'
     resources = self.affected_resources()
     res_statuses = set([r.ternary_status() for r in resources])
-    print(f"SET {res_statuses}")
     if len(res_statuses) == 1:
       return list(res_statuses)[0]
     elif "negative" in res_statuses:

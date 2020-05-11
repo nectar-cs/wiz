@@ -35,7 +35,7 @@ def steps_show(concern_id, step_id):
 @controller.route(f"{STEP_PATH}/res")
 def watch_step_res(concern_id, step_id):
   step = find_step(concern_id, step_id)
-  kinds = step.watch_res_kinds()
+  # kinds = step.watch_res_kinds
   serialized_res_list = res_watch.glob(['ConfigMap', 'Pod', 'Deployment', 'Secret'])
   return jsonify(data=serialized_res_list)
 
@@ -45,7 +45,7 @@ def step_submit(concern_id, step_id):
   values = request.json['values']
   step = find_step(concern_id, step_id)
   step.commit(values)
-  status = 'pending' if step.applies() else 'done'
+  status = 'pending' if step.applies else 'positive'
   return jsonify(status=status)
 
 
