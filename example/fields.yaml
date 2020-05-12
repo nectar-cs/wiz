@@ -34,15 +34,12 @@
   title: "Point to the the PersistentVolumeClaim you want to use"
   type: select
   options_source:
-    type: kubernetes_resources
-    query:
-      kind: PersistentVolumeClaim
-
-  validations:
-    - type: res_exists
-      check_against: 'false'
-      message: "You will be responsible for managing the PVC over time."
-      tone: "error"
+    type: select-k8s-res
+    res_match_rules:
+      - kind: PersistentVolumeClaim
+    make_key: name
+    make_value: name
+  validations: []
 
 - key: "hub.storage.db_user"
   title: "Database user"

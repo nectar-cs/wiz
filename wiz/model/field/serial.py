@@ -6,7 +6,7 @@ def embedded(field: Field):
     id=field.key,
     title=field.title,
     type=field.type,
-    options=field.options,
+    options=field.options(),
     info=field.info,
     default=field.default_value()
   )

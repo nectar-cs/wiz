@@ -1,13 +1,12 @@
+from functools import reduce
 from typing import List, Optional
 
+from wiz.core.res_match_rule import ResMatchRule
 from wiz.model.field.validator import Validator
 from wiz.model.base.wiz_model import WizModel
 
 
 class Field(WizModel):
-
-  def __init__(self, config):
-    super().__init__(config)
 
   @property
   def type(self):
@@ -20,8 +19,25 @@ class Field(WizModel):
     ])
 
   @property
-  def options(self):
+  def option_descriptors(self):
     return self.config.get('options')
+
+  @property
+  def options_source(self):
+    return self.config.get('options_source', None)
+
+  def options(self):
+    if self.options_source:
+      _type = self.options_source.get('type')
+      if _type == 'select-k8s-res':
+        rule_descriptors = self.options_source.get('res_match_rules', [])
+        rules = [ResMatchRule(rd) for rd in rule_descriptors]
+        res_list = reduce(lambda whole, rule: whole + rule.query(), rules, [])
+        return [{'key': r.name, 'value': r.name} for r in res_list]
+      else:
+        raise RuntimeError(f"Can't process source {type}")
+    else:
+      return self.option_descriptors
 
   @property
   def info(self):
@@ -37,7 +53,12 @@ class Field(WizModel):
     return self.config.get('inline', False)
 
   def default_value(self):
-    return self.config.get('default')
+    explicit_default = self.config.get('default')
+    if not explicit_default:
+      options = self.options()
+      return options[0]['key'] if len(options) > 0 else None
+    else:
+      return explicit_default
 
   def validators(self):
     validation_configs = self.validation_descriptors

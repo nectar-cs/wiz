@@ -1,4 +1,4 @@
-- key: decide_cluster_storage
+- key: storage_strategy
   title: "Storage Strategy"
   fields:
     - "hub.storage.type"
