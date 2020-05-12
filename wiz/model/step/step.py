@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client
 from wiz.core.res_match_rule import ResMatchRule
@@ -38,7 +38,7 @@ class Step(WizModel):
   def fields(self) -> List[Field]:
     return [self.field(key) for key in self.field_keys]
 
-  def commit(self, values):
+  def commit(self, values) -> Tuple[str, Optional[str]]:
     normal_values, inline_values = partition_values(self.fields(), values)
 
     if normal_values:
@@ -48,6 +48,9 @@ class Step(WizModel):
       rule_exprs = self.res_selector_descs
       rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
       tedi_client.apply(rules, inline_values.items())
+      return 'pending', None
+
+    return 'positive', None
 
   def res_selectors(self) -> List[ResMatchRule]:
     return [ResMatchRule(obj) for obj in self.res_selector_descs]

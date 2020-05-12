@@ -44,9 +44,8 @@ def watch_step_res(concern_id, step_id):
 def step_submit(concern_id, step_id):
   values = request.json['values']
   step = find_step(concern_id, step_id)
-  step.commit(values)
-  status = 'pending' if step.applies else 'positive'
-  return jsonify(status=status)
+  status, reason = step.commit(values)
+  return jsonify(status=status, message=reason)
 
 
 @controller.route(f"{STEP_PATH}/status")

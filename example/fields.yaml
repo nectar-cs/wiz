@@ -1,5 +1,5 @@
 - key: "hub.storage.type"
-  title: "Storage Strategy"
+  title: "Storage Type"
   info: "Where should the database be hosted?"
   type: select
   default: internal
@@ -36,7 +36,7 @@
   options_source:
     type: kubernetes_resources
     query:
-      namespace:
+      kind: PersistentVolumeClaim
 
   validations:
     - type: res_exists
@@ -44,18 +44,33 @@
       message: "You will be responsible for managing the PVC over time."
       tone: "error"
 
-- key: "hub.storage.external_db_addr"
-  title: "Find the thing"
-  type: string
-  info: "The database must be PostgreSQL version 9.2 or above"
-
 - key: "hub.storage.db_user"
   title: "Database user"
   default: postgres
-  type: text-input
   inline: true
 
 - key: "hub.storage.db_password"
   title: "Database password"
-  type: text-input
+  inline: true
+
+- key: "hub.storage.external_db_host"
+  title: "External Database Host"
+  info: "Must be PostgreSQL 9.2 or above"
+  inline: true
+
+- key: "hub.storage.external_db_port"
+  title: "External Database Port"
+  default: "5432"
+  validations:
+    - type: presence
+    - type: format
+      check_against: "integer"
+  inline: true
+
+- key: "hub.storage.external_db_user"
+  title: "External Database User"
+  inline: true
+
+- key: "hub.storage.external_db_password"
+  title: "External Database Password"
   inline: true

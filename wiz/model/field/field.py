@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from wiz.model.field.validator import Validator
 from wiz.model.base.wiz_model import WizModel
 
@@ -9,7 +11,13 @@ class Field(WizModel):
 
   @property
   def type(self):
-    return self.config['type']
+    return self.config.get('type', 'text-input')
+
+  @property
+  def validation_descriptors(self):
+    return self.config.get('validations', [
+      dict(type='presence')
+    ])
 
   @property
   def options(self):
@@ -18,9 +26,6 @@ class Field(WizModel):
   @property
   def info(self):
     return self.config.get('info')
-
-  def default_value(self):
-    return self.config.get('default')
 
   @property
   def watch_res_kinds(self):
@@ -31,11 +36,14 @@ class Field(WizModel):
   def is_inline(self):
     return self.config.get('inline', False)
 
+  def default_value(self):
+    return self.config.get('default')
+
   def validators(self):
-    validation_configs = self.config.get('validations', [])
+    validation_configs = self.validation_descriptors
     return [Validator.inflate(c) for c in validation_configs]
 
-  def validate(self, value):
+  def validate(self, value) -> List[Optional[str]]:
     for validator in self.validators():
       tone, message = validator.validate(value)
       if tone and message:

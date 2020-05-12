@@ -13,15 +13,14 @@
   res: []
 
 - key: locate_external_db
-  title: "External DB"
+  title: "External Database"
   fields:
-    - "hub.storage.ext_db_host"
-    - "hub.storage.ext_db_port"
-    - "hub.storage.ext_db_user"
-    - "hub.storage.ext_db_pw"
+    - "hub.storage.external_db_host"
+    - "hub.storage.external_db_port"
+    - "hub.storage.external_db_user"
+    - "hub.storage.external_db_password"
   res:
-    - 'Secret:ext_db'
-    - 'PersistentVolumeClaim:'
+    - 'Secret:hub-pg'
   next: done
 
 - key: decide_pvc_strategy
@@ -37,6 +36,7 @@
     else: locate_external_pvc
 
 - key: locate_external_pvc
+  title: "Self-Managed PVC"
   fields:
     - "hub.storage.pvc_name"
   next: set_db_secrets
