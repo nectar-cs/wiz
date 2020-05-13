@@ -53,3 +53,9 @@
     - "PersistentVolumeClaim:*"
     - "Deployment:postgres"
     - "Service:postgres"
+
+- key: backups_strategy
+  title: "Backups Strategy"
+  fields:
+    - "hub.backups.type"
+  next: done

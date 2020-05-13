@@ -17,7 +17,7 @@ class DbPasswordField(Field):
     return 'hub.storage.db_password'
 
   def default_value(self):
-    return utils.rand_str(string_len=12)
+    return utils.rand_str(string_len=20)
 
 
 class LocateExternalDatabaseStep(Step):

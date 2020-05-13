@@ -71,3 +71,18 @@
 - key: "hub.storage.external_db_password"
   title: "External Database Password"
   inline: true
+
+- key: "hub.backups.type"
+  type: select
+  options:
+    - key: internal
+      value: "Internal - save to an in-cluster database"
+    - key: external
+      value: "External - save to a database outside the cluster"
+    - key: none
+      value: "None - do not backup the database"
+  validations:
+    - type: equality
+      check_against: none
+      tone: warning
+      message: "That is a terrible idea"

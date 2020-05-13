@@ -54,7 +54,7 @@ class Field(WizModel):
 
   def default_value(self):
     explicit_default = self.config.get('default')
-    if not explicit_default:
+    if not explicit_default and self.type == 'select':
       options = self.options()
       return options[0]['key'] if len(options) > 0 else None
     else:
