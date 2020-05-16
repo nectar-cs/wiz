@@ -4,9 +4,9 @@
   choose how storage is allocated and how the database is secured."
   steps:
     - storage_strategy
+    - decide_pvc_strategy
     - locate_external_pvc
     - locate_external_db
-    - decide_pvc_strategy
     - set_db_secrets
 
 - key: backups

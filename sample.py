@@ -59,4 +59,5 @@ wiz_globals.set_subclasses(
 )
 
 dotenv.load_dotenv()
+print("Launching parent server...")
 server.start()
