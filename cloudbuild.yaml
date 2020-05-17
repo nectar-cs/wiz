@@ -4,31 +4,31 @@ images:
 steps:
 
   - id: "Fetch Secrets"
+    waitFor: []
     name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
-    waitFor: []
     args:
       - '-c'
       - 'gcloud secrets versions access latest --secret=wiz-codecov-token > covp.txt;
          gcloud secrets versions access latest --secret=pypi-password > pypip.txt'
 
   - id: "Pull Kind Cluster CI Image"
-    name: 'gcr.io/cloud-builders/docker'
     waitFor: []
+    name: 'gcr.io/cloud-builders/docker'
     args:
       - "pull"
       - "gcr.io/nectar-bazaar/kind-ci-cluster"
 
   - id: "Pull Cached Image"
-    name: 'gcr.io/cloud-builders/docker'
     waitFor: []
+    name: 'gcr.io/cloud-builders/docker'
     args:
       - "pull"
       - "gcr.io/nectar-bazaar/wiz:latest"
 
-  - id: "Build Test Image"
-    name: 'gcr.io/cloud-builders/docker'
+  - id: "Build Images"
     waitFor: ["Pull Cached Image", "Fetch Secrets"]
+    name: 'gcr.io/cloud-builders/docker'
     args:
       - "build"
       - "."
@@ -37,15 +37,15 @@ steps:
       - "--build-arg"
       - "CODECOV_TOKEN=$(cat covp.txt)"
       - "-t"
-      - "wiz:latest"
-      - "-t"
       - "gcr.io/nectar-bazaar/wiz:latest"
       - "-t"
       - "test-image:latest"
+      - "-t"
+      - "gcr.io/nectar-bazaar/hub-self-hosted-wiz:staging"
 
   - id: "Run Tests in Virtual Cluster"
+    waitFor: ["Pull Kind Cluster CI Image", "Build Images"]
     name: 'gcr.io/cloud-builders/docker'
-    waitFor: ["Pull Kind Cluster CI Image", "Build Test Image"]
     args:
       - "run"
       - "-v"
@@ -54,11 +54,33 @@ steps:
       - "gcr.io/nectar-bazaar/kind-ci-cluster:latest"
 
   - id: "Publish"
-    name: 'gcr.io/cloud-builders/docker'
     waitFor: ["Run Tests in Virtual Cluster"]
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - "--env"
-      - "PASSWORD=$(cat pypip.txt)"
-      - 'wiz:latest'
-      - "publish"
+      - '-c'
+      - 'docker run --env PYPI_PASSWORD="$(cat pypip.txt)"
+         gcr.io/nectar-bazaar/wiz:latest
+         publish
+        '
+
+  - id: "Push Staging Image"
+    waitFor: ["Build Images"]
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/nectar-bazaar/hub-self-hosted-wiz:staging"
+
+  - id: "Deploy in Staging Cluster"
+    waitFor: ["Push Staging Image"]
+    name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - "delete"
+      - "pod"
+      - "-l"
+      - "app=nectar-wizard"
+      - "-n"
+      - "hub-self-hosted"
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=staging'
