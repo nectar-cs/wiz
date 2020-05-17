@@ -1,6 +1,6 @@
 from wiz.core import wiz_globals as wg_module
 from wiz.core.wiz_globals import wiz_globals
-from wiz.test.test_helpers.cluster_test import ClusterTest
+from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
 class TestWizGlobals(ClusterTest):

@@ -91,6 +91,7 @@ def kubectl_apply():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
+  print("Running")
   return subprocess.check_output(cmd.split(" "))
 
 

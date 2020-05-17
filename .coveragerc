@@ -2,7 +2,7 @@
 omit =
     */site-packages/*
     */distutils/*
-    */k8_kat/*
     tests/*
+
 
 source=wiz

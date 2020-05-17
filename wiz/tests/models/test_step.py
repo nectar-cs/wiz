@@ -1,18 +1,18 @@
 from k8_kat.res.pod.kat_pod import KatPod
 
-from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
-
-from k8_kat.tests.res.common.test_kat_pod import TestKatPod
 
 from k8_kat.utils.testing import ns_factory
 from wiz.core.wiz_globals import wiz_globals
 from wiz.model.step.step import Step
-from wiz.test.test_helpers.cluster_test import ClusterTest
+from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
 class TestStep(ClusterTest):
 
   def test_affected_resources(self):
+    from k8_kat.tests.res.common.test_kat_pod import TestKatPod
+    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
+
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
     step = Step(dict(
@@ -20,15 +20,16 @@ class TestStep(ClusterTest):
       title='foo',
       res=["Pod:", "Service:s1"]
     ))
-
     TestKatSvc.create_res('s1', ns)
     TestKatSvc.create_res('s2', ns)
     TestKatPod.create_res('p1', ns)
+
     TestKatPod.create_res('p2', ns)
     actual = step.affected_resources()
     self.assertEqual(names(actual), ['p1', 'p2', 's1'])
 
   def test_status_simple(self):
+    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Service:"]))
@@ -36,6 +37,9 @@ class TestStep(ClusterTest):
     self.assertEqual('positive', step.status())
 
   def test_status_pending(self):
+    from k8_kat.tests.res.common.test_kat_pod import TestKatPod
+    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
+
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Pod:", "Service:"]))
@@ -48,6 +52,9 @@ class TestStep(ClusterTest):
     self.assertEqual('positive', step.status())
 
   def test_status_negative(self):
+    from k8_kat.tests.res.common.test_kat_pod import TestKatPod
+    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
+
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Pod:", "Service:"]))

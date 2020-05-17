@@ -3,11 +3,11 @@ import yaml
 from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.utils.testing import ns_factory
 
-from wiz.test.test_helpers import helper
+from wiz.tests.t_helpers import helper
 
 from wiz.core import tedi_prep, tedi_client
-from wiz.test.test_helpers.cluster_test import ClusterTest
-from wiz.test.test_helpers.helper import create_base_master_map
+from wiz.tests.t_helpers.cluster_test import ClusterTest
+from wiz.tests.t_helpers.helper import create_base_master_map
 
 
 class TestTecPrep(ClusterTest):

@@ -3,7 +3,7 @@ import unittest
 
 from wiz.core.wiz_globals import wiz_globals as wg
 from wiz.server import app
-from wiz.test.models.helpers import g_con_conf, g_conf
+from wiz.tests.models.helpers import g_con_conf, g_conf
 
 
 class TestConcern(unittest.TestCase):

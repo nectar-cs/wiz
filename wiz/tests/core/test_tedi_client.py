@@ -7,8 +7,8 @@ from wiz.core import tedi_prep, tedi_client
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.tedi_client import deep_set, filter_res
 from wiz.core.wiz_globals import wiz_globals
-from wiz.test.test_helpers.cluster_test import ClusterTest
-from wiz.test.test_helpers.helper import create_base_master_map, simple_tedi_setup
+from wiz.tests.t_helpers.cluster_test import ClusterTest
+from wiz.tests.t_helpers.helper import create_base_master_map, simple_tedi_setup
 
 
 class TestTecClient(ClusterTest):
@@ -79,7 +79,10 @@ class TestTecClient(ClusterTest):
     self.assertEqual([pod, svc], [None, None])
     tedi_prep.create(self.ns, simple_tedi_setup())
     tedi_client.tedi_pod().wait_until_running()
-    tedi_client.apply([g_rule("*:*")])
+    tedi_client.apply(
+      [g_rule("*:*")],
+      [('namespace', self.ns)]
+    )
     pod, svc = find_pod_svc(self.ns)
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
@@ -96,6 +99,7 @@ class TestTecClient(ClusterTest):
 
     wiz_globals.ns_overwrite = self.ns
     tedi_client.commit_values([
+      ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])
@@ -113,6 +117,7 @@ class TestTecClient(ClusterTest):
 
     wiz_globals.ns_overwrite = self.ns
     tedi_client.commit_values([
+      ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])

@@ -1,21 +1,24 @@
 import yaml
 
-from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
-from k8_kat.tests.res.common.test_kat_dep import TestKatDep
-from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 from k8_kat.utils.testing import ns_factory
 from wiz.core import res_watch
 from wiz.core.wiz_globals import wiz_globals
-from wiz.test.test_helpers.cluster_test import ClusterTest
+from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
 class TestResWatch(ClusterTest):
 
   def test_glob_generic(self):
+    from k8_kat.tests.res.common.test_kat_dep import TestKatDep
+    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
+    from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
+
     ns, _ = ns_factory.request(2)
     wiz_globals.ns_overwrite = ns
     TestKatDep.create_res('dep1', ns)
+
     TestKatSvc.create_res('svc1', ns)
+
     TestKatConfigMap.create_res('map1', ns)
 
     result = res_watch.glob(['Deployment'])
@@ -30,6 +33,8 @@ class TestResWatch(ClusterTest):
     self.assertEqual(result[2]['name'], 'map1')
 
   def test_glob_master_cm(self):
+    from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
+
     ns, = ns_factory.request(1)
     wiz_globals.ns_overwrite = ns
     data = dict(master=yaml.dump(dict(foo='bar')))

@@ -59,6 +59,7 @@ class ResMatchRule:
       )
     else:
       print(f"{self.kind} unsupported by K8Kat, kubectl fallback")
+      print("Except kubectl fallback not implemented either :/, returning []")
       return []
 
 def expr_to_rule_dict(expr: str) -> RuleDict:

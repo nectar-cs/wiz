@@ -13,10 +13,6 @@ def g_conf(c='Check', m='Message', t='warning'):
 
 class TestValidator(unittest.TestCase):
 
-  def test_constructor(self):
-    with self.assertRaises(RuntimeError):
-      Validator(dict(**g_conf(t='bad-tone')))
-
   def test_validate_when_nothing(self):
     v = Validator(g_conf())
     v.perform = MagicMock(return_value=False)

@@ -27,7 +27,11 @@ def status():
 def init():
   if not tedi_client.tedi_pod():
     params = request.json
+    print("IM HERE")
+    print(params)
     app, ns = params['app'], params['ns']
+    print(app)
+    print(ns)
     wiz_globals.persist_ns_and_app(ns, app)
     tedi_prep.create(ns, app)
   return dict(status='preparing')

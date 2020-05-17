@@ -4,7 +4,7 @@ from wiz.model.concern.concern import Concern
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
 from wiz.model.base.wiz_model import WizModel
-from wiz.test.models.helpers import g_conf
+from wiz.tests.models.helpers import g_conf
 
 SUBCLASSES: [WizModel] = [Concern, Step, Field]
 
