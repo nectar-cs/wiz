@@ -10,6 +10,7 @@ controller = Blueprint('status_controller', __name__)
 
 @controller.route('/api/status')
 def status():
+  print("HEY IM NORMAL")
   return jsonify(
     is_k8_kat_connected=broker.is_connected,
     last_k8_kat_conn_error=broker.last_error,

@@ -1,4 +1,4 @@
-from random import random
+import logging
 from typing import Dict
 
 import dotenv
@@ -58,6 +58,6 @@ wiz_globals.set_subclasses(
   ]
 )
 
+logging.basicConfig(level=logging.DEBUG)
 dotenv.load_dotenv()
-print("Launching parent server 2...")
 server.start()
