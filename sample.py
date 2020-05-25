@@ -112,13 +112,15 @@ def load_yaml_array(fname) -> [Dict]:
   return yaml.load(file_contents, Loader=yaml.FullLoader)
 
 wiz_globals.set_configs(
-  concerns=load_yaml_array('example/concerns.yaml'),
+  install_stages=load_yaml_array('example/install_stages.yaml'),
   steps=load_yaml_array('example/steps.yaml'),
   fields=load_yaml_array('example/fields.yaml'),
+  operations=load_yaml_array('example/operations.yaml')
 )
 
 wiz_globals.set_subclasses(
-  concerns=[],
+  install_stages=[
+  ],
   steps=[
     LocateExternalDatabaseStep,
     AvailabilityStep
@@ -127,6 +129,8 @@ wiz_globals.set_subclasses(
     DbPasswordField,
     SecKeyBaseField,
     AttrEncField
+  ],
+  operations=[
   ]
 )
 

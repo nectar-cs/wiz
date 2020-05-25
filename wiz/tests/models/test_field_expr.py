@@ -3,7 +3,7 @@ import unittest
 from wiz.model.step import expr
 
 
-class TestConcern(unittest.TestCase):
+class TestFieldExpr(unittest.TestCase):
 
   def test_eval_next_expr_when_str(self):
     result = expr.eval_next_expr('simple', {})

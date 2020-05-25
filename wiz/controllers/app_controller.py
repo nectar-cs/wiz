@@ -4,10 +4,15 @@ from flask import Blueprint, jsonify
 from k8_kat.res.dep.kat_dep import KatDep
 
 from wiz.core.wiz_globals import wiz_globals
+from wiz.model.operations import serial
+from wiz.model.operations.install_stage import InstallStage
+from wiz.model.operations.operation import Operation
 
 controller = Blueprint('app_controller', __name__)
 
-@controller.route('/api/app/access_points', methods=["GET"])
+BASE_PATH = '/api/app'
+
+@controller.route(f'{BASE_PATH}/access_points', methods=["GET"])
 def access_points():
   delegate: Callable = wiz_globals.access_point_delegate
   if delegate:
@@ -17,8 +22,7 @@ def access_points():
     return jsonify(data=[])
 
 
-
-@controller.route('/api/app/workload_versions', methods=["GET"])
+@controller.route(f'{BASE_PATH}/workload_versions', methods=["GET"])
 def workload_versions():
   ns = wiz_globals.ns
   kat_deps: List[KatDep] = KatDep.list(ns=ns)
@@ -34,3 +38,17 @@ def workload_versions():
         last_update_at=last_update_at
       ))
   return jsonify(data=version_list)
+
+
+@controller.route(f'{BASE_PATH}/install_stages')
+def install_stages():
+  stages_list = InstallStage.inflate_all()
+  dicts = [serial.standard(c) for c in stages_list]
+  return jsonify(data=dicts)
+
+
+@controller.route(f'{BASE_PATH}/operations')
+def operations():
+  operations_list = Operation.inflate_all()
+  dicts = [serial.standard(c) for c in operations_list]
+  return jsonify(data=dicts)

@@ -6,19 +6,14 @@ from typing import Dict, Type, Optional
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
 
-def validate_custom_classes(classes):
-  for concern_class in classes:
-    if not concern_class.key():
-      raise RuntimeError('Concern key must provide a key()')
-
-  keys = [c.key() for c in classes]
-  duplicates = set([x for x in keys if keys.count(x) > 1])
-  if duplicates:
-    raise RuntimeError(f'Duplicate keys found: {duplicates}')
-
 
 def category_default() -> Dict[str, any]:
-  return dict(concerns=[], steps=[], fields=[])
+  return dict(
+    install_stages=[],
+    steps=[],
+    fields=[],
+    operations=[]
+  )
 
 
 def clear_cache():

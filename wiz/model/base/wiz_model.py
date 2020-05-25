@@ -1,4 +1,6 @@
-from typing import Type
+from typing import Type, Optional
+
+import inflection
 
 from wiz.core.wiz_globals import wiz_globals
 
@@ -23,13 +25,16 @@ class WizModel:
     return key_or_dict_to_child(match, child_class) if match else None
 
   @classmethod
-  def inflate(cls, key, config=None):
+  def inflate(cls, key, config=None) -> Optional['WizModel']:
     if not config:
       config = wiz_globals.find_config(cls.type_key(), key)
 
-    subclass = wiz_globals.find_subclass(cls.type_key(), key)
-    host_class = subclass or cls
-    return host_class(config)
+    if config:
+      subclass = wiz_globals.find_subclass(cls.type_key(), key)
+      host_class = subclass or cls
+      return host_class(config)
+    else:
+      return None
 
   @classmethod
   def inflate_all(cls):
@@ -38,7 +43,7 @@ class WizModel:
 
   @classmethod
   def type_key(cls):
-    return f'{cls.__name__.lower()}s'
+    return f"{inflection.underscore(cls.__name__)}s"
 
 
 def key_or_dict_matches(key_or_dict, target_key: str) -> bool:

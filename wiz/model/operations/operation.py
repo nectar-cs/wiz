@@ -2,7 +2,7 @@ from wiz.model.step.step import Step
 from wiz.model.base.wiz_model import WizModel
 
 
-class Concern(WizModel):
+class Operation(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
@@ -16,4 +16,3 @@ class Concern(WizModel):
 
   def step(self, key):
     return self.load_child('steps', Step, key)
-

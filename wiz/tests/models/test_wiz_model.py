@@ -1,12 +1,12 @@
 import unittest
 from wiz.core.wiz_globals import wiz_globals as wg
-from wiz.model.concern.concern import Concern
+from wiz.model.operations.operation import Operation
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
 from wiz.model.base.wiz_model import WizModel
 from wiz.tests.models.helpers import g_conf
 
-SUBCLASSES: [WizModel] = [Concern, Step, Field]
+SUBCLASSES: [WizModel] = [Operation, Step, Field]
 
 class TestWizModel(unittest.TestCase):
 

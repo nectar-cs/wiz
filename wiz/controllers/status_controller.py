@@ -7,6 +7,10 @@ from wiz.core import wiz_globals
 controller = Blueprint('status_controller', __name__)
 
 
+@controller.route('/api/ping')
+def ping():
+  return jsonify(ping='pong')
+
 
 @controller.route('/api/status')
 def status():

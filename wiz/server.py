@@ -6,14 +6,15 @@ from flask_cors import CORS
 
 from k8_kat.auth.kube_broker import BrokerConnException, \
   broker
-from wiz.controllers import setup_controller, status_controller, app_controller
+from wiz.controllers import operations_controller, status_controller, \
+  app_controller
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 
 controllers = [
   status_controller,
-  setup_controller,
+  operations_controller,
   app_controller
 ]
 
@@ -22,10 +23,6 @@ for controller in controllers:
 
 CORS(app)
 
-
-@app.route('/api/ping')
-def ping():
-  return jsonify(ping='pong')
 
 
 @app.errorhandler(BrokerConnException)
