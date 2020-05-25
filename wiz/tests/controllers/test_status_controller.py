@@ -1,4 +1,5 @@
 import json
+import time
 
 from k8_kat.utils.testing import ns_factory
 
@@ -27,6 +28,7 @@ class TestStatusController(ClusterTest):
     tedi_prep.create(ns, helper.simple_tedi_setup())
     self.assertTrue(fetch_tedi_status() in ['pending', 'positive'])
     tedi_pod().wait_until_running()
+    time.sleep(10)
     self.assertEqual('positive', fetch_tedi_status())
 
   def test_tedi_prep(self):
@@ -36,6 +38,7 @@ class TestStatusController(ClusterTest):
     payload = dict(app=helper.simple_tedi_setup(), ns=ns,)
     response = app.test_client().post('/api/tedi/prepare', json=payload)
     self.assertEqual('pending', json.loads(response.data).get('status'))
+    time.sleep(10)
     self.assertTrue(fetch_tedi_status() in ['pending', 'positive'])
 
 
