@@ -1,12 +1,8 @@
-from typing import List
-
 from flask import Blueprint, request, jsonify
 from k8_kat.auth.kube_broker import broker
-from k8_kat.res.dep.kat_dep import KatDep
 
-from wiz.core import tedi_prep, tedi_client, res_watch
+from wiz.core import tedi_prep, tedi_client
 from wiz.core import wiz_globals
-
 
 controller = Blueprint('status_controller', __name__)
 
@@ -36,4 +32,3 @@ def tedi_init():
     wiz_globals.persist_ns_and_app(ns, app)
     tedi_prep.create(ns, app)
   return dict(status='pending')
-

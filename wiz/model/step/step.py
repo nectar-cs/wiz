@@ -30,13 +30,11 @@ class Step(WizModel):
     root = self.config.get('next')
     return expr.eval_next_expr(root, values)
 
-  def field(self, key) -> Field:
-    field_configs = self.config.get('fields', [])
-    step_key = [s for s in field_configs if s == key][0]
-    return Field.inflate(step_key)
+  def fields(self):
+    return self.load_children('fields', Field)
 
-  def fields(self) -> List[Field]:
-    return [self.field(key) for key in self.field_keys]
+  def field(self, key):
+    return self.load_child('fields', Field, key)
 
   def field_to_manifest_values(self, values: Dict[str, any]):
     return values

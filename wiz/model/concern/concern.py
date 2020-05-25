@@ -11,6 +11,9 @@ class Concern(WizModel):
   def first_step_key(self) -> str:
     return self.config['steps'][0]
 
-  def step(self, key) -> Step:
-    step_key = [s for s in self.config['steps'] if s == key][0]
-    return Step.inflate(step_key)
+  def steps(self):
+    return self.load_children('steps', Step)
+
+  def step(self, key):
+    return self.load_child('steps', Step, key)
+

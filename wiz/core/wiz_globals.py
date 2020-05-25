@@ -1,8 +1,7 @@
 import json
 import os
 from json import JSONDecodeError
-from typing import Dict
-
+from typing import Dict, Type, Optional
 
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
@@ -75,10 +74,13 @@ class WizGlobals:
     matches = [config for config in candidates if config['key'] == key]
     return matches[0] if len(matches) else None
 
-  def find_subclass(self, category, key: str):
-    candidates = self.subclasses[category]
-    matches = [subclass for subclass in candidates if subclass.key() == key]
-    return matches[0] if len(matches) else None
+  def find_subclass(self, category, key: str) -> Optional[Type]:
+    if key:
+      candidates = self.subclasses[category]
+      matches = [subclass for subclass in candidates if subclass.key() == key]
+      return matches[0] if len(matches) else None
+    else:
+      return None
 
   def clear(self):
     self.configs = category_default()
