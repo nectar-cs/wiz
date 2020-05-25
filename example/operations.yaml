@@ -1,0 +1,35 @@
+
+- key: "switch-to-ingress"
+  title: "Switch to Ingress"
+  category: "networking"
+  steps:
+    - key: first
+      title: "Confirmation"
+      infro: ""
+      fields:
+
+- key: "switch to Non-Ingress"
+  title: "Disable Ingress"
+  category: "networking"
+  steps:
+    - key: "first"
+      title: "Confirmation"
+
+- key: "trigger-mass-logout"
+  title: "Invalidate all sessions and tokens"
+  category: "application"
+
+- key: "trigger-db-cleanup"
+  title: "Run cleanup job"
+  category: "application"
+
+- key: "Set new performance profile"
+  title: ""
+
+- key: "reset-database"
+  title: "Reset Database"
+  category: "storage"
+  steps:
+    - confirm_with_app_name
+    - perform
+
