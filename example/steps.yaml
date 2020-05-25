@@ -2,7 +2,6 @@
   title: "Storage Strategy"
   fields:
     - "hub.storage.type"
-  apply: false
   next:
     if:
       - field: "hub.storage.type"
@@ -10,7 +9,6 @@
         check_against: 'internal'
     then: decide_pvc_strategy
     else: locate_external_db
-  res: []
 
 - key: locate_external_db
   title: "External Database"
@@ -44,8 +42,8 @@
 - key: set_db_secrets
   title: "Internal DB Credentials"
   fields:
-    - "hub.storage.db_user"
-    - "hub.storage.db_password"
+    - "hub.storage.secrets.user"
+    - "hub.storage.secrets.password"
   ephemeral: true
   next: done
   res:
@@ -54,8 +52,76 @@
     - "Deployment:postgres"
     - "Service:postgres"
 
+
+
+
+#---------------------------BACKUPS-----------------------------
+
+
+
+
 - key: backups_strategy
   title: "Backups Strategy"
   fields:
     - "hub.backups.type"
+  next: done
+
+
+
+
+
+#---------------------------APPLICATION-----------------------------
+
+
+
+
+- key: encryption
+  title: "Encryption"
+  fields:
+    - "hub.backend.secrets.key_base"
+    - "hub.backend.secrets.attr_enc_key"
+    - "hub.backend.encrypted_tables"
+  res:
+    - "Secret:hub-app"
+  next: availability
+
+- key: availability
+  title: "Availability"
+  fields:
+    - "hub.backend.num_users"
+    - "hub.backend.response_time"
+  res:
+    - "Deployment:hub"
+    - "Deployment:hub-front"
+  next: done
+
+
+
+
+
+#---------------------------NETWORKING-----------------------------
+
+
+
+
+- key: network_strategy
+  title: "Networking Strategy"
+  fields:
+    - "hub.networking.strategy"
+  next:
+    if:
+      - field: "hub.networking.strategy"
+        type: equality
+        check_against: 'ingress'
+    then: networking_host
+    else: done
+
+- key: networking_host
+  title: "Hosting"
+  fields:
+    - hub.networking.host
+    - hub.networking.path
+  res:
+    - Ingress:*
+    - Service:*
   next: done

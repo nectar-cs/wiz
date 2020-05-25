@@ -31,13 +31,13 @@ class Decorator:
 
   def short_desc(self):
     annotations = self.res_instance.metadata.annotations
-    return (annotations or {}).get('short_desc')
+    return (annotations or {}).get('short-desc')
 
   def serialize(self) -> Dict:
     return dict(
       kind=self.kind,
       name=self.name(),
-      short_desc=self.short_desc(),
+      short_desc=self.short_desc() or "No metadata provided",
       status=self.status(),
       extras=self.extras(),
       updated_at=self.updated_at()
@@ -80,16 +80,28 @@ class DeploymentDecorator(KatDecorator):
   def short_desc(self):
     # noinspection PyTypeChecker
     dep: KatDep = self.katified
-    pod_state = f"{dep.ready_replicas}/{dep.desired_replicas} pods"
+    ready = dep.ready_replicas or 0
+    pod_state = f"{ready}/{dep.desired_replicas} pods"
     return f"{super().short_desc()} - {pod_state}"
 
 def decorator_classes():
   return [
     ConfigMapDecorator,
     DeploymentDecorator,
+    SecretDecorator,
     KatDecorator,
     Decorator
   ]
+
+class SecretDecorator(KatDecorator):
+  @classmethod
+  def matches(cls, kind):
+    return kind == 'Secret'
+
+  def extras(self):
+    data = self.res_instance.data or {}
+    transform = lambda word: f"<{len(word)} bytes>"
+    return {k: transform(v) for k, v in data.items()}
 
 
 def resolve_kind_loader(kind) -> Optional[Callable]:

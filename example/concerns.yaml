@@ -9,24 +9,27 @@
     - locate_external_db
     - set_db_secrets
 
+- key: application
+  title: Application
+  description: "Configure the application at the infrastructure level.
+    This installer only exposes a subset of all possible fields. You can configure
+    the application further after the installer completes."
+  steps:
+    - encryption
+    - availability
+
 - key: backups
   title: Backups
-  description: "Depending on your primary storage, you may want to
-    provision database backups."
+  description: "Backups are an important part of hosting stateful
+    applications. Nectar provides pre-build backup solutions
+    for compatible the various storage strategies."
   steps:
     - backups_strategy
 
 - key: networking
   title: Networking
-  description: "Depending on your primary storage, you may want to
-    provision database backups."
+  description: "Nectar Hub is accessible in a number of ways. The following
+  steps expose the basic parameters for Hub's networking behavior."
   steps:
-    - decide_cluster_storage
-    - set_db_secrets
-
-- key: performance
-  title: Performance
-  description: "Sometimes I can't believe it, we can make a wildfire getaway."
-  steps:
-    - decide_cluster_storage
-    - set_db_secrets
+    - network_strategy
+    - networking_host

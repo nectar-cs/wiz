@@ -41,12 +41,12 @@
     make_value: name
   validations: []
 
-- key: "hub.storage.db_user"
+- key: "hub.storage.secrets.user"
   title: "Database user"
   default: postgres
   inline: true
 
-- key: "hub.storage.db_password"
+- key: "hub.storage.secrets.password"
   title: "Database password"
   inline: true
 
@@ -72,6 +72,12 @@
   title: "External Database Password"
   inline: true
 
+
+
+#---------------------------BACKUPS-----------------------------
+
+
+
 - key: "hub.backups.type"
   type: select
   options:
@@ -86,3 +92,102 @@
       check_against: none
       tone: warning
       message: "That is a terrible idea"
+
+
+
+
+#---------------------------APPLICATION-----------------------------
+
+
+
+- key: "hub.backend.secrets.key_base"
+  title: "Session Crypto Key"
+  info: "A 24 byte key to protect sessions from forgery attacks."
+  inline: true
+
+- key: "hub.backend.secrets.attr_enc_key"
+  title: "Database Crypto Key"
+  info: "A 32 byte key encrypt database tables."
+  inline: true
+
+- key: "hub.backend.encrypted_tables"
+  title: Encrypted Tables
+  type: checkboxes
+  validations: []
+  default:
+    - people
+  options:
+    - key: people
+      value: People (users, teams)
+    - key: apps
+      value: Content (apps, plans)
+    - key: transactions
+      value: Meta (purchases, installations, tickets)
+
+- key: "hub.backend.num_users"
+  title: "Expected daily active users"
+  info: "How many staff will likely use Hub?"
+  type: select
+  options:
+    - key: "low"
+      value: "Fewer than 100 staff"
+    - key: "medium"
+      value: "Between 100 and 500 staff"
+    - key: "high"
+      value: "More than 500 staff"
+
+- key: "hub.backend.response_time"
+  title: "Required performance profile"
+  info: "How many employees will likely use Hub?"
+  type: select
+  options:
+    - key: "high"
+      value: "Zero Latency"
+    - key: "medium"
+      value: "Up to 2 second page loads"
+    - key: "low"
+      value: "Up to 5 second page loads"
+
+
+
+
+
+
+
+
+
+
+#---------------------------NETWORKING-----------------------------
+
+
+
+- key: "hub.networking.strategy"
+  title: "Kubernetes Networking Strategy"
+  info: "How should we expose Hub to the internet?"
+  type: select
+  default: ingress
+  options:
+    - key: ingress
+      value: "Use an ingress for the public web"
+    - key: LoadBalancer
+      value: "Create a LoadBalancer for the public web"
+    - key: ClusterIP
+      value: "Only create ClusterIP"
+  validations:
+    - type: equality
+      check_against: ClusterIP
+      tone: warning
+      message: "Hub will not be on the world wide web"
+  edu:
+    - title: "Ingress Explained"
+      value: "asd"
+
+- key: "hub.networking.host"
+  title: "Hub Domain Name"
+  info: "The domain name Hub should be reachable on"
+  default: "our-private-hub.codenectar.com"
+
+- key: "hub.networking.path"
+  title: "Hub Path"
+  info: "The path Hub should be reachable on"
+  default: "/"

@@ -14,4 +14,3 @@ class Concern(WizModel):
   def step(self, key) -> Step:
     step_key = [s for s in self.config['steps'] if s == key][0]
     return Step.inflate(step_key)
-

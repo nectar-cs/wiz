@@ -91,8 +91,10 @@ def kubectl_apply():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
-  print("Running")
-  return subprocess.check_output(cmd.split(" "))
+  print(f"Running {cmd}")
+  result = subprocess.check_output(cmd.split(" "))
+  print(result)
+  return result
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):

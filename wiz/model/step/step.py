@@ -38,8 +38,12 @@ class Step(WizModel):
   def fields(self) -> List[Field]:
     return [self.field(key) for key in self.field_keys]
 
+  def field_to_manifest_values(self, values: Dict[str, any]):
+    return values
+
   def commit(self, values) -> Tuple[str, Optional[str]]:
-    normal_values, inline_values = partition_values(self.fields(), values)
+    mapped_values = self.field_to_manifest_values(values)
+    normal_values, inline_values = partition_values(self.fields(), mapped_values)
 
     if normal_values:
       tedi_client.commit_values(normal_values.items())
@@ -77,9 +81,13 @@ class Step(WizModel):
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
   normal_values, inline_values = {}, {}
-  get_field = lambda k: [f for f in fields if f.key == k][0]
+  def get_field(k):
+    matches = [f for f in fields if f.key == k]
+    return matches[0] if len(matches) else None
+
   for key, value in values.items():
-    is_inline = get_field(key).is_inline
-    bucket = inline_values if is_inline else normal_values
+    field = get_field(key)
+    is_normal = field is None or not field.is_inline
+    bucket = normal_values if is_normal else inline_values
     bucket[key] = value
   return [normal_values, inline_values]

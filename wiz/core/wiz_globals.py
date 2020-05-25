@@ -53,6 +53,7 @@ class WizGlobals:
   def __init__(self):
     self.configs = category_default()
     self.subclasses = category_default()
+    self.access_point_delegate = None
     self.ns_overwrite = None
 
   @property
