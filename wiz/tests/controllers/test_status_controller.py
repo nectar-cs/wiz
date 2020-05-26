@@ -5,7 +5,7 @@ from k8_kat.utils.testing import ns_factory
 
 from wiz.core import tedi_prep
 from wiz.core.tedi_client import tedi_pod
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.server import app
 from wiz.tests.t_helpers import helper
 from wiz.tests.t_helpers.cluster_test import ClusterTest
@@ -25,17 +25,17 @@ class TestStatusController(ClusterTest):
     self.assertIsNotNone(ret_data)
 
   def test_tedi_status_no_tedi(self):
-    wiz_globals.ns_overwrite, = ns_factory.request(1)
+    wiz_app.ns_overwrite, = ns_factory.request(1)
     self.assertEqual('none', fetch_tedi_status())
 
   def test_tedi_status_with_tedi(self):
-    wiz_globals.ns_overwrite, = ns, = ns_factory.request(1)
+    wiz_app.ns_overwrite, = ns, = ns_factory.request(1)
     create_base_master_map(ns)
     tedi_prep.create(ns, helper.simple_tedi_setup())
     self.assertTrue(fetch_tedi_status() in ['pending', 'positive', 'negative'])
 
   def test_tedi_prep(self):
-    wiz_globals.ns_overwrite, = ns, = ns_factory.request(1)
+    wiz_app.ns_overwrite, = ns, = ns_factory.request(1)
     create_base_master_map(ns)
 
     payload = dict(app=helper.simple_tedi_setup(), ns=ns,)

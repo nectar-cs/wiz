@@ -1,6 +1,6 @@
 from k8_kat.utils.testing import ns_factory
 from wiz.core.res_match_rule import ResMatchRule, component_matches
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -43,7 +43,7 @@ class TestResMatchRules(ClusterTest):
     from k8_kat.tests.res.common.test_kat_pod import TestKatPod
 
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     TestKatSvc.create_res('s1', ns)
     TestKatSvc.create_res('s2', ns)
 

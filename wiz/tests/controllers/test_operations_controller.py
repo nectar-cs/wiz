@@ -1,6 +1,6 @@
 import json
 
-from wiz.core.wiz_globals import wiz_globals as wg
+from wiz.core.wiz_globals import wiz_app as wg
 from wiz.server import app
 from wiz.tests.models.helpers import g_con_conf, g_conf
 from wiz.tests.t_helpers.cluster_test import ClusterTest

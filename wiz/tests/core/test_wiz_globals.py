@@ -1,5 +1,5 @@
 from wiz.core import wiz_globals as wg_module
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -22,5 +22,5 @@ class TestWizGlobals(ClusterTest):
 
   def test_init(self):
     wg_module.persist_ns_and_app('foo', dict(foo='bar'))
-    self.assertEqual(wiz_globals.ns, 'foo')
-    self.assertEqual(wiz_globals.app, dict(foo='bar'))
+    self.assertEqual(wiz_app.ns, 'foo')
+    self.assertEqual(wiz_app.app, dict(foo='bar'))

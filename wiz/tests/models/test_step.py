@@ -2,7 +2,7 @@ from k8_kat.res.pod.kat_pod import KatPod
 
 
 from k8_kat.utils.testing import ns_factory
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.model.step.step import Step
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
@@ -14,7 +14,7 @@ class TestStep(ClusterTest):
     from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     step = Step(dict(
       key='foo',
       title='foo',
@@ -31,7 +31,7 @@ class TestStep(ClusterTest):
   def test_status_simple(self):
     from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Service:"]))
     TestKatSvc.create_res('s1', ns)
     self.assertEqual('positive', step.status())
@@ -41,7 +41,7 @@ class TestStep(ClusterTest):
     from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Pod:", "Service:"]))
 
     TestKatSvc.create_res('s1', ns)
@@ -56,7 +56,7 @@ class TestStep(ClusterTest):
     from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
 
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Pod:", "Service:"]))
 
     TestKatSvc.create_res('s1', ns)

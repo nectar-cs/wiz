@@ -10,14 +10,14 @@ from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.types import K8sResDict
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.core import wiz_globals as wg
 
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
 def master_map() -> KatMap:
-  return KatMap.find('master', wiz_globals.ns)
+  return KatMap.find('master', wiz_app.ns)
 
 
 def commit_values(assignments: List[Tuple[str, any]]):
@@ -48,7 +48,7 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   pod = tedi_pod()
   pod.trigger()
-  vendor_flags: str = wiz_globals.app.get('te_args', '')
+  vendor_flags: str = wiz_app.app.get('te_args', '')
   inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{vendor_flags} {inline_flags}"
   command = f"{interpolate_cmd} --args [{quote(all_flags)}]"
@@ -65,8 +65,8 @@ def write_manifest(rules: List[ResMatchRule], inlines=None):
 
 
 def tedi_pod() -> Optional[KatPod]:
-  if wiz_globals.ns:
-    return KatPod.find(wg.tedi_pod_name, wiz_globals.ns)
+  if wiz_app.ns:
+    return KatPod.find(wg.tedi_pod_name, wiz_app.ns)
   else:
     return None
 

@@ -6,7 +6,7 @@ from k8_kat.utils.testing import ns_factory
 from wiz.core import tedi_prep, tedi_client
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.tedi_client import deep_set, filter_res
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 from wiz.tests.t_helpers.helper import create_base_master_map, simple_tedi_setup
 
@@ -17,7 +17,7 @@ class TestTecClient(ClusterTest):
     super().setUp()
     self.ns, = ns_factory.request(1)
 
-    wiz_globals.ns_overwrite = self.ns
+    wiz_app.ns_overwrite = self.ns
 
   def tearDown(self) -> None:
     super().tearDown()
@@ -97,7 +97,7 @@ class TestTecClient(ClusterTest):
     create_base_master_map(self.ns)
     tedi_prep.create(self.ns, simple_tedi_setup())
 
-    wiz_globals.ns_overwrite = self.ns
+    wiz_app.ns_overwrite = self.ns
     tedi_client.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),
@@ -115,7 +115,7 @@ class TestTecClient(ClusterTest):
     create_base_master_map(self.ns)
     tedi_prep.create(self.ns, simple_tedi_setup())
 
-    wiz_globals.ns_overwrite = self.ns
+    wiz_app.ns_overwrite = self.ns
     tedi_client.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),

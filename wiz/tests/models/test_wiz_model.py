@@ -1,5 +1,7 @@
 import unittest
-from wiz.core.wiz_globals import wiz_globals as wg
+from typing import Type
+
+from wiz.core.wiz_globals import wiz_app
 from wiz.model.operations.operation import Operation
 from wiz.model.field.field import Field
 from wiz.model.step.step import Step
@@ -8,69 +10,61 @@ from wiz.tests.models.helpers import g_conf
 
 SUBCLASSES: [WizModel] = [Operation, Step, Field]
 
-class TestWizModel(unittest.TestCase):
+class Base:
+  class TestWizModel(unittest.TestCase):
 
-  @property
-  def crt_conf_category(self) -> str:
-    return self.crt_subclass.type_key()
+    def setUp(self) -> None:
+      wiz_app.clear()
 
-  def run_inflate_no_subclass(self):
-    a, b = [g_conf(k='a'), g_conf(k='b')]
-    wg.add_configs(**{self.crt_conf_category: [a, b]})
-    inflated = self.crt_subclass.inflate('a')
-    self.assertEqual(type(inflated), self.crt_subclass)
-    self.assertEqual(inflated.key, 'a')
-    self.assertEqual(inflated.title, 'a.title')
+    @classmethod
+    def model_class(cls) -> Type[WizModel]:
+      raise NotImplementedError
 
-  def run_inflate_all(self):
-    wg.add_configs(**{
-      self.crt_conf_category: [
-        g_conf(k='a'),
-        g_conf(k='b'),
-        g_conf(k='c'),
-      ]
-    })
+    @property
+    def kind(self):
+      return self.model_class().type_key()
 
-    actual = [c.key for c in self.crt_subclass.inflate_all()]
-    self.assertEqual(actual, ['a', 'b', 'c'])
+    def test_inflate_with_key(self):
+      a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
+      wiz_app.add_configs([a, b])
+      inflated = self.model_class().inflate('a')
+      self.assertEqual(type(inflated), self.model_class())
+      self.assertEqual(inflated.key, 'a')
+      self.assertEqual(inflated.title, 'a.title')
 
-  def run_inflate_with_subclass(self):
-    class Sub(self.crt_subclass):
-      def __init__(self, config):
-        super().__init__(config)
-        self.title = 'Override'
+    def test_inflate_with_dict(self):
+      config = g_conf(k='a', i=self.kind, t='foo', d='bar')
+      inflated = self.model_class().inflate(config)
+      self.assertEqual('foo', inflated.title)
+      self.assertEqual('bar', inflated.info)
 
-      @classmethod
-      def key(cls):
-        return "sub"
+    def test_inflate_all(self):
+      wiz_app.add_configs([
+        g_conf(k='a', i=self.kind),
+        g_conf(k='b', i=self.kind),
+        g_conf(k='c', i=self.kind),
+        g_conf(k='c', i=f"not-{self.kind}")
+      ])
 
-    wg.add_configs(**{
-      self.crt_conf_category: [
-        g_conf(k='sub'),
-        g_conf(k='norm'),
-      ]
-    })
+      actual = [c.key for c in self.model_class().inflate_all()]
+      self.assertEqual(actual, ['a', 'b', 'c'])
 
-    wg.add_overrides(**{self.crt_conf_category: [Sub]})
-    sub, norm = self.crt_subclass.inflate('sub'), self.crt_subclass.inflate('norm')
+    def test_inflate_when_subclassed(self):
+      mks = self.model_class().type_key()
+      class Sub(self.model_class()):
+        @property
+        def title(self):
+          return "bar"
 
-    self.assertEqual(type(sub), Sub)
-    self.assertEqual(sub.title, 'Override')
+        @classmethod
+        def key(cls):
+          return "k"
 
-    self.assertNotEqual(type(norm), Sub)
-    self.assertEqual(norm.title, 'norm.title')
+        @classmethod
+        def type_key(cls):
+          return mks
 
-  def test_inflate_no_subclass(self):
-    for subclass in SUBCLASSES:
-      self.crt_subclass = subclass
-      self.run_inflate_no_subclass()
-
-  def test_inflate_all(self):
-    for subclass in SUBCLASSES:
-      self.crt_subclass = subclass
-      self.run_inflate_all()
-
-  def test_inflate_with_subclass(self):
-    for subclass in SUBCLASSES:
-      self.crt_subclass = subclass
-      self.run_inflate_with_subclass()
+      config = g_conf(k='k', i=self.kind, t='foo')
+      wiz_app.add_overrides([Sub])
+      inflated = self.model_class().inflate(config)
+      self.assertEqual('bar', inflated.title)

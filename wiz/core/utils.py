@@ -3,8 +3,12 @@ import os
 import random
 import string
 import subprocess
+from os import listdir
+from os.path import isfile, join
 from pathlib import Path
 from typing import Dict
+
+import yaml
 
 legal_envs = ['production', 'development', 'test']
 
@@ -16,6 +20,15 @@ def shell_exec(cmd) -> str:
     stdout=subprocess.PIPE
   )
   return output.stdout
+
+def yamls_in_dir(dirpath) -> [Dict]:
+  files = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
+  def to_yamls(fname):
+    with open(f"{dirpath}/{fname}", 'r') as stream:
+      file_contents = stream.read()
+      return list(yaml.full_load_all(file_contents))
+  yaml_arrays = [to_yamls(fname) for fname in files]
+  return [item for sublist in yaml_arrays for item in sublist]
 
 
 def jk_exec(cmd, **kwargs) -> Dict[str, any]:

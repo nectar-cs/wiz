@@ -2,7 +2,7 @@ import yaml
 
 from k8_kat.utils.testing import ns_factory
 from wiz.core import res_watch
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -14,7 +14,7 @@ class TestResWatch(ClusterTest):
     from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
 
     ns, _ = ns_factory.request(2)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     TestKatDep.create_res('dep1', ns)
 
     TestKatSvc.create_res('svc1', ns)
@@ -36,7 +36,7 @@ class TestResWatch(ClusterTest):
     from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
 
     ns, = ns_factory.request(1)
-    wiz_globals.ns_overwrite = ns
+    wiz_app.ns_overwrite = ns
     data = dict(master=yaml.dump(dict(foo='bar')))
     TestKatConfigMap.create_res('master', ns, data=data)
     result = res_watch.glob(['ConfigMap'])

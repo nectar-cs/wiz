@@ -4,7 +4,7 @@ from k8_kat.res.base.kat_res import KatRes
 from typing_extensions import TypedDict
 
 from wiz.core.types import K8sResDict
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 
 
 class RuleDict(TypedDict):
@@ -53,7 +53,7 @@ class ResMatchRule:
         }
 
       return kat_class.list(
-        ns=wiz_globals.ns,
+        ns=wiz_app.ns,
         labels=self.label_selectors,
         fields=field_selectors
       )

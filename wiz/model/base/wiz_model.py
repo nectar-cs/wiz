@@ -1,8 +1,8 @@
-from typing import Type, Optional
+from typing import Type, Optional, Dict
 
 import inflection
 
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 
 
 class WizModel:
@@ -32,21 +32,28 @@ class WizModel:
     return key_or_dict_to_child(match, child_class) if match else None
 
   @classmethod
-  def inflate(cls, key, config=None) -> Optional['WizModel']:
-    if not config:
-      config = wiz_globals.find_config(cls.type_key(), key)
+  def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:
+    subclass = wiz_app.find_subclass(cls.type_key(), config['key'])
+    host_class = subclass or cls
+    return host_class(config)
 
-    if config:
-      subclass = wiz_globals.find_subclass(cls.type_key(), key)
-      host_class = subclass or cls
-      return host_class(config)
-    else:
-      return None
+  @classmethod
+  def inflate_with_key(cls, key: str) -> Optional['WizModel']:
+    config = wiz_app.find_config(cls.type_key(), key)
+    return cls.inflate_with_config(config)
 
   @classmethod
   def inflate_all(cls):
-    keys = [c['key'] for c in wiz_globals.configs[cls.type_key()]]
-    return [cls.inflate(key) for key in keys]
+    configs = wiz_app.configs_of_kind(cls.type_key())
+    return [cls.inflate_with_config(config) for config in configs]
+
+  @classmethod
+  def inflate(cls, key_or_dict) -> Optional['WizModel']:
+    if isinstance(key_or_dict, str):
+      return cls.inflate_with_key(key_or_dict)
+    elif isinstance(key_or_dict, Dict):
+      return cls.inflate_with_config(key_or_dict)
+    raise RuntimeError(f"Bad input {key_or_dict}")
 
   @classmethod
   def type_key(cls):
@@ -58,7 +65,7 @@ def key_or_dict_to_key(key_or_dict) -> str:
     return key_or_dict
 
   elif isinstance(key_or_dict, dict):
-    return key_or_dict.get('key')
+    return key_or_dict['key']
 
   raise RuntimeError(f"Can't handle {key_or_dict}")
 
@@ -66,17 +73,5 @@ def key_or_dict_to_key(key_or_dict) -> str:
 def key_or_dict_matches(key_or_dict, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
 
-
 def key_or_dict_to_child(key_or_dict, child_cls: Type[WizModel]) -> 'WizModel':
-  if isinstance(key_or_dict, str):
-    return child_cls.inflate(
-      key=key_or_dict
-    )
-
-  elif isinstance(key_or_dict, dict):
-    return child_cls.inflate(
-      key=key_or_dict.get('key'),
-      config=key_or_dict
-    )
-
-  raise RuntimeError(f"Can't handle {key_or_dict}")
+  return child_cls.inflate(key_or_dict)

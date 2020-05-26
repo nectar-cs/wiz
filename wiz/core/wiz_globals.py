@@ -42,16 +42,18 @@ def read_ns_and_app():
   except (FileNotFoundError, JSONDecodeError):
     return [None, None]
 
+
 def is_config_match(config: Dict, kind: str, key: str):
   return config['kind'] == kind and config['key'] == key
 
-def is_subclass_match(subclass, kind, key):
+
+def is_subclass_match(subclass, kind: str, key: str):
   from wiz.model.base.wiz_model import WizModel
   actual: WizModel = subclass
-  return actual.type_key() == kind and actual.key == key
+  return actual.type_key() == kind and actual.key() == key
 
 
-class WizGlobals:
+class WizApp:
 
   def __init__(self):
     self.configs = []
@@ -77,7 +79,10 @@ class WizGlobals:
     matches = [c for c in self.configs if is_config_match(c, kind, key)]
     return matches[0] if len(matches) else None
 
-  def find_subclass(self, kind, key: str) -> Optional[Type]:
+  def configs_of_kind(self, kind: str):
+    return [c for c in self.configs if c['kind'] == kind]
+
+  def find_subclass(self, kind: str, key: str) -> Optional[Type]:
     matches = [c for c in self.subclasses if is_subclass_match(c, kind, key)]
     return matches[0] if len(matches) else None
 
@@ -86,4 +91,4 @@ class WizGlobals:
     self.subclasses = []
 
 
-wiz_globals = WizGlobals()
+wiz_app = WizApp()

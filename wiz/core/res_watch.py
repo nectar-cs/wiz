@@ -5,7 +5,7 @@ from k8_kat.res.dep.kat_dep import KatDep
 from k8_kat.res.config_map.kat_map import KatMap
 
 from k8_kat.res.base.kat_res import KatRes
-from wiz.core.wiz_globals import wiz_globals
+from wiz.core.wiz_globals import wiz_app
 
 
 class Decorator:
@@ -137,7 +137,7 @@ def load_kind_instances(kinds) -> Dict[str, List]:
   for kind in kinds:
     loader = resolve_kind_loader(kind)
     if loader:
-      all_instances[kind] = loader(wiz_globals.ns)
+      all_instances[kind] = loader(wiz_app.ns)
     else:
       print(f"NO LOADER FOR KIND {kind}")
   return all_instances
