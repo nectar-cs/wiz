@@ -13,9 +13,6 @@ class Stage(WizModel):
     first = step_descriptors[0] if len(step_descriptors) else 0
     return key_or_dict_to_key(first) if first else None
 
-  def res_access(self):
-    return self.config.get('res_access', [])
-
   def steps(self):
     return self.load_children('steps', Step)
 

@@ -1,13 +1,20 @@
+from typing import Type
+
 from k8_kat.res.pod.kat_pod import KatPod
 
 
 from k8_kat.utils.testing import ns_factory
 from wiz.core.wiz_globals import wiz_app
+from wiz.model.base.wiz_model import WizModel
 from wiz.model.step.step import Step
-from wiz.tests.t_helpers.cluster_test import ClusterTest
+from wiz.tests.models.test_wiz_model import Base
 
 
-class TestStep(ClusterTest):
+class TestStep(Base.TestWizModel):
+
+  @classmethod
+  def model_class(cls) -> Type[WizModel]:
+    return Step
 
   def test_affected_resources(self):
     from k8_kat.tests.res.common.test_kat_pod import TestKatPod

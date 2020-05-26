@@ -1,4 +1,4 @@
-from wiz.model.step.step import Step
+from wiz.model.stage.stage import Stage
 from wiz.model.base.wiz_model import WizModel, key_or_dict_to_key
 
 
@@ -10,7 +10,10 @@ class Operation(WizModel):
     return key_or_dict_to_key(first) if first else None
 
   def stages(self):
-    return self.load_children('steps', Step)
+    return self.load_children('stages', Stage)
 
   def stage(self, key):
-    return self.load_child('steps', Step, key)
+    return self.load_child('stages', Stage, key)
+
+  def res_access(self):
+    return self.config.get('res_access', [])

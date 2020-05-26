@@ -2,7 +2,7 @@ import json
 
 from wiz.core.wiz_globals import wiz_app as wg
 from wiz.server import app
-from wiz.tests.models.helpers import g_con_conf, g_conf
+from wiz.tests.models.helpers import g_conf
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -11,75 +11,51 @@ class TestOperationsController(ClusterTest):
   def setUp(self) -> None:
     wg.clear()
 
-  def test_steps_show_when_exists(self):
-    wg.add_configs(
-      operations=[g_con_conf(k='c1', s=['s1', 's2'])],
-      steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
-      fields=[
-        dict(
-          key='f1',
-          title='Bar',
-          type='choice',
-          info='Inf',
-          options=[
-            dict(key='x', value='y')
-          ])
-      ]
-    )
+  def test_operations_index(self):
+    config = g_conf(k='foo', t='Foo', i='operation')
+    wg.add_configs([config])
 
-    response = app.test_client().get('/api/operations/c1/steps/s1')
+    response = app.test_client().get('/api/operations')
+    body = json.loads(response.data).get('data')
+
+    self.assertEqual(1, len(body))
+    self.assertEqual('foo', body[0].get('id'))
+    self.assertEqual('Foo', body[0].get('title'))
+
+  def test_steps_show(self):
+    wg.add_configs(basic_operation())
+
+    response = app.test_client().get('/api/operations/o1/stages/g1/steps/s1')
     body = json.loads(response.data)['data']
     self.assertEqual(body['id'], 's1')
-    self.assertEqual(body['title'], 'Foo')
     self.assertEqual(len(body['fields']), 1)
     self.assertEqual(body['fields'][0]['id'], 'f1')
 
-  def test_fields_validate_when_valid(self):
-    wg.add_configs(
-      operations=[g_con_conf(k='c1', s=['s1'])],
-      steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
-      fields=[g_field(k='f1', c='foo')]
-    )
+  def test_fields_validate(self):
+    wg.add_configs(basic_operation())
 
-    endpoint = '/api/operations/c1/steps/s1/fields/f1/validate'
+    endpoint = '/api/operations/o1/stages/g1/steps/s1/fields/f1/validate'
     response = app.test_client().post(endpoint, json=dict(value='bar'))
     body = json.loads(response.data)['data']
     self.assertEqual(body, dict(status='valid'))
 
-  def test_fields_validate_when_not_valid(self):
-      wg.add_configs(
-        operations=[g_con_conf(k='c1', s=['s1'])],
-        steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
-        fields=[g_field(k='f1', c='foo', t='warning', m='bar')]
-      )
-
-      endpoint = '/api/operations/c1/steps/s1/fields/f1/validate'
-      body = dict(value='foo')
-      response = app.test_client().post(endpoint, json=body)
-      body = json.loads(response.data)['data']
-      self.assertEqual(body, dict(status='warning', message='bar'))
-
   def test_step_next_simple(self):
-    wg.add_configs(
-      operations=[g_con_conf(k='c1', s=['s1'])],
-      steps=[g_conf(k='s1', next='foo-baz')]
-    )
+    endpoint = '/api/operations/o1/stages/g1/steps/s1/next'
+    wg.add_configs([
+      g_conf(k='o1', stages=['g1'], i='operation'),
+      g_conf(k='g1', steps=['s1', 's2'], i='stage'),
+      g_conf(k='s1', fields=['f1'], i='step', next='bar'),
+    ])
 
-    endpoint = '/api/operations/c1/steps/s1/next'
     response = app.test_client().post(endpoint, json=dict(values={}))
-    body = json.loads(response.data)['step_id']
-    self.assertEqual(body, 'foo-baz')
+    body = json.loads(response.data).get('step_id')
+    self.assertEqual(body, 'bar')
 
 
-def g_field(k='f', c='Check', m='Message', t='warning'):
-  return dict(
-    key=k,
-    validations=[
-      dict(
-        type='equality',
-        check_against=c,
-        message=m,
-        tone=t
-      )
-    ]
-  )
+def basic_operation():
+  return [
+    g_conf(k='o1', stages=['g1'], i='operation'),
+    g_conf(k='g1', steps=['s1', 's2'], i='stage'),
+    g_conf(k='s1', fields=['f1'], i='step'),
+    g_conf(k='f1', i='field')
+  ]

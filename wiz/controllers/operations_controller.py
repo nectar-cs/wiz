@@ -2,13 +2,14 @@ from flask import Blueprint, jsonify, request
 
 from wiz.core import res_watch
 from wiz.model.field.field import Field
-from wiz.model.operations.install_stage import InstallStage
-from wiz.model.step import serial as step_serial
 from wiz.model.operations.operation import Operation
+from wiz.model.stage.stage import Stage
+from wiz.model.operations import serial as operation_serial
+from wiz.model.step import serial as step_serial
 from wiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'
-OPERATION_PATH = f'/{OPERATIONS_PATH}/<op_id>'
+OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
 
 STAGES_PATH = f'{OPERATION_PATH}/stages'
 STAGE_PATH = f'{STAGES_PATH}/<stage_id>'
@@ -16,14 +17,22 @@ STAGE_PATH = f'{STAGES_PATH}/<stage_id>'
 STEPS_PATH = f'{STAGE_PATH}/steps'
 STEP_PATH = f'{STEPS_PATH}/<step_id>'
 
-FIELD_PATH = f'{STEP_PATH}/fields/<field_id>'
+FIELDS_PATH = f'{STEP_PATH}/fields'
+FIELD_PATH = f'{FIELDS_PATH}/<field_id>'
 
 controller = Blueprint('operations_controller', __name__)
 
 
+
+@controller.route(OPERATIONS_PATH)
+def operations():
+  operations_list = Operation.inflate_all()
+  dicts = [operation_serial.standard(c) for c in operations_list]
+  return jsonify(data=dicts)
+
 @controller.route(STEP_PATH)
-def steps_show(op_id, step_id):
-  step = find_step(op_id, step_id)
+def steps_show(operation_id, stage_id, step_id):
+  step = find_step(operation_id, stage_id, step_id)
   serialized = step_serial.standard(step)
   return jsonify(data=serialized)
 
@@ -40,30 +49,30 @@ def watch_step_res(op_id, step_id):
 
 
 @controller.route(f"{STEP_PATH}/submit", methods=['POST'])
-def step_submit(op_id, step_id):
+def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
-  step = find_step(op_id, step_id)
+  step = find_step(operation_id, stage_id, step_id)
   status, reason = step.commit(values)
   return jsonify(status=status, message=reason)
 
 
 @controller.route(f"{STEP_PATH}/status")
-def step_status(op_id, step_id):
-  step = find_step(op_id, step_id)
+def step_status(operation_id, stage_id, step_id):
+  step = find_step(operation_id, stage_id, step_id)
   return jsonify(status=step.status())
 
 
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])
-def steps_next_id(op_id, step_id):
+def steps_next_id(operation_id, stage_id, step_id):
   values = request.json['values']
-  step = find_step(op_id, step_id)
+  step = find_step(operation_id, stage_id, step_id)
   next_step_id = step.next_step_id(values)
   return jsonify(step_id=next_step_id)
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
-def fields_validate(op_id, step_id, field_id):
-  field = find_field(op_id, step_id, field_id)
+def fields_validate(operation_id, stage_id, step_id, field_id):
+  field = find_field(operation_id, stage_id, step_id, field_id)
   value = request.json['value']
   tone, message = field.validate(value)
   if tone and message:
@@ -72,16 +81,20 @@ def fields_validate(op_id, step_id, field_id):
     return jsonify(data=dict(status='valid'))
 
 
-def find_stage(key) -> Operation:
-  return Operation.inflate(key) or \
-         InstallStage.inflate(key)
+def find_operation(operation_id) -> Operation:
+  return Operation.inflate(operation_id)
 
 
-def find_step(op_id, step_key) -> Step:
-  operation = find_stage(op_id)
-  return operation.step(step_key)
+def find_stage(operation_id, stage_id) -> Stage:
+  operation = find_operation(operation_id)
+  return operation.stage(stage_id)
 
 
-def find_field(op_id, step_key, field_id) -> Field:
-  step = find_step(op_id, step_key)
+def find_step(operation_id, stage_id, step_id) -> Step:
+  stage = find_stage(operation_id, stage_id)
+  return stage.step(step_id)
+
+
+def find_field(operation_id, stage_id, step_id, field_id) -> Field:
+  step = find_step(operation_id, stage_id, step_id)
   return step.field(field_id)

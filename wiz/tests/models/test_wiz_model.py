@@ -7,11 +7,12 @@ from wiz.model.field.field import Field
 from wiz.model.step.step import Step
 from wiz.model.base.wiz_model import WizModel
 from wiz.tests.models.helpers import g_conf
+from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 SUBCLASSES: [WizModel] = [Operation, Step, Field]
 
 class Base:
-  class TestWizModel(unittest.TestCase):
+  class TestWizModel(ClusterTest):
 
     def setUp(self) -> None:
       wiz_app.clear()

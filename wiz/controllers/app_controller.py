@@ -4,9 +4,6 @@ from flask import Blueprint, jsonify
 from k8_kat.res.dep.kat_dep import KatDep
 
 from wiz.core.wiz_globals import wiz_app
-from wiz.model.operations import serial
-from wiz.model.operations.install_stage import InstallStage
-from wiz.model.operations.operation import Operation
 
 controller = Blueprint('app_controller', __name__)
 
@@ -38,17 +35,3 @@ def workload_versions():
         last_update_at=last_update_at
       ))
   return jsonify(data=version_list)
-
-
-@controller.route(f'{BASE_PATH}/install_stages')
-def install_stages():
-  stages_list = InstallStage.inflate_all()
-  dicts = [serial.standard(c) for c in stages_list]
-  return jsonify(data=dicts)
-
-
-@controller.route(f'{BASE_PATH}/operations')
-def operations():
-  operations_list = Operation.inflate_all()
-  dicts = [serial.standard(c) for c in operations_list]
-  return jsonify(data=dicts)
