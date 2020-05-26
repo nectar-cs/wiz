@@ -9,8 +9,13 @@ from wiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<op_id>'
-STEPS_PATH = f'{OPERATION_PATH}/steps'
+
+STAGES_PATH = f'{OPERATION_PATH}/stages'
+STAGE_PATH = f'{STAGES_PATH}/<stage_id>'
+
+STEPS_PATH = f'{STAGE_PATH}/steps'
 STEP_PATH = f'{STEPS_PATH}/<step_id>'
+
 FIELD_PATH = f'{STEP_PATH}/fields/<field_id>'
 
 controller = Blueprint('operations_controller', __name__)
@@ -67,13 +72,13 @@ def fields_validate(op_id, step_id, field_id):
     return jsonify(data=dict(status='valid'))
 
 
-def find_operation(key) -> Operation:
+def find_stage(key) -> Operation:
   return Operation.inflate(key) or \
          InstallStage.inflate(key)
 
 
 def find_step(op_id, step_key) -> Step:
-  operation = find_operation(op_id)
+  operation = find_stage(op_id)
   return operation.step(step_key)
 
 

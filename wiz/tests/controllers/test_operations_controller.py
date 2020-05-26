@@ -12,7 +12,7 @@ class TestOperationsController(ClusterTest):
     wg.clear()
 
   def test_steps_show_when_exists(self):
-    wg.set_configs(
+    wg.add_configs(
       operations=[g_con_conf(k='c1', s=['s1', 's2'])],
       steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
       fields=[
@@ -35,7 +35,7 @@ class TestOperationsController(ClusterTest):
     self.assertEqual(body['fields'][0]['id'], 'f1')
 
   def test_fields_validate_when_valid(self):
-    wg.set_configs(
+    wg.add_configs(
       operations=[g_con_conf(k='c1', s=['s1'])],
       steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
       fields=[g_field(k='f1', c='foo')]
@@ -47,7 +47,7 @@ class TestOperationsController(ClusterTest):
     self.assertEqual(body, dict(status='valid'))
 
   def test_fields_validate_when_not_valid(self):
-      wg.set_configs(
+      wg.add_configs(
         operations=[g_con_conf(k='c1', s=['s1'])],
         steps=[g_conf(k='s1', t='Foo', fields=['f1'])],
         fields=[g_field(k='f1', c='foo', t='warning', m='bar')]
@@ -60,7 +60,7 @@ class TestOperationsController(ClusterTest):
       self.assertEqual(body, dict(status='warning', message='bar'))
 
   def test_step_next_simple(self):
-    wg.set_configs(
+    wg.add_configs(
       operations=[g_con_conf(k='c1', s=['s1'])],
       steps=[g_conf(k='s1', next='foo-baz')]
     )

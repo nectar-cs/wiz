@@ -1,7 +1,7 @@
 import json
 import os
 from json import JSONDecodeError
-from typing import Dict, Type, Optional
+from typing import Dict, Type, Optional, List
 
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
@@ -42,11 +42,20 @@ def read_ns_and_app():
   except (FileNotFoundError, JSONDecodeError):
     return [None, None]
 
+def is_config_match(config: Dict, kind: str, key: str):
+  return config['kind'] == kind and config['key'] == key
+
+def is_subclass_match(subclass, kind, key):
+  from wiz.model.base.wiz_model import WizModel
+  actual: WizModel = subclass
+  return actual.type_key() == kind and actual.key == key
+
+
 class WizGlobals:
 
   def __init__(self):
-    self.configs = category_default()
-    self.subclasses = category_default()
+    self.configs = []
+    self.subclasses = []
     self.access_point_delegate = None
     self.ns_overwrite = None
 
@@ -58,28 +67,23 @@ class WizGlobals:
   def app(self):
     return read_ns_and_app()[1] or {}
 
-  def set_configs(self, **kwargs):
-    self.configs = {**category_default(), **kwargs}
+  def add_configs(self, new_configs: List[Dict]):
+    self.configs = self.configs + new_configs
 
-  def set_subclasses(self, **kwargs):
-    self.subclasses = {**category_default(), **kwargs}
+  def add_overrides(self, new_overrides):
+    self.subclasses += new_overrides
 
-  def find_config(self, category, key: str):
-    candidates = self.configs[category]
-    matches = [config for config in candidates if config['key'] == key]
+  def find_config(self, kind: str, key: str):
+    matches = [c for c in self.configs if is_config_match(c, kind, key)]
     return matches[0] if len(matches) else None
 
-  def find_subclass(self, category, key: str) -> Optional[Type]:
-    if key:
-      candidates = self.subclasses[category]
-      matches = [subclass for subclass in candidates if subclass.key() == key]
-      return matches[0] if len(matches) else None
-    else:
-      return None
+  def find_subclass(self, kind, key: str) -> Optional[Type]:
+    matches = [c for c in self.subclasses if is_subclass_match(c, kind, key)]
+    return matches[0] if len(matches) else None
 
   def clear(self):
-    self.configs = category_default()
-    self.subclasses = category_default()
+    self.configs = []
+    self.subclasses = []
 
 
 wiz_globals = WizGlobals()

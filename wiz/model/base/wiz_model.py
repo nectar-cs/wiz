@@ -10,7 +10,14 @@ class WizModel:
   def __init__(self, config):
     self.config = config
     self.key = config['key']
-    self.title = config.get('title')
+
+  @property
+  def title(self):
+    return self.config.get('title')
+
+  @property
+  def info(self):
+    return self.config.get('info')
 
   def load_children(self, config_key, child_class):
     descriptor_list = self.config.get(config_key, [])
@@ -43,17 +50,21 @@ class WizModel:
 
   @classmethod
   def type_key(cls):
-    return f"{inflection.underscore(cls.__name__)}s"
+    return f"{inflection.underscore(cls.__name__)}"
+
+
+def key_or_dict_to_key(key_or_dict) -> str:
+  if isinstance(key_or_dict, str):
+    return key_or_dict
+
+  elif isinstance(key_or_dict, dict):
+    return key_or_dict.get('key')
+
+  raise RuntimeError(f"Can't handle {key_or_dict}")
 
 
 def key_or_dict_matches(key_or_dict, target_key: str) -> bool:
-  if isinstance(key_or_dict, str):
-    return key_or_dict == target_key
-
-  elif isinstance(key_or_dict, dict):
-    return key_or_dict.get('key') == target_key
-
-  raise RuntimeError(f"Can't handle {key_or_dict}")
+  return key_or_dict_to_key(key_or_dict) == target_key
 
 
 def key_or_dict_to_child(key_or_dict, child_cls: Type[WizModel]) -> 'WizModel':

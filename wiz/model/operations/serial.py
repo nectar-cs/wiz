@@ -6,5 +6,6 @@ def standard(operation: Operation):
     id=operation.key,
     title=operation.title,
     description=operation.description,
-    first_step_id=operation.first_step_key()
+    first_step_id=operation.first_step_key(),
+    res_access=operation.res_access()
   )

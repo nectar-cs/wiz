@@ -11,12 +11,12 @@ class TestOperation(unittest.TestCase):
     wg.clear()
 
   def test_first_step_key(self):
-    wg.set_configs(operations=[g_con_conf(k='k', s=['s2', 's1'])])
+    wg.add_configs(operations=[g_con_conf(k='k', s=['s2', 's1'])])
     actual = Operation.inflate('k').first_step_key()
     self.assertEqual(actual, 's2')
 
   def test_step(self):
-    wg.set_configs(
+    wg.add_configs(
       operations=[g_con_conf(k='c1', s=['s1', 's2'])],
       steps=[g_conf(k='s1', t='foo')]
     )

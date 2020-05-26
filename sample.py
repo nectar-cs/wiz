@@ -1,3 +1,5 @@
+from os import listdir
+from os.path import isfile, join
 from typing import Dict
 
 import dotenv
@@ -107,32 +109,32 @@ class LocateExternalDatabaseStep(Step):
       return "negative", "Connection to the database failed"
 
 
-def load_yaml_array(fname) -> [Dict]:
-  file_contents = open(fname, 'r').read()
-  return yaml.load(file_contents, Loader=yaml.FullLoader)
+def yamls_in_dir(dirpath) -> [Dict]:
+  files = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
+  def to_yamls(fname):
+    with open(f"{dirpath}/{fname}", 'r') as stream:
+      file_contents = stream.read()
+      return list(yaml.full_load_all(file_contents))
+  yaml_arrays = [to_yamls(fname) for fname in files]
+  return [item for sublist in yaml_arrays for item in sublist]
 
-wiz_globals.set_configs(
-  install_stages=load_yaml_array('example/install_stages.yaml'),
-  steps=load_yaml_array('example/steps.yaml'),
-  fields=load_yaml_array('example/fields.yaml'),
-  operations=load_yaml_array('example/operations.yaml')
+
+wiz_globals.add_configs(
+  yamls_in_dir('example/installation') + \
+  yamls_in_dir('example/enable-ingress')
 )
 
-wiz_globals.set_subclasses(
-  install_stages=[
-  ],
-  steps=[
-    LocateExternalDatabaseStep,
-    AvailabilityStep
-  ],
-  fields=[
-    DbPasswordField,
-    SecKeyBaseField,
-    AttrEncField
-  ],
-  operations=[
-  ]
-)
+
+wiz_globals.add_overrides([
+  LocateExternalDatabaseStep,
+  AvailabilityStep,
+  DbPasswordField,
+  SecKeyBaseField,
+  AttrEncField,
+  LocateExternalDatabaseStep,
+  AvailabilityStep
+])
+
 
 wiz_globals.access_point_delegate = access_points
 

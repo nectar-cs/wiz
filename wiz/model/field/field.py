@@ -40,10 +40,6 @@ class Field(WizModel):
       return self.option_descriptors
 
   @property
-  def info(self):
-    return self.config.get('info')
-
-  @property
   def watch_res_kinds(self):
     declared = self.config.get('res_watch', [])
     return list(set(declared + ['ConfigMap']))

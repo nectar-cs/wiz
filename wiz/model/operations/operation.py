@@ -1,18 +1,19 @@
 from wiz.model.step.step import Step
-from wiz.model.base.wiz_model import WizModel
+from wiz.model.base.wiz_model import WizModel, key_or_dict_to_key
 
 
 class Operation(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.description = config.get('description')
 
-  def first_step_key(self) -> str:
-    return self.config['steps'][0]
+  def first_stage_key(self) -> str:
+    stage_descriptors = self.config.get('stages', [])
+    first = stage_descriptors[0] if len(stage_descriptors) else 0
+    return key_or_dict_to_key(first) if first else None
 
-  def steps(self):
+  def stages(self):
     return self.load_children('steps', Step)
 
-  def step(self, key):
+  def stage(self, key):
     return self.load_child('steps', Step, key)

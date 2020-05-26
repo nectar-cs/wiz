@@ -15,7 +15,7 @@ class TestAppController(ClusterTest):
 
   def test_operations_index_with_data(self):
     configs = [g_con_conf(k='foo', t='Foo', d='Bar', s=['s1', 's2'])]
-    wg.set_configs(operations=configs, install_stages=configs)
+    wg.add_configs(operations=configs, install_stages=configs)
 
     response1 = app.test_client().get('/api/app/operations')
     body1 = json.loads(response1.data).get('data')

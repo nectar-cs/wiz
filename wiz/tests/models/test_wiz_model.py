@@ -16,14 +16,14 @@ class TestWizModel(unittest.TestCase):
 
   def run_inflate_no_subclass(self):
     a, b = [g_conf(k='a'), g_conf(k='b')]
-    wg.set_configs(**{self.crt_conf_category: [a, b]})
+    wg.add_configs(**{self.crt_conf_category: [a, b]})
     inflated = self.crt_subclass.inflate('a')
     self.assertEqual(type(inflated), self.crt_subclass)
     self.assertEqual(inflated.key, 'a')
     self.assertEqual(inflated.title, 'a.title')
 
   def run_inflate_all(self):
-    wg.set_configs(**{
+    wg.add_configs(**{
       self.crt_conf_category: [
         g_conf(k='a'),
         g_conf(k='b'),
@@ -44,14 +44,14 @@ class TestWizModel(unittest.TestCase):
       def key(cls):
         return "sub"
 
-    wg.set_configs(**{
+    wg.add_configs(**{
       self.crt_conf_category: [
         g_conf(k='sub'),
         g_conf(k='norm'),
       ]
     })
 
-    wg.set_subclasses(**{self.crt_conf_category: [Sub]})
+    wg.add_overrides(**{self.crt_conf_category: [Sub]})
     sub, norm = self.crt_subclass.inflate('sub'), self.crt_subclass.inflate('norm')
 
     self.assertEqual(type(sub), Sub)
