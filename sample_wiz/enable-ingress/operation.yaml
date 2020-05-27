@@ -1,7 +1,7 @@
 key: "switch-to-ingress"
 kind: Operation
 title: "Switch to Ingress"
-description: "Disable LoadBalancers and direct traffic with Ingress."
+info: "Disable LoadBalancers and direct traffic with Ingress."
 categories: ["networking"]
 res_access:
   - res: ingress
@@ -11,12 +11,14 @@ res_access:
 stages:
   - key: overview
     title: Overview
+    info: You okay with this?
     steps:
       - key: synopsis
         title: Operation Synopsys
-        info: "This operation does this and that"
-        fields: []
-      - key: verification
-        title: Verification
-        info: CoolCo will verify that your existing Kubernetes res permit this operation.
-        fields: []
+        info: "This step does this and that"
+        fields:
+          - key: field1
+            type: select
+            options:
+              - key: one
+                value: One

@@ -57,7 +57,7 @@ class WizModel:
 
   @classmethod
   def type_key(cls):
-    return f"{inflection.underscore(cls.__name__)}"
+    return f"{cls.__name__}"
 
 
 def key_or_dict_to_key(key_or_dict) -> str:

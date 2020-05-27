@@ -1,12 +1,12 @@
 
 kind: Operation
-key: installation
+key: install
 title: Installation
 stages:
   - key: storage
     kind: Stage
     title: Primary Storage
-    description: "Nectar Hub needs a database in order to work. The following steps will let you
+    info: "Nectar Hub needs a database in order to work. The following steps will let you
     choose how storage is allocated and how the database is secured."
     steps:
       - storage_strategy
@@ -18,7 +18,7 @@ stages:
   - key: application
     kind: Stage
     title: Application
-    description: "Configure the application at the infrastructure level.
+    info: "Configure the application at the infrastructure level.
       This installer only exposes a subset of all possible fields. You can configure
       the application further after the installer completes."
     steps:
@@ -28,7 +28,7 @@ stages:
   - key: backups
     kind: Stage
     title: Backups
-    description: "Backups are an important part of hosting stateful
+    info: "Backups are an important part of hosting stateful
       applications. Nectar provides pre-build backup solutions
       for compatible the various storage strategies."
     steps:
@@ -37,7 +37,7 @@ stages:
   - key: networking
     kind: Stage
     title: Networking
-    description: "Nectar Hub is accessible in a number of ways. The following
+    info: "Nectar Hub is accessible in a number of ways. The following
     steps expose the basic parameters for Hub's networking behavior."
     steps:
       - network_strategy

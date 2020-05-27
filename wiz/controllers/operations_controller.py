@@ -23,12 +23,18 @@ FIELD_PATH = f'{FIELDS_PATH}/<field_id>'
 controller = Blueprint('operations_controller', __name__)
 
 
-
 @controller.route(OPERATIONS_PATH)
-def operations():
-  operations_list = Operation.inflate_all()
+def operations_index():
+  operations_list = [o for o in Operation.inflate_all() if not o.is_system]
   dicts = [operation_serial.standard(c) for c in operations_list]
   return jsonify(data=dicts)
+
+
+@controller.route(OPERATION_PATH)
+def operations_show(operation_id):
+  operation = find_operation(operation_id)
+  return jsonify(data=operation_serial.with_stages(operation))
+
 
 @controller.route(STEP_PATH)
 def steps_show(operation_id, stage_id, step_id):
@@ -37,8 +43,8 @@ def steps_show(operation_id, stage_id, step_id):
   return jsonify(data=serialized)
 
 
-@controller.route(f"{STEP_PATH}/res")
-def watch_step_res(op_id, step_id):
+@controller.route(f"{STEP_PATH}/resources")
+def watch_step_res(operation_id, stage_id, step_id):
   serialized_res_list = res_watch.glob([
     'ConfigMap',
     'Pod',

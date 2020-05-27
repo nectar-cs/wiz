@@ -9,6 +9,10 @@ class Operation(WizModel):
     first = stage_descriptors[0] if len(stage_descriptors) else 0
     return key_or_dict_to_key(first) if first else None
 
+  @property
+  def is_system(self):
+    return self.key in ['install', 'uninstall']
+
   def stages(self):
     return self.load_children('stages', Stage)
 
