@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from wiz.model.chart_variable import serial
 from wiz.model.chart_variable.chart_variable import ChartVariable
@@ -17,6 +17,17 @@ def chart_variables_index():
 def chart_variables_show(key):
   chart_variable = find_variable(key)
   return jsonify(data=serial.with_field(chart_variable))
+
+
+@controller.route('/api/chart-variables/<key>/validate', methods=['POST'])
+def chart_variables_validate(key):
+  chart_variable = find_variable(key)
+  value = request.json['value']
+  tone, message = chart_variable.validate(value)
+  if tone and message:
+    return jsonify(data=dict(status=tone, message=message))
+  else:
+    return jsonify(data=dict(status='valid'))
 
 
 def find_variable(key) -> ChartVariable:

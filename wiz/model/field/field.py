@@ -60,6 +60,9 @@ class Field(WizModel):
     validation_configs = self.validation_descriptors
     return [Validator.inflate(c) for c in validation_configs]
 
+  def can_validate(self) -> bool:
+    return
+
   def validate(self, value) -> List[Optional[str]]:
     for validator in self.validators():
       tone, message = validator.validate(value)

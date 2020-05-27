@@ -16,6 +16,7 @@ from wiz.core import wiz_globals as wg
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
+
 def master_map() -> KatMap:
   return KatMap.find('master', wiz_app.ns)
 
@@ -30,6 +31,11 @@ def commit_values(assignments: List[Tuple[str, any]]):
 
   config_map.raw.data['master'] = yaml.dump(existing_config)
   config_map.touch(save=True)
+
+
+def chart_values():
+  config_map = master_map()
+  return config_map.yget()
 
 
 def apply(rules: List[ResMatchRule], inlines=None):
