@@ -10,6 +10,7 @@ def standard(operation: Operation):
     res_access=operation.res_access()
   )
 
+
 def with_stages(operation: Operation):
   stage_ser = [stage_serial.standard(s) for s in operation.stages()]
   return dict(

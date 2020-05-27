@@ -1,0 +1,32 @@
+kind: ChartVariable
+key: "hub.storage.type"
+info: "Internal or external-to cluster storage"
+
+---
+
+kind: ChartVariable
+key: hub.backend.replicas
+info: "Amount of replicas for backend deployment"
+
+---
+
+kind: ChartVariable
+key: something
+
+---
+
+kind: ChartVariable
+key: hub.storage.managed_pvc
+operations: ['change_pvc']
+
+---
+
+kind: ChartVariable
+key: hub.storage.pvc_name
+operations: ['change_pvc']
+
+---
+
+kind: ChartVariable
+key: hub.storage.secrets.user
+operations: ['reset_database']

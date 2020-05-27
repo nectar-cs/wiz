@@ -1,4 +1,4 @@
-from typing import Type, Optional, Dict
+from typing import Type, Optional, Dict, List
 
 import inflection
 
@@ -21,6 +21,8 @@ class WizModel:
 
   def load_children(self, config_key, child_class):
     descriptor_list = self.config.get(config_key, [])
+    if not isinstance(descriptor_list, list):
+      descriptor_list = [descriptor_list]
     transform = lambda obj: key_or_dict_to_child(obj, child_class)
     return [transform(obj) for obj in descriptor_list]
 

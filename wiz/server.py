@@ -7,7 +7,7 @@ from flask_cors import CORS
 from k8_kat.auth.kube_broker import BrokerConnException, \
   broker
 from wiz.controllers import operations_controller, status_controller, \
-  app_controller
+  app_controller, chart_variables_controller
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -15,14 +15,14 @@ app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 controllers = [
   status_controller,
   operations_controller,
-  app_controller
+  app_controller,
+  chart_variables_controller
 ]
 
 for controller in controllers:
   app.register_blueprint(controller.controller)
 
 CORS(app)
-
 
 
 @app.errorhandler(BrokerConnException)
