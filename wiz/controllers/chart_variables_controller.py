@@ -22,6 +22,13 @@ def chart_variables_show(key):
   return jsonify(data=serial.with_field(chart_variable))
 
 
+@controller.route('/api/chart-variables/<key>/submit', methods=['POST'])
+def chart_variables_submit(key):
+  value = request.json['value']
+  chart_variable = find_variable(key)
+  chart_variable.commit(value)
+  return jsonify(status='success')
+
 @controller.route('/api/chart-variables/<key>/validate', methods=['POST'])
 def chart_variables_validate(key):
   chart_variable = find_variable(key)
