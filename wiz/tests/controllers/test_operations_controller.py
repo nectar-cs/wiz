@@ -12,7 +12,7 @@ class TestOperationsController(ClusterTest):
     wg.clear()
 
   def test_operations_index(self):
-    config = g_conf(k='foo', t='Foo', i='operation')
+    config = g_conf(k='foo', t='Foo', i='Operation')
     wg.add_configs([config])
 
     response = app.test_client().get('/api/operations')
@@ -42,20 +42,20 @@ class TestOperationsController(ClusterTest):
   def test_step_next_simple(self):
     endpoint = '/api/operations/o1/stages/g1/steps/s1/next'
     wg.add_configs([
-      g_conf(k='o1', stages=['g1'], i='operation'),
-      g_conf(k='g1', steps=['s1', 's2'], i='stage'),
-      g_conf(k='s1', fields=['f1'], i='step', next='bar'),
+      g_conf(k='o1', stages=['g1'], i='Operation'),
+      g_conf(k='g1', steps=['s1', 's2'], i='Stage'),
+      g_conf(k='s1', fields=['f1'], i='Step', next='bar'),
     ])
 
     response = app.test_client().post(endpoint, json=dict(values={}))
-    body = json.loads(response.data).get('step_id')
-    self.assertEqual(body, 'bar')
+    body = json.loads(response.data)
+    self.assertEqual('bar', body.get('step_id'))
 
 
 def basic_operation():
   return [
-    g_conf(k='o1', stages=['g1'], i='operation'),
-    g_conf(k='g1', steps=['s1', 's2'], i='stage'),
-    g_conf(k='s1', fields=['f1'], i='step'),
-    g_conf(k='f1', i='field')
+    g_conf(k='o1', stages=['g1'], i='Operation'),
+    g_conf(k='g1', steps=['s1', 's2'], i='Stage'),
+    g_conf(k='s1', fields=['f1'], i='Step'),
+    g_conf(k='f1', i='Field')
   ]

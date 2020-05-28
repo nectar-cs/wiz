@@ -3,6 +3,7 @@ omit =
     */site-packages/*
     */distutils/*
     tests/*
+    */sample_wiz/*
 
 
 source=wiz

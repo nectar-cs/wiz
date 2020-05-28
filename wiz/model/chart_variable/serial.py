@@ -10,12 +10,13 @@ def _mini_operation_ser(operation: Operation):
   )
 
 
-def standard(cv: ChartVariable):
+def standard(cv: ChartVariable, cache=None):
   ops_ser = [_mini_operation_ser(o) for o in cv.operations()]
   return dict(
     id=cv.key,
     title=cv.title,
     description=cv.info,
+    value=cv.read_crt_value(cache),
     is_safe_to_set=cv.is_safe_to_set(),
     operations=ops_ser
   )
@@ -25,5 +26,5 @@ def with_field(cv: ChartVariable):
   field = cv.field()
   return dict(
     **standard(cv),
-    field=(field and field_serial.embedded(field))
+    field=(field and field_serial.without_meta(field))
   )

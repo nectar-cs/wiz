@@ -1,5 +1,5 @@
 import subprocess
-import time
+from functools import reduce
 from typing import Tuple, Dict, List, Optional
 from urllib.parse import quote
 
@@ -33,9 +33,13 @@ def commit_values(assignments: List[Tuple[str, any]]):
   config_map.touch(save=True)
 
 
-def chart_values():
+def chart_dump() -> Dict:
   config_map = master_map()
   return config_map.yget()
+
+
+def chart_value(deep_key: str) -> Optional[str]:
+  return deep_get(chart_dump(), deep_key.split('.'))
 
 
 def apply(rules: List[ResMatchRule], inlines=None):
@@ -110,3 +114,11 @@ def deep_set(dict_root: Dict, names: List[str], value: any):
     if not dict_root.get(names[0]):
       dict_root[names[0]] = dict()
     deep_set(dict_root[names[0]], names[1:], value)
+
+
+def deep_get(dict_root: Dict, keys: List[str]):
+  return reduce(
+    lambda d, key: d.get(key, None)
+    if isinstance(d, dict)
+    else None, keys, dict_root
+  )

@@ -1,6 +1,5 @@
-from typing import Type, Optional, Dict, List
+from typing import Type, Optional, Dict
 
-import inflection
 
 from wiz.core.wiz_globals import wiz_app
 

@@ -43,8 +43,9 @@ def steps_show(operation_id, stage_id, step_id):
   return jsonify(data=serialized)
 
 
+# noinspection PyUnusedLocal
 @controller.route(f"{STEP_PATH}/resources")
-def watch_step_res(operation_id, stage_id, step_id):
+def steps_show_resources(operation_id, stage_id, step_id):
   serialized_res_list = res_watch.glob([
     'ConfigMap',
     'Pod',

@@ -5,6 +5,8 @@ import yaml
 from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
+from wiz.core import tedi_prep, tedi_client
+
 
 def tedi_setup():
   return dict(
@@ -33,3 +35,11 @@ def create_base_master_map(ns):
       data=dict(master=yaml.dump({}))
     )
   )
+
+def foo_bar_setup(ns):
+  create_base_master_map(ns)
+  tedi_prep.create(ns, simple_tedi_setup())
+  tedi_client.commit_values([
+    ('foo', 'bar'),
+    ('bar.foo', 'baz')
+  ])
