@@ -42,7 +42,7 @@ def chart_value(deep_key: str) -> Optional[str]:
   return deep_get(chart_dump(), deep_key.split('.'))
 
 
-def apply(rules: List[ResMatchRule], inlines=None):
+def apply(rules: Optional[List[ResMatchRule]], inlines=None):
   write_manifest(rules, inlines)
   kubectl_apply()
 
@@ -100,6 +100,9 @@ def kubectl_apply():
   if not broker.is_in_cluster_auth():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
+
+  with open(tmp_file_mame, 'r') as file:
+    print(file.read())
 
   print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))

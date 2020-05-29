@@ -14,8 +14,12 @@ def standard(cv: ChartVariable, cache=None):
   ops_ser = [_mini_operation_ser(o) for o in cv.operations()]
   return dict(
     id=cv.key,
-    title=cv.title,
     description=cv.info,
+    data_type=cv.data_type,
+    is_ephemeral=cv.is_ephemeral,
+    default_value=cv.default_value,
+    resource=cv.linked_res_name,
+    category=cv.category,
     value=cv.read_crt_value(cache),
     is_safe_to_set=cv.is_safe_to_set(),
     operations=ops_ser

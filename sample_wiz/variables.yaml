@@ -1,32 +1,119 @@
 kind: ChartVariable
 key: "hub.storage.type"
-info: "Internal or external-to cluster storage"
+info: "Determines Hub's persistent storage strategy. If
+'internal', Hub needs PersistentVolume/Deployment combination
+to run access its database. If 'external', you will need to
+configure access to an external database."
+default: internal
+category: storage
+field: hub.storage.type
+operations:
+  - move-to-external-storage
+  - move-to-internal-storage
 
 ---
 
 kind: ChartVariable
 key: hub.backend.replicas
-info: "Amount of replicas for backend deployment"
+info: "Amount of replicas for backend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer
 
 ---
 
 kind: ChartVariable
-key: something
+key: hub.frontend.replicas
+info: "Amount of replicas for frontend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer
 
 ---
 
 kind: ChartVariable
 key: hub.storage.managed_pvc
-operations: ['change_pvc']
+default: true
+category: storage
+resource: pvc/hub-pvc
+operations:
+  - own-pvc
+  - disown-pvc
+
 
 ---
+
 
 kind: ChartVariable
 key: hub.storage.pvc_name
-operations: ['change_pvc']
+default: hub-pvc
+category: storage
+resource: pvc/hub-pvc
+operations:
+  - own-pvc
+  - disown-pvc
+
+
+---
+
+
+kind: ChartVariable
+key: hub.storage.secrets.user
+ephemeral: true
+category: application
+resource: secret/pg-secrets
+
 
 ---
 
 kind: ChartVariable
-key: hub.storage.secrets.user
-operations: ['reset_database']
+key: hub.networking.type
+category: networking
+info: "Can be ingress or non-ingress. If ingress,
+Nectar will create ingress resources for your ingress controller."
+default: ingress
+operations:
+  - switch-to-ingress
+  - switch-from-ingress
+
+
+---
+
+kind: ChartVariable
+key: hub.networking.host
+category: networking
+info: "Host name on which ingress should listen. This must be a domain you already own
+as Nectar will not attempt to create it for you."
+field:
+  key: hub.networking.host
+  validations:
+    - type: format
+      check_against: domain
+
+---
+
+kind: ChartVariable
+key: hub.networking.path
+category: networking
+info: "Path following hostname on which ingress should listen. The domain name must
+be defined and successfully resolving to this cluster for this variable to
+have effect."
+field:
+  key: hub.networking.host
+  validations: []
+
+

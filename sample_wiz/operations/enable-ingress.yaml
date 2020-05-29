@@ -1,0 +1,25 @@
+key: switch-to-ingress
+kind: Operation
+title: "Migrate to Ingress"
+info: "Destroy any existing LoadBalancers and route
+ traffic centrally through Ingress."
+res_access:
+  - res: ingress
+    verbs: ['create']
+  - res: service
+    verbs: ['delete']
+
+
+---
+
+
+key: switch-from-ingress
+kind: Operation
+title: "Migrate from Ingress"
+info: "Destroy any Ingress resources and configure a LoadBalancer,
+ClusterIP, or NodePort"
+res_access:
+  - res: ingress
+    verbs: ['delete']
+  - res: service
+    verbs: ['create']

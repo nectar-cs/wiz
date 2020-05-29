@@ -21,14 +21,17 @@ def shell_exec(cmd) -> str:
   )
   return output.stdout
 
+
 def yamls_in_dir(dirpath) -> [Dict]:
-  files = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
-  def to_yamls(fname):
-    with open(f"{dirpath}/{fname}", 'r') as stream:
-      file_contents = stream.read()
-      return list(yaml.full_load_all(file_contents))
-  yaml_arrays = [to_yamls(fname) for fname in files]
+  fnames = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
+  yaml_arrays = [yamls_in_file(f"{dirpath}/{fname}") for fname in fnames]
   return [item for sublist in yaml_arrays for item in sublist]
+
+
+def yamls_in_file(fname):
+  with open(fname, 'r') as stream:
+    file_contents = stream.read()
+    return list(yaml.full_load_all(file_contents))
 
 
 def jk_exec(cmd, **kwargs) -> Dict[str, any]:

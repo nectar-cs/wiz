@@ -23,6 +23,7 @@ typing-extensions = "*"
 coverage = "*"
 codecov = "*"
 twine = "*"
+validators = "*"
 
 [requires]
 python_version = "3.6"

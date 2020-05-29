@@ -1,0 +1,17 @@
+kind: Operation
+key: own-pvc
+title: Move to own PVC
+info: "Move the internal database from your PVC to a nectar-owned PVC"
+res_access:
+  - res: pvc
+    verbs: ['delete']
+
+---
+
+kind: Operation
+key: disown-pvc
+title: Move to Nectar PVC
+info: "Move the internal database from the nectar-owned PVC to your own"
+res_access:
+  - res: pvc
+    verbs: ['delete', 'create']

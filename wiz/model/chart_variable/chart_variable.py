@@ -6,6 +6,26 @@ from wiz.model.base.wiz_model import WizModel
 
 class ChartVariable(WizModel):
 
+  @property
+  def data_type(self):
+    return self.config.get('type', 'string')
+
+  @property
+  def is_ephemeral(self):
+    return self.config.get('ephemeral', False)
+
+  @property
+  def default_value(self):
+    return self.config.get('default')
+
+  @property
+  def linked_res_name(self):
+    return self.config.get('resource')
+
+  @property
+  def category(self):
+    return self.config.get('category')
+
   def is_safe_to_set(self):
     explicit = self.config.get('safe')
     if explicit is not None:
@@ -34,6 +54,8 @@ class ChartVariable(WizModel):
 
   def commit(self, value):
     tedi_client.commit_values([(self.key, value)])
+    if self.is_safe_to_set():
+      tedi_client.apply(rules=None, inlines=None)
 
   def operations(self):
     from wiz.model.operations.operation import Operation

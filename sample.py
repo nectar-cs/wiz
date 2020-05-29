@@ -7,7 +7,8 @@ from wiz.core.wiz_globals import wiz_app
 
 wiz_app.add_configs(
   utils.yamls_in_dir('sample_wiz/installation') +
-  utils.yamls_in_dir('sample_wiz/enable-ingress')
+  utils.yamls_in_dir('sample_wiz/operations') +
+  utils.yamls_in_file('sample_wiz/variables.yaml')
 )
 
 wiz_app.add_overrides([

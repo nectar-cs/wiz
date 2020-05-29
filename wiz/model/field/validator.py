@@ -1,5 +1,5 @@
-import re
 from typing import Dict
+import validators
 
 
 class Validator:
@@ -84,6 +84,8 @@ class FormatValidator(Validator):
     elif self.check == 'boolean':
       return value not in ['true', 'false']
     elif self.check == 'email':
-      return not re.search(r"^\S+@\S+\.\S+$", value)
+      return not validators.email(value)
+    elif self.check == 'domain':
+      return not validators.domain(value)
     else:
       raise RuntimeError(f"NO ADAPTER FOR {self.check}")
