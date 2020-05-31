@@ -12,7 +12,6 @@ wiz_app.add_configs(
 )
 
 wiz_app.add_overrides([
-  sample_wiz.LocateExternalDatabaseStep,
   sample_wiz.AvailabilityStep,
   sample_wiz.DbPasswordField,
   sample_wiz.SecKeyBaseField,

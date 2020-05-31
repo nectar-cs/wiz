@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from wiz.core import res_watch
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
+from wiz.model.prerequisite.prerequisite import Prerequisite
 from wiz.model.stage.stage import Stage
 from wiz.model.operations import serial as operation_serial
 from wiz.model.step import serial as step_serial
@@ -10,6 +11,9 @@ from wiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
+
+PREREQUISITES_PATH = f'/{OPERATION_PATH}/prerequisites'
+PREREQUISITE_PATH = f'/{PREREQUISITES_PATH}/<prerequisite_id>'
 
 STAGES_PATH = f'{OPERATION_PATH}/stages'
 STAGE_PATH = f'{STAGES_PATH}/<stage_id>'
@@ -33,7 +37,18 @@ def operations_index():
 @controller.route(OPERATION_PATH)
 def operations_show(operation_id):
   operation = find_operation(operation_id)
-  return jsonify(data=operation_serial.with_stages(operation))
+  return jsonify(data=operation_serial.full(operation))
+
+
+@controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
+def prerequisite_eval(operation_id, prerequisite_id):
+  prereq = find_prereq(operation_id, prerequisite_id)
+  tone, message = prereq.decide()
+  if tone and message:
+    return jsonify(data=dict(status=tone, message=message))
+  else:
+    return jsonify(data=dict(status='valid'))
+
 
 
 @controller.route(STEP_PATH)
@@ -90,6 +105,11 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
 
 def find_operation(operation_id) -> Operation:
   return Operation.inflate(operation_id)
+
+
+def find_prereq(operation_id, prereq_id) -> Prerequisite:
+  operation = find_operation(operation_id)
+  return operation.prerequisite(prereq_id)
 
 
 def find_stage(operation_id, stage_id) -> Stage:

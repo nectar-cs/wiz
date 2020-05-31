@@ -1,7 +1,109 @@
 kind: Operation
-key: own-pvc
+key: move-to-own-pvc
 title: Move to own PVC
-info: "Move the internal database from your PVC to a nectar-owned PVC"
+info: "Move the application database from the
+nectar-owned PVC to your own."
+description: "Move the application database from the
+nectar-owned PVC to your own. This makes sense if you want to
+consolidate your volumes across applications into one master volume."
+prerequisites:
+  - key: current-pvc-is-default
+    kind: Prerequisite
+    title: Current PVC is Nectar Default
+    type: resource-exists
+    message: "The PVC the app is currently using does not
+    seem to be the default Nectar PVC named 'postgres-pvc'."
+    predicate:
+      kind: PersistentVolumeClaim
+      name: postgres-pvc
+  - key: backups-enabled
+    kind: Prerequisite
+    title: Backup were enabled
+    type: config-value-eq
+    tone: warning
+    message: "It is not recommended to perform database
+    operations unless your databases were backed up."
+    predicate:
+      key: hub.backups.enabled
+      value: true
+  - key: current-db-exists
+    kind: Prerequisite
+    title: Database deployment exists
+    type: resource-exists
+    tone: warning
+    predicate:
+      kind: Deployment
+      name: postgres
+  - key: db-running-normally
+    kind: Prerequisite
+    title: Database is running normally
+    type: resource-exists
+    tone: warning
+    message: "It is not recommended to perform database
+    operations unless your databases were backed up."
+    predicate:
+      kind: Deployment
+      name: postgres
+  - key: space-available
+    kind: Prerequisite
+    title: Sufficient storage space available
+    type: config-value-eq
+    tone: warning
+    message: "It is not recommended to perform database
+    operations unless your databases were backed up."
+    predicate:
+      key: hub.backups.enabled
+      value: true
+synopsis:
+  - "Locate the target PersistentVolumeClaim"
+  - "Create a PostgreSQL dump from the old PVC"
+  - "Create a Job for copying the data"
+  - "Delete the existing database Deployment"
+  - "Update the chart, wait for new database to come online"
+  - "Decide whether delete the old PVC"
+stages:
+  - key: setup
+    title: Setup
+    info: "Ensure the target PVC exists in this namespace,
+    then run the psql dump command."
+    steps:
+      - key: locate-target-pvc
+        title: Locate Target PVC
+        fields:
+          - key: "hub.storage.pvc_name"
+            uncharted: true
+            kind: Field
+            title: "Locate the PVC you want to use"
+            type: select
+            options_source:
+              type: select-k8s-res
+              res_match_rules:
+                - kind: PersistentVolumeClaim
+              make_key: name
+              make_value: name
+            validations:
+              - type: equality
+                check_against: postgres-pvc
+                tone: error
+                message: "This is the source PVC. Point
+                to the custom PVC resource you wish to move
+                the database to. Must be in this namespace.
+                "
+
+  - key: copy-over
+    title: Migration
+  - key: cleanup
+    title: Cleanup
+
+risks:
+  - "The wizard will not destroy your old PVC if
+    if it encounters problem. However, it has no way
+    to verify that the data is not somehow corrupted.
+    Therefore, you will have the opportunity to
+    manually inspect the data before the old PVC
+    is deleted."
+  - "If an unknown error occurs otherwise, and your data
+  is not backed up, data loss may happen silently."
 res_access:
   - res: pvc
     verbs: ['delete']
@@ -9,9 +111,15 @@ res_access:
 ---
 
 kind: Operation
-key: disown-pvc
+key: move-to-default-pvc
 title: Move to Nectar PVC
-info: "Move the internal database from the nectar-owned PVC to your own"
+info: "Move the internal database from the default PVC to your own"
 res_access:
   - res: pvc
     verbs: ['delete', 'create']
+synopsis:
+  - "Locate the existing PersistentVolumeClaim"
+  - "Create a PostgreSQL dump from the old PVC"
+  - "Create a Job for copying the data"
+  - "Delete the existing database Deployment and PVC"
+  - "Update the chart, wait for new database to come online"

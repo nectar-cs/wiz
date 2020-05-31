@@ -79,6 +79,7 @@ class Step(WizModel):
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
   normal_values, inline_values = {}, {}
+
   def get_field(k):
     matches = [f for f in fields if f.key == k]
     return matches[0] if len(matches) else None
