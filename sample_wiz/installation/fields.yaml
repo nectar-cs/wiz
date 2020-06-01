@@ -1,4 +1,4 @@
-key: "hub.storage.strategy"
+key: "hub.storage.type"
 kind: Field
 title: "Storage Type"
 info: "Where should the database be hosted?"

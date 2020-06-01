@@ -2,6 +2,8 @@ key: move-to-external-storage
 kind: Operation
 title: "Move to external storage"
 info: "Move the application database from inside the cluster to outside."
+affectsData: true
+affectsUptime: true
 categories: ["storage"]
 res_access:
   - res: pvc
@@ -27,10 +29,12 @@ stages:
 
 ---
 
-key: "move-to-internal-storage"
+key: move-to-internal-storage
 kind: Operation
 title: "Move to internal storage"
 info: "Move the application database from outside the cluster to inside."
+affects_data: true
+affects_uptime: true
 categories: ["storage"]
 res_access:
   - res: pvc

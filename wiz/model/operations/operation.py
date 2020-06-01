@@ -28,6 +28,14 @@ class Operation(WizModel):
   def risks(self) -> List[str]:
     return self.config.get('risks', [])
 
+  @property
+  def affects_data(self):
+    return self.config.get('affects_data', False)
+
+  @property
+  def affects_uptime(self):
+    return self.config.get('affects_uptime', False)
+
   def stages(self) -> List[Stage]:
     return self.load_children('stages', Stage)
 

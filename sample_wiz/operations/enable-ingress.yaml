@@ -1,6 +1,8 @@
 key: switch-to-ingress
 kind: Operation
 title: "Migrate to Ingress"
+affects_data: false
+affects_uptime: true
 info: "Destroy any existing LoadBalancers and route
  traffic centrally through Ingress."
 res_access:
@@ -16,6 +18,8 @@ res_access:
 key: switch-from-ingress
 kind: Operation
 title: "Migrate from Ingress"
+affects_data: false
+affects_uptime: true
 info: "Destroy any Ingress resources and configure a LoadBalancer,
 ClusterIP, or NodePort"
 res_access:

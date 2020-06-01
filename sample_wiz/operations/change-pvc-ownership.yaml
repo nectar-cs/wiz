@@ -6,6 +6,8 @@ nectar-owned PVC to your own."
 description: "Move the application database from the
 nectar-owned PVC to your own. This makes sense if you want to
 consolidate your volumes across applications into one master volume."
+affects_data: true
+affects_uptime: false
 prerequisites:
   - key: current-pvc-is-default
     kind: Prerequisite
@@ -84,7 +86,7 @@ stages:
             validations:
               - type: equality
                 check_against: postgres-pvc
-                tone: error
+                tone: warning
                 message: "This is the source PVC. Point
                 to the custom PVC resource you wish to move
                 the database to. Must be in this namespace.
@@ -113,6 +115,8 @@ res_access:
 kind: Operation
 key: move-to-default-pvc
 title: Move to Nectar PVC
+affects_data: true
+affects_uptime: false
 info: "Move the internal database from the default PVC to your own"
 res_access:
   - res: pvc

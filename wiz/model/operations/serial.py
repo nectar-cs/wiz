@@ -9,6 +9,8 @@ def standard(operation: Operation):
     title=operation.title,
     description=operation.info,
     synopsis=operation.synopsis,
+    affects_data=operation.affects_data,
+    affects_uptime=operation.affects_uptime,
     res_access=operation.res_access()
   )
 
