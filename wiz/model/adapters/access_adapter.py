@@ -1,11 +1,10 @@
+from wiz.model.adapters.adapter import Adapter
 
 
-class AccessAdapter:
+class AppEndpointAdapter(Adapter):
 
-  @property
   def name(self):
     raise NotImplementedError
 
   def url(self):
     raise NotImplementedError
-
