@@ -1,4 +1,4 @@
-key: storage_strategy
+key: installation.storage_strategy
 kind: Step
 title: "Storage Strategy"
 fields:
@@ -15,7 +15,7 @@ next:
 ---
 
 
-key: locate_external_db
+key: installation.locate_external_db
 kind: Step
 title: "External Database"
 fields:
@@ -31,7 +31,7 @@ next: done
 ---
 
 
-key: decide_pvc_strategy
+key: installation.decide_pvc_strategy
 kind: Step
 title: "PVC Strategy"
 fields:
@@ -49,7 +49,7 @@ next:
 ---
 
 
-key: locate_external_pvc
+key: installation.locate_external_pvc
 kind: Step
 title: "Self-Managed PVC"
 fields:
@@ -60,7 +60,7 @@ next: set_db_secrets
 ---
 
 
-key: set_db_secrets
+key: installation.set_db_secrets
 kind: Step
 title: "Internal DB Credentials"
 fields:
@@ -78,7 +78,7 @@ res:
 --- #---------------------------BACKUPS-----------------------------
 
 
-key: backups_strategy
+key: installation.backups_strategy
 kind: Step
 title: "Backups Strategy"
 fields:
@@ -89,7 +89,7 @@ next: done
 --- #---------------------------APPLICATION-----------------------------
 
 
-key: encryption
+key: installation.encryption
 kind: Step
 title: "Encryption"
 fields:
@@ -102,7 +102,7 @@ next: availability
 
 ---
 
-key: availability
+key: installation.availability
 kind: Step
 title: "Availability"
 fields:
@@ -117,7 +117,7 @@ next: done
 --- #---------------------------NETWORKING-----------------------------
 
 
-key: network_strategy
+key: installation.network_strategy
 kind: Step
 title: "Networking Strategy"
 fields:
@@ -134,7 +134,7 @@ next:
 ---
 
 
-key: networking_host
+key: installation.networking_host
 kind: Step
 title: "Hosting"
 fields:

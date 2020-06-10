@@ -1,0 +1,46 @@
+kind: Operation
+key: move-to-own-pvc
+title: Move to own PVC
+affects_data: true
+affects_uptime: false
+
+info: "Move the application database from the
+nectar-owned PVC to your own."
+
+description: "Move the application database from the
+nectar-owned PVC to your own. This makes sense if you want to
+consolidate your volumes across applications into one master volume."
+
+synopsis:
+  - "Locate the target PersistentVolumeClaim"
+  - "Create a PostgreSQL dump from the old PVC"
+  - "Create a Job for copying the data"
+  - "Delete the existing database Deployment"
+  - "Update the chart, wait for new database to come online"
+  - "Decide whether delete the old PVC"
+
+prerequisites:
+  - move-to-own-pvc.current-pvc-is-default
+  - move-to-own-pvc.backups-enabled
+  - move-to-own-pvc.current-db-exists
+  - move-to-own-pvc.db-running-normally
+  - move-to-own-pvc.space-available
+
+stages:
+  - move-to-own-pvc.setup
+  - move-to-own-pvc.copy-over
+  - move-to-own-pvc.setup.cleanup
+
+risks:
+  - "The wizard will not destroy your old PVC if
+    if it encounters problem. However, it has no way
+    to verify that the data is not somehow corrupted.
+    Therefore, you will have the opportunity to
+    manually inspect the data before the old PVC
+    is deleted."
+  - "If an unknown error occurs otherwise, and your data
+  is not backed up, data loss may happen silently."
+
+res_access:
+  - res: pvc
+    verbs: ['delete']

@@ -5,3 +5,5 @@ class Adapter:
     self.source = source or {}
     pass
 
+  def serialize(self, **kwargs):
+    return dict()

@@ -1,0 +1,64 @@
+kind: ChartVariable
+key: hub.networking.path
+type: public
+category: networking
+info: "Path following hostname on which ingress should listen. The domain name must
+be defined and successfully resolving to this cluster for this variable to
+have effect."
+field:
+  key: hub.networking.host
+  validations: []
+
+
+---
+
+
+kind: ChartVariable
+key: hub.networking.host
+type: public
+category: networking
+info: "Host name on which ingress should listen. This must be a
+domain you already own."
+field:
+  key: hub.networking.host
+  validations:
+    - type: format
+      check_against: domain
+
+
+---
+
+
+kind: ChartVariable
+key: hub.backend.replicas
+type: public
+info: "Amount of replicas for backend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer
+
+
+---
+
+
+kind: ChartVariable
+key: hub.frontend.replicas
+type: public
+info: "Amount of replicas for frontend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer

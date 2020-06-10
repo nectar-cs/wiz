@@ -1,11 +1,9 @@
-import logging
 import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from k8_kat.auth.kube_broker import BrokerConnException, \
-  broker
+from k8_kat.auth.kube_broker import BrokerConnException, broker
 from wiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller
 

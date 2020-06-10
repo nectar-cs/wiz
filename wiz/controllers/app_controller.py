@@ -4,17 +4,19 @@ from flask import Blueprint, jsonify
 from k8_kat.res.dep.kat_dep import KatDep
 
 from wiz.core.wiz_globals import wiz_app
+from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 
 controller = Blueprint('app_controller', __name__)
 
 BASE_PATH = '/api/app'
 
-@controller.route(f'{BASE_PATH}/access_points', methods=["GET"])
-def access_points():
-  delegate: Callable = wiz_app.access_point_delegate
-  if delegate:
-    access_point_list = delegate()
-    return jsonify(data=access_point_list)
+@controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
+def application_endpoints():
+  provider = wiz_app.find_provider(AppEndpointAdapter)()
+  if provider:
+    adapters = provider.produce_adapters()
+    ser_endpoints = [a.serialize() for a in adapters]
+    return jsonify(data=ser_endpoints)
   else:
     return jsonify(data=[])
 

@@ -1,0 +1,55 @@
+kind: ChartVariable
+key: "hub.storage.type"
+type: entangled
+info: "Determines Hub's persistent storage strategy. If
+'internal', Hub needs PersistentVolume/Deployment combination
+to run access its database. If 'external', you will need to
+configure access to an external database."
+default: internal
+category: storage
+field: hub.storage.type
+operations:
+  - move-to-external-storage
+  - move-to-internal-storage
+
+
+---
+
+
+kind: ChartVariable
+key: hub.storage.managed_pvc
+type: entangled
+default: true
+category: storage
+resource: pvc/hub-pvc
+operations:
+  - move-to-own-pvc
+  - move-to-default-pvc
+
+
+---
+
+
+kind: ChartVariable
+key: hub.storage.pvc_name
+type: entangled
+default: hub-pvc
+category: storage
+resource: pvc/hub-pvc
+operations:
+  - move-to-own-pvc
+  - move-to-default-pvc
+
+
+---
+
+kind: ChartVariable
+key: hub.networking.strategy
+type: entangled
+category: networking
+info: "Can be ingress or non-ingress. If ingress,
+Nectar will create ingress resources for your ingress controller."
+default: ingress
+operations:
+  - switch-to-ingress
+  - switch-from-ingress

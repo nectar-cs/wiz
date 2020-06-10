@@ -8,3 +8,9 @@ class AppEndpointAdapter(Adapter):
 
   def url(self):
     raise NotImplementedError
+
+  def serialize(self, **kwargs):
+    return dict(
+      name=self.name(),
+      url=self.url()
+    )

@@ -58,6 +58,8 @@ class WizApp:
   def __init__(self):
     self.configs = []
     self.subclasses = []
+    self.providers = []
+    self.adapters = []
     self.access_point_delegate = None
     self.ns_overwrite = None
 
@@ -74,6 +76,16 @@ class WizApp:
 
   def add_overrides(self, new_overrides):
     self.subclasses += new_overrides
+
+  def add_adapters(self, new_adapters):
+    self.adapters += new_adapters
+
+  def add_providers(self, new_providers):
+    self.providers += new_providers
+
+  def find_provider(self, adapter_class: Type):
+    matches = [c for c in self.providers if c.kind() == adapter_class]
+    return matches[0] if len(matches) > 0 else None
 
   def find_config(self, kind: str, key: str):
     matches = [c for c in self.configs if is_config_match(c, kind, key)]

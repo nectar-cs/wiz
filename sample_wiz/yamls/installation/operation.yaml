@@ -1,4 +1,3 @@
-
 kind: Operation
 key: install
 title: Installation
@@ -9,11 +8,11 @@ stages:
     info: "Nectar Hub needs a database in order to work. The following steps will let you
     choose how storage is allocated and how the database is secured."
     steps:
-      - storage_strategy
-      - decide_pvc_strategy
-      - locate_external_pvc
-      - locate_external_db
-      - set_db_secrets
+      - installation.storage_strategy
+      - installation.decide_pvc_strategy
+      - installation.locate_external_pvc
+      - installation.locate_external_db
+      - installation.set_db_secrets
 
   - key: application
     kind: Stage
@@ -22,8 +21,8 @@ stages:
       This installer only exposes a subset of all possible fields. You can configure
       the application further after the installer completes."
     steps:
-      - encryption
-      - availability
+      - installation.encryption
+      - installation.availability
 
   - key: backups
     kind: Stage
@@ -32,7 +31,7 @@ stages:
       applications. Nectar provides pre-build backup solutions
       for compatible the various storage strategies."
     steps:
-      - backups_strategy
+      - installation.backups_strategy
 
   - key: networking
     kind: Stage
@@ -40,5 +39,5 @@ stages:
     info: "Nectar Hub is accessible in a number of ways. The following
     steps expose the basic parameters for Hub's networking behavior."
     steps:
-      - network_strategy
-      - networking_host
+      - installation.network_strategy
+      - installation.networking_host
