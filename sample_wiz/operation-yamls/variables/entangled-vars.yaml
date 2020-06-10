@@ -43,6 +43,7 @@ operations:
 
 ---
 
+
 kind: ChartVariable
 key: hub.networking.strategy
 type: entangled

@@ -1,5 +1,5 @@
 kind: Operation
-key: install
+key: installation
 title: Installation
 stages:
   - key: storage

@@ -14,7 +14,7 @@ class Operation(WizModel):
 
   @property
   def is_system(self) -> bool:
-    return self.key in ['install', 'uninstall']
+    return self.key in ['installation', 'uninstall']
 
   @property
   def synopsis(self) -> List[str]:

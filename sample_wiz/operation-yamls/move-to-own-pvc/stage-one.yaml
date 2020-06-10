@@ -1,14 +1,16 @@
+kind: Stage
 key: move-to-own-pvc.setup
 title: Setup
 info: "Ensure the target PVC exists in this namespace,
   then run the psql dump command."
 steps:
   - key: locate-target-pvc
+    kind: Step
     title: Locate Target PVC
     fields:
-      - key: "hub.storage.pvc_name"
+      - kind: Field
+        key: "hub.storage.pvc_name"
         uncharted: true
-        kind: Field
         title: "Locate the PVC you want to use"
         type: select
         options_source:

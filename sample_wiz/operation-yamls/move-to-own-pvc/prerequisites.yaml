@@ -1,5 +1,5 @@
-key: move-to-own-pvc.current-pvc-is-default
 kind: Prerequisite
+key: move-to-own-pvc.current-pvc-is-default
 title: Current PVC is Nectar Default
 type: resource-exists
 message: "The PVC the app is currently using does not
@@ -12,8 +12,8 @@ predicate:
 ---
 
 
-key: move-to-own-pvc.backups-enabled
 kind: Prerequisite
+key: move-to-own-pvc.backups-enabled
 title: Backup were enabled
 type: config-value-eq
 tone: warning
@@ -27,8 +27,8 @@ predicate:
 ---
 
 
-key: move-to-own-pvc.current-db-exists
 kind: Prerequisite
+key: move-to-own-pvc.current-db-exists
 title: Database deployment exists
 type: resource-exists
 tone: warning
@@ -40,8 +40,8 @@ predicate:
 ---
 
 
-key: move-to-own-pvc.db-running-normally
 kind: Prerequisite
+key: move-to-own-pvc.db-running-normally
 title: Database is running normally
 type: resource-exists
 tone: warning
@@ -55,8 +55,8 @@ predicate:
 ---
 
 
-key: move-to-own-pvc.space-available
 kind: Prerequisite
+key: move-to-own-pvc.space-available
 title: Sufficient storage space available
 type: config-value-eq
 tone: warning

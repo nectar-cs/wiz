@@ -8,8 +8,8 @@ next:
     - field: "hub.storage.type"
       type: equality
       check_against: 'internal'
-  then: decide_pvc_strategy
-  else: locate_external_db
+  then: installation.decide_pvc_strategy
+  else: installation.locate_external_db
 
 
 ---
@@ -41,9 +41,9 @@ next:
     - field: "hub.storage.managed_pvc"
       type: equality
       check_against: 'true'
-  then: set_db_secrets
+  then: installation.set_db_secrets
 
-  else: locate_external_pvc
+  else: installation.locate_external_pvc
 
 
 ---
@@ -54,7 +54,7 @@ kind: Step
 title: "Self-Managed PVC"
 fields:
   - "hub.storage.pvc_name"
-next: set_db_secrets
+next: installation.set_db_secrets
 
 
 ---
@@ -98,7 +98,7 @@ fields:
   - "hub.backend.encrypted_tables"
 res:
   - "Secret:hub-app"
-next: availability
+next: installation.availability
 
 ---
 
@@ -127,7 +127,7 @@ next:
     - field: "hub.networking.strategy"
       type: equality
       check_against: 'ingress'
-  then: networking_host
+  then: installation.networking_host
   else: done
 
 
