@@ -40,7 +40,7 @@ class TestTecClient(ClusterTest):
   def test_fmt_inline_assigns(self):
     str_assignments = [('foo.bar', 'baz'), ('x', 'y')]
     actual = tedi_client.fmt_inline_assigns(str_assignments)
-    self.assertEqual(actual, "--set foo.bar:baz --set x:y")
+    self.assertEqual(actual, "--set foo.bar=baz --set x=y")
 
   def test_filter_res(self):
     res_list = g_res_list(('k1', 'n1'), ('k1', 'n2'))

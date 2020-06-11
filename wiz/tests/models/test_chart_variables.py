@@ -17,7 +17,8 @@ class TestChartVariables(Base.TestWizModel):
 
   def setUp(self) -> None:
     super().setUp()
-    self.ns, = wiz_app.ns_overwrite, = ns_factory.request(1)
+    self.ns, = ns_factory.request(1)
+    helper.mock_globals(self.ns)
 
   def test_read_crt_value(self):
     helper.foo_bar_setup(self.ns)
@@ -29,7 +30,6 @@ class TestChartVariables(Base.TestWizModel):
 
     cv3 = ChartVariable(dict(key='missing'))
     self.assertIsNone(cv3.read_crt_value())
-
 
   def test_read_crt_value_cache(self):
     cv1 = ChartVariable(dict(key='foo'))

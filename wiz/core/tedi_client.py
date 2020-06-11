@@ -65,7 +65,6 @@ def gen_tedi_args(inlines) -> List[str]:
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   ns, image_name = wiz_app.ns, wiz_app.tedi_image_name()
   pod_args = gen_tedi_args(inlines)
-  print(pod_args)
   result = tedi_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
@@ -98,8 +97,8 @@ def kubectl_apply():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
-  with open(tmp_file_mame, 'r') as file:
-    print(file.read())
+  # with open(tmp_file_mame, 'r') as file:
+  #   print(file.read())
 
   # print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
