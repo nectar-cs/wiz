@@ -56,7 +56,7 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
 
 def gen_tedi_args(inlines) -> List[str]:
   values_flag: str = "-f /values/master"
-  vendor_flags: str = wiz_app.app().get('te_args', '')
+  vendor_flags: str = wiz_app.app().get('tedi_args', '')
   inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
   return all_flags.split(" ")
