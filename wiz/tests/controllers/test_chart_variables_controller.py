@@ -15,7 +15,8 @@ class TestChartVariablesController(ClusterTest):
   def setUp(self) -> None:
     super().setUp()
     wiz_app.clear()
-    self.ns, = wiz_app.ns_overwrite, = ns_factory.request(1)
+    self.ns, = ns_factory.request(1)
+    helper.mock_globals(self.ns)
 
   def test_submit(self):
     helper.foo_bar_setup(self.ns)

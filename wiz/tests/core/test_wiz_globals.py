@@ -9,6 +9,8 @@ class TestWizGlobals(ClusterTest):
   def setUp(self) -> None:
     super().setUp()
     wg_module.clear_cache()
+    wg_module.wiz_app.ns_overwrite = None
+    wg_module.wiz_app.app_overwrite = None
 
   def test_read_ns_and_app(self):
     result = wg_module.read_ns_and_app()
@@ -23,4 +25,4 @@ class TestWizGlobals(ClusterTest):
   def test_init(self):
     wg_module.persist_ns_and_app('foo', dict(foo='bar'))
     self.assertEqual(wiz_app.ns, 'foo')
-    self.assertEqual(wiz_app.app, dict(foo='bar'))
+    self.assertEqual(wiz_app.app(), dict(foo='bar'))

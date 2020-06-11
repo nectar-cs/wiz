@@ -60,16 +60,18 @@ class WizApp:
     self.subclasses = []
     self.providers = []
     self.adapters = []
-    self.access_point_delegate = None
     self.ns_overwrite = None
+    self.app_overwrite = None
 
   @property
   def ns(self):
     return self.ns_overwrite or read_ns_and_app()[0]
 
-  @property
   def app(self):
-    return read_ns_and_app()[1] or {}
+    return self.app_overwrite or read_ns_and_app()[1] or {}
+
+  def tedi_image_name(self) -> Optional[str]:
+    return self.app() and self.app().get('tedi_image')
 
   def add_configs(self, new_configs: List[Dict]):
     self.configs = self.configs + new_configs
