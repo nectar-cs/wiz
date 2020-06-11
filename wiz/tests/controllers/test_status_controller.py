@@ -28,12 +28,6 @@ class TestStatusController(ClusterTest):
     wiz_app.ns_overwrite, = ns_factory.request(1)
     self.assertEqual('none', fetch_tedi_status())
 
-  def test_tedi_status_with_tedi(self):
-    wiz_app.ns_overwrite, = ns, = ns_factory.request(1)
-    create_base_master_map(ns)
-    tedi_prep.create(ns, helper.simple_tedi_setup())
-    self.assertTrue(fetch_tedi_status() in ['pending', 'positive', 'negative'])
-
   def test_tedi_prep(self):
     wiz_app.ns_overwrite, = ns, = ns_factory.request(1)
     create_base_master_map(ns)

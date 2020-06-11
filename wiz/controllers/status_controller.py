@@ -34,5 +34,4 @@ def tedi_init():
     params = request.json
     app, ns = params['app'], params['ns']
     wiz_globals.persist_ns_and_app(ns, app)
-    tedi_prep.create(ns, app)
   return dict(status='pending')

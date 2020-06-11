@@ -1,7 +1,6 @@
 import subprocess
 from functools import reduce
 from typing import Tuple, Dict, List, Optional
-from urllib.parse import quote
 
 import yaml
 
@@ -11,7 +10,7 @@ from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.core.types import K8sResDict
 from wiz.core.wiz_globals import wiz_app
-from wiz.core import wiz_globals as wg
+from wiz.core import wiz_globals as wg, tedi_prep
 
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
@@ -51,18 +50,23 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   expr_array = []
   for str_assignment in str_assignments:
     key_expr, value = str_assignment
-    expr_array.append(f"--set {key_expr}:{value}")
+    expr_array.append(f"--set {key_expr}={value}")
   return " ".join(expr_array)
 
 
-def load_raw_manifest(inlines=None) -> List[K8sResDict]:
-  pod = tedi_pod()
-  pod.trigger()
-  vendor_flags: str = wiz_app.app.get('te_args', '')
+def gen_tedi_args(inlines) -> List[str]:
+  values_flag: str = "-f /values/master"
+  vendor_flags: str = wiz_app.app().get('te_args', '')
   inline_flags: str = fmt_inline_assigns(inlines or {})
-  all_flags: str = f"{vendor_flags} {inline_flags}"
-  command = f"{interpolate_cmd} --args [{quote(all_flags)}]"
-  result = pod.shell_exec(command)
+  all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
+  return all_flags.split(" ")
+
+
+def load_raw_manifest(inlines=None) -> List[K8sResDict]:
+  ns, image_name = wiz_app.ns, wiz_app.tedi_image_name()
+  pod_args = gen_tedi_args(inlines)
+  print(pod_args)
+  result = tedi_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
@@ -72,13 +76,6 @@ def write_manifest(rules: List[ResMatchRule], inlines=None):
   composed = yaml.dump_all(filtered)
   with open(tmp_file_mame, 'w') as file:
     file.write(composed)
-
-
-def tedi_pod() -> Optional[KatPod]:
-  if wiz_app.ns:
-    return KatPod.find(wg.tedi_pod_name, wiz_app.ns)
-  else:
-    return None
 
 
 def filter_res(res_list: List[K8sResDict], rules: List[ResMatchRule]) -> List[K8sResDict]:
@@ -104,9 +101,9 @@ def kubectl_apply():
   with open(tmp_file_mame, 'r') as file:
     print(file.read())
 
-  print(f"Running {cmd}")
+  # print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
-  print(result)
+  # print(result)
   return result
 
 

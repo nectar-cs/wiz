@@ -1,6 +1,6 @@
 from typing import List, Callable
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from k8_kat.res.dep.kat_dep import KatDep
 
 from wiz.core.wiz_globals import wiz_app
@@ -9,6 +9,14 @@ from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 controller = Blueprint('app_controller', __name__)
 
 BASE_PATH = '/api/app'
+
+@controller.route(f'{BASE_PATH}/prepare', methods=['POST'])
+def tedi_init():
+  params = request.json
+  app, ns = params['app'], params['ns']
+  wiz_app.persist_ns_and_app(ns, app)
+  return dict(status='success')
+
 
 @controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
 def application_endpoints():
