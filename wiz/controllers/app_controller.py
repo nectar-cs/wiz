@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List
 
 from flask import Blueprint, jsonify
 from k8_kat.res.dep.kat_dep import KatDep
@@ -9,6 +9,7 @@ from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 controller = Blueprint('app_controller', __name__)
 
 BASE_PATH = '/api/app'
+
 
 @controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
 def application_endpoints():

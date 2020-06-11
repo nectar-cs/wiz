@@ -8,18 +8,16 @@ from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from wiz.model.adapters.provider import Provider
 
 
-
 class HomepageAdapter(AppEndpointAdapter):
   def name(self):
     return "Homepage"
 
   def url(self):
-    return "wosy.asdas"
-    # ingress = KatIngress.find('hub-ingress', wiz_app.ns)
-    # host, host_info = list(ingress.basic_rules().items())[0]
-    # info = [b for b in host_info if b['service'] == 'hub-front'][0]
-    # path = '' if info['path'] == '/' else info['path']
-    # return f"{host}{path}"
+    ingress = KatIngress.find('hub-ingress', wiz_app.ns)
+    host, host_info = list(ingress.basic_rules().items())[0]
+    info = [b for b in host_info if b['service'] == 'hub-front'][0]
+    path = '' if info['path'] == '/' else info['path']
+    return f"{host}{path}"
 
 
 class HomepageInternalAdapter(AppEndpointAdapter):
@@ -47,7 +45,7 @@ class AppEndpointsProvider(Provider[AppEndpointAdapter]):
 
   def produce_adapters(self) -> List[AppEndpointAdapter]:
     return [
-      AppEndpointAdapter(),
+      HomepageAdapter(),
       HomepageInternalAdapter(),
       AdminPageAdapter()
     ]

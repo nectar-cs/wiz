@@ -8,9 +8,6 @@ configure access to an external database."
 default: internal
 category: storage
 field: hub.storage.type
-operations:
-  - move-to-external-storage
-  - move-to-internal-storage
 
 
 ---
@@ -24,7 +21,6 @@ category: storage
 resource: pvc/hub-pvc
 operations:
   - move-to-own-pvc
-  - move-to-default-pvc
 
 
 ---
@@ -38,7 +34,6 @@ category: storage
 resource: pvc/hub-pvc
 operations:
   - move-to-own-pvc
-  - move-to-default-pvc
 
 
 ---
@@ -51,6 +46,3 @@ category: networking
 info: "Can be ingress or non-ingress. If ingress,
 Nectar will create ingress resources for your ingress controller."
 default: ingress
-operations:
-  - switch-to-ingress
-  - switch-from-ingress
