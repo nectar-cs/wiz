@@ -9,7 +9,9 @@ from kubernetes.client import V1Pod, V1ObjectMeta, \
 from k8_kat.auth.kube_broker import broker
 from wiz.core import utils, wiz_globals
 
+
 pod_name = wiz_globals.tedi_pod_name
+
 
 def create(ns, app) -> None:
   broker.coreV1.create_namespaced_pod(
@@ -34,21 +36,10 @@ def create(ns, app) -> None:
             )
           )
         ],
-        init_containers=[
-          V1Container(
-            name='init',
-            image='gcr.io/nectar-bazaar/tedi:latest',
-            args=[app['te_type'], 'init'],
-            image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
-            volume_mounts=volume_mounts(),
-            env=env_vars(app)
-          ),
-        ],
         containers=[
           V1Container(
             name='main',
             image='gcr.io/nectar-bazaar/tedi:latest',
-            command=["/bin/sh", "-c", "--"],
             args=["while true; do sleep 10; done;"],
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
@@ -65,10 +56,6 @@ def create(ns, app) -> None:
 
 def volume_mounts() -> List[V1VolumeMount]:
   return [
-    V1VolumeMount(
-      name='shared',
-      mount_path='/tmp/work'
-    ),
     V1VolumeMount(
       name='master-config-map',
       mount_path='/values'

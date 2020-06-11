@@ -8,14 +8,6 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 from wiz.core import tedi_prep, tedi_client
 
 
-def tedi_setup():
-  return dict(
-    te_type='kerbi',
-    te_repo_name='https://github.com/nectar-cs/charts-and-wizards.git',
-    te_repo_subpath='nectar-hub/kerbi-chart'
-  )
-
-
 def simple_tedi_setup():
   return dict(
     te_type='kerbi',
@@ -35,6 +27,7 @@ def create_base_master_map(ns):
       data=dict(master=yaml.dump({}))
     )
   )
+
 
 def foo_bar_setup(ns):
   create_base_master_map(ns)
