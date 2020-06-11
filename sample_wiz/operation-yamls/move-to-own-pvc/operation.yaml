@@ -29,7 +29,7 @@ prerequisites:
 stages:
   - move-to-own-pvc.setup
   - move-to-own-pvc.copy-over
-  - move-to-own-pvc.setup.cleanup
+  - move-to-own-pvc.cleanup
 
 risks:
   - "The wizard will not destroy your old PVC if

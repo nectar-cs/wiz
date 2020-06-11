@@ -11,7 +11,7 @@ yamls_base = 'sample_wiz/operation-yamls'
 wiz_app.add_configs(
   utils.yamls_in_dir(f'{yamls_base}/installation') +
   utils.yamls_in_dir(f'{yamls_base}/move-to-own-pvc') +
-  utils.yamls_in_dir(f'{yamls_base}/variables')
+  utils.yamls_in_dir(f'sample_wiz/variables-yamls')
 )
 
 wiz_app.add_overrides([

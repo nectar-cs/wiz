@@ -1,6 +1,6 @@
 kind: ChartVariable
 key: "hub.storage.type"
-type: entangled
+mode: coupled
 info: "Determines Hub's persistent storage strategy. If
 'internal', Hub needs PersistentVolume/Deployment combination
 to run access its database. If 'external', you will need to
@@ -15,7 +15,7 @@ field: hub.storage.type
 
 kind: ChartVariable
 key: hub.storage.managed_pvc
-type: entangled
+mode: coupled
 default: true
 category: storage
 resource: pvc/hub-pvc
@@ -28,7 +28,7 @@ operations:
 
 kind: ChartVariable
 key: hub.storage.pvc_name
-type: entangled
+mode: coupled
 default: hub-pvc
 category: storage
 resource: pvc/hub-pvc
@@ -41,7 +41,7 @@ operations:
 
 kind: ChartVariable
 key: hub.networking.strategy
-type: entangled
+mode: coupled
 category: networking
 info: "Can be ingress or non-ingress. If ingress,
 Nectar will create ingress resources for your ingress controller."

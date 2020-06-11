@@ -1,6 +1,6 @@
 kind: ChartVariable
 key: hub.networking.path
-type: public
+mode: public
 category: networking
 info: "Path following hostname on which ingress should listen. The domain name must
 be defined and successfully resolving to this cluster for this variable to
@@ -15,7 +15,7 @@ field:
 
 kind: ChartVariable
 key: hub.networking.host
-type: public
+mode: public
 category: networking
 info: "Host name on which ingress should listen. This must be a
 domain you already own."
@@ -31,7 +31,7 @@ field:
 
 kind: ChartVariable
 key: hub.backend.replicas
-type: public
+mode: public
 info: "Amount of replicas for backend deployment. Its recommended to
 change this variable in the Workloads page."
 default: 2
@@ -50,7 +50,7 @@ field:
 
 kind: ChartVariable
 key: hub.frontend.replicas
-type: public
+mode: public
 info: "Amount of replicas for frontend deployment. Its recommended to
 change this variable in the Workloads page."
 default: 2
