@@ -89,6 +89,11 @@ class WizApp:
     matches = [c for c in self.providers if c.kind() == adapter_class]
     return matches[0] if len(matches) > 0 else None
 
+  def find_adapter_subclass(self, superclass: Type, else_super=False):
+    matches = [c for c in self.adapters if issubclass(c, superclass)]
+    backup = superclass if else_super else None
+    return matches[0] if len(matches) > 0 else backup
+
   def find_config(self, kind: str, key: str):
     matches = [c for c in self.configs if is_config_match(c, kind, key)]
     return matches[0] if len(matches) else None
