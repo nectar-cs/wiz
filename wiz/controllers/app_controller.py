@@ -6,6 +6,7 @@ from k8_kat.res.dep.kat_dep import KatDep
 from wiz.core import wiz_globals
 from wiz.core.wiz_globals import wiz_app
 from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
+from wiz.model.adapters.base_quotas_adapter import BaseQuotasAdapter
 
 controller = Blueprint('app_controller', __name__)
 
@@ -18,6 +19,13 @@ def tedi_init():
   app, ns = params['app'], params['ns']
   wiz_globals.persist_ns_and_app(ns, app)
   return dict(status='success')
+
+
+@controller.route(f'{BASE_PATH}/limits-and-usage', methods=["GET"])
+def app_resources():
+  adapter = wiz_app.find_adapter_subclass(BaseQuotasAdapter, True)
+  output = adapter().serialize()
+  return jsonify(data=output)
 
 
 @controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
