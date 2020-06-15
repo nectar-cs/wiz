@@ -1,3 +1,16 @@
+key: step.global.quotas
+kind: Step
+title: Resource Consumption Quotas
+fields:
+  - hub.quotas.cpu
+  - hub.quotas.memory
+res: 'ResourceQuota:*'
+next: done
+
+
+---
+
+
 key: installation.storage_strategy
 kind: Step
 title: "Storage Strategy"

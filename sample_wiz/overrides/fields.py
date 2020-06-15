@@ -7,10 +7,6 @@ class DbPasswordField(Field):
   def key(cls):
     return 'hub.storage.secrets.password'
 
-  @classmethod
-  def type_key(cls):
-    return Field.type_key()
-
   def default_value(self):
     return utils.rand_str(string_len=20)
 
@@ -19,10 +15,6 @@ class SecKeyBaseField(Field):
   @classmethod
   def key(cls):
     return 'hub.backend.secrets.key_base'
-
-  @classmethod
-  def type_key(cls):
-    return Field.type_key()
 
   def default_value(self):
     return utils.rand_str(string_len=24)
@@ -36,3 +28,25 @@ class AttrEncField(Field):
   def default_value(self):
     return utils.rand_str(string_len=32)
 
+
+class CPUQuotaField(Field):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.cpu'
+
+  def decorate_value(self, value):
+    people = int(value) * 75
+    return f"{value}", f"Team of ~{people}"
+
+
+class MemQuotaField(Field):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.memory'
+
+  def decorate_value(self, value):
+    people = int(value) * 65
+    return f"{value} Gb", f"Team of ~{people}"
+
+  def clean_value(self, value):
+    return value / 1_000_000

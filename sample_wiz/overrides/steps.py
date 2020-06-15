@@ -17,7 +17,7 @@ class AvailabilityStep(Step):
       return 1
     return 3 if str_rep == 'high' else 2
 
-  def field_to_manifest_values(self, values):
+  def clean_field_values(self, values):
     exp_users_i = self.str_num_to_i(values['hub.backend.num_users'])
     req_downtime_i = self.str_num_to_i(values['hub.backend.response_time'])
     num_rep = exp_users_i + req_downtime_i

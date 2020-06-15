@@ -30,17 +30,18 @@ class Step(WizModel):
     root = self.config.get('next')
     return expr.eval_next_expr(root, values)
 
-  def fields(self):
+  def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
 
-  def field(self, key):
+  def field(self, key) -> Field:
     return self.load_child('fields', Field, key)
 
-  def field_to_manifest_values(self, values: Dict[str, any]):
-    return values
+  def clean_field_values(self, values: Dict[str, any]):
+    transform = lambda k: self.field(k).clean_value(values[k])
+    return {[key]: transform(value) for key, value in values.items()}
 
   def commit(self, values) -> Tuple[str, Optional[str]]:
-    mapped_values = self.field_to_manifest_values(values)
+    mapped_values = self.clean_field_values(values)
     normal_values, inline_values = partition_values(self.fields(), mapped_values)
 
     if normal_values:
@@ -67,6 +68,7 @@ class Step(WizModel):
   def status(self):
     if not self.applies:
       return 'positive'
+
     resources = self.affected_resources()
     res_statuses = set([r.ternary_status() for r in resources])
     if len(res_statuses) == 1:

@@ -2,6 +2,13 @@ kind: Operation
 key: installation
 title: Installation
 stages:
+
+  - key: application
+    title: Application
+    info: Set the groud rules for Nectar Hub's behavior in your cluster.
+    steps:
+      - step.global.quotas
+
   - key: storage
     kind: Stage
     title: Primary Storage
@@ -14,9 +21,9 @@ stages:
       - installation.locate_external_db
       - installation.set_db_secrets
 
-  - key: application
+  - key: hub-settings
     kind: Stage
-    title: Application
+    title: Hub Settings
     info: "Configure the application at the infrastructure level.
       This installer only exposes a subset of all possible fields. You can configure
       the application further after the installer completes."

@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.model.field.validator import Validator
@@ -66,3 +66,9 @@ class Field(WizModel):
       if tone and message:
         return [tone, message]
     return [None, None]
+
+  def clean_value(self, value):
+    return value
+
+  def decorate_value(self, value) -> Optional[Tuple[str, str]]:
+    return None
