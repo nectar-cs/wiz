@@ -21,8 +21,15 @@ def tedi_init():
   return dict(status='success')
 
 
-@controller.route(f'{BASE_PATH}/limits-and-usage', methods=["GET"])
-def app_resources():
+@controller.route(f'{BASE_PATH}/resource-quotas-and-requests', methods=["GET"])
+def app_resource_quotas():
+  adapter = wiz_app.find_adapter_subclass(BaseQuotasAdapter, True)
+  output = adapter().serialize()
+  return jsonify(data=output)
+
+
+@controller.route(f'{BASE_PATH}/resource-available-and-usage', methods=["GET"])
+def app_resource_usage():
   adapter = wiz_app.find_adapter_subclass(BaseQuotasAdapter, True)
   output = adapter().serialize()
   return jsonify(data=output)

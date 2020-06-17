@@ -48,6 +48,9 @@ class Field(WizModel):
   def is_inline(self):
     return self.config.get('inline', False)
 
+  def needs_decorating(self):
+    return self.config.get('type') == 'slider'
+
   def default_value(self):
     explicit_default = self.config.get('default')
     if not explicit_default and self.type == 'select':
@@ -67,8 +70,8 @@ class Field(WizModel):
         return [tone, message]
     return [None, None]
 
-  def clean_value(self, value):
+  def sanitize_value(self, value):
     return value
 
-  def decorate_value(self, value) -> Optional[Tuple[str, str]]:
+  def decorate_value(self, value: str) -> Optional[any]:
     return None

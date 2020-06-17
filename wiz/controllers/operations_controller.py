@@ -103,6 +103,12 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
     return jsonify(data=dict(status='valid'))
 
 
+@controller.route(f'{FIELD_PATH}/decorate', methods=['POST'])
+def fields_decorate(operation_id, stage_id, step_id, field_id):
+  field = find_field(operation_id, stage_id, step_id, field_id)
+  value = request.json['value']
+  return jsonify(data=field.decorate_value(value))
+
 def find_operation(operation_id) -> Operation:
   return Operation.inflate(operation_id)
 

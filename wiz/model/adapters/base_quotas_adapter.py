@@ -13,31 +13,31 @@ class BaseQuotasAdapter(Adapter):
 
   def find_kat_quota_resource(self) -> KatQuota:
     matches = KatQuota.list(wiz_app.ns)
-    return matches[0] if len(matches) > 0 else None
+    return matches[len(matches) - 1] if len(matches) > 0 else None
 
   def cpu_limit(self):
-    value = self.kat_quota.cpu_limit()
-    return units.humanize_cpu_quant(value, True) if value else None
+    return self.kat_quota.cpu_limit()
 
   def cpu_used(self):
-    value = self.kat_quota.cpu_used()
-    return units.humanize_cpu_quant(value, True) if value else None
+    return self.kat_quota.cpu_used()
 
   def mem_limit(self):
     value = self.kat_quota.mem_limit()
-    return units.humanize_mem_quant(value) if value else None
+    return value / 10**9 if value is not None else None
 
   def mem_used(self):
     value = self.kat_quota.mem_used()
-    return units.humanize_mem_quant(value) if value else None
+    return value / 10**9 if value is not None else None
 
   def serialize(self, **kwargs):
     if self.kat_quota:
       return dict(
         cpu_limit=self.cpu_limit(),
         cpu_used=self.cpu_used(),
+        cpu_unit='Cores',
         mem_limit=self.mem_limit(),
-        mem_used=self.mem_used()
+        mem_used=self.mem_used(),
+        mem_unit='Gb'
       )
     else:
       return None

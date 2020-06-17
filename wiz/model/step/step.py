@@ -36,12 +36,12 @@ class Step(WizModel):
   def field(self, key) -> Field:
     return self.load_child('fields', Field, key)
 
-  def clean_field_values(self, values: Dict[str, any]):
-    transform = lambda k: self.field(k).clean_value(values[k])
-    return {[key]: transform(value) for key, value in values.items()}
+  def sanitize_field_values(self, values: Dict[str, any]):
+    transform = lambda k: self.field(k).sanitize_value(values[k])
+    return {key: transform(key) for key, value in values.items()}
 
   def commit(self, values) -> Tuple[str, Optional[str]]:
-    mapped_values = self.clean_field_values(values)
+    mapped_values = self.sanitize_field_values(values)
     normal_values, inline_values = partition_values(self.fields(), mapped_values)
 
     if normal_values:

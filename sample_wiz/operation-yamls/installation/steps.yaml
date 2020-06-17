@@ -4,7 +4,9 @@ title: Resource Consumption Quotas
 fields:
   - hub.quotas.cpu
   - hub.quotas.memory
-res: 'ResourceQuota:*'
+
+res:
+  - 'ResourceQuota:*'
 next: done
 
 

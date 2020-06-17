@@ -285,6 +285,7 @@ options:
 
 
 key: hub.netpol.block-internal-incoming
+kind: Field
 title: Block incoming internal traffic?
 info: Prevents HTTP from workloads outside the app's namespace
 type: select
@@ -305,6 +306,7 @@ validations:
 
 
 key: hub.netpol.block-internal-outgoing
+kind: Field
 title: Block outgoing internal traffic?
 info: Prevents HTTP from Hub to workloads in other namespaces
 type: select

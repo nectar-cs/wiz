@@ -26,9 +26,9 @@ class TestAppController(ClusterTest):
 
   def test_limits_and_usage_with_adapter(self):
     test_kat_quota.create('app-quota', wiz_app.ns)
-    response = app.test_client().get('/api/app/limits-and-usage')
+    response = app.test_client().get('/api/app/resource-quotas-and-requests')
     result = json.loads(response.data).get('data')
-    self.assertEqual('1.5 Millicores', result.get('cpu_limit'))
+    self.assertEqual('1.5 Cores', result.get('cpu_limit'))
     self.assertEqual('200Mb', result.get('mem_limit'))
 
   def test_tedi_prep(self):

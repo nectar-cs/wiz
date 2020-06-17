@@ -4,7 +4,7 @@ from typing import List, Optional
 from k8_kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1PodSpec, V1Container, \
-  V1Volume, V1VolumeMount, V1ConfigMapVolumeSource
+  V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements
 
 from k8_kat.auth.kube_broker import broker
 from wiz.core import utils, wiz_globals
@@ -38,7 +38,11 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
             image=image,
             args=args,
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
-            volume_mounts=volume_mounts()
+            volume_mounts=volume_mounts(),
+            resources=V1ResourceRequirements(
+              requests=dict(cpu='0.3', memory='100M'),
+              limits=dict(cpu='0.5', memory='200M')
+            )
           )
         ]
       )
