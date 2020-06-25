@@ -16,7 +16,7 @@ class BaseQuotasAdapter(Adapter):
     return matches[len(matches) - 1] if len(matches) > 0 else None
 
   def cpu_limit(self):
-    return self.kat_quota.cpu_limit()
+    return self.kat_quota.mem_limit_cap()
 
   def cpu_used(self):
     return self.kat_quota.cpu_used()

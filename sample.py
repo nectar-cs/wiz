@@ -28,5 +28,7 @@ wiz_app.add_providers([
   app_endpoints.AppEndpointsProvider
 ])
 
+wiz_app.ns_overwrite = 'hub-self-hosted'
+
 dotenv.load_dotenv()
 server.start()
