@@ -56,6 +56,7 @@ class KatDecorator(Decorator):
   def updated_at(self):
     return self.katified.updated_at()
 
+
 class ConfigMapDecorator(KatDecorator):
   @classmethod
   def matches(cls, kind):
@@ -71,6 +72,7 @@ class ConfigMapDecorator(KatDecorator):
     if self.name() == 'master':
       extra_data = self.katified.yget('master')
     return {**super().extras(), **extra_data}
+
 
 class DeploymentDecorator(KatDecorator):
   @classmethod
@@ -92,6 +94,7 @@ def decorator_classes():
     KatDecorator,
     Decorator
   ]
+
 
 class SecretDecorator(KatDecorator):
   @classmethod
