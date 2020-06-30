@@ -40,6 +40,20 @@ def list_by_category(category_id):
   return jsonify(data=all_serialized_res)
 
 
+@controller.route(f'{BASE_PATH}/<kind>/<name>', methods=['GET'])
+def resource_detail(kind, name):
+  kat_class = KatRes.find_res_class(kind)
+  res = kat_class.find(name, wiz_app.ns)
+  serializer = kind_serializer_mapping.get(kind)
+  serialized = serializer(res) if res and serializer else None
+  return jsonify(data=serialized)
+
+
+kind_serializer_mapping = dict(
+  deployment=res_serializers.deployment
+)
+
+
 category_mapping = dict(
   workloads=[KatDep],
   network=[KatSvc, KatIngress],
