@@ -4,16 +4,20 @@ title: Installation
 stages:
 
   - key: application
-    title: Application
-    info: Set the groud rules for Nectar Hub's behavior in your cluster.
+    title: Policies
+    info: "Define global policies to limit the application's access to
+    resources, as well well as its network visibility across the cluster."
     steps:
       - step.global.quotas
+      - step.global.net_pols
+      - step.global.net_pols
 
   - key: storage
     kind: Stage
     title: Primary Storage
-    info: "Nectar Hub needs a database in order to work. The following steps will let you
-    choose how storage is allocated and how the database is secured."
+    info: "Nectar Hub needs a database in order to work. The following
+    steps will let you choose how storage is allocated and
+     how the database is secured."
     steps:
       - installation.storage_strategy
       - installation.decide_pvc_strategy

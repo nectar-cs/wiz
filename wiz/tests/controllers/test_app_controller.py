@@ -19,17 +19,11 @@ class TestAppController(ClusterTest):
     wiz_app.app_overwrite = None
     wiz_app.ns_overwrite, = ns_factory.request(1)
 
-  def test_limits_and_usage_no_quota(self):
-    response = app.test_client().get('/api/app/limits-and-usage')
-    result = json.loads(response.data)
-    self.assertIsNone(result.get('data'))
-
   def test_limits_and_usage_with_adapter(self):
     test_kat_quota.create('app-quota', wiz_app.ns)
-    response = app.test_client().get('/api/app/resource-quotas-and-requests')
-    result = json.loads(response.data).get('data')
-    self.assertEqual('1.5 Cores', result.get('cpu_limit'))
-    self.assertEqual('200Mb', result.get('mem_limit'))
+    response = app.test_client().get('/api/app/resource-stats')
+    data = json.loads(response.data).get('data')
+    self.assertIsNotNone(data)
 
   def test_tedi_prep(self):
     wiz_app.ns_overwrite = None
