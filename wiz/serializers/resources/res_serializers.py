@@ -1,3 +1,9 @@
+from typing import Dict
+
+from k8_kat.res.rbac.rbac import KatRole
+
+from k8_kat.res.quotas.kat_quota import KatQuota
+
 from k8_kat.res.pod.kat_pod import KatPod
 
 from k8_kat.res.dep.kat_dep import KatDep
@@ -5,7 +11,7 @@ from k8_kat.res.dep.kat_dep import KatDep
 from k8_kat.res.base.kat_res import KatRes
 
 
-def basic(res: KatRes):
+def basic(res: KatRes) -> Dict:
   return dict(
     kind=res.kind,
     name=res.name,
@@ -13,7 +19,7 @@ def basic(res: KatRes):
   )
 
 
-def _embedded_pod(pod: KatPod):
+def _embedded_pod(pod: KatPod) -> Dict:
   return dict(
     **basic(pod),
     phase=pod.phase,
@@ -30,7 +36,7 @@ def _embedded_pod(pod: KatPod):
   )
 
 
-def deployment(dep: KatDep):
+def deployment(dep: KatDep) -> Dict:
   return dict(
     **basic(dep),
     desc=dep.short_desc(),
@@ -48,4 +54,15 @@ def deployment(dep: KatDep):
   )
 
 
+def resource_quota(quota: KatQuota) -> Dict:
+  return dict(
+    **basic(quota),
+    features=quota.dump()
+  )
 
+
+def role(k_role: KatRole):
+  return dict(
+    **basic(k_role),
+    matrix=k_role.matrix_form()
+  )

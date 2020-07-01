@@ -1,5 +1,6 @@
 from typing import Type, List
 
+import inflection
 from flask import Blueprint, jsonify
 from k8_kat.res.base.kat_res import KatRes
 from k8_kat.res.rs.kat_rs import KatRs
@@ -41,7 +42,7 @@ def list_by_category(category_id):
 
 
 @controller.route(f'{BASE_PATH}/<kind>/<name>', methods=['GET'])
-def resource_detail(kind, name):
+def resource_detail(kind: str, name: str):
   kat_class = KatRes.find_res_class(kind)
   res = kat_class.find(name, wiz_app.ns)
   serializer = kind_serializer_mapping.get(kind)
@@ -50,7 +51,9 @@ def resource_detail(kind, name):
 
 
 kind_serializer_mapping = dict(
-  deployment=res_serializers.deployment
+  deployment=res_serializers.deployment,
+  resource_quota=res_serializers.resource_quota,
+  role=res_serializers.role
 )
 
 
