@@ -62,3 +62,36 @@ field:
     - type: presence
     - type: format
       check_against: integer
+
+
+---
+
+kind: ChartVariable
+key: hub.quotas.requests.cpu
+field: hub.quotas.requests.cpu
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.requests.memory
+field: hub.quotas.requests.memory
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.limits.cpu
+field: hub.quotas.limits.cpu
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.limits.memory
+field: hub.quotas.limits.memory
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"

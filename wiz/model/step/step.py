@@ -26,9 +26,16 @@ class Step(WizModel):
     override = self.config.get('apply', None)
     return override if override is not None else len(selectors) > 0
 
+  @property
+  def next_step_descriptor(self):
+    return self.config.get('next')
+
   def next_step_id(self, values: Dict[str, str]) -> str:
-    root = self.config.get('next')
+    root = self.next_step_descriptor
     return expr.eval_next_expr(root, values)
+
+  def has_explicit_next(self):
+    return not expr.is_default_next(self.next_step_descriptor)
 
   def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
@@ -39,6 +46,11 @@ class Step(WizModel):
   def sanitize_field_values(self, values: Dict[str, any]):
     transform = lambda k: self.field(k).sanitize_value(values[k])
     return {key: transform(key) for key, value in values.items()}
+
+  def stage(self, values):
+    mapped_values = self.sanitize_field_values(values)
+    normal_values, _ = partition_values(self.fields(), mapped_values)
+    return normal_values
 
   def commit(self, values) -> Tuple[str, Optional[str]]:
     mapped_values = self.sanitize_field_values(values)

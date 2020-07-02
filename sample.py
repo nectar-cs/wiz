@@ -18,8 +18,10 @@ wiz_app.add_overrides([
   fields.DbPasswordField,
   fields.SecKeyBaseField,
   fields.AttrEncField,
-  fields.CPUQuotaField,
-  fields.MemQuotaField,
+  fields.CPULimitsQuotaField,
+  fields.CPURequestsQuotaField,
+  fields.MemLimitsQuotaField,
+  fields.MemRequestsQuotaField,
   steps.LocateExternalDatabaseStep,
   steps.AvailabilityStep,
 ])

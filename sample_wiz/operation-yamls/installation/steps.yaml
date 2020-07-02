@@ -1,16 +1,32 @@
-key: step.global.quotas
+--- #---------------------------QUOTAS-----------------------------
+
+key: step.global.quotas.requests
 kind: Step
-title: Resource Consumption Quotas
+info: Maximum sum of CPU/memory requests across application
+title: Request Quotas
 fields:
-  - hub.quotas.cpu
-  - hub.quotas.memory
+  - hub.quotas.requests.cpu
+  - hub.quotas.requests.memory
 
 res:
   - 'ResourceQuota:*'
-next: done
 
 
 ---
+
+key: step.global.quotas.limits
+kind: Step
+info: Maximum sum of CPU/memory limits across application
+title: Limit Quotas
+fields:
+  - hub.quotas.limits.cpu
+  - hub.quotas.limits.memory
+
+res:
+  - 'ResourceQuota:*'
+
+
+--- #---------------------------STORAGE-----------------------------
 
 
 key: installation.storage_strategy
@@ -40,7 +56,6 @@ fields:
   - "hub.storage.external_db_password"
 res:
   - 'Secret:hub-pg'
-next: done
 
 
 ---
@@ -69,7 +84,6 @@ kind: Step
 title: "Self-Managed PVC"
 fields:
   - "hub.storage.pvc_name"
-next: installation.set_db_secrets
 
 
 ---
@@ -78,11 +92,13 @@ next: installation.set_db_secrets
 key: installation.set_db_secrets
 kind: Step
 title: "Internal DB Credentials"
+info: "Choose secure access credentials for the database.
+Note that values are stored as secrets and will not be readable
+in the chart."
 fields:
   - "hub.storage.secrets.user"
   - "hub.storage.secrets.password"
 ephemeral: true
-next: done
 res:
   - "Secret:hub-pg"
   - "PersistentVolumeClaim:*"
@@ -98,7 +114,6 @@ kind: Step
 title: "Backups Strategy"
 fields:
   - "hub.backups.type"
-next: done
 
 
 --- #---------------------------APPLICATION-----------------------------
@@ -113,9 +128,10 @@ fields:
   - "hub.backend.encrypted_tables"
 res:
   - "Secret:hub-app"
-next: installation.availability
+
 
 ---
+
 
 key: installation.availability
 kind: Step
@@ -126,7 +142,6 @@ fields:
 res:
   - "Deployment:hub"
   - "Deployment:hub-front"
-next: done
 
 
 --- #---------------------------NETWORKING-----------------------------
@@ -158,4 +173,3 @@ fields:
 res:
   - Ingress:*
   - Service:*
-next: done

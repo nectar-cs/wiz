@@ -8,6 +8,7 @@ def embedded(field: Field):
     type=field.type,
     options=field.options(),
     info=field.info,
+    is_inline=field.is_inline,
     needs_decorating=field.needs_decorating(),
     default=field.default_value()
   )

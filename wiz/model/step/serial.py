@@ -6,5 +6,7 @@ def standard(step: Step):
   return dict(
     id=step.key,
     title=step.title,
+    info=step.info,
+    applies=step.applies,
     fields=[field_serial.embedded(f) for f in step.fields()]
   )

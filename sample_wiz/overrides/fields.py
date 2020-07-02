@@ -43,11 +43,7 @@ class AttrEncField(Field):
     return utils.rand_str(string_len=32)
 
 
-class CPUQuotaField(Field):
-  @classmethod
-  def key(cls):
-    return 'hub.quotas.cpu'
-
+class CpuQuotaField(Field):
   @classmethod
   def type_key(cls):
     return Field.type_key()
@@ -62,10 +58,6 @@ class CPUQuotaField(Field):
 
 class MemQuotaField(Field):
   @classmethod
-  def key(cls):
-    return 'hub.quotas.memory'
-
-  @classmethod
   def type_key(cls):
     return Field.type_key()
 
@@ -78,3 +70,28 @@ class MemQuotaField(Field):
 
   def sanitize_value(self, value):
     return f"{value}G"
+
+
+class CPURequestsQuotaField(CpuQuotaField):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.requests.cpu'
+
+
+class CPULimitsQuotaField(CpuQuotaField):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.limits.cpu'
+
+
+class MemRequestsQuotaField(MemQuotaField):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.requests.memory'
+
+
+class MemLimitsQuotaField(MemQuotaField):
+  @classmethod
+  def key(cls):
+    return 'hub.quotas.limits.memory'
+
