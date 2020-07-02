@@ -95,3 +95,21 @@ key: hub.quotas.limits.memory
 field: hub.quotas.limits.memory
 mode: public
 info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_host"
+title: "External Database Host"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_port"
+title: "External Database Port"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_user"
+title: "External Database User"

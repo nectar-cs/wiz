@@ -79,7 +79,6 @@ key: "hub.storage.external_db_host"
 kind: Field
 title: "External Database Host"
 info: "Must be PostgreSQL 9.2 or above"
-inline: true
 
 
 ---
@@ -93,7 +92,6 @@ validations:
   - type: presence
   - type: format
     check_against: "integer"
-inline: true
 
 
 ---
