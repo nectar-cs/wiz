@@ -90,6 +90,12 @@ class Step(WizModel):
     else:
       return "pending"
 
+  @property
+  def flags(self):
+    _flags: List[str] = self.config.get('flags', [])
+    if self.applies:
+      _flags.append('manifest_applying')
+    return list(set(_flags))
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
   normal_values, inline_values = {}, {}

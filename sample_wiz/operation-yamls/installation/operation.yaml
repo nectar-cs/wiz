@@ -3,13 +3,13 @@ key: installation
 title: Installation
 stages:
 
-  - key: application
-    title: Policies
-    info: "Define global policies to limit the application's access to
-    resources, as well well as its network visibility across the cluster."
-    steps:
-      - step.global.quotas.requests
-      - step.global.quotas.limits
+#  - key: application
+#    title: Policies
+#    info: "Define global policies to limit the application's access to
+#    resources, as well well as its network visibility across the cluster."
+#    steps:
+#      - step.global.quotas.requests
+#      - step.global.quotas.limits
 
   - key: storage
     kind: Stage

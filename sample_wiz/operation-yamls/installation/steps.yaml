@@ -8,6 +8,16 @@ fields:
   - hub.quotas.requests.cpu
   - hub.quotas.requests.memory
 
+manifest:
+  - 'ResourceQuota:*'
+
+exit_conditions:
+
+  res_statuses:
+    check_against: "positive"
+    res:
+      - 'ResourceQuota:*'
+
 res:
   - 'ResourceQuota:*'
 
@@ -32,6 +42,11 @@ res:
 key: installation.storage_strategy
 kind: Step
 title: "Storage Strategy"
+info: "The database may live inside your cluster, or outside of it.
+When inside, Nectar offers a fully managed service, complete with backups
+and encryption. <br/><br/> However, you may also point the application to a database
+on the cloud. If so, the next step will ask the database's URI."
+
 fields:
   - "hub.storage.type"
 next:

@@ -7,6 +7,6 @@ def standard(step: Step):
     id=step.key,
     title=step.title,
     info=step.info,
-    applies=step.applies,
+    flags=step.flags,
     fields=[field_serial.embedded(f) for f in step.fields()]
   )
