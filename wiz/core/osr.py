@@ -1,64 +1,96 @@
+from datetime import datetime
 from typing import Dict
 from pathlib import Path
 
 from flask import json
 
+from k8_kat.utils.main.utils import deep_merge
+from wiz.core import utils
 from wiz.model.operations.operation import Operation
 
-class OperationRecord:
+BASE_DIR = '/tmp/nectar-wiz'
 
-  def __init__(self, raw_record: Dict):
-    raw_steps = raw_record.get('steps', [])
-    self.step_records = [StepRecord(raw) for raw in raw_steps]
 
-  def record_step_started(self, step_name: str, bundle):
-    pass
-
-  def record_step_terminated(self, step_name: str, bundle):
-    pass
-
-  def step_record(self, step_name: str):
-    matcher = (sr for sr in self.step_records if sr.lid == step_name)
-    return next(matcher)
+class JobOutcomeRecord:
+  pass
 
 
 class StepRecord:
 
   def __init__(self, raw_record: Dict):
+    self.step_id = raw_record['step_id']
+    self.stage_id = raw_record['stage_id']
+    self.started_at = None
+    self.finished_at = None
+    self.assignments = raw_record.get('assignments', {})
+    self.computed = raw_record.get('computed', {})
+    self.job_outcome = raw_record.get('job_outcome', {})
+
+  def serialize(self):
+    return dict(
+      step_id=self.step_id,
+      stage_id=self.step_id,
+    )
+
+
+class OperationRecord:
+
+  def __init__(self, raw_record: Dict):
+    self.hard_id = raw_record.get('id')
+    self.step_records = [StepRecord(raw) for raw in raw_record.get('steps', [])]
+
+  def record_step_started(self, step):
+    self.step_records.append(StepRecord(dict(
+      step_id=step.key,
+      stage_key=step.parent.key,
+      started_at=str(datetime.now())
+    )))
+
+  def record_step_finished(self, step):
     pass
 
+  def record_step_terminated(self, step_name: str, bundle):
+    pass
+
+  def find_step_record(self, step):
+    predicate = lambda sr: sr.step_id == step.key and \
+                           sr.stage_id == step.parent.key
+    return next((sr for sr in self.step_records if predicate(sr)), None)
+
+  def assignments(self):
+    merged = {}
+    for step_record in self.step_records:
+      merged = deep_merge(merged, step_record.assignments)
+    return merged
 
 
 class OperationStateRecorder:
   def __init__(self, ser_operation_record: Dict):
-    self.record = OperationRecord(ser_operation_record)
+    self.operation_record = OperationRecord(ser_operation_record)
 
-  def record_step_started(self):
-    pass
+  def record_step_started(self, step):
+    self.operation_record.record_step_started(step)
 
   def record_step_terminated(self):
     pass
 
-  def persist(self):
-    pass
+  def assignments(self) -> Dict:
+    return self.operation_record.assignments()
 
   @classmethod
-  def retrieve(cls, _id):
-    raw = read_serialized_op_state(_id)
+  def retrieve_for_writing(cls, _id):
+    raw = read_serialized_operation_state(_id, coerce=True)
     return OperationStateRecorder(raw)
 
 
-BASE_DIR = '/tmp/nectar-wiz'
-
 sample_record = {
   'id': 'random-str',
-  'started_at': 'datetime',
   'operation_id': 'installation',
   'steps': [
     {
       'id': 'strategy',
+      'stage_id': 'asd',
       'started_at': 'datetime',
-      'submitted_at': 'datetime',
       'finished_at': 'datetime',
       'assignments': {
         'hub.storage.strategy': 'internal'
@@ -78,12 +110,25 @@ sample_record = {
 }
 
 
-def read_serialized_op_state(record_id):
+def write_serialized_operation_state(_id, serialization: Dict):
+  file = Path(f'{BASE_DIR}/osr-{_id}.json')
+
+  with file.open('w+') as writeable_file:
+    writeable_file.write(json.dumps(serialization))
+
+
+def read_serialized_operation_state(record_id, coerce=True) -> Dict:
   file = Path(f'{BASE_DIR}/osr-{record_id}.json')
-  file.touch(exist_ok=True)
-  with file.open('r') as readable_file:
-    contents = readable_file.read()
-    return json.loads(contents)
+
+  if not file.exists() and coerce:
+    file.touch(exist_ok=True)
+
+  if file.exists() or coerce:
+    with file.open('r') as readable_file:
+      contents = readable_file.read()
+      return json.loads(contents)
+  else:
+    return None
 
 
 def commit_op_started(operation: Operation):

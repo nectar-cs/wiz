@@ -52,7 +52,6 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
   return KatPod.consume_runner(pod_name, ns, False)
 
 
-
 def volume_mounts() -> List[V1VolumeMount]:
   return [
     V1VolumeMount(

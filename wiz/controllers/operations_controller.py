@@ -2,7 +2,8 @@ from typing import Optional
 
 from flask import Blueprint, jsonify, request
 
-from wiz.core import res_watch
+from wiz.core import res_watch, step_job_client
+from wiz.core.osr import OperationStateRecorder
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.prerequisite.prerequisite import Prerequisite
@@ -76,7 +77,11 @@ def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
   osr.record_step_started()
-  status, reason = step.commit(values)
+
+  if step.uses_job():
+    step_job_client.go()
+
+  status, reason = step.commit(values, )
   osr.record_step_terminated(step)
   return jsonify(status=status, message=reason)
 
@@ -148,4 +153,5 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
 
 def find_osr():
   if request.headers.get('osr_id'):
-    osr = Osr(request.headers.get('osr_id'))
+    _id = request.headers.get('osr_id')
+    return OperationStateRecorder.retrieve_for_writing(_id)

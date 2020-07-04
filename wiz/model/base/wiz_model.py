@@ -8,6 +8,7 @@ class WizModel:
   def __init__(self, config):
     self.config = config
     self.key = config['key']
+    self.parent = None
 
   @property
   def title(self):
@@ -21,15 +22,14 @@ class WizModel:
     descriptor_list = self.config.get(config_key, [])
     if not isinstance(descriptor_list, list):
       descriptor_list = [descriptor_list]
-    transform = lambda obj: key_or_dict_to_child(obj, child_class)
+    transform = lambda obj: key_or_dict_to_child(obj, child_class, self)
     return [transform(obj) for obj in descriptor_list]
 
   def load_child(self, config_key, child_class, child_key):
     descriptor_list = self.config.get(config_key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
-    matches = [obj for obj in descriptor_list if predicate(obj)]
-    match = matches[0] if len(matches) > 0 else None
-    return key_or_dict_to_child(match, child_class) if match else None
+    match = next((obj for obj in descriptor_list if predicate(obj)), None)
+    return key_or_dict_to_child(match, child_class, self) if match else None
 
   @classmethod
   def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:
@@ -73,5 +73,8 @@ def key_or_dict_to_key(key_or_dict) -> str:
 def key_or_dict_matches(key_or_dict, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
 
-def key_or_dict_to_child(key_or_dict, child_cls: Type[WizModel]) -> 'WizModel':
-  return child_cls.inflate(key_or_dict)
+
+def key_or_dict_to_child(key_or_dict, child_cls: Type[WizModel], parent=None) -> 'WizModel':
+  inflated = child_cls.inflate(key_or_dict)
+  inflated.parent = parent
+  return inflated

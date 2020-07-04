@@ -11,12 +11,9 @@ class JobStatusPart:
 
 
 class JobStatus:
-
   def __init__(self, raw_dump: Union[Dict, List[Dict]]):
     raw_parts = raw_dump if type(raw_dump) == list else [raw_dump]
     self.parts = [JobStatusPart(part, i) for (i, part) in enumerate(raw_parts)]
-
-
 
 
 def load_config_map() -> KatMap:

@@ -1,16 +1,16 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from wiz.core import tedi_client
+from wiz.core import tedi_client, step_job_client, step_job_prep
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.field.field import Field
 from wiz.model.step import expr
 
+TYPE_DEFAULT = 'default'
+TYPE_JOB = 'job'
+
 
 class Step(WizModel):
-
-  def __init__(self, config):
-    super().__init__(config)
 
   @property
   def field_keys(self):
@@ -29,6 +29,14 @@ class Step(WizModel):
   @property
   def next_step_descriptor(self):
     return self.config.get('next')
+
+  @property
+  def run_type(self):
+    return self.config.get('type', TYPE_DEFAULT)
+
+  @property
+  def job_descriptor(self) -> {}:
+    return self.config.get('job', {})
 
   def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.next_step_descriptor
@@ -52,7 +60,19 @@ class Step(WizModel):
     normal_values, _ = partition_values(self.fields(), mapped_values)
     return normal_values
 
-  def commit(self, values) -> Tuple[str, Optional[str]]:
+  def gen_job_params(self, inherited_params):
+    return inherited_params
+
+  def is_job_bound(self) -> bool:
+    return self.run_type == TYPE_JOB
+
+  def begin_job(self, values, context):
+    image = self.job_descriptor.get('image', 'busybox')
+    command = self.job_descriptor.get('command')
+    args = self.job_descriptor.get('args', [])
+    step_job_prep.create_and_run(image, command, args, values)
+
+  def commit(self, values, past_state) -> Tuple[str, Optional[str]]:
     mapped_values = self.sanitize_field_values(values)
     normal_values, inline_values = partition_values(self.fields(), mapped_values)
 
@@ -96,6 +116,7 @@ class Step(WizModel):
     if self.applies:
       _flags.append('manifest_applying')
     return list(set(_flags))
+
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
   normal_values, inline_values = {}, {}
