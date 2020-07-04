@@ -1,0 +1,9 @@
+kind: Stage
+key: move-to-own-pvc.copy-over
+title: Migration
+
+---
+
+kind: Stage
+key: move-to-own-pvc.cleanup
+title: Cleanup

@@ -1,0 +1,9 @@
+kind: Operation
+key: nectar.change-application-quotas
+stages:
+  - key: main
+    kind: Stage
+    title: Change Quotas
+    info: Change how much CPU and memory Hub application can request.
+    steps:
+      - step.global.quotas

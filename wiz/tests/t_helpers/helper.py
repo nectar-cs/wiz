@@ -6,21 +6,20 @@ from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from wiz.core import tedi_prep, tedi_client
+from wiz.core.wiz_globals import wiz_app
 
 
-def tedi_setup():
-  return dict(
-    te_type='kerbi',
-    te_repo_name='https://github.com/nectar-cs/charts-and-wizards.git',
-    te_repo_subpath='nectar-hub/kerbi-chart'
-  )
+def ci_tedi_name():
+  return "gcr.io/nectar-bazaar/wiz-ci-tedi"
 
 
-def simple_tedi_setup():
-  return dict(
-    te_type='kerbi',
-    te_repo_name='https://github.com/nectar-cs/charts-and-wizards.git',
-    te_repo_subpath='wiz-ci/kerbi-chart'
+def mock_globals(ns, app_tedi_image=None):
+  app_tedi_image = app_tedi_image or ci_tedi_name()
+  if ns:
+    wiz_app.ns_overwrite = ns
+
+  wiz_app.app_overwrite = dict(
+    tedi_image=app_tedi_image
   )
 
 
@@ -36,9 +35,9 @@ def create_base_master_map(ns):
     )
   )
 
+
 def foo_bar_setup(ns):
   create_base_master_map(ns)
-  tedi_prep.create(ns, simple_tedi_setup())
   tedi_client.commit_values([
     ('foo', 'bar'),
     ('bar.foo', 'baz')

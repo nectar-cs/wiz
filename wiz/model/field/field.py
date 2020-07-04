@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from wiz.core.res_match_rule import ResMatchRule
 from wiz.model.field.validator import Validator
@@ -48,6 +48,9 @@ class Field(WizModel):
   def is_inline(self):
     return self.config.get('inline', False)
 
+  def needs_decorating(self):
+    return self.config.get('type') == 'slider'
+
   def default_value(self):
     explicit_default = self.config.get('default')
     if not explicit_default and self.type == 'select':
@@ -66,3 +69,9 @@ class Field(WizModel):
       if tone and message:
         return [tone, message]
     return [None, None]
+
+  def sanitize_value(self, value):
+    return value
+
+  def decorate_value(self, value: str) -> Optional[any]:
+    return None

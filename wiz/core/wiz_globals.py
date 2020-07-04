@@ -58,22 +58,41 @@ class WizApp:
   def __init__(self):
     self.configs = []
     self.subclasses = []
-    self.access_point_delegate = None
+    self.providers = []
+    self.adapters = []
     self.ns_overwrite = None
+    self.app_overwrite = None
 
   @property
   def ns(self):
     return self.ns_overwrite or read_ns_and_app()[0]
 
-  @property
   def app(self):
-    return read_ns_and_app()[1] or {}
+    return self.app_overwrite or read_ns_and_app()[1] or {}
+
+  def tedi_image_name(self) -> Optional[str]:
+    return self.app() and self.app().get('tedi_image')
 
   def add_configs(self, new_configs: List[Dict]):
     self.configs = self.configs + new_configs
 
   def add_overrides(self, new_overrides):
     self.subclasses += new_overrides
+
+  def add_adapters(self, new_adapters):
+    self.adapters += new_adapters
+
+  def add_providers(self, new_providers):
+    self.providers += new_providers
+
+  def find_provider(self, adapter_class: Type):
+    matches = [c for c in self.providers if c.kind() == adapter_class]
+    return matches[0] if len(matches) > 0 else None
+
+  def find_adapter_subclass(self, superclass: Type, else_super=False):
+    matches = [c for c in self.adapters if issubclass(c, superclass)]
+    backup = superclass if else_super else None
+    return matches[0] if len(matches) > 0 else backup
 
   def find_config(self, kind: str, key: str):
     matches = [c for c in self.configs if is_config_match(c, kind, key)]

@@ -1,0 +1,67 @@
+kind: Prerequisite
+key: move-to-own-pvc.current-pvc-is-default
+title: Current PVC is Nectar Default
+type: resource-exists
+message: "The PVC the app is currently using does not
+  seem to be the default Nectar PVC named 'postgres-pvc'."
+predicate:
+  kind: PersistentVolumeClaim
+  name: postgres-pvc
+
+
+---
+
+
+kind: Prerequisite
+key: move-to-own-pvc.backups-enabled
+title: Backup were enabled
+type: config-value-eq
+tone: warning
+message: "It is not recommended to perform database
+  operations unless your databases were backed up."
+predicate:
+  key: hub.backups.enabled
+  value: true
+
+
+---
+
+
+kind: Prerequisite
+key: move-to-own-pvc.current-db-exists
+title: Database deployment exists
+type: resource-exists
+tone: warning
+predicate:
+  kind: Deployment
+  name: postgres
+
+
+---
+
+
+kind: Prerequisite
+key: move-to-own-pvc.db-running-normally
+title: Database is running normally
+type: resource-exists
+tone: warning
+message: "It is not recommended to perform database
+  operations unless your databases were backed up."
+predicate:
+  kind: Deployment
+  name: postgres
+
+
+---
+
+
+kind: Prerequisite
+key: move-to-own-pvc.space-available
+title: Sufficient storage space available
+type: config-value-eq
+tone: warning
+message: "It is not recommended to perform database
+  operations unless your databases were backed up."
+predicate:
+  key: hub.backups.enabled
+  value: true

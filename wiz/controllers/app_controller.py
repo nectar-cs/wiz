@@ -1,20 +1,41 @@
-from typing import List, Callable
+from typing import List
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from k8_kat.res.dep.kat_dep import KatDep
 
+from wiz.core import wiz_globals
 from wiz.core.wiz_globals import wiz_app
+from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
+from wiz.model.adapters.base_consumption_adapter import BaseConsumptionAdapter
+from wiz.model.adapters.base_quotas_adapter import BaseQuotasAdapter
 
 controller = Blueprint('app_controller', __name__)
 
 BASE_PATH = '/api/app'
 
-@controller.route(f'{BASE_PATH}/access_points', methods=["GET"])
-def access_points():
-  delegate: Callable = wiz_app.access_point_delegate
-  if delegate:
-    access_point_list = delegate()
-    return jsonify(data=access_point_list)
+
+@controller.route(f'{BASE_PATH}/prepare', methods=['POST'])
+def tedi_init():
+  params = request.json
+  app, ns = params['app'], params['ns']
+  wiz_globals.persist_ns_and_app(ns, app)
+  return dict(status='success')
+
+
+@controller.route(f'{BASE_PATH}/resource-stats', methods=["GET"])
+def app_resource_usage():
+  adapter = wiz_app.find_adapter_subclass(BaseConsumptionAdapter, True)
+  output = adapter().serialize()
+  return jsonify(data=output)
+
+
+@controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
+def application_endpoints():
+  provider = wiz_app.find_provider(AppEndpointAdapter)()
+  if provider:
+    adapters = provider.produce_adapters()
+    ser_endpoints = [a.serialize() for a in adapters]
+    return jsonify(data=ser_endpoints)
   else:
     return jsonify(data=[])
 

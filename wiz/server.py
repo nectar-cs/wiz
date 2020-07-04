@@ -1,13 +1,12 @@
-import logging
 import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from k8_kat.auth.kube_broker import BrokerConnException, \
-  broker
+from k8_kat.auth.kube_broker import BrokerConnException, broker
 from wiz.controllers import operations_controller, status_controller, \
-  app_controller, chart_variables_controller
+  app_controller, chart_variables_controller, resources_controller
+from wiz.core.wiz_globals import wiz_app
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -16,6 +15,7 @@ controllers = [
   status_controller,
   operations_controller,
   app_controller,
+  resources_controller,
   chart_variables_controller
 ]
 
@@ -39,6 +39,11 @@ def ensure_broker_connected():
     # broker.check_connected_or_raise()
     pass
 
+@app.before_request
+def set_namespace_from_headers():
+  ns_overwrite = request.headers.get('Wizns')
+  if ns_overwrite:
+    wiz_app.ns_overwrite = ns_overwrite
 
 def start():
   broker.connect()

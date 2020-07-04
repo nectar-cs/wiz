@@ -79,7 +79,6 @@ key: "hub.storage.external_db_host"
 kind: Field
 title: "External Database Host"
 info: "Must be PostgreSQL 9.2 or above"
-inline: true
 
 
 ---
@@ -93,7 +92,6 @@ validations:
   - type: presence
   - type: format
     check_against: "integer"
-inline: true
 
 
 ---
@@ -251,3 +249,104 @@ kind: Field
 title: "Hub Path"
 info: "The path Hub should be reachable on"
 default: "/"
+
+
+---
+
+
+key: hub.quotas.limits.cpu
+kind: Field
+title: Application CPU Limit
+info: The sum of Nectar Hub's workloads' CPU limits cannot exceed this value.
+type: slider
+default: 1.3
+options:
+  min: 0.5
+  max: 5
+  step: 0.1
+
+
+---
+
+
+key: hub.quotas.limits.memory
+kind: Field
+title: Application Memory Limit
+info: The sum of Nectar Hub's workloads' memory limits cannot exceed this.
+type: slider
+default: 1
+options:
+  min: 0.75
+  max: 10
+  step: 0.2
+
+
+---
+
+key: hub.quotas.requests.cpu
+kind: Field
+title: Application CPU Limit
+info: The sum of Nectar Hub's workloads' CPU requests cannot exceed this.
+type: slider
+default: 1.3
+options:
+  min: 0.5
+  max: 5
+  step: 0.1
+
+
+---
+
+
+key: hub.quotas.requests.memory
+kind: Field
+title: Application Memory Limit
+info: The sum of Nectar Hub's workloads' memory requests cannot exceed this value.
+type: slider
+default: 1
+options:
+  min: 0.75
+  max: 10
+  step: 0.2
+
+--- #---------------------------SAFEGUARDS-------------------------------
+
+
+key: hub.netpol.block-internal-incoming
+kind: Field
+title: Block incoming internal traffic?
+info: Prevents HTTP from workloads outside the app's namespace
+type: select
+default: true
+options:
+  - key: true
+    value: "Yes"
+  - key: false
+    value: "No - Let any workload in the cluster ping Hub"
+validations:
+  - type: equality
+    check_against: 'false'
+    message: "Malicious workloads in the cluster will have access to Hub data."
+    tone: "warning"
+
+
+---
+
+
+key: hub.netpol.block-internal-outgoing
+kind: Field
+title: Block outgoing internal traffic?
+info: Prevents HTTP from Hub to workloads in other namespaces
+type: select
+default: true
+options:
+  - key: true
+    value: "Yes"
+  - key: false
+    value: "No - Let Hub ping any workload in your cluster"
+validations:
+  - type: equality
+    check_against: 'false'
+    message: "If Hub becomes compromised, it will gain access to your cluster"
+    tone: "warning"
+

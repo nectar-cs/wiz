@@ -1,5 +1,4 @@
-from typing import Type, Optional, Dict
-
+from typing import Type, Optional, Dict, Union
 
 from wiz.core.wiz_globals import wiz_app
 
@@ -49,7 +48,7 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls, key_or_dict) -> Optional['WizModel']:
+  def inflate(cls, key_or_dict: Union[str, Dict]) -> Optional['WizModel']:
     if isinstance(key_or_dict, str):
       return cls.inflate_with_key(key_or_dict)
     elif isinstance(key_or_dict, Dict):

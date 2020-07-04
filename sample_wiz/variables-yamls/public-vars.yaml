@@ -1,0 +1,115 @@
+kind: ChartVariable
+key: hub.networking.path
+mode: public
+category: networking
+info: "Path following hostname on which ingress should listen. The domain name must
+be defined and successfully resolving to this cluster for this variable to
+have effect."
+field:
+  key: hub.networking.host
+  validations: []
+
+
+---
+
+
+kind: ChartVariable
+key: hub.networking.host
+mode: public
+category: networking
+info: "Host name on which ingress should listen. This must be a
+domain you already own."
+field:
+  key: hub.networking.host
+  validations:
+    - type: format
+      check_against: domain
+
+
+---
+
+
+kind: ChartVariable
+key: hub.backend.replicas
+mode: public
+info: "Amount of replicas for backend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer
+
+
+---
+
+
+kind: ChartVariable
+key: hub.frontend.replicas
+mode: public
+info: "Amount of replicas for frontend deployment. Its recommended to
+change this variable in the Workloads page."
+default: 2
+category: performance
+resource: deploy/hub-backend
+field:
+  key: hub.backend.replicas
+  validations:
+    - type: presence
+    - type: format
+      check_against: integer
+
+
+---
+
+kind: ChartVariable
+key: hub.quotas.requests.cpu
+field: hub.quotas.requests.cpu
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.requests.memory
+field: hub.quotas.requests.memory
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.limits.cpu
+field: hub.quotas.limits.cpu
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: hub.quotas.limits.memory
+field: hub.quotas.limits.memory
+mode: public
+info: "The sum of Nectar Hub's workloads' memory requests cannot exceed this value"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_host"
+title: "External Database Host"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_port"
+title: "External Database Port"
+
+---
+
+kind: ChartVariable
+key: "hub.storage.external_db_user"
+title: "External Database User"

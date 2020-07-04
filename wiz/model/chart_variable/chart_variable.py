@@ -23,15 +23,15 @@ class ChartVariable(WizModel):
     return self.config.get('resource')
 
   @property
+  def mode(self):
+    return self.config.get('mode', 'internal')
+
+  @property
   def category(self):
     return self.config.get('category')
 
   def is_safe_to_set(self):
-    explicit = self.config.get('safe')
-    if explicit is not None:
-      return str(explicit).lower() == 'true'
-    else:
-      return len(self.config.get('operations', [])) == 0
+    return self.mode == 'public'
 
   def field(self):
     from wiz.model.field.field import Field

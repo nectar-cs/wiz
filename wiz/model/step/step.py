@@ -26,21 +26,34 @@ class Step(WizModel):
     override = self.config.get('apply', None)
     return override if override is not None else len(selectors) > 0
 
+  @property
+  def next_step_descriptor(self):
+    return self.config.get('next')
+
   def next_step_id(self, values: Dict[str, str]) -> str:
-    root = self.config.get('next')
+    root = self.next_step_descriptor
     return expr.eval_next_expr(root, values)
 
-  def fields(self):
+  def has_explicit_next(self):
+    return not expr.is_default_next(self.next_step_descriptor)
+
+  def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
 
-  def field(self, key):
+  def field(self, key) -> Field:
     return self.load_child('fields', Field, key)
 
-  def field_to_manifest_values(self, values: Dict[str, any]):
-    return values
+  def sanitize_field_values(self, values: Dict[str, any]):
+    transform = lambda k: self.field(k).sanitize_value(values[k])
+    return {key: transform(key) for key, value in values.items()}
+
+  def stage(self, values):
+    mapped_values = self.sanitize_field_values(values)
+    normal_values, _ = partition_values(self.fields(), mapped_values)
+    return normal_values
 
   def commit(self, values) -> Tuple[str, Optional[str]]:
-    mapped_values = self.field_to_manifest_values(values)
+    mapped_values = self.sanitize_field_values(values)
     normal_values, inline_values = partition_values(self.fields(), mapped_values)
 
     if normal_values:
@@ -67,6 +80,7 @@ class Step(WizModel):
   def status(self):
     if not self.applies:
       return 'positive'
+
     resources = self.affected_resources()
     res_statuses = set([r.ternary_status() for r in resources])
     if len(res_statuses) == 1:
@@ -76,6 +90,12 @@ class Step(WizModel):
     else:
       return "pending"
 
+  @property
+  def flags(self):
+    _flags: List[str] = self.config.get('flags', [])
+    if self.applies:
+      _flags.append('manifest_applying')
+    return list(set(_flags))
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> List[Dict]:
   normal_values, inline_values = {}, {}

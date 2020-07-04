@@ -50,7 +50,6 @@ def prerequisite_eval(operation_id, prerequisite_id):
     return jsonify(data=dict(status='valid'))
 
 
-
 @controller.route(STEP_PATH)
 def steps_show(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
@@ -78,6 +77,14 @@ def step_submit(operation_id, stage_id, step_id):
   return jsonify(status=status, message=reason)
 
 
+@controller.route(f"{STEP_PATH}/stage", methods=['POST'])
+def step_stage(operation_id, stage_id, step_id):
+  values = request.json['values']
+  step = find_step(operation_id, stage_id, step_id)
+  assignments = step.stage(values)
+  return jsonify(data=assignments)
+
+
 @controller.route(f"{STEP_PATH}/status")
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
@@ -87,8 +94,9 @@ def step_status(operation_id, stage_id, step_id):
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])
 def steps_next_id(operation_id, stage_id, step_id):
   values = request.json['values']
+  stage = find_stage(operation_id, stage_id)
   step = find_step(operation_id, stage_id, step_id)
-  next_step_id = step.next_step_id(values)
+  next_step_id = stage.next_step_id(step, values)
   return jsonify(step_id=next_step_id)
 
 
@@ -101,6 +109,13 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
     return jsonify(data=dict(status=tone, message=message))
   else:
     return jsonify(data=dict(status='valid'))
+
+
+@controller.route(f'{FIELD_PATH}/decorate', methods=['POST'])
+def fields_decorate(operation_id, stage_id, step_id, field_id):
+  field = find_field(operation_id, stage_id, step_id, field_id)
+  value = request.json['value']
+  return jsonify(data=field.decorate_value(value))
 
 
 def find_operation(operation_id) -> Operation:

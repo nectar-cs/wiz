@@ -1,6 +1,52 @@
-key: storage_strategy
+--- #---------------------------QUOTAS-----------------------------
+
+key: step.global.quotas.requests
+kind: Step
+info: Maximum sum of CPU/memory requests across application
+title: Request Quotas
+fields:
+  - hub.quotas.requests.cpu
+  - hub.quotas.requests.memory
+
+manifest:
+  - 'ResourceQuota:*'
+
+exit_conditions:
+
+  res_statuses:
+    check_against: "positive"
+    res:
+      - 'ResourceQuota:*'
+
+res:
+  - 'ResourceQuota:*'
+
+
+---
+
+key: step.global.quotas.limits
+kind: Step
+info: Maximum sum of CPU/memory limits across application
+title: Limit Quotas
+fields:
+  - hub.quotas.limits.cpu
+  - hub.quotas.limits.memory
+
+res:
+  - 'ResourceQuota:*'
+
+
+--- #---------------------------STORAGE-----------------------------
+
+
+key: installation.storage_strategy
 kind: Step
 title: "Storage Strategy"
+info: "The database may live inside your cluster, or outside of it.
+When inside, Nectar offers a fully managed service, complete with backups
+and encryption. <br/><br/> However, you may also point the application to a database
+on the cloud. If so, the next step will ask the database's URI."
+
 fields:
   - "hub.storage.type"
 next:
@@ -8,14 +54,14 @@ next:
     - field: "hub.storage.type"
       type: equality
       check_against: 'internal'
-  then: decide_pvc_strategy
-  else: locate_external_db
+  then: installation.decide_pvc_strategy
+  else: installation.locate_external_db
 
 
 ---
 
 
-key: locate_external_db
+key: installation.locate_external_db
 kind: Step
 title: "External Database"
 fields:
@@ -25,13 +71,12 @@ fields:
   - "hub.storage.external_db_password"
 res:
   - 'Secret:hub-pg'
-next: done
 
 
 ---
 
 
-key: decide_pvc_strategy
+key: installation.decide_pvc_strategy
 kind: Step
 title: "PVC Strategy"
 fields:
@@ -41,33 +86,34 @@ next:
     - field: "hub.storage.managed_pvc"
       type: equality
       check_against: 'true'
-  then: set_db_secrets
+  then: installation.set_db_secrets
 
-  else: locate_external_pvc
+  else: installation.locate_external_pvc
 
 
 ---
 
 
-key: locate_external_pvc
+key: installation.locate_external_pvc
 kind: Step
 title: "Self-Managed PVC"
 fields:
   - "hub.storage.pvc_name"
-next: set_db_secrets
 
 
 ---
 
 
-key: set_db_secrets
+key: installation.set_db_secrets
 kind: Step
 title: "Internal DB Credentials"
+info: "Choose secure access credentials for the database.
+Note that values are stored as secrets and will not be readable
+in the chart."
 fields:
   - "hub.storage.secrets.user"
   - "hub.storage.secrets.password"
 ephemeral: true
-next: done
 res:
   - "Secret:hub-pg"
   - "PersistentVolumeClaim:*"
@@ -78,18 +124,17 @@ res:
 --- #---------------------------BACKUPS-----------------------------
 
 
-key: backups_strategy
+key: installation.backups_strategy
 kind: Step
 title: "Backups Strategy"
 fields:
   - "hub.backups.type"
-next: done
 
 
 --- #---------------------------APPLICATION-----------------------------
 
 
-key: encryption
+key: installation.encryption
 kind: Step
 title: "Encryption"
 fields:
@@ -98,11 +143,12 @@ fields:
   - "hub.backend.encrypted_tables"
 res:
   - "Secret:hub-app"
-next: availability
+
 
 ---
 
-key: availability
+
+key: installation.availability
 kind: Step
 title: "Availability"
 fields:
@@ -111,13 +157,12 @@ fields:
 res:
   - "Deployment:hub"
   - "Deployment:hub-front"
-next: done
 
 
 --- #---------------------------NETWORKING-----------------------------
 
 
-key: network_strategy
+key: installation.network_strategy
 kind: Step
 title: "Networking Strategy"
 fields:
@@ -127,14 +172,14 @@ next:
     - field: "hub.networking.strategy"
       type: equality
       check_against: 'ingress'
-  then: networking_host
+  then: installation.networking_host
   else: done
 
 
 ---
 
 
-key: networking_host
+key: installation.networking_host
 kind: Step
 title: "Hosting"
 fields:
@@ -143,4 +188,3 @@ fields:
 res:
   - Ingress:*
   - Service:*
-next: done
