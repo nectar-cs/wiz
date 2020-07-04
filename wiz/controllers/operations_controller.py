@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import Blueprint, jsonify, request
 
 from wiz.core import res_watch
@@ -73,7 +75,9 @@ def steps_show_resources(operation_id, stage_id, step_id):
 def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
+  osr.record_step_started()
   status, reason = step.commit(values)
+  osr.record_step_terminated(step)
   return jsonify(status=status, message=reason)
 
 
@@ -140,3 +144,8 @@ def find_step(operation_id, stage_id, step_id) -> Step:
 def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   step = find_step(operation_id, stage_id, step_id)
   return step.field(field_id)
+
+
+def find_osr():
+  if request.headers.get('osr_id'):
+    osr = Osr(request.headers.get('osr_id'))

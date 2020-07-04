@@ -11,12 +11,21 @@ fields:
 manifest:
   - 'ResourceQuota:*'
 
-exit_conditions:
+exit:
+  success_additional:
+    - id: statuses
+      name: All workloads have a positive status
+      type: res_ternary_statuses
+      selector: ['Deployment:*']
+      condition: all
+      check_against: "positive"
 
-  res_statuses:
-    check_against: "positive"
-    res:
-      - 'ResourceQuota:*'
+  failure_all:
+    - id: statuses
+      name: "One or more workload(s) is not working"
+      selector: ['Deployment:*']
+      condition: any
+      check_against: "negative"
 
 res:
   - 'ResourceQuota:*'

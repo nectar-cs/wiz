@@ -12,6 +12,9 @@ class Operation(WizModel):
     first = stage_descriptors[0] if len(stage_descriptors) else 0
     return key_or_dict_to_key(first) if first else None
 
+  def record(self, recorder):
+    pass
+
   @property
   def is_system(self) -> bool:
     return self.key in ['installation', 'uninstall']
