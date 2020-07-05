@@ -1,6 +1,5 @@
 from typing import Dict, Union, List, Optional
 
-from cachetools.func import lru_cache
 from k8_kat.res.pod.kat_pod import KatPod
 
 from k8_kat.res.config_map.kat_map import KatMap
@@ -22,12 +21,10 @@ class JobStatus:
     self.parts = [JobStatusPart(part, i) for (i, part) in enumerate(raw_parts)]
 
 
-@lru_cache(maxsize=1)
 def find_job_cmap(job_id: str) -> KatMap:
   return KatMap.find(job_id, wiz_app.ns)
 
 
-@lru_cache(maxsize=1)
 def find_job(job_id: str) -> KatJob:
   return KatJob.find(job_id, wiz_app.ns)
 

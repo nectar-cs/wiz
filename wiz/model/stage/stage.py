@@ -28,7 +28,7 @@ class Stage(WizModel):
     return self.load_children('steps', Step)
 
   def step(self, key):
-    return self.load_child('steps', Step, key)
+    return self.load_list_child('steps', Step, key)
 
 
 def step_index(steps: List[Step], step_id: str):

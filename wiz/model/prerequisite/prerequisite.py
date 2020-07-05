@@ -1,5 +1,5 @@
 from wiz.core import tedi_client
-from wiz.core.res_match_rule import ResMatchRule
+from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.model.base.wiz_model import WizModel
 
 

@@ -7,18 +7,18 @@ from wiz.core.types import K8sResDict
 from wiz.core.wiz_globals import wiz_app
 
 
-class RuleDict(TypedDict):
+class RuleDict(TypedDict, total=False):
   kind: str
   name: Optional[str]
   label_selectors: Optional[Dict[str, str]]
   field_selectors: Optional[Dict[str, str]]
 
-class ResMatchRule:
 
+class ResMatchRule:
   def __init__(self, obj: Union[str, RuleDict]):
     rule_dict: RuleDict = obj
     if type(obj) == str:
-      rule_dict = expr_to_rule_dict(obj)
+      rule_dict = coerce_rule_expr_to_dict(obj)
 
     self.kind = rule_dict['kind']
     self.name = rule_dict.get('name')
@@ -37,9 +37,7 @@ class ResMatchRule:
     for rule, challenge in tuples:
       if not component_matches(rule, challenge):
         return False
-
     return True
-
 
   def query(self) -> List[KatRes]:
     kat_class = KatRes.find_res_class(self.kind)
@@ -62,7 +60,8 @@ class ResMatchRule:
       print("Except kubectl fallback not implemented either :/, returning []")
       return []
 
-def expr_to_rule_dict(expr: str) -> RuleDict:
+
+def coerce_rule_expr_to_dict(expr: str) -> RuleDict:
   parts = expr.split(':')
   return RuleDict(
     kind=parts[len(parts) - 2],
@@ -78,4 +77,3 @@ def component_matches(rule_exp: str, challenge: str) -> bool:
       return False
   else:
     return True
-

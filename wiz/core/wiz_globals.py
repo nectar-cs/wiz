@@ -3,6 +3,8 @@ import os
 from json import JSONDecodeError
 from typing import Dict, Type, Optional, List
 
+from wiz.core import utils
+
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
 
@@ -22,6 +24,7 @@ def clear_cache():
 
   if os.path.exists(f'{cache_root}/ns.txt'):
     os.remove(f'{cache_root}/ns.txt')
+
 
 def persist_ns_and_app(ns, app):
   with open(f'{cache_root}/hub-app.json', 'w') as file:
@@ -56,7 +59,7 @@ def is_subclass_match(subclass, kind: str, key: str):
 class WizApp:
 
   def __init__(self):
-    self.configs = []
+    self.configs = utils.yamls_in_dir('wiz/model/pre_built')
     self.subclasses = []
     self.providers = []
     self.adapters = []
@@ -111,3 +114,6 @@ class WizApp:
 
 
 wiz_app = WizApp()
+
+
+

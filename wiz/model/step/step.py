@@ -2,11 +2,12 @@ from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client, step_job_client, step_job_prep
 from wiz.core.osr import OperationState, StepState
-from wiz.core.res_match_rule import ResMatchRule
+from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import CommitOutcome
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.field.field import Field
-from wiz.model.step import expr
+from wiz.model.step import next_expr
+from wiz.model.step.exit_condition import ExitCondition
 
 
 class Step(WizModel):
@@ -24,12 +25,16 @@ class Step(WizModel):
     return bool(self.job_descriptor)
 
   @property
+  def is_long_running(self):
+    return self.runs_job or self.applies_manifest
+
+  @property
   def field_keys(self):
     return self.config.get('fields', [])
 
   @property
   def res_selector_descs(self) -> List[Union[str, Dict]]:
-    return self.config.get('res', [])
+    return self.config.get('resource_apply_filter', [])
 
   @property
   def next_step_descriptor(self):
@@ -41,20 +46,23 @@ class Step(WizModel):
 
   def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.next_step_descriptor
-    return expr.eval_next_expr(root, values)
+    return next_expr.eval_next_expr(root, values)
 
   def has_explicit_next(self):
-    return not expr.is_default_next(self.next_step_descriptor)
+    return not next_expr.is_default_next(self.next_step_descriptor)
 
   def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
 
   def field(self, key) -> Field:
-    return self.load_child('fields', Field, key)
+    return self.load_list_child('fields', Field, key)
 
   def sanitize_field_values(self, values: Dict[str, any]):
     transform = lambda k: self.field(k).sanitize_value(values[k])
     return {key: transform(key) for key, value in values.items()}
+
+  def res_selectors(self) -> List[ResMatchRule]:
+    return [ResMatchRule(obj) for obj in self.res_selector_descs]
 
   # noinspection PyMethodMayBeStatic,PyUnusedLocal
   def gen_job_params(self, values, op_state):
@@ -95,22 +103,33 @@ class Step(WizModel):
 
     return CommitOutcome(status='positive', assignments=normal_values)
 
-  def res_selectors(self) -> List[ResMatchRule]:
-    return [ResMatchRule(obj) for obj in self.res_selector_descs]
-
-  def affected_resources(self):
-    affected_res = []
-    for rule in self.res_selectors():
-      resources = rule.query()
-      affected_res += resources
-    return affected_res
-
   def compute_status(self, op_state):
+    root = self.config.get('exit', {})
     state = self.own_state(op_state)
+
+    defaults = self.default_exit_conditions()
+    parse = lambda k, d: self.load_child(ExitCondition, root.get(k, d))
+    success_conds: List[ExitCondition] = parse('positive', defaults[0])
+    failure_conds: List[ExitCondition] = parse('negative', defaults[1])
+
+    for success_cond in success_conds:
+      if success_cond.evaluate(state):
+        return dict(status='positive')
+
+    for failure_cond in failure_conds:
+      if failure_cond.evaluate(state):
+        return dict(status='negative')
+
+    return dict(status='pending')
+
+  def default_exit_conditions(self) -> Tuple[List, List]:
     if self.applies_manifest:
-      pass
+      return default_res_exit_conds
     elif self.runs_job:
-      return step_job_client.read_job_ternary_status(state.job_id)
+      return default_job_exit_conds
+    else:
+      print("DANGER no default exit conditions for step " + self.key)
+      return [], []
 
   def own_state(self, op_state: OperationState) -> Optional[StepState]:
     matcher = (ss for ss in op_state.step_states if ss.step_id == self.key)
@@ -130,7 +149,6 @@ class Step(WizModel):
       _flags.append('manifest_applying')
     if self.runs_job:
       _flags.append('job_running')
-
     return list(set(_flags))
 
 
@@ -148,3 +166,15 @@ def partition_values(fields: List[Field], values: Dict[str, str]) -> Tuple[Dict,
     bucket[key] = value
 
   return normal_values, inline_values
+
+
+default_res_exit_conds = (
+  ['nectar.exit_conditions.all_resources_positive'],
+  ['nectar.exit_conditions.any_resource_negative']
+)
+
+
+default_job_exit_conds = (
+  ['nectar.exit_conditions.job_in_succeeded_phase'],
+  ['nectar.exit_conditions.job_in_failed_phase']
+ )

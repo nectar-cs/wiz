@@ -1,6 +1,6 @@
 from typing import Dict, Union
 
-from wiz.model.field.validator import Validator
+from wiz.model.base.validator import Validator
 
 StrOrDict = Union[str, Dict[str, str]]
 

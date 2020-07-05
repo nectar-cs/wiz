@@ -43,13 +43,13 @@ class Operation(WizModel):
     return self.load_children('stages', Stage)
 
   def stage(self, key) -> Stage:
-    return self.load_child('stages', Stage, key)
+    return self.load_list_child('stages', Stage, key)
 
   def prerequisites(self) -> List[Prerequisite]:
     return self.load_children('prerequisites', Prerequisite)
 
   def prerequisite(self, key) -> Prerequisite:
-    return self.load_child('prerequisites', Prerequisite, key)
+    return self.load_list_child('prerequisites', Prerequisite, key)
 
   def res_access(self):
     return self.config.get('res_access', [])

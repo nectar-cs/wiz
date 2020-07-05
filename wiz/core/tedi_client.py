@@ -6,11 +6,10 @@ import yaml
 
 from k8_kat.auth.kube_broker import broker
 from k8_kat.res.config_map.kat_map import KatMap
-from k8_kat.res.pod.kat_pod import KatPod
-from wiz.core.res_match_rule import ResMatchRule
+from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import K8sResDict
 from wiz.core.wiz_globals import wiz_app
-from wiz.core import wiz_globals as wg, tedi_prep
+from wiz.core import tedi_prep
 
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"

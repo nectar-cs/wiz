@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from wiz.model.field.validator import EqValidator, Validator, NeqValidator
+from wiz.model.base.validator import EqValidator, Validator, NeqValidator
 
 
 def g_conf(c='Check', m='Message', t='warning'):

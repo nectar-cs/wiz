@@ -25,11 +25,14 @@ class WizModel:
     transform = lambda obj: key_or_dict_to_child(obj, child_class, self)
     return [transform(obj) for obj in descriptor_list]
 
-  def load_child(self, config_key, child_class, child_key):
+  def load_list_child(self, config_key, child_class, child_key):
     descriptor_list = self.config.get(config_key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
-    return key_or_dict_to_child(match, child_class, self) if match else None
+    return self.load_child(child_class, match) if match else None
+
+  def load_child(self, child_class, key_or_dict: Union[str, Dict]):
+    return key_or_dict_to_child(key_or_dict, child_class, self)
 
   @classmethod
   def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:

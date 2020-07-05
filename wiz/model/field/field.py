@@ -1,8 +1,8 @@
 from functools import reduce
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from wiz.core.res_match_rule import ResMatchRule
-from wiz.model.field.validator import Validator
+from wiz.model.base.res_match_rule import ResMatchRule
+from wiz.model.base.validator import Validator
 from wiz.model.base.wiz_model import WizModel
 
 
