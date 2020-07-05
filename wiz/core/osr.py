@@ -1,30 +1,38 @@
 from datetime import datetime
-from typing import Dict
-from pathlib import Path
-
-from flask import json
+from typing import List, Optional, Dict
 
 from k8_kat.utils.main.utils import deep_merge
-from wiz.core import utils
-from wiz.model.operations.operation import Operation
-
-BASE_DIR = '/tmp/nectar-wiz'
+from wiz.core.types import CommitOutcome
 
 
-class JobOutcomeRecord:
-  pass
+class StepState:
+  def __init__(self, **kwargs):
+    self.stage_id = kwargs['stage_id']
+    self.step_id = kwargs['step_id']
+    self.started_at = kwargs.get('started_at')
+    self.commit_outcome: Optional[str] = None
+    self.commit_reason: Optional[str] = None
+    self.committed_at: Optional[str] = None
+    self.assignments: Optional[Dict] = None
+    self.terminated_at = None
+    self.terminate_outcome = None
+    self.job_id = None
+    self.exist_code = None
+    self.logs = None
 
+  def patch_committed(self, commit_outcome: CommitOutcome):
+    self.committed_at = datetime.now()
+    self.commit_outcome = commit_outcome.get('status')
+    self.commit_reason = commit_outcome.get('reason')
+    self.assignments = commit_outcome.get('assignments')
+    self.job_id = commit_outcome.get('job_id')
 
-class StepRecord:
+  def patch_terminated(self, outcome, job_outcome=None):
+    self.terminate_outcome = outcome
 
-  def __init__(self, raw_record: Dict):
-    self.step_id = raw_record['step_id']
-    self.stage_id = raw_record['stage_id']
-    self.started_at = None
-    self.finished_at = None
-    self.assignments = raw_record.get('assignments', {})
-    self.computed = raw_record.get('computed', {})
-    self.job_outcome = raw_record.get('job_outcome', {})
+  def belongs_to_step(self, step_id, stage_id):
+    return self.step_id == step_id and \
+           self.stage_id == stage_id
 
   def serialize(self):
     return dict(
@@ -33,54 +41,46 @@ class StepRecord:
     )
 
 
-class OperationRecord:
+class OperationState:
 
-  def __init__(self, raw_record: Dict):
-    self.hard_id = raw_record.get('id')
-    self.step_records = [StepRecord(raw) for raw in raw_record.get('steps', [])]
+  def __init__(self, **kwargs):
+    self.osr_id = kwargs.get('id')
+    self.step_states: List[StepState] = kwargs.get('step_outcomes', [])
 
-  def record_step_started(self, step):
-    self.step_records.append(StepRecord(dict(
-      step_id=step.key,
-      stage_key=step.parent.key,
-      started_at=str(datetime.now())
-    )))
+  @classmethod
+  def find_or_create(cls, osr_id):
+    matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
+    existing = next(matcher, None)
+    if not existing:
+      existing = OperationState(id=osr_id)
+      operation_states.append(existing)
+    return existing
 
-  def record_step_finished(self, step):
-    pass
+  def record_step_started(self, step_id, stage_id):
+    self.step_states.append(StepState(
+      step_id=step_id,
+      stage_key=stage_id,
+      started_at=datetime.now()
+    ))
 
-  def record_step_terminated(self, step_name: str, bundle):
-    pass
+  def record_step_committed(self, stage_id, step_id, outcome: CommitOutcome):
+    existing = self.find_step_record(stage_id, step_id)
+    existing.patch_committed(outcome)
 
-  def find_step_record(self, step):
-    predicate = lambda sr: sr.step_id == step.key and \
-                           sr.stage_id == step.parent.key
-    return next((sr for sr in self.step_records if predicate(sr)), None)
+  def record_step_terminated(self, stage_id, step_id, outcome, job_outcome=None):
+    existing = self.find_step_record(stage_id, step_id)
+    existing.patch_terminated(outcome, job_outcome)
+
+  def find_step_record(self, stage_id, step_id):
+    predicate = lambda so: so.belongs_to_step(stage_id, step_id)
+    matcher = (so for so in self.step_states if predicate(so))
+    return next(matcher, None)
 
   def assignments(self):
     merged = {}
-    for step_record in self.step_records:
+    for step_record in self.step_states:
       merged = deep_merge(merged, step_record.assignments)
     return merged
-
-
-class OperationStateRecorder:
-  def __init__(self, ser_operation_record: Dict):
-    self.operation_record = OperationRecord(ser_operation_record)
-
-  def record_step_started(self, step):
-    self.operation_record.record_step_started(step)
-
-  def record_step_terminated(self):
-    pass
-
-  def assignments(self) -> Dict:
-    return self.operation_record.assignments()
-
-  @classmethod
-  def retrieve_for_writing(cls, _id):
-    raw = read_serialized_operation_state(_id, coerce=True)
-    return OperationStateRecorder(raw)
 
 
 sample_record = {
@@ -110,26 +110,4 @@ sample_record = {
 }
 
 
-def write_serialized_operation_state(_id, serialization: Dict):
-  file = Path(f'{BASE_DIR}/osr-{_id}.json')
-
-  with file.open('w+') as writeable_file:
-    writeable_file.write(json.dumps(serialization))
-
-
-def read_serialized_operation_state(record_id, coerce=True) -> Dict:
-  file = Path(f'{BASE_DIR}/osr-{record_id}.json')
-
-  if not file.exists() and coerce:
-    file.touch(exist_ok=True)
-
-  if file.exists() or coerce:
-    with file.open('r') as readable_file:
-      contents = readable_file.read()
-      return json.loads(contents)
-  else:
-    return None
-
-
-def commit_op_started(operation: Operation):
-  pass
+operation_states: List[OperationState] = []

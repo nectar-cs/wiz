@@ -24,6 +24,7 @@ coverage = "*"
 codecov = "*"
 twine = "*"
 validators = "*"
+sqlalchemy = "*"
 
 [requires]
 python_version = "3.6"

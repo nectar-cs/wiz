@@ -41,7 +41,7 @@ class TestStep(Base.TestWizModel):
     wiz_app.ns_overwrite = ns
     step = Step(dict(key='foo', title='foo', res=["Service:"]))
     TestKatSvc.create_res('s1', ns)
-    self.assertEqual('positive', step.status())
+    self.assertEqual('positive', step.compute_status())
 
   def test_status_pending(self):
     from k8_kat.tests.res.common.test_kat_pod import TestKatPod
@@ -54,9 +54,9 @@ class TestStep(Base.TestWizModel):
     TestKatSvc.create_res('s1', ns)
     pod = KatPod(TestKatPod.create_res('p1', ns))
 
-    self.assertEqual('pending', step.status())
+    self.assertEqual('pending', step.compute_status())
     pod.wait_until(pod.has_settled)
-    self.assertEqual('positive', step.status())
+    self.assertEqual('positive', step.compute_status())
 
   def test_status_negative(self):
     from k8_kat.tests.res.common.test_kat_pod import TestKatPod
@@ -69,9 +69,9 @@ class TestStep(Base.TestWizModel):
     TestKatSvc.create_res('s1', ns)
     pod = KatPod(TestKatPod.create_res('p1', ns, image='bro-ken'))
 
-    self.assertEqual('pending', step.status())
+    self.assertEqual('pending', step.compute_status())
     pod.wait_until(pod.has_settled)
-    self.assertEqual('negative', step.status())
+    self.assertEqual('negative', step.compute_status())
 
 def names(res_list):
   return [r.name for r in res_list]

@@ -1,16 +1,14 @@
-from typing import Optional
-
 from flask import Blueprint, jsonify, request
 
-from wiz.core import res_watch, step_job_client
-from wiz.core.osr import OperationStateRecorder
+from wiz.core import res_watch
+from wiz.core.osr import OperationState
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.prerequisite.prerequisite import Prerequisite
 from wiz.model.stage.stage import Stage
 from wiz.model.operations import serial as operation_serial
 from wiz.model.step import serial as step_serial
-from wiz.model.step.step import Step
+from wiz.model.step.step import Step, CommitOutcome
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
@@ -75,29 +73,25 @@ def steps_show_resources(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/submit", methods=['POST'])
 def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
+  op_state = find_osr()
   step = find_step(operation_id, stage_id, step_id)
-  osr.record_step_started()
-
-  if step.uses_job():
-    step_job_client.go()
-
-  status, reason = step.commit(values, )
-  osr.record_step_terminated(step)
-  return jsonify(status=status, message=reason)
+  outcome: CommitOutcome = step.commit(values, op_state)
+  op_state.record_step_committed(step_id, stage_id, outcome)
+  return jsonify(status=outcome['status'], message=outcome['reason'])
 
 
 @controller.route(f"{STEP_PATH}/stage", methods=['POST'])
 def step_stage(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  assignments = step.stage(values)
+  assignments = step.compute_values(values,  find_osr())
   return jsonify(data=assignments)
 
 
 @controller.route(f"{STEP_PATH}/status")
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
-  return jsonify(status=step.status())
+  return jsonify(status=step.compute_status())
 
 
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])
@@ -151,7 +145,7 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   return step.field(field_id)
 
 
-def find_osr():
+def find_osr() -> OperationState:
   if request.headers.get('osr_id'):
-    _id = request.headers.get('osr_id')
-    return OperationStateRecorder.retrieve_for_writing(_id)
+    osr_id = request.headers.get('osr_id')
+    return OperationState.find_or_create(osr_id)
