@@ -1,16 +1,16 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from wiz.core import tedi_client, step_job_client, step_job_prep
+from wiz.core import tedi_client, step_job_client, step_job_prep, utils
 from wiz.core.osr import OperationState, StepState
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import CommitOutcome
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE
-from wiz.model.step import next_expr
+from wiz.model.step import step_exprs
 from wiz.model.step.exit_condition import ExitCondition
+from wiz.model.step.step_exprs import parse_recalled_state
 
 
-# noinspection PyMethodMayBeStatic,PyUnusedLocal
 class Step(WizModel):
 
   @property
@@ -21,15 +21,15 @@ class Step(WizModel):
     if 'updates_chart' in self.config.keys():
       return self.config.get('updates_chart', True)
     else:
-      manifest_fields = [f for f in self.fields() if f.is_chart_var]
-      return len(manifest_fields) > 0
+      manifest_fields = filter(Field.is_chart_var, self.fields())
+      return len(list(manifest_fields)) > 0
 
   def applies_manifest(self) -> bool:
     if 'applies_manifest' in self.config.keys():
       return self.config.get('applies_manifest', True)
     else:
-      manifest_fields = [f for f in self.fields() if f.is_manifest_bound()]
-      return len(manifest_fields) > 0
+      manifest_fields = filter(Field.is_manifest_bound, self.fields())
+      return len(list(manifest_fields)) > 0
 
   def runs_job(self) -> bool:
     return bool(self.job_descriptor)
@@ -51,10 +51,10 @@ class Step(WizModel):
 
   def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.next_step_descriptor
-    return next_expr.eval_next_expr(root, values)
+    return step_exprs.eval_next_expr(root, values)
 
   def has_explicit_next(self):
-    return not next_expr.is_default_next(self.next_step_descriptor)
+    return not step_exprs.is_default_next(self.next_step_descriptor)
 
   def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
@@ -83,10 +83,9 @@ class Step(WizModel):
   def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
     predicate = lambda d: d.get('target', 'chart') == target
     descriptors = filter(predicate, self.config.get('state_recalls', []))
-    state_assigns = op_state.assignments()
-    recalled_keys = []
-    for descriptor in descriptors:
-      recalled_keys += next_expr.parse_recalled_state(descriptor, state_assigns.keys())
+    state_assigns, state_keys = op_state.bank(), op_state.bank().keys()
+    gather_keys = lambda d: parse_recalled_state(d, state_keys)
+    recalled_keys = utils.flatten(map(gather_keys, descriptors))
     return {key: state_assigns[key] for key in recalled_keys}
 
   def finalize_chart_values(self, assigns: Dict, op_state: OperationState):
@@ -97,6 +96,7 @@ class Step(WizModel):
     recalled_from_state = self.compute_recalled_assigns('inline', op_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
+  # noinspection PyUnusedLocal
   def finalize_state_values(self, assigns: Dict, op_state: OperationState):
     return self.sanitize_field_assigns(assigns)
 
@@ -150,9 +150,9 @@ class Step(WizModel):
     return dict(status='pending')
 
   def default_exit_conditions(self) -> Tuple[List, List]:
-    if self.applies_manifest:
+    if self.applies_manifest():
       return default_res_exit_conds
-    elif self.runs_job:
+    elif self.runs_job():
       return default_job_exit_conds
     else:
       print("DANGER no default exit conditions for step " + self.key)
@@ -162,12 +162,11 @@ class Step(WizModel):
     matcher = (ss for ss in op_state.step_states if ss.step_id == self.key)
     return next(matcher, None)
 
-  @property
   def flags(self):
     _flags: List[str] = self.config.get('flags', [])
-    if self.applies_manifest:
+    if self.applies_manifest():
       _flags.append('manifest_applying')
-    if self.runs_job:
+    if self.runs_job():
       _flags.append('job_running')
     return list(set(_flags))
 
@@ -179,15 +178,17 @@ class Step(WizModel):
       finalizer = bucket_finalizer_mapping[key]
       # noinspection PyArgumentList
       finalized_value = finalizer(self, assigns, op_state)
-      buckets[field.target][key] = value
+      buckets[field.target][key] = finalized_value
 
     return tuple([tup[1] for tup in buckets.values()])
+
 
 bucket_finalizer_mapping = {
   TARGET_CHART: Step.finalize_chart_values,
   TARGET_INLINE: Step.finalize_inline_values,
   TARGET_STATE: Step.finalize_state_values
 }
+
 
 default_res_exit_conds = (
   ['nectar.exit_conditions.all_resources_positive'],

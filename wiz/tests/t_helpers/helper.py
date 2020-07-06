@@ -6,11 +6,23 @@ from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from wiz.core import tedi_prep, tedi_client
+from wiz.core.osr import OperationState, StepState
 from wiz.core.wiz_globals import wiz_app
 
 
 def ci_tedi_name():
   return "gcr.io/nectar-bazaar/wiz-ci-tedi"
+
+def one_step_op_state(**kwargs):
+  return OperationState(step_states=[
+    StepState(
+      **kwargs,
+      chart_assigns=kwargs.get('cass', {}),
+      state_assigns=kwargs.get('sass', {})
+    ),
+  ])
+
+
 
 
 def mock_globals(ns, app_tedi_image=None):

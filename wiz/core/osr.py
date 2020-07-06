@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime
 from typing import List, Optional, Dict
 
@@ -7,25 +8,27 @@ from wiz.core.types import CommitOutcome
 
 class StepState:
   def __init__(self, **kwargs):
-    self.stage_id = kwargs['stage_id']
-    self.step_id = kwargs['step_id']
+    self.stage_id = kwargs.get('stage_id')
+    self.step_id = kwargs.get('step_id')
     self.started_at = kwargs.get('started_at')
     self.commit_outcome = None
     self.commit_reason = None
     self.committed_at = None
-    self.assignments: Optional[Dict] = None
+    self.chart_assigns: Optional[Dict] = kwargs.get('chart_assigns', {})
+    self.state_assigns: Optional[Dict] = kwargs.get('state_assigns', {})
     self.terminated_at = None
     self.outcome = None
     self.job_id = None
     self.exist_code = None
     self.logs = None
 
-  def patch_committed(self, commit_outcome: CommitOutcome):
+  def patch_committed(self, com_outcome: CommitOutcome):
     self.committed_at = datetime.now()
-    self.commit_outcome = commit_outcome.get('status')
-    self.commit_reason = commit_outcome.get('reason')
-    self.assignments = commit_outcome.get('assignments')
-    self.job_id = commit_outcome.get('job_id')
+    self.commit_outcome = com_outcome.get('status')
+    self.commit_reason = com_outcome.get('reason')
+    self.chart_assigns = deepcopy(com_outcome.get('chart_assigns'))
+    self.state_assigns = deepcopy(com_outcome.get('state_assigns'))
+    self.job_id = com_outcome.get('job_id')
 
   def patch_terminated(self, outcome, logs=None):
     self.outcome = outcome
@@ -46,7 +49,7 @@ class OperationState:
 
   def __init__(self, **kwargs):
     self.osr_id = kwargs.get('id')
-    self.step_states: List[StepState] = kwargs.get('step_outcomes', [])
+    self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
   def find_or_create(cls, osr_id):
@@ -77,10 +80,10 @@ class OperationState:
     matcher = (so for so in self.step_states if predicate(so))
     return next(matcher, None)
 
-  def assignments(self):
+  def bank(self):
     merged = {}
     for step_record in self.step_states:
-      merged = deep_merge(merged, step_record.assignments)
+      merged = deep_merge(merged, step_record.state_assigns)
     return merged
 
 

@@ -49,17 +49,14 @@ class Field(WizModel):
   def is_manifest_bound(self):
     return self.is_chart_var or self.is_inline_chart_var
 
-  @property
   def is_inline_chart_var(self):
-    return self.target == 'inline'
+    return self.target == TARGET_INLINE
 
-  @property
   def is_chart_var(self):
-    return self.target == 'chart'
+    return self.target == TARGET_CHART
 
-  @property
   def is_state_var(self):
-    return self.target == 'state'
+    return self.target == TARGET_STATE
 
   def needs_decorating(self):
     return self.config.get('type') == 'slider'

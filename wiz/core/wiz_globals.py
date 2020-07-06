@@ -56,15 +56,20 @@ def is_subclass_match(subclass, kind: str, key: str):
   return actual.type_key() == kind and actual.key() == key
 
 
+def default_configs() -> List[Dict]:
+  pwd = os.path.join(os.path.dirname(__file__))
+  return utils.yamls_in_dir(f"{pwd}/../model/pre_built")
+
+
 class WizApp:
 
   def __init__(self):
-    self.configs = utils.yamls_in_dir('wiz/model/pre_built')
-    self.subclasses = []
+    self.configs: List[Dict] = default_configs()
+    self.subclasses: List[Type] = []
     self.providers = []
     self.adapters = []
-    self.ns_overwrite = None
-    self.app_overwrite = None
+    self.ns_overwrite: Optional[str] = None
+    self.app_overwrite: Optional[Dict] = None
 
   @property
   def ns(self):
