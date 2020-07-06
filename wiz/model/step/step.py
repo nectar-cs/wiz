@@ -103,9 +103,16 @@ class Step(WizModel):
 
     return CommitOutcome(status='positive', assignments=normal_values)
 
-  def compute_status(self, op_state):
+  def status_bundle(self, op_state: OperationState):
+    bundle = dict(status=self.compute_status(op_state))
+    if self.runs_job:
+      job_id = self.own_state(op_state).job_id
+      bundle['job_status'] = step_job_client.read_job_meta_status(job_id)
+    return bundle
+
+  def compute_status(self, op_state: OperationState):
     root = self.config.get('exit', {})
-    state = self.own_state(op_state)
+    own_state = self.own_state(op_state)
 
     defaults = self.default_exit_conditions()
     parse = lambda k, d: self.load_child(ExitCondition, root.get(k, d))
@@ -113,12 +120,16 @@ class Step(WizModel):
     failure_conds: List[ExitCondition] = parse('negative', defaults[1])
 
     for success_cond in success_conds:
-      if success_cond.evaluate(state):
+      if success_cond.evaluate(own_state):
         return dict(status='positive')
 
     for failure_cond in failure_conds:
-      if failure_cond.evaluate(state):
-        return dict(status='negative')
+      if failure_cond.evaluate(own_state):
+        return dict(
+          status='negative',
+          error=failure_cond.title,
+          reason=failure_cond.reason
+        )
 
     return dict(status='pending')
 
@@ -135,13 +146,6 @@ class Step(WizModel):
     matcher = (ss for ss in op_state.step_states if ss.step_id == self.key)
     return next(matcher, None)
 
-  def status_bundle(self, context):
-    bundle = dict(status=self.compute_status(context))
-    if self.runs_job:
-      job_id = context.job_id
-      bundle['job_status'] = step_job_client.read_job_meta_status(job_id)
-    return bundle
-
   @property
   def flags(self):
     _flags: List[str] = self.config.get('flags', [])
@@ -153,19 +157,15 @@ class Step(WizModel):
 
 
 def partition_values(fields: List[Field], values: Dict[str, str]) -> Tuple[Dict, Dict]:
-  normal_values, inline_values = {}, {}
-
-  def get_field(k):
-    matches = [f for f in fields if f.key == k]
-    return matches[0] if len(matches) else None
+  internal_values, chart_values, inline_values = {}, {}, {}
 
   for key, value in values.items():
-    field = get_field(key)
+    field = next(f for f in fields if f.key == key)
     is_normal = field is None or not field.is_inline
-    bucket = normal_values if is_normal else inline_values
+    bucket = chart_values if is_normal else inline_values
     bucket[key] = value
 
-  return normal_values, inline_values
+  return chart_values, inline_values
 
 
 default_res_exit_conds = (

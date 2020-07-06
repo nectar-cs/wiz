@@ -23,7 +23,7 @@ fields:
   - hub.quotas.limits.cpu
   - hub.quotas.limits.memory
 
-res:
+resource_apply_filter:
   - 'ResourceQuota:*'
 
 
@@ -60,7 +60,7 @@ fields:
   - "hub.storage.external_db_port"
   - "hub.storage.external_db_user"
   - "hub.storage.external_db_password"
-res:
+resource_apply_filter:
   - 'Secret:hub-pg'
 
 
@@ -90,7 +90,8 @@ kind: Step
 title: "Self-Managed PVC"
 fields:
   - "hub.storage.pvc_name"
-
+chart:
+  - 'some-old-key'
 
 ---
 
@@ -105,7 +106,7 @@ fields:
   - "hub.storage.secrets.user"
   - "hub.storage.secrets.password"
 ephemeral: true
-res:
+resource_apply_filter:
   - "Secret:hub-pg"
   - "PersistentVolumeClaim:*"
   - "Deployment:postgres"

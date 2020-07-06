@@ -10,12 +10,12 @@ class StepState:
     self.stage_id = kwargs['stage_id']
     self.step_id = kwargs['step_id']
     self.started_at = kwargs.get('started_at')
-    self.commit_outcome: Optional[str] = None
-    self.commit_reason: Optional[str] = None
-    self.committed_at: Optional[str] = None
+    self.commit_outcome = None
+    self.commit_reason = None
+    self.committed_at = None
     self.assignments: Optional[Dict] = None
     self.terminated_at = None
-    self.terminate_outcome = None
+    self.outcome = None
     self.job_id = None
     self.exist_code = None
     self.logs = None
@@ -27,8 +27,9 @@ class StepState:
     self.assignments = commit_outcome.get('assignments')
     self.job_id = commit_outcome.get('job_id')
 
-  def patch_terminated(self, outcome, job_outcome=None):
-    self.terminate_outcome = outcome
+  def patch_terminated(self, outcome, logs=None):
+    self.outcome = outcome
+    self.logs = logs
 
   def belongs_to_step(self, step_id, stage_id):
     return self.step_id == step_id and \
@@ -81,33 +82,6 @@ class OperationState:
     for step_record in self.step_states:
       merged = deep_merge(merged, step_record.assignments)
     return merged
-
-
-sample_record = {
-  'id': 'random-str',
-  'operation_id': 'installation',
-  'steps': [
-    {
-      'id': 'strategy',
-      'stage_id': 'asd',
-      'started_at': 'datetime',
-      'finished_at': 'datetime',
-      'assignments': {
-        'hub.storage.strategy': 'internal'
-      },
-      'computed': {
-        'hub.storage.strategy': 'internal'
-      },
-      'job': {
-        'id': 'random-str',
-        'started_at': 'datetime',
-        'finished_at': 'datetime',
-        'exit_code': '0',
-        'logs': []
-      }
-    }
-  ]
-}
 
 
 operation_states: List[OperationState] = []

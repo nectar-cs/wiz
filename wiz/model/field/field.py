@@ -23,6 +23,10 @@ class Field(WizModel):
     return self.config.get('options')
 
   @property
+  def application(self):
+    return self.config.get('applies', 'chart')
+
+  @property
   def options_source(self):
     return self.config.get('options_source', None)
 
@@ -40,13 +44,16 @@ class Field(WizModel):
       return self.option_descriptors
 
   @property
-  def watch_res_kinds(self):
-    declared = self.config.get('res_watch', [])
-    return list(set(declared + ['ConfigMap']))
+  def applies_inline(self):
+    return self.application == 'inline'
 
   @property
-  def is_inline(self):
-    return self.config.get('inline', False)
+  def applies_to_chart(self):
+    return self.application == 'chart'
+
+  @property
+  def applies_internally(self):
+    return self.application == 'internal'
 
   def needs_decorating(self):
     return self.config.get('type') == 'slider'

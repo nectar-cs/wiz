@@ -1,7 +1,7 @@
 kind: ExitCondition
 type: resource_ternary_statuses
 id: nectar.exit_conditions.all_resources_positive
-name: All resources have a positive status
+title: All resources have a positive status
 selector: ['*:*']
 match: all
 check_against: positive
@@ -11,7 +11,7 @@ check_against: positive
 kind: ExitCondition
 type: resource_ternary_statuses
 id: nectar.exit_conditions.all_workloads_positive
-name: All workloads have a positive status
+title: All workloads have a positive status
 selector:
   - Deployment:*
   - ReplicaSet:*
@@ -23,7 +23,7 @@ check_against: positive
 kind: ExitCondition
 type: job_pod_phase
 id: nectar.exit_conditions.any_resource_negative
-name: The steps's Job is in the Succeeded phase
+title: The steps's Job is in the Succeeded phase
 check_against: Suceeded
 
 ---
@@ -31,5 +31,5 @@ check_against: Suceeded
 kind: ExitCondition
 type: job_pod_phase
 id: nectar.exit_conditions.job_in_failed_phase
-name: The steps's Job is in the Failed phase
+title: The steps's Job is in the Failed phase
 check_against: Failed

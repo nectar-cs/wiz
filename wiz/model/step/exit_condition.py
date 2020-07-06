@@ -7,6 +7,10 @@ from wiz.model.base.wiz_model import WizModel
 
 class ExitCondition(WizModel):
 
+  def __init__(self, config):
+    super().__init__(config)
+    self.reason = None
+
   @property
   def cond_type(self):
     return self.config.get('type')

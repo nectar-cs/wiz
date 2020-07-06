@@ -91,7 +91,12 @@ def step_stage(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/status")
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
-  return jsonify(status=step.compute_status())
+  op_state = find_osr()
+  status_bundle = step.status_bundle(op_state)
+  status_word = status_bundle['status']
+  if not status_word == 'pending':
+    op_state.record_step_terminated(stage_id, step_id, status_word, )
+  return jsonify()
 
 
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])

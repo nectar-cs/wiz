@@ -16,9 +16,10 @@ class JobStatusPart:
 
 
 class JobStatus:
-  def __init__(self, raw_dump: Union[Dict, List[Dict]]):
+  def __init__(self, raw_dump: Union[Dict, List[Dict]], logs):
     raw_parts = raw_dump if type(raw_dump) == list else [raw_dump]
     self.parts = [JobStatusPart(part, i) for (i, part) in enumerate(raw_parts)]
+    self.logs = logs
 
 
 def find_job_cmap(job_id: str) -> KatMap:
@@ -29,18 +30,24 @@ def find_job(job_id: str) -> KatJob:
   return KatJob.find(job_id, wiz_app.ns)
 
 
+def find_worker_pod(job_id) -> Optional[KatPod]:
+  job = find_job(job_id)
+  return next(job.pods(), None)
+
+
 def read_job_meta_status(job_id: str) -> Optional[JobStatus]:
-  cmap = find_job_cmap(job_id)
-  if cmap and cmap.touch():
-    raw_status = cmap.jget(step_job_prep.status_fname)
-    return JobStatus(raw_status)
+  shared_config_map = find_job_cmap(job_id)
+  if shared_config_map and shared_config_map.touch():
+    raw_status = shared_config_map.jget(step_job_prep.status_fname)
+    pod = find_worker_pod(job_id)
+    logs = pod.raw_logs() if pod else []
+    return JobStatus(raw_status, logs)
   else:
     return None
 
 
 def read_job_ternary_status(job_id: str):
-  job = find_job(job_id)
-  main_pod: KatPod = next(job.pods(), None)
+  main_pod: KatPod = find_worker_pod(job_id)
   if main_pod:
     if main_pod.has_succeeded():
       return 'positive'

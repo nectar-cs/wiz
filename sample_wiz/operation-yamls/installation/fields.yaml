@@ -60,7 +60,7 @@ key: "hub.storage.secrets.user"
 kind: Field
 title: "Database user"
 default: postgres
-inline: true
+apply: inline
 
 
 ---
@@ -69,7 +69,7 @@ inline: true
 key: "hub.storage.secrets.password"
 kind: Field
 title: "Database password"
-inline: true
+apply: inline
 
 
 ---
@@ -100,7 +100,7 @@ validations:
 key: "hub.storage.external_db_user"
 kind: Field
 title: "External Database User"
-inline: true
+apply: inline
 
 
 ---
@@ -109,7 +109,7 @@ inline: true
 key: "hub.storage.external_db_password"
 kind: Field
 title: "External Database Password"
-inline: true
+apply: inline
 
 
 --- #---------------------------BACKUPS-----------------------------
@@ -139,7 +139,7 @@ key: "hub.backend.secrets.key_base"
 kind: Field
 title: "Session Crypto Key"
 info: "A 24 byte key to protect sessions from forgery attacks."
-inline: true
+apply: inline
 
 
 ---
@@ -149,7 +149,7 @@ key: "hub.backend.secrets.attr_enc_key"
 kind: Field
 title: "Database Crypto Key"
 info: "A 32 byte key encrypt database tables."
-inline: true
+apply: inline
 
 
 ---
