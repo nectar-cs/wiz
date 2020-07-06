@@ -5,9 +5,9 @@ from wiz.core.wiz_globals import wiz_app
 
 class WizModel:
 
-  def __init__(self, config):
-    self.config = config
-    self.key = config['key']
+  def __init__(self, config: Dict):
+    self.config: Dict = config
+    self.key: str = config['key']
     self.parent = None
 
   @property

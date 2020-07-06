@@ -4,14 +4,14 @@ key: step.global.quotas.requests
 kind: Step
 info: Maximum sum of CPU/memory requests across application
 title: Request Quotas
-
 fields:
   - hub.quotas.requests.cpu
   - hub.quotas.requests.memory
-
-resource_apply_filter:
-  - 'ResourceQuota:*'
-
+resource_apply_filter: 'ResourceQuota:*'
+state_recalls:
+  - target: chart
+    included_keys: all
+    excluded_keys: [some.former.step.key]
 
 ---
 
@@ -135,7 +135,6 @@ fields:
   - "hub.backend.encrypted_tables"
 res:
   - "Secret:hub-app"
-
 
 ---
 

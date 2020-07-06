@@ -1,8 +1,22 @@
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from wiz.model.base.validator import Validator
 
 StrOrDict = Union[str, Dict[str, str]]
+
+def parse_key_list(root: Union[List, str], all_keys: List) -> List:
+  if type(root) == List:
+    return root
+  elif root == 'all':
+    return all_keys
+  else:
+    print("DANGER bad state_recall target " + root)
+    return []
+
+def parse_recalled_state(root: Dict, all_keys) -> List:
+  included = parse_key_list(root.get('included', []), all_keys)
+  excluded = parse_key_list(root.get('excluded', []), all_keys)
+  return list(set(included) - set(excluded))
 
 def eval_next_expr(root: StrOrDict, values: Dict[str, str]) -> str:
   if type(root) == str:

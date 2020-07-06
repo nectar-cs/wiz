@@ -5,6 +5,9 @@ from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.model.base.validator import Validator
 from wiz.model.base.wiz_model import WizModel
 
+TARGET_CHART = 'chart'
+TARGET_INLINE = 'inline'
+TARGET_STATE = 'state'
 
 class Field(WizModel):
 
@@ -23,8 +26,8 @@ class Field(WizModel):
     return self.config.get('options')
 
   @property
-  def application(self):
-    return self.config.get('applies', 'chart')
+  def target(self):
+    return self.config.get('target', 'chart')
 
   @property
   def options_source(self):
@@ -43,17 +46,20 @@ class Field(WizModel):
     else:
       return self.option_descriptors
 
-  @property
-  def applies_inline(self):
-    return self.application == 'inline'
+  def is_manifest_bound(self):
+    return self.is_chart_var or self.is_inline_chart_var
 
   @property
-  def applies_to_chart(self):
-    return self.application == 'chart'
+  def is_inline_chart_var(self):
+    return self.target == 'inline'
 
   @property
-  def applies_internally(self):
-    return self.application == 'internal'
+  def is_chart_var(self):
+    return self.target == 'chart'
+
+  @property
+  def is_state_var(self):
+    return self.target == 'state'
 
   def needs_decorating(self):
     return self.config.get('type') == 'slider'

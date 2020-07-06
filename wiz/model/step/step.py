@@ -5,32 +5,37 @@ from wiz.core.osr import OperationState, StepState
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import CommitOutcome
 from wiz.model.base.wiz_model import WizModel
-from wiz.model.field.field import Field
+from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE
 from wiz.model.step import next_expr
 from wiz.model.step.exit_condition import ExitCondition
 
 
+# noinspection PyMethodMayBeStatic,PyUnusedLocal
 class Step(WizModel):
-
-  @property
-  def updates_chart(self) -> bool:
-    return self.config.get('updates_chart', True)
-
-  @property
-  def applies_manifest(self) -> bool:
-    return self.config.get('applies_manifest', True)
-
-  @property
-  def runs_job(self) -> bool:
-    return bool(self.job_descriptor)
-
-  @property
-  def is_long_running(self):
-    return self.runs_job or self.applies_manifest
 
   @property
   def field_keys(self):
     return self.config.get('fields', [])
+
+  def updates_chart(self) -> bool:
+    if 'updates_chart' in self.config.keys():
+      return self.config.get('updates_chart', True)
+    else:
+      manifest_fields = [f for f in self.fields() if f.is_chart_var]
+      return len(manifest_fields) > 0
+
+  def applies_manifest(self) -> bool:
+    if 'applies_manifest' in self.config.keys():
+      return self.config.get('applies_manifest', True)
+    else:
+      manifest_fields = [f for f in self.fields() if f.is_manifest_bound()]
+      return len(manifest_fields) > 0
+
+  def runs_job(self) -> bool:
+    return bool(self.job_descriptor)
+
+  def is_long_running(self):
+    return self.runs_job() or self.applies_manifest()
 
   @property
   def res_selector_descs(self) -> List[Union[str, Dict]]:
@@ -57,7 +62,7 @@ class Step(WizModel):
   def field(self, key) -> Field:
     return self.load_list_child('fields', Field, key)
 
-  def sanitize_field_values(self, values: Dict[str, any]):
+  def sanitize_field_assigns(self, values: Dict[str, any]):
     transform = lambda k: self.field(k).sanitize_value(values[k])
     return {key: transform(key) for key, value in values.items()}
 
@@ -75,33 +80,44 @@ class Step(WizModel):
     params = self.gen_job_params(values, op_state)
     return step_job_prep.create_and_run(image, command, args, params)
 
-  # noinspection PyUnusedLocal
-  def compute_values(self, values, op_state) -> Tuple[Dict, Dict]:
-    mapped_values = self.sanitize_field_values(values)
-    return partition_values(self.fields(), mapped_values)
+  def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
+    predicate = lambda d: d.get('target', 'chart') == target
+    descriptors = filter(predicate, self.config.get('state_recalls', []))
+    state_assigns = op_state.assignments()
+    recalled_keys = []
+    for descriptor in descriptors:
+      recalled_keys += next_expr.parse_recalled_state(descriptor, state_assigns.keys())
+    return {key: state_assigns[key] for key in recalled_keys}
 
-  def commit(self, values, op_state) -> CommitOutcome:
-    normal_values, inline_values = self.compute_values(values, op_state)
+  def finalize_chart_values(self, assigns: Dict, op_state: OperationState):
+    recalled_from_state = self.compute_recalled_assigns('chart', op_state)
+    return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
-    if self.updates_chart and normal_values:
-      # noinspection PyTypeChecker
-      tedi_client.commit_values(normal_values.items())
+  def finalize_inline_values(self, assigns: Dict, op_state: OperationState):
+    recalled_from_state = self.compute_recalled_assigns('inline', op_state)
+    return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
-    if self.applies_manifest:
-      rule_exprs = self.res_selector_descs
-      rules = [ResMatchRule(rule_expr) for rule_expr in rule_exprs]
-      tedi_client.apply(rules, inline_values.items())
-      return CommitOutcome(status='pending', assignments=normal_values)
+  def finalize_state_values(self, assigns: Dict, op_state: OperationState):
+    return self.sanitize_field_assigns(assigns)
+
+  def commit(self, assigns: Dict, op_state: OperationState) -> CommitOutcome:
+    final_assigns = self.partition_value_assigns(assigns, op_state)
+    chart_assigns, inline_assigns, state_assigns = final_assigns
+    outcome = CommitOutcome(chart_assigns=chart_assigns, state_assigns=state_assigns)
+
+    if len(chart_assigns) > 0:
+      tedi_client.commit_values(chart_assigns.items())
+
+    if self.applies_manifest():
+      rules = [ResMatchRule(rule_expr) for rule_expr in self.res_selector_descs]
+      tedi_client.apply(rules=rules, inlines=inline_assigns.items())
+      return CommitOutcome(**outcome, status='pending')
 
     if self.runs_job:
-      job_id = self.begin_job(values, op_state)
-      return CommitOutcome(
-        status='positive',
-        assignments=normal_values,
-        job_id=job_id
-      )
+      job_id = self.begin_job(assigns, op_state)
+      return CommitOutcome(**outcome, status='pending', job_id=job_id)
 
-    return CommitOutcome(status='positive', assignments=normal_values)
+    return CommitOutcome(**outcome, status='positive')
 
   def status_bundle(self, op_state: OperationState):
     bundle = dict(status=self.compute_status(op_state))
@@ -155,18 +171,23 @@ class Step(WizModel):
       _flags.append('job_running')
     return list(set(_flags))
 
+  def partition_value_assigns(self, assigns, op_state) -> Tuple:
+    buckets = {TARGET_CHART: {}, TARGET_INLINE: {}, TARGET_STATE: {}}
 
-def partition_values(fields: List[Field], values: Dict[str, str]) -> Tuple[Dict, Dict]:
-  internal_values, chart_values, inline_values = {}, {}, {}
+    for key, value in assigns.items():
+      field = next(f for f in self.fields() if f.key == key)
+      finalizer = bucket_finalizer_mapping[key]
+      # noinspection PyArgumentList
+      finalized_value = finalizer(self, assigns, op_state)
+      buckets[field.target][key] = value
 
-  for key, value in values.items():
-    field = next(f for f in fields if f.key == key)
-    is_normal = field is None or not field.is_inline
-    bucket = chart_values if is_normal else inline_values
-    bucket[key] = value
+    return tuple([tup[1] for tup in buckets.values()])
 
-  return chart_values, inline_values
-
+bucket_finalizer_mapping = {
+  TARGET_CHART: Step.finalize_chart_values,
+  TARGET_INLINE: Step.finalize_inline_values,
+  TARGET_STATE: Step.finalize_state_values
+}
 
 default_res_exit_conds = (
   ['nectar.exit_conditions.all_resources_positive'],
