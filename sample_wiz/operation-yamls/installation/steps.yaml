@@ -2,18 +2,17 @@
 
 key: step.global.quotas.requests
 kind: Step
-info: Maximum sum of CPU/memory requests across application
+info: "Define the maximum sum of CPU/memory requests across application. Note that
+this caps the requests for resources, rather than the usage of resources."
 title: Request Quotas
 fields:
   - hub.quotas.requests.cpu
   - hub.quotas.requests.memory
 resource_apply_filter: 'ResourceQuota:*'
-state_recalls:
-  - target: chart
-    included_keys: all
-    excluded_keys: [some.former.step.key]
+
 
 ---
+
 
 key: step.global.quotas.limits
 kind: Step
@@ -22,9 +21,7 @@ title: Limit Quotas
 fields:
   - hub.quotas.limits.cpu
   - hub.quotas.limits.memory
-
-resource_apply_filter:
-  - 'ResourceQuota:*'
+resource_apply_filter: 'ResourceQuota:*'
 
 
 --- #---------------------------STORAGE-----------------------------
@@ -60,8 +57,7 @@ fields:
   - "hub.storage.external_db_port"
   - "hub.storage.external_db_user"
   - "hub.storage.external_db_password"
-resource_apply_filter:
-  - 'Secret:hub-pg'
+resource_apply_filter: 'ResourceQuota:*'
 
 
 ---
@@ -90,8 +86,6 @@ kind: Step
 title: "Self-Managed PVC"
 fields:
   - "hub.storage.pvc_name"
-chart:
-  - 'some-old-key'
 
 ---
 
@@ -105,7 +99,6 @@ in the chart."
 fields:
   - "hub.storage.secrets.user"
   - "hub.storage.secrets.password"
-ephemeral: true
 resource_apply_filter:
   - "Secret:hub-pg"
   - "PersistentVolumeClaim:*"
@@ -133,8 +126,7 @@ fields:
   - "hub.backend.secrets.key_base"
   - "hub.backend.secrets.attr_enc_key"
   - "hub.backend.encrypted_tables"
-res:
-  - "Secret:hub-app"
+resource_apply_filter: 'Secret:hub-app'
 
 ---
 
@@ -145,7 +137,7 @@ title: "Availability"
 fields:
   - "hub.backend.num_users"
   - "hub.backend.response_time"
-res:
+resource_apply_filter:
   - "Deployment:hub"
   - "Deployment:hub-front"
 
@@ -176,6 +168,6 @@ title: "Hosting"
 fields:
   - hub.networking.host
   - hub.networking.path
-res:
+resource_apply_filter:
   - Ingress:*
   - Service:*

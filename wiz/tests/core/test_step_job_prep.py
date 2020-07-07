@@ -1,4 +1,3 @@
-import json
 import time
 
 from k8_kat.utils.testing import ns_factory
@@ -74,5 +73,5 @@ class TestStepJobPrep(ClusterTest):
 def inline_ruby_program():
   j_status = "JSON.dump({name: :foo, status: :bar, pct: 50})"
   status_stmt = f"File.write('{step_job_prep.status_fname}', {j_status})"
-  end_stmt = f"sleep(5); p 'done'"
+  end_stmt = f"sleep(12); p 'done'"
   return f"require 'json'; {status_stmt}; {end_stmt}"

@@ -2,7 +2,9 @@ from typing import Type
 from unittest.mock import patch
 
 from wiz.core import tedi_client, step_job_prep
+from wiz.core.osr import OperationState, StepState
 from wiz.model.base.wiz_model import WizModel
+from wiz.model.stage.stage import Stage
 from wiz.model.step.step import Step
 from wiz.tests.models.test_wiz_model import Base
 from wiz.tests.t_helpers import helper
@@ -16,6 +18,23 @@ class TestStep(Base.TestWizModel):
 
   def test_integration(self):
     pass
+
+  def test_own_state(self):
+    op_state = OperationState(
+      step_states=[
+        StepState(stage_id='stage1', step_id='step1', chart_assigns={'k': 11}),
+        StepState(stage_id='stage1', step_id='step2', chart_assigns={'k': 12}),
+        StepState(stage_id='stage2', step_id='step1', chart_assigns={'k': 21}),
+        StepState(stage_id='stage2', step_id='step2', chart_assigns={'k': 22}),
+      ]
+    )
+
+    stage = Stage(dict(key='stage2', steps=[dict(key='step2')]))
+    step: Step = stage.step('step2')
+    step_state = step.find_own_state(op_state)
+    self.assertEqual('stage2', step_state.stage_id)
+    self.assertEqual('step2', step_state.step_id)
+    self.assertEqual({'k': 22}, step_state.chart_assigns)
 
   def test_commit_no_work(self):
     with patch.object(tedi_client, 'commit_values') as mock:

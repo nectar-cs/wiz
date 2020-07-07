@@ -1,8 +1,6 @@
-from flask import Blueprint, request, jsonify
-from k8_kat.auth.kube_broker import broker
+from flask import Blueprint, jsonify
 
-from wiz.core import tedi_prep, tedi_client
-from wiz.core import wiz_globals
+from k8_kat.auth.kube_broker import broker
 
 controller = Blueprint('status_controller', __name__)
 

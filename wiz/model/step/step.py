@@ -123,13 +123,13 @@ class Step(WizModel):
   def status_bundle(self, op_state: OperationState):
     bundle = dict(status=self.compute_status(op_state))
     if self.runs_job:
-      job_id = self.own_state(op_state).job_id
+      job_id = self.find_own_state(op_state).job_id
       bundle['job_status'] = step_job_client.job_status_bundle(job_id)
     return bundle
 
   def compute_status(self, op_state: OperationState):
     root = self.config.get('exit', {})
-    own_state = self.own_state(op_state)
+    own_state = self.find_own_state(op_state)
 
     defaults = self.default_exit_conditions()
     parse = lambda k, d: self.load_child(ExitCondition, root.get(k, d))
@@ -158,9 +158,12 @@ class Step(WizModel):
     else:
       return [], []
 
-  def own_state(self, op_state: OperationState) -> Optional[StepState]:
-    matcher = (ss for ss in op_state.step_states if ss.step_id == self.key)
-    return next(matcher, None)
+  def is_state_owner(self, ss) -> bool:
+    return ss.step_id == self.key and \
+           ss.stage_id == self.parent.key
+
+  def find_own_state(self, op_state: OperationState) -> Optional[StepState]:
+    return next(filter(self.is_state_owner, op_state.step_states))
 
   def flags(self):
     _flags: List[str] = self.config.get('flags', [])
@@ -179,9 +182,9 @@ class Step(WizModel):
         buckets[field.target][key] = value
 
     for target_type in TARGET_TYPES:
-      worker = target_type_to_finalizer_mapping[target_type]
+      finalizer = target_type_to_finalizer_mapping[target_type]
       # noinspection PyArgumentList
-      buckets[target_type] = worker(self, buckets[target_type], op_state)
+      buckets[target_type] = finalizer(self, buckets[target_type], op_state)
 
     return tuple(buckets[target_type] for target_type in TARGET_TYPES)
 

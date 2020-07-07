@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 
-from wiz.core import res_watch
 from wiz.core.osr import OperationState
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
@@ -58,18 +57,6 @@ def steps_show(operation_id, stage_id, step_id):
   return jsonify(data=serialized)
 
 
-# noinspection PyUnusedLocal
-@controller.route(f"{STEP_PATH}/resources")
-def steps_show_resources(operation_id, stage_id, step_id):
-  serialized_res_list = res_watch.glob([
-    'ConfigMap',
-    'Pod',
-    'Deployment',
-    'Secret'
-  ])
-  return jsonify(data=serialized_res_list)
-
-
 @controller.route(f"{STEP_PATH}/submit", methods=['POST'])
 def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
@@ -80,12 +67,12 @@ def step_submit(operation_id, stage_id, step_id):
   return jsonify(status=outcome['status'], message=outcome['reason'])
 
 
-@controller.route(f"{STEP_PATH}/stage", methods=['POST'])
+@controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])
 def step_stage(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  assignments = step.compute_values(values,  find_osr())
-  return jsonify(data=assignments)
+  chart_assigns, _, _ = step.partition_value_assigns(values,  find_osr())
+  return jsonify(data=chart_assigns)
 
 
 @controller.route(f"{STEP_PATH}/status")
@@ -95,7 +82,7 @@ def step_status(operation_id, stage_id, step_id):
   status_bundle = step.status_bundle(op_state)
   status_word = status_bundle['status']
   if not status_word == 'pending':
-    op_state.record_step_terminated(stage_id, step_id, status_word, )
+    op_state.record_step_terminated(stage_id, step_id, status_word)
   return jsonify()
 
 
