@@ -73,13 +73,6 @@ class Step(WizModel):
   def gen_job_params(self, values, op_state):
     return values
 
-  def begin_job(self, values, op_state) -> str:
-    image = self.job_descriptor.get('image', 'busybox')
-    command = self.job_descriptor.get('command')
-    args = self.job_descriptor.get('args', [])
-    params = self.gen_job_params(values, op_state)
-    return step_job_prep.create_and_run(image, command, args, params)
-
   def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
     predicate = lambda d: d.get('target', 'chart') == target
     descriptors = filter(predicate, self.config.get('state_recalls', []))
@@ -100,21 +93,29 @@ class Step(WizModel):
   def finalize_state_values(self, assigns: Dict, op_state: OperationState):
     return self.sanitize_field_assigns(assigns)
 
-  def commit(self, assigns: Dict, op_state: OperationState) -> CommitOutcome:
+  def begin_job(self, values, op_state) -> str:
+    image = self.job_descriptor.get('image', 'busybox')
+    command = self.job_descriptor.get('command')
+    args = self.job_descriptor.get('args', [])
+    params = self.gen_job_params(values, op_state)
+    return step_job_prep.create_and_run(image, command, args, params)
+
+  def commit(self, assigns: Dict, op_state: OperationState = None) -> CommitOutcome:
+    op_state = op_state or OperationState()
     final_assigns = self.partition_value_assigns(assigns, op_state)
     chart_assigns, inline_assigns, state_assigns = final_assigns
     outcome = CommitOutcome(chart_assigns=chart_assigns, state_assigns=state_assigns)
 
-    if len(chart_assigns) > 0:
+    if len(chart_assigns):
       tedi_client.commit_values(chart_assigns.items())
 
-    if self.applies_manifest():
+    if len(chart_assigns) or len(inline_assigns):
       rules = [ResMatchRule(rule_expr) for rule_expr in self.res_selector_descs]
       tedi_client.apply(rules=rules, inlines=inline_assigns.items())
       return CommitOutcome(**outcome, status='pending')
 
     if self.runs_job():
-      job_id = self.begin_job(assigns, op_state)
+      job_id = self.begin_job(state_assigns, op_state)
       return CommitOutcome(**outcome, status='pending', job_id=job_id)
 
     return CommitOutcome(**outcome, status='positive')
@@ -155,7 +156,6 @@ class Step(WizModel):
     elif self.runs_job():
       return default_job_exit_conds
     else:
-      print("DANGER no default exit conditions for step " + self.key)
       return [], []
 
   def own_state(self, op_state: OperationState) -> Optional[StepState]:
@@ -174,8 +174,9 @@ class Step(WizModel):
     buckets = {target_type: {} for target_type in TARGET_TYPES}
 
     for key, value in assigns.items():
-      field = next(f for f in self.fields() if f.key == key)
-      buckets[field.target][key] = value
+      field = next((f for f in self.fields() if f.key == key), None)
+      if field:
+        buckets[field.target][key] = value
 
     for target_type in TARGET_TYPES:
       worker = target_type_to_finalizer_mapping[target_type]
@@ -183,7 +184,6 @@ class Step(WizModel):
       buckets[target_type] = worker(self, buckets[target_type], op_state)
 
     return tuple(buckets[target_type] for target_type in TARGET_TYPES)
-
 
 
 target_type_to_finalizer_mapping = {
