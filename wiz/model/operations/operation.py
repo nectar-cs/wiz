@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 
+from wiz.core.osr import OperationState
 from wiz.model.prerequisite.prerequisite import Prerequisite
 from wiz.model.stage.stage import Stage
 from wiz.model.base.wiz_model import WizModel, key_or_dict_to_key
@@ -12,8 +13,12 @@ class Operation(WizModel):
     first = stage_descriptors[0] if len(stage_descriptors) else 0
     return key_or_dict_to_key(first) if first else None
 
-  def record(self, recorder):
-    pass
+  def is_state_owner(self, op_state: OperationState) -> bool:
+    return op_state.operation_id == self.key
+
+  @classmethod
+  def find_state_owner(cls, op_states: List[OperationState]):
+    return next(filter(cls.is_state_owner, op_states))
 
   @property
   def is_system(self) -> bool:

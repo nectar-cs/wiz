@@ -75,7 +75,7 @@ class TestTecClient(ClusterTest):
 
   def test_commit_values(self):
     tedi_client.commit_values([('foo', 'bar')])
-    new_values = tedi_client.master_map().yget()
+    new_values = tedi_client.master_cmap().yget()
     self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):

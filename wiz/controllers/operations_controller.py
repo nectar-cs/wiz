@@ -60,7 +60,7 @@ def steps_show(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/submit", methods=['POST'])
 def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
-  op_state = find_osr()
+  op_state = find_osr(operation_id)
   step = find_step(operation_id, stage_id, step_id)
   outcome: CommitOutcome = step.commit(values, op_state)
   op_state.record_step_committed(step_id, stage_id, outcome)
@@ -71,14 +71,15 @@ def step_submit(operation_id, stage_id, step_id):
 def step_stage(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  chart_assigns, _, _ = step.partition_value_assigns(values,  find_osr())
+  op_state = find_osr(operation_id)
+  chart_assigns, _, _ = step.partition_value_assigns(values,  op_state)
   return jsonify(data=chart_assigns)
 
 
 @controller.route(f"{STEP_PATH}/status")
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_osr()
+  op_state = find_osr(operation_id)
   status_bundle = step.status_bundle(op_state)
   status_word = status_bundle['status']
   if not status_word == 'pending':
@@ -137,7 +138,7 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   return step.field(field_id)
 
 
-def find_osr() -> OperationState:
+def find_osr(operation_id: str) -> OperationState:
   if request.headers.get('osr_id'):
     osr_id = request.headers.get('osr_id')
-    return OperationState.find_or_create(osr_id)
+    return OperationState.find_or_create(osr_id, operation_id)

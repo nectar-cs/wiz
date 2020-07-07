@@ -158,7 +158,7 @@ class Step(WizModel):
     else:
       return [], []
 
-  def is_state_owner(self, ss) -> bool:
+  def is_state_owner(self, ss: StepState) -> bool:
     return ss.step_id == self.key and \
            ss.stage_id == self.parent.key
 

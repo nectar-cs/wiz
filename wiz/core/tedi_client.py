@@ -15,12 +15,12 @@ tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
 
-def master_map() -> KatMap:
+def master_cmap() -> KatMap:
   return KatMap.find('master', wiz_app.ns)
 
 
 def commit_values(assignments: List[Tuple[str, any]]):
-  config_map = master_map()
+  config_map = master_cmap()
   existing_config = config_map.yget()
   for assignment in assignments:
     fqhk_array = assignment[0].split('.')
@@ -32,7 +32,7 @@ def commit_values(assignments: List[Tuple[str, any]]):
 
 
 def chart_dump() -> Dict:
-  config_map = master_map()
+  config_map = master_cmap()
   return config_map.yget()
 
 

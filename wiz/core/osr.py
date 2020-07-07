@@ -20,7 +20,7 @@ class StepState:
     self.outcome = None
     self.job_id = None
     self.exist_code = None
-    self.logs = None
+    self.job_logs = []
 
   def patch_committed(self, com_outcome: CommitOutcome):
     self.committed_at = datetime.now()
@@ -32,7 +32,7 @@ class StepState:
 
   def patch_terminated(self, outcome, logs=None):
     self.outcome = outcome
-    self.logs = logs
+    self.job_logs = logs
 
   def belongs_to_step(self, step_id, stage_id):
     return self.step_id == step_id and \
@@ -49,14 +49,15 @@ class OperationState:
 
   def __init__(self, **kwargs):
     self.osr_id = kwargs.get('id')
+    self.operation_id = kwargs.get('operation_id')
     self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
-  def find_or_create(cls, osr_id):
+  def find_or_create(cls, osr_id, operation_id):
     matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
     existing = next(matcher, None)
     if not existing:
-      existing = OperationState(id=osr_id)
+      existing = OperationState(id=osr_id, operation_id=operation_id)
       operation_states.append(existing)
     return existing
 
