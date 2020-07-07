@@ -32,7 +32,7 @@ def find_job(job_id: str) -> KatJob:
 
 def find_worker_pod(job_id) -> Optional[KatPod]:
   job = find_job(job_id)
-  return next(job.pods(), None)
+  return next(iter(job.pods()), None)
 
 
 def read_job_meta_status(job_id: str) -> Optional[JobStatus]:

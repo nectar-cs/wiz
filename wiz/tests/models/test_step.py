@@ -14,6 +14,9 @@ class TestStep(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Step
 
+  def test_integration(self):
+    pass
+
   def test_commit_no_work(self):
     with patch.object(tedi_client, 'commit_values') as mock:
       outcome = Step(dict(key='s')).commit({})

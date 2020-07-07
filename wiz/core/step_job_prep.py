@@ -2,7 +2,7 @@ import json
 from typing import Dict
 
 from kubernetes.client import V1ConfigMap, V1ObjectMeta, V1Job, V1JobSpec, V1PodSpec, V1PodTemplateSpec, \
-  V1Container, V1VolumeMount, V1Volume, V1ConfigMapVolumeSource
+  V1Container, V1VolumeMount, V1Volume, V1ConfigMapVolumeSource, V1ResourceRequirements
 
 from k8_kat.auth.kube_broker import broker
 from wiz.core import utils
@@ -42,6 +42,7 @@ def _create_job(job_id, image, command, args):
       spec=V1JobSpec(
         template=V1PodTemplateSpec(
           spec=V1PodSpec(
+            restart_policy='Never',
             volumes=[
               V1Volume(
                 name='main',
@@ -52,15 +53,20 @@ def _create_job(job_id, image, command, args):
             ],
             containers=[
               V1Container(
+                name='main',
                 image=image,
                 command=command,
                 args=args,
                 volume_mounts=[
                   V1VolumeMount(
-                    name=job_id,
+                    name='main',
                     mount_path=dir_mount_path
                   )
-                ]
+                ],
+                resources=V1ResourceRequirements(
+                  requests=dict(cpu='0.1', memory='100M'),
+                  limits=dict(cpu='0.2', memory='150M')
+                )
               )
             ]
           )
