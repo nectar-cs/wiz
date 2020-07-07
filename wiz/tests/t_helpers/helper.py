@@ -23,8 +23,6 @@ def one_step_op_state(**kwargs):
   ])
 
 
-
-
 def mock_globals(ns, app_tedi_image=None):
   app_tedi_image = app_tedi_image or ci_tedi_name()
   if ns:

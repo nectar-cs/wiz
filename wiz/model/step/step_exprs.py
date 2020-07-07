@@ -2,7 +2,9 @@ from typing import Dict, Union, List
 
 from wiz.model.base.validator import Validator
 
+
 StrOrDict = Union[str, Dict[str, str]]
+
 
 def parse_key_list(root: Union[List, str], all_keys: List) -> List:
   if type(root) == list:
@@ -10,8 +12,7 @@ def parse_key_list(root: Union[List, str], all_keys: List) -> List:
   elif root == 'all':
     return all_keys
   else:
-    print("DANGER bad state_recall target ")
-    print(root)
+    print(f"DANGER bad state_recall target {root}")
     return []
 
 def parse_recalled_state(root: Dict, all_keys) -> List:

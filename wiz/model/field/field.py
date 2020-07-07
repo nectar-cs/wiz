@@ -8,6 +8,7 @@ from wiz.model.base.wiz_model import WizModel
 TARGET_CHART = 'chart'
 TARGET_INLINE = 'inline'
 TARGET_STATE = 'state'
+TARGET_TYPES = [TARGET_CHART, TARGET_INLINE, TARGET_STATE]
 
 class Field(WizModel):
 

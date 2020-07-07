@@ -5,7 +5,7 @@ from wiz.core.osr import OperationState, StepState
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import CommitOutcome
 from wiz.model.base.wiz_model import WizModel
-from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE
+from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE, TARGET_TYPES
 from wiz.model.step import step_exprs
 from wiz.model.step.exit_condition import ExitCondition
 from wiz.model.step.step_exprs import parse_recalled_state
@@ -113,7 +113,7 @@ class Step(WizModel):
       tedi_client.apply(rules=rules, inlines=inline_assigns.items())
       return CommitOutcome(**outcome, status='pending')
 
-    if self.runs_job:
+    if self.runs_job():
       job_id = self.begin_job(assigns, op_state)
       return CommitOutcome(**outcome, status='pending', job_id=job_id)
 
@@ -171,19 +171,22 @@ class Step(WizModel):
     return list(set(_flags))
 
   def partition_value_assigns(self, assigns, op_state) -> Tuple:
-    buckets = {TARGET_CHART: {}, TARGET_INLINE: {}, TARGET_STATE: {}}
+    buckets = {target_type: {} for target_type in TARGET_TYPES}
 
     for key, value in assigns.items():
       field = next(f for f in self.fields() if f.key == key)
-      finalizer = bucket_finalizer_mapping[key]
+      buckets[field.target][key] = value
+
+    for target_type in TARGET_TYPES:
+      worker = target_type_to_finalizer_mapping[target_type]
       # noinspection PyArgumentList
-      finalized_value = finalizer(self, assigns, op_state)
-      buckets[field.target][key] = finalized_value
+      buckets[target_type] = worker(self, buckets[target_type], op_state)
 
-    return tuple([tup[1] for tup in buckets.values()])
+    return tuple(buckets[target_type] for target_type in TARGET_TYPES)
 
 
-bucket_finalizer_mapping = {
+
+target_type_to_finalizer_mapping = {
   TARGET_CHART: Step.finalize_chart_values,
   TARGET_INLINE: Step.finalize_inline_values,
   TARGET_STATE: Step.finalize_state_values

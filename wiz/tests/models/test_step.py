@@ -19,18 +19,29 @@ class TestStep(Base.TestWizModel):
     return Step
 
   def test_compute_recalled_assigns(self):
-    recall_descriptors = [
-      dict(target='chart', included_keys='all', excluded_keys=['b']),
-      dict(target='inline', included_keys=['a, b'], excluded_keys=['b'])
-    ]
-
     op_state = helper.one_step_op_state(sass=dict(a='a', b='b', c='c'))
-    step = Step(dict(key='s', state_recalls=recall_descriptors))
+    recall_one = dict(target='chart', included_keys='all', excluded_keys=['b'])
+    recall_two = dict(target='inline', included_keys=['a', 'b'], excluded_keys=['b'])
+    step = Step(dict(key='s', state_recalls=[recall_one, recall_two]))
+
     chart_actual = step.compute_recalled_assigns('chart', op_state)
     inline_actual = step.compute_recalled_assigns('inline', op_state)
 
-    self.assertEqual(dict(a='a', b='b'), chart_actual)
+    self.assertEqual(dict(a='a', c='c'), chart_actual)
     self.assertEqual(dict(a='a'), inline_actual)
+
+
+  def test_partition_value_assigns(self):
+    chart_field = dict(key='f1', target='chart')
+    inline_field = dict(key='f2', target='inline')
+    state_field = dict(key='f3', target='state')
+
+    step = Step(dict(key='s', fields=[chart_field, inline_field, state_field]))
+    op_state = helper.one_step_op_state()
+    actual = step.partition_value_assigns(dict(f1='v1', f2='v2', f3='v3'), op_state)
+    self.assertEqual(({'f1': 'v1'}, {'f2': 'v2'}, {'f3': 'v3'}), actual)
+
+
 
 
 def names(res_list):
