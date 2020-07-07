@@ -45,7 +45,6 @@ class TestStep(Base.TestWizModel):
       self.assertEqual('pending', outcome['status'])
       self.assertEqual('id', outcome['job_id'])
 
-
   def test_compute_recalled_assigns(self):
     op_state = helper.one_step_op_state(sass=dict(a='a', b='b', c='c'))
     recall_one = dict(target='chart', included_keys='all', excluded_keys=['b'])
