@@ -124,7 +124,7 @@ class Step(WizModel):
     bundle = dict(status=self.compute_status(op_state))
     if self.runs_job:
       job_id = self.own_state(op_state).job_id
-      bundle['job_status'] = step_job_client.read_job_meta_status(job_id)
+      bundle['job_status'] = step_job_client.job_status_bundle(job_id)
     return bundle
 
   def compute_status(self, op_state: OperationState):

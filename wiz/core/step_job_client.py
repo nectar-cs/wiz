@@ -1,9 +1,9 @@
+import json
+from json import JSONDecodeError
 from typing import Dict, Union, List, Optional
 
-from k8_kat.res.pod.kat_pod import KatPod
-
-from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.job.kat_job import KatJob
+from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core import step_job_prep
 from wiz.core.wiz_globals import wiz_app
 
@@ -22,26 +22,34 @@ class JobStatus:
     self.logs = logs
 
 
-def find_job_cmap(job_id: str) -> KatMap:
-  return KatMap.find(job_id, wiz_app.ns)
-
-
 def find_job(job_id: str) -> KatJob:
   return KatJob.find(job_id, wiz_app.ns)
 
 
 def find_worker_pod(job_id) -> Optional[KatPod]:
-  job = find_job(job_id)
-  return next(iter(job.pods()), None)
+  return next(iter(find_job(job_id).pods()), None)
 
 
-def read_job_meta_status(job_id: str) -> Optional[JobStatus]:
-  shared_config_map = find_job_cmap(job_id)
-  if shared_config_map and shared_config_map.touch():
-    raw_status = shared_config_map.jget(step_job_prep.status_fname)
+def cleanup(job_id: str):
+  job =  find_job(job_id)
+  job.delete(wait_until_gone=False)
+
+
+def extract_status(pod: KatPod):
+  status_str = pod.shell_exec(f"cat {step_job_prep.status_fname}")
+  status_str = status_str.replace("\'", "\"") if status_str else None
+  try:
+    return json.loads((status_str or {}))
+  except JSONDecodeError:
+    return {}
+
+
+def job_status_bundle(job_id: str) -> Optional[JobStatus]:
+  pod = find_worker_pod(job_id)
+  if pod:
     pod = find_worker_pod(job_id)
-    logs = pod.raw_logs() if pod else []
-    return JobStatus(raw_status, logs)
+    logs = pod.log_lines() if pod else []
+    return JobStatus(extract_status(pod), logs)
   else:
     return None
 

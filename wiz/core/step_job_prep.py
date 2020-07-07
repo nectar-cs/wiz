@@ -10,8 +10,8 @@ from wiz.core.wiz_globals import wiz_app
 
 
 master_label = 'nectar-wiz-step'
-dir_mount_path = '/etc/wiz-step/'
-status_fname = 'status.json'
+dir_mount_path = '/etc/wiz-step'
+status_fname = '/tmp/wiz-job-status.json'
 params_fname = 'params.json'
 
 
@@ -25,7 +25,6 @@ def _create_shared_config_map(job_id, values: Dict):
       ),
       data={
         params_fname: json.dumps(values),
-        status_fname: json.dumps(dict())
       }
     )
   )
@@ -40,16 +39,18 @@ def _create_job(job_id, image, command, args):
         labels=dict(type=master_label)
       ),
       spec=V1JobSpec(
+        backoff_limit=0,
+        ttl_seconds_after_finished=15,
         template=V1PodTemplateSpec(
           spec=V1PodSpec(
             restart_policy='Never',
             volumes=[
               V1Volume(
-                name='main',
+                name='params',
                 config_map=V1ConfigMapVolumeSource(
                   name=job_id
                 )
-              )
+              ),
             ],
             containers=[
               V1Container(
@@ -58,10 +59,7 @@ def _create_job(job_id, image, command, args):
                 command=command,
                 args=args,
                 volume_mounts=[
-                  V1VolumeMount(
-                    name='main',
-                    mount_path=dir_mount_path
-                  )
+                  V1VolumeMount(name='params',mount_path=dir_mount_path)
                 ],
                 resources=V1ResourceRequirements(
                   requests=dict(cpu='0.1', memory='100M'),
