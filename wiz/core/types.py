@@ -2,6 +2,17 @@ from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 
+class JobStatusPart(TypedDict):
+  name: str
+  status: str
+  pct: Optional[int]
+
+
+class JobStatus(TypedDict):
+  parts: List[JobStatusPart]
+  logs: List[str]
+
+
 class ExitConditionStatus(TypedDict, total=False):
   key: str
   name: str
@@ -15,9 +26,10 @@ class ExitConditionStatuses(TypedDict, total=False):
   negative: List[ExitConditionStatus]
 
 
-class StepExitStatus(TypedDict, total=False):
+class StepRunningStatus(TypedDict, total=False):
   status: str
   condition_statuses: ExitConditionStatuses
+  job_status: JobStatus
 
 
 class CommitOutcome(TypedDict, total=False):

@@ -2,7 +2,7 @@ from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client, step_job_prep, utils
 from wiz.core.osr import OperationState, StepState
-from wiz.core.types import CommitOutcome, StepExitStatus
+from wiz.core.types import CommitOutcome, StepRunningStatus
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE, TARGET_TYPES
@@ -41,11 +41,11 @@ class Step(WizModel):
     return self.config.get('resource_apply_filter', [])
 
   @property
-  def next_step_descriptor(self):
+  def next_step_descriptor(self) -> Union[Dict, str]:
     return self.config.get('next')
 
   @property
-  def job_descriptor(self):
+  def job_descriptor(self) -> Dict:
     return self.config.get('job', {})
 
   def next_step_id(self, values: Dict[str, str]) -> str:
@@ -61,15 +61,14 @@ class Step(WizModel):
   def field(self, key) -> Field:
     return self.load_list_child('fields', Field, key)
 
-  def sanitize_field_assigns(self, values: Dict[str, any]):
+  def sanitize_field_assigns(self, values: Dict[str, any]) -> Dict:
     transform = lambda k: self.field(k).sanitize_value(values[k])
     return {key: transform(key) for key, value in values.items()}
 
   def res_selectors(self) -> List[ResMatchRule]:
     return [ResMatchRule(obj) for obj in self.res_selector_descs]
 
-  # noinspection PyMethodMayBeStatic,PyUnusedLocal
-  def gen_job_params(self, values, op_state):
+  def gen_job_params(self, values, op_state) -> Dict:
     return values
 
   def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
@@ -92,7 +91,7 @@ class Step(WizModel):
   def finalize_state_values(self, assigns: Dict, op_state: OperationState):
     return self.sanitize_field_assigns(assigns)
 
-  def begin_job(self, values, op_state) -> str:
+  def begin_job(self, values, op_state: OperationState) -> str:
     image = self.job_descriptor.get('image', 'busybox')
     command = self.job_descriptor.get('command')
     args = self.job_descriptor.get('args', [])
@@ -119,7 +118,7 @@ class Step(WizModel):
 
     return CommitOutcome(**outcome, status='positive')
 
-  def compute_status(self, op_state: OperationState) -> StepExitStatus:
+  def compute_status(self, op_state: OperationState) -> StepRunningStatus:
     from wiz.model.step.step_status_computer import StepStatusComputer
     computer = StepStatusComputer(self, op_state)
     return computer.compute_status()

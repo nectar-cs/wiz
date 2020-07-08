@@ -1,39 +1,36 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import List, Optional, Dict
+from typing import List
 
 from k8_kat.utils.main.utils import deep_merge
-from wiz.core.types import CommitOutcome, StepExitStatus
+from wiz.core.types import CommitOutcome, StepRunningStatus
 
 
 class StepState:
   def __init__(self, **kwargs):
     self.stage_id = kwargs.get('stage_id')
     self.step_id = kwargs.get('step_id')
-    self.started_at = kwargs.get('started_at')
-    self.commit_outcome = None
-    self.commit_reason = None
+    self.started_at = kwargs.get('started_at', datetime.now())
+    self.commit_outcome: CommitOutcome = {}
+    self.running_status: StepRunningStatus = {}
     self.committed_at = None
-    self.chart_assigns: Optional[Dict] = kwargs.get('chart_assigns', {})
-    self.state_assigns: Optional[Dict] = kwargs.get('state_assigns', {})
-    self.exit_condition_status = dict(positive={}, negative={})
     self.terminated_at = None
     self.outcome = None
     self.job_id = None
-    self.exist_code = None
     self.job_logs = []
 
-  def patch_committed(self, com_outcome: CommitOutcome):
+  def patch_committed(self, commit_outcome: CommitOutcome):
     self.committed_at = datetime.now()
-    self.commit_outcome = com_outcome.get('status')
-    self.commit_reason = com_outcome.get('reason')
-    self.chart_assigns = deepcopy(com_outcome.get('chart_assigns'))
-    self.state_assigns = deepcopy(com_outcome.get('state_assigns'))
-    self.job_id = com_outcome.get('job_id')
+    self.commit_outcome = deepcopy(commit_outcome)
+    self.job_id = commit_outcome.get('job_id')
 
-  def patch_terminated(self, outcome, logs=None):
-    self.outcome = outcome
-    self.job_logs = logs
+  def patch_pending(self, status: StepRunningStatus):
+    self.running_status = status
+
+  def patch_terminated(self, status: StepRunningStatus):
+    self.running_status = status
+    self.outcome = status['status']
+    self.terminated_at = datetime.now()
 
   def belongs_to_step(self, step_id, stage_id):
     return self.step_id == step_id and \
@@ -47,20 +44,19 @@ class StepState:
 
 
 class OperationState:
-
   def __init__(self, **kwargs):
     self.osr_id = kwargs.get('id')
     self.operation_id = kwargs.get('operation_id')
     self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
-  def find_or_create(cls, osr_id, operation_id):
+  def find_or_create(cls, osr_id: str, operation_id: str):
     matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
-    existing = next(matcher, None)
-    if not existing:
-      existing = OperationState(id=osr_id, operation_id=operation_id)
-      operation_states.append(existing)
-    return existing
+    instance = next(matcher, None)
+    if not instance:
+      instance = OperationState(id=osr_id, operation_id=operation_id)
+      operation_states.append(instance)
+    return instance
 
   def is_tracked(self):
     return self.osr_id is not None
@@ -72,17 +68,20 @@ class OperationState:
       started_at=datetime.now()
     ))
 
-  def record_step_committed(self, stage_id, step_id, outcome: CommitOutcome):
+  def record_step_committed(self, stage_id, step_id, commit_outcome: CommitOutcome):
     step_state = self.find_step_record(stage_id, step_id)
     if step_state:
-      step_state.patch_committed(outcome)
+      step_state.patch_committed(commit_outcome)
 
-  def record_step_terminated(self, stage_id, step_id, outcome, job_outcome=None):
-    existing = self.find_step_record(stage_id, step_id)
-    existing.patch_terminated(outcome, job_outcome)
+  def record_step_terminated(self, stage_id, step_id, status: StepRunningStatus):
+    step_state = self.find_step_record(stage_id, step_id)
+    if step_state:
+      step_state.patch_terminated(status)
 
-  def record_step_status_updated(self, stage_id, step_id, status: StepExitStatus):
-    pass
+  def record_step_pending(self, stage_id, step_id, status: StepRunningStatus):
+    step_state = self.find_step_record(stage_id, step_id)
+    if step_state:
+      step_state.patch_pending(status)
 
   def find_step_record(self, stage_id, step_id):
     predicate = lambda so: so.belongs_to_step(stage_id, step_id)
@@ -92,8 +91,9 @@ class OperationState:
   def bank(self):
     merged = {}
     for step_record in self.step_states:
-      merged = deep_merge(merged, step_record.state_assigns)
-    return merged
+      source = step_record.commit_outcome or {}
+      merged = deep_merge(merged, source.get('state_assigns'))
+    return deepcopy(merged)
 
 
 operation_states: List[OperationState] = []

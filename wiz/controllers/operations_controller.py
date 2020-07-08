@@ -84,9 +84,9 @@ def step_status(operation_id, stage_id, step_id):
   status_word = status_bundle['status']
   if op_state.is_tracked():
     if status_word == 'pending':
-      op_state.record_step_status_updated(stage_id, step_id, status_word)
+      op_state.record_step_pending(stage_id, step_id, status_bundle)
     else:
-      op_state.record_step_terminated(stage_id, step_id, status_word)
+      op_state.record_step_terminated(stage_id, step_id, status_bundle)
   return jsonify(data=status_bundle)
 
 

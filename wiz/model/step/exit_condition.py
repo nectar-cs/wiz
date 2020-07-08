@@ -1,9 +1,7 @@
 from typing import Optional
 
-from k8_kat.res.config_map.kat_map import KatMap
-
+from k8_kat.res.base.kat_res import KatRes
 from wiz.core import step_job_client
-from wiz.core.wiz_globals import wiz_app
 from wiz.model.base import res_selector
 from wiz.model.base.wiz_model import WizModel
 
@@ -43,7 +41,7 @@ class ExitCondition(WizModel):
 
   def eval_ternary_statuses(self, selector_config, match_type, check_against) -> bool:
     res_list = res_selector.res_sel_to_res(selector_config)
-    self.resources_considered = res_list
+    self.resources_considered = list(map(KatRes.sig, res_list))
     ternary_statuses = [r.ternary_status() for r in res_list]
 
     if match_type == 'all':

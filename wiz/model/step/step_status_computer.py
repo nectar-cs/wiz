@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Callable
 
-from wiz.core.types import ExitConditionStatus, StepExitStatus, ExitConditionStatuses
+from wiz.core import step_job_client
+from wiz.core.types import ExitConditionStatus, StepRunningStatus, ExitConditionStatuses, JobStatus
 from wiz.model.step.exit_condition import ExitCondition
 from wiz.model.step.step import Step
 
@@ -8,7 +9,7 @@ POS = 'positive'
 NEG = 'negative'
 TEC = ExitCondition
 TECS = ExitConditionStatus
-TSES = StepExitStatus
+TSRS = StepRunningStatus
 
 class StepStatusComputer:
 
@@ -17,10 +18,11 @@ class StepStatusComputer:
     self.op_state = op_state
     self.own_state = step.find_own_state(op_state)
 
-  def find_saved_cond_status(self, _type: str, cond_id: str) -> Optional[TECS]:
+  def find_saved_cond_status(self, charge: str, cond_id: str) -> Optional[TECS]:
     if self.own_state:
-      root = self.own_state.exit_condition_status.get(_type)
-      return root.get(cond_id) if root else None
+      root = self.own_state.running_status or {}
+      root = root.get('condition_statuses', {}).get(charge, {})
+      return root.get(cond_id)
     return None
 
   def eval_cond(self, condition: TEC) -> TECS:
@@ -42,7 +44,18 @@ class StepStatusComputer:
         return cond_statuses
     return cond_statuses
 
-  def compute_status(self) -> StepExitStatus:
+  def compute_status(self) -> StepRunningStatus:
+    return StepRunningStatus(
+      **self.compute_job_status(),
+      job_status=self.compute_job_status()
+    )
+
+  def compute_job_status(self) -> Optional[JobStatus]:
+    if self.own_state and self.own_state.job_id:
+      return step_job_client.compute_job_status(self.own_state.job_id)
+    return None
+
+  def compute_conditions_status(self) -> StepRunningStatus:
     pos_conds = self.load_type_exit_conds(POS)
     neg_conds = self.load_type_exit_conds(NEG)
     pos_cond_statuses = self.eval_conds(POS, pos_conds)
@@ -88,8 +101,8 @@ def any_condition_met(conditions: List[TECS]) -> bool:
   return True in conditions
 
 
-def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSES:
-  return StepExitStatus(
+def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSRS:
+  return StepRunningStatus(
     status=status,
     condition_statuses=ExitConditionStatuses(
       positive=pos,
@@ -106,7 +119,7 @@ halters: Dict[str, Callable[[bool], bool]] = dict(
 
 default_some_res_exit_conds: Dict[str, str] = {
   POS: 'nectar.exit_conditions.select_resources_positive',
-  NEG: 'nectar.exit_conditions.select_resources_positive',
+  NEG: 'nectar.exit_conditions.select_resources_negative',
 }
 
 

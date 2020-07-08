@@ -2,24 +2,29 @@ import json
 from json import JSONDecodeError
 from typing import Dict, Union, List, Optional
 
+from typing_extensions import TypedDict
+
 from k8_kat.res.job.kat_job import KatJob
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core import step_job_prep
+from wiz.core.types import JobStatus, JobStatusPart
 from wiz.core.wiz_globals import wiz_app
 
 
-class JobStatusPart:
-  def __init__(self, raw: Dict[str, str], index: int):
-    self.name = raw.get('name', f'Job Part {index + 1}')
-    self.status = raw.get('status', 'Working')
-    self.pct = int(raw.get('pct')) if raw.get('pct') else None
+def _fmt_raw_status_part(raw: Dict, index: int) -> JobStatusPart:
+  return JobStatusPart(
+    name=raw.get('name', f'Job Part {index + 1}'),
+    status=raw.get('status', 'Working'),
+    pct = int(raw.get('pct')) if raw.get('pct') else None
+  )
 
 
-class JobStatus:
-  def __init__(self, raw_dump: Union[Dict, List[Dict]], logs):
-    raw_parts = raw_dump if type(raw_dump) == list else [raw_dump]
-    self.parts = [JobStatusPart(part, i) for (i, part) in enumerate(raw_parts)]
-    self.logs = logs
+def _fmt_raw_status(raw_dump: Dict, logs) -> JobStatus:
+  raw_parts = raw_dump if type(raw_dump) == list else [raw_dump]
+  return JobStatus(
+    parts=list(map(_fmt_raw_status_part, enumerate(raw_parts))),
+    logs=logs
+  )
 
 
 def find_job(job_id: str) -> KatJob:
@@ -49,7 +54,7 @@ def compute_job_status(job_id: str) -> Optional[JobStatus]:
   if pod:
     pod = find_worker_pod(job_id)
     logs = pod.log_lines() if pod else []
-    return JobStatus(extract_status(pod), logs)
+    return _fmt_raw_status(extract_status(pod), logs)
   else:
     return None
 
