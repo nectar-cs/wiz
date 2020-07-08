@@ -56,8 +56,7 @@ class ResMatchRule:
         fields=field_selectors
       )
     else:
-      print(f"{self.kind} unsupported by K8Kat, kubectl fallback")
-      print("Except kubectl fallback not implemented either :/, returning []")
+      print(f"Warn: {self.kind} unsupported by K8Kat, returning []!")
       return []
 
 

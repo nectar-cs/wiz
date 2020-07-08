@@ -61,6 +61,9 @@ class OperationState:
       operation_states.append(existing)
     return existing
 
+  def is_tracked(self):
+    return self.osr_id is not None
+
   def record_step_started(self, step_id, stage_id):
     self.step_states.append(StepState(
       step_id=step_id,
@@ -69,8 +72,9 @@ class OperationState:
     ))
 
   def record_step_committed(self, stage_id, step_id, outcome: CommitOutcome):
-    existing = self.find_step_record(stage_id, step_id)
-    existing.patch_committed(outcome)
+    step_state = self.find_step_record(stage_id, step_id)
+    if step_state:
+      step_state.patch_committed(outcome)
 
   def record_step_terminated(self, stage_id, step_id, outcome, job_outcome=None):
     existing = self.find_step_record(stage_id, step_id)

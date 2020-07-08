@@ -28,7 +28,7 @@ class Field(WizModel):
 
   @property
   def target(self):
-    return self.config.get('target', 'chart')
+    return self.config.get('target', TARGET_CHART)
 
   @property
   def options_source(self):

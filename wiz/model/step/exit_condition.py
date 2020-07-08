@@ -33,9 +33,12 @@ class ExitCondition(WizModel):
       return None
 
   def eval_for_job_exec(self, step_state) -> bool:
-    check_against = self.config.get('check_against', 'Succeeded')
-    kat_job = step_job_client.find_job(step_state.job_id)
-    return kat_job.pods()[0].phase.status == check_against
+    if step_state:
+      check_against = self.config.get('check_against', 'Succeeded')
+      kat_job = step_job_client.find_job(step_state.job_id)
+      return kat_job.pods()[0].phase.status == check_against
+    else:
+      return False
 
 def eval_ternary_statuses(selector_config, match_type, check_against) -> bool:
   res_list = res_selector.res_sel_to_res(selector_config)

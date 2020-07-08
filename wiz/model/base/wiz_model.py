@@ -1,4 +1,4 @@
-from typing import Type, Optional, Dict, Union
+from typing import Type, Optional, Dict, Union, List
 
 from wiz.core.wiz_globals import wiz_app
 
@@ -20,10 +20,13 @@ class WizModel:
 
   def load_children(self, config_key, child_class):
     descriptor_list = self.config.get(config_key, [])
-    if not isinstance(descriptor_list, list):
-      descriptor_list = [descriptor_list]
-    transform = lambda obj: key_or_dict_to_child(obj, child_class, self)
-    return [transform(obj) for obj in descriptor_list]
+    return self._load_children(descriptor_list, child_class)
+
+  def _load_children(self, descriptor_list: List, child_class):
+    is_list = isinstance(descriptor_list, list)
+    descriptor_list = descriptor_list if is_list else [descriptor_list]
+    to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
+    return list(map(to_child, descriptor_list))
 
   def load_list_child(self, config_key, child_class, child_key):
     descriptor_list = self.config.get(config_key, [])

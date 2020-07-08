@@ -109,8 +109,8 @@ class Step(WizModel):
     if len(chart_assigns):
       tedi_client.commit_values(chart_assigns.items())
 
-    if len(chart_assigns) or len(inline_assigns):
-      rules = [ResMatchRule(rule_expr) for rule_expr in self.res_selector_descs]
+    rules = [ResMatchRule(rule_expr) for rule_expr in self.res_selector_descs]
+    if len(rules):
       tedi_client.apply(rules=rules, inlines=inline_assigns.items())
       return CommitOutcome(**outcome, status='pending')
 
@@ -120,21 +120,22 @@ class Step(WizModel):
 
     return CommitOutcome(**outcome, status='positive')
 
-  def status_bundle(self, op_state: OperationState):
-    bundle = dict(status=self.compute_status(op_state))
-    if self.runs_job:
+  def compute_status_bundle(self, op_state: OperationState):
+    bundle = self.compute_status(op_state)
+    own_state = self.find_own_state(op_state)
+    if own_state and self.runs_job:
       job_id = self.find_own_state(op_state).job_id
       bundle['job_status'] = step_job_client.job_status_bundle(job_id)
     return bundle
 
-  def compute_status(self, op_state: OperationState):
+  def compute_status(self, op_state: OperationState) -> Dict:
     root = self.config.get('exit', {})
     own_state = self.find_own_state(op_state)
 
-    defaults = self.default_exit_conditions()
-    parse = lambda k, d: self.load_child(ExitCondition, root.get(k, d))
-    success_conds: List[ExitCondition] = parse('positive', defaults[0])
-    failure_conds: List[ExitCondition] = parse('negative', defaults[1])
+    pos_default, neg_default = self.default_exit_conditions()
+    load = lambda k, bkp: self._load_children(root.get(k, bkp), ExitCondition)
+    success_conds: List[ExitCondition] = load('positive', pos_default)
+    failure_conds: List[ExitCondition] = load('negative', neg_default)
 
     for success_cond in success_conds:
       if success_cond.evaluate(own_state):
@@ -152,7 +153,12 @@ class Step(WizModel):
 
   def default_exit_conditions(self) -> Tuple[List, List]:
     if self.applies_manifest():
-      return default_res_exit_conds
+      def_pos_conds, def_neg_conds = default_res_exit_conds
+      if self.res_selector_descs:
+        custom_pos_cond = ExitCondition.inflate(default_some_res_exit_conds)
+        custom_pos_cond.config['selector'] = self.res_selector_descs #todo gross
+        return [custom_pos_cond.config], def_neg_conds
+      return def_pos_conds, def_neg_conds
     elif self.runs_job():
       return default_job_exit_conds
     else:
@@ -163,7 +169,7 @@ class Step(WizModel):
            ss.stage_id == self.parent.key
 
   def find_own_state(self, op_state: OperationState) -> Optional[StepState]:
-    return next(filter(self.is_state_owner, op_state.step_states))
+    return next(filter(self.is_state_owner, op_state.step_states), None)
 
   def flags(self):
     _flags: List[str] = self.config.get('flags', [])
@@ -194,6 +200,10 @@ target_type_to_finalizer_mapping = {
   TARGET_INLINE: Step.finalize_inline_values,
   TARGET_STATE: Step.finalize_state_values
 }
+
+
+default_some_res_exit_conds = \
+  "nectar.exit_conditions.select_resources_positive"
 
 
 default_res_exit_conds = (

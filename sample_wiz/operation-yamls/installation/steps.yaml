@@ -22,6 +22,8 @@ fields:
   - hub.quotas.limits.cpu
   - hub.quotas.limits.memory
 resource_apply_filter: 'ResourceQuota:*'
+exit:
+  success:
 
 
 --- #---------------------------STORAGE-----------------------------
