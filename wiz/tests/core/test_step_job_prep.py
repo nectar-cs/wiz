@@ -22,7 +22,7 @@ class TestStepJobPrep(ClusterTest):
     time.sleep(2)
 
     status_dict = step_job_client.extract_status(pod)
-    bundle = step_job_client.job_status_bundle(job_id)
+    bundle = step_job_client.compute_job_status(job_id)
     expected = dict(name='foo', status='bar', pct=50)
     self.assertEqual(expected, status_dict)
 

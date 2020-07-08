@@ -80,10 +80,13 @@ def step_stage(operation_id, stage_id, step_id):
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   op_state = find_osr(operation_id)
-  status_bundle = step.compute_status_bundle(op_state)
+  status_bundle = step.compute_status(op_state)
   status_word = status_bundle['status']
-  if op_state.is_tracked() and not status_word == 'pending':
-    op_state.record_step_terminated(stage_id, step_id, status_word)
+  if op_state.is_tracked():
+    if status_word == 'pending':
+      op_state.record_step_status_updated(stage_id, step_id, status_word)
+    else:
+      op_state.record_step_terminated(stage_id, step_id, status_word)
   return jsonify(data=status_bundle)
 
 

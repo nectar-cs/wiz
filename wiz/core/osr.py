@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional, Dict
 
 from k8_kat.utils.main.utils import deep_merge
-from wiz.core.types import CommitOutcome
+from wiz.core.types import CommitOutcome, StepExitStatus
 
 
 class StepState:
@@ -16,6 +16,7 @@ class StepState:
     self.committed_at = None
     self.chart_assigns: Optional[Dict] = kwargs.get('chart_assigns', {})
     self.state_assigns: Optional[Dict] = kwargs.get('state_assigns', {})
+    self.exit_condition_status = dict(positive={}, negative={})
     self.terminated_at = None
     self.outcome = None
     self.job_id = None
@@ -79,6 +80,9 @@ class OperationState:
   def record_step_terminated(self, stage_id, step_id, outcome, job_outcome=None):
     existing = self.find_step_record(stage_id, step_id)
     existing.patch_terminated(outcome, job_outcome)
+
+  def record_step_status_updated(self, stage_id, step_id, status: StepExitStatus):
+    pass
 
   def find_step_record(self, stage_id, step_id):
     predicate = lambda so: so.belongs_to_step(stage_id, step_id)

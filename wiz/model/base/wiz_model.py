@@ -1,6 +1,9 @@
-from typing import Type, Optional, Dict, Union, List
+from typing import Type, Optional, Dict, Union, List, TypeVar
 
 from wiz.core.wiz_globals import wiz_app
+
+
+T = TypeVar('T', bound='WizModel')
 
 
 class WizModel:
@@ -20,9 +23,9 @@ class WizModel:
 
   def load_children(self, config_key, child_class):
     descriptor_list = self.config.get(config_key, [])
-    return self._load_children(descriptor_list, child_class)
+    return self.load_related(descriptor_list, child_class)
 
-  def _load_children(self, descriptor_list: List, child_class):
+  def load_related(self, descriptor_list: List, child_class):
     is_list = isinstance(descriptor_list, list)
     descriptor_list = descriptor_list if is_list else [descriptor_list]
     to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
@@ -54,7 +57,7 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls, key_or_dict: Union[str, Dict]) -> Optional['WizModel']:
+  def inflate(cls: Type[T], key_or_dict: Union[str, Dict]) -> Optional[T]:
     if isinstance(key_or_dict, str):
       return cls.inflate_with_key(key_or_dict)
     elif isinstance(key_or_dict, Dict):

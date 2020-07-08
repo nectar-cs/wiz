@@ -44,7 +44,7 @@ def extract_status(pod: KatPod):
     return {}
 
 
-def job_status_bundle(job_id: str) -> Optional[JobStatus]:
+def compute_job_status(job_id: str) -> Optional[JobStatus]:
   pod = find_worker_pod(job_id)
   if pod:
     pod = find_worker_pod(job_id)

@@ -1,13 +1,12 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from wiz.core import tedi_client, step_job_client, step_job_prep, utils
+from wiz.core import tedi_client, step_job_prep, utils
 from wiz.core.osr import OperationState, StepState
+from wiz.core.types import CommitOutcome, StepExitStatus
 from wiz.model.base.res_match_rule import ResMatchRule
-from wiz.core.types import CommitOutcome
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE, TARGET_TYPES
 from wiz.model.step import step_exprs
-from wiz.model.step.exit_condition import ExitCondition
 from wiz.model.step.step_exprs import parse_recalled_state
 
 
@@ -120,54 +119,10 @@ class Step(WizModel):
 
     return CommitOutcome(**outcome, status='positive')
 
-  def compute_status_bundle(self, op_state: OperationState):
-    bundle = self.compute_status(op_state)
-    own_state = self.find_own_state(op_state)
-    if own_state and self.runs_job:
-      job_id = self.find_own_state(op_state).job_id
-      bundle['job_status'] = step_job_client.job_status_bundle(job_id)
-    return bundle
-
-  def compute_status(self, op_state: OperationState) -> Dict:
-    resources_considered = []
-    root = self.config.get('exit', {})
-    own_state = self.find_own_state(op_state)
-
-    pos_default, neg_default = self.default_exit_conditions()
-    load = lambda k, bkp: self._load_children(root.get(k, bkp), ExitCondition)
-    success_conds: List[ExitCondition] = load('positive', pos_default)
-    failure_conds: List[ExitCondition] = load('negative', neg_default)
-
-    for success_cond in success_conds:
-      if success_cond.evaluate(own_state):
-        return dict(status='positive')
-      resources_considered += success_cond.resources_considered
-
-    for failure_cond in failure_conds:
-      if failure_cond.evaluate(own_state):
-        return dict(
-          status='negative',
-          error=failure_cond.title,
-          reason=failure_cond.reason
-        )
-      resources_considered += failure_cond.resources_considered
-
-    ser_res_considered = lambda r: f'{r.kind}:{r.name}'
-    resources_considered = list(map(ser_res_considered, resources_considered))
-    return dict(status='pending', resources_considered=resources_considered)
-
-  def default_exit_conditions(self) -> Tuple[List, List]:
-    if self.applies_manifest():
-      def_pos_conds, def_neg_conds = default_res_exit_conds
-      if self.res_selector_descs:
-        custom_pos_cond = ExitCondition.inflate(default_some_res_exit_conds)
-        custom_pos_cond.config['selector'] = self.res_selector_descs #todo gross
-        return [custom_pos_cond.config], def_neg_conds
-      return def_pos_conds, def_neg_conds
-    elif self.runs_job():
-      return default_job_exit_conds
-    else:
-      return [], []
+  def compute_status(self, op_state: OperationState) -> StepExitStatus:
+    from wiz.model.step.step_status_computer import StepStatusComputer
+    computer = StepStatusComputer(self, op_state)
+    return computer.compute_status()
 
   def is_state_owner(self, ss: StepState) -> bool:
     return ss.step_id == self.key and \
@@ -205,19 +160,3 @@ target_type_to_finalizer_mapping = {
   TARGET_INLINE: Step.finalize_inline_values,
   TARGET_STATE: Step.finalize_state_values
 }
-
-
-default_some_res_exit_conds = \
-  "nectar.exit_conditions.select_resources_positive"
-
-
-default_res_exit_conds = (
-  ['nectar.exit_conditions.all_resources_positive'],
-  ['nectar.exit_conditions.any_resource_negative']
-)
-
-
-default_job_exit_conds = (
-  ['nectar.exit_conditions.job_in_succeeded_phase'],
-  ['nectar.exit_conditions.job_in_failed_phase']
- )

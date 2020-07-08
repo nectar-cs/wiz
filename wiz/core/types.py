@@ -1,6 +1,23 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
+
+class ExitConditionStatus(TypedDict, total=False):
+  key: str
+  name: str
+  met: bool
+  reason: Optional[str]
+  resources_considered: List[str]
+
+
+class ExitConditionStatuses(TypedDict, total=False):
+  positive: List[ExitConditionStatus]
+  negative: List[ExitConditionStatus]
+
+
+class StepExitStatus(TypedDict, total=False):
+  status: str
+  condition_statuses: ExitConditionStatuses
 
 
 class CommitOutcome(TypedDict, total=False):
