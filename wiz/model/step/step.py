@@ -129,6 +129,7 @@ class Step(WizModel):
     return bundle
 
   def compute_status(self, op_state: OperationState) -> Dict:
+    resources_considered = []
     root = self.config.get('exit', {})
     own_state = self.find_own_state(op_state)
 
@@ -140,6 +141,7 @@ class Step(WizModel):
     for success_cond in success_conds:
       if success_cond.evaluate(own_state):
         return dict(status='positive')
+      resources_considered += success_cond.resources_considered
 
     for failure_cond in failure_conds:
       if failure_cond.evaluate(own_state):
@@ -148,8 +150,11 @@ class Step(WizModel):
           error=failure_cond.title,
           reason=failure_cond.reason
         )
+      resources_considered += failure_cond.resources_considered
 
-    return dict(status='pending')
+    ser_res_considered = lambda r: f'{r.kind}:{r.name}'
+    resources_considered = list(map(ser_res_considered, resources_considered))
+    return dict(status='pending', resources_considered=resources_considered)
 
   def default_exit_conditions(self) -> Tuple[List, List]:
     if self.applies_manifest():

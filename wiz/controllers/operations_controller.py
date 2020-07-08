@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 
 from wiz.core.osr import OperationState
-from wiz.core.wiz_globals import wiz_app
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.prerequisite.prerequisite import Prerequisite
