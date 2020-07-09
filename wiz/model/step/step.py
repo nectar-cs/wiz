@@ -9,6 +9,8 @@ from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLI
 from wiz.model.step import step_exprs
 from wiz.model.step.step_exprs import parse_recalled_state
 
+OOS = Optional[OperationState]
+
 
 class Step(WizModel):
 
@@ -118,9 +120,10 @@ class Step(WizModel):
 
     return CommitOutcome(**outcome, status='positive')
 
-  def compute_status(self, op_state: OperationState) -> StepRunningStatus:
+  def compute_status(self, op_state: OOS = None) -> StepRunningStatus:
     from wiz.model.step.step_status_computer import StepStatusComputer
-    computer = StepStatusComputer(self, op_state)
+    own_state = self.find_own_state(op_state) if op_state else None
+    computer = StepStatusComputer(self, own_state)
     return computer.compute_status()
 
   def is_state_owner(self, ss: StepState) -> bool:

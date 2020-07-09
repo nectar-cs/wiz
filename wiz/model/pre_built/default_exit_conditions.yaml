@@ -1,7 +1,6 @@
 --- # VARIABLE RESOURCES POS + NEG
 
 kind: ExitCondition
-type: resource_ternary_statuses
 key: nectar.exit_conditions.select_resources_positive
 title: All relevant resources have a positive status
 selector: []
@@ -11,7 +10,6 @@ check_against: positive
 ---
 
 kind: ExitCondition
-type: resource_ternary_statuses
 key: nectar.exit_conditions.select_resources_negative
 title: Any relevant resource has a negative status
 selector: []
@@ -25,19 +23,17 @@ check_against: negative
 
 
 
-
 kind: ExitCondition
-type: resource_ternary_statuses
 key: nectar.exit_conditions.select_resources_positive
 title: All resources have a positive status
 selector: ["*:*"]
 match: all
+property: ternary_status
 check_against: positive
 
 ---
 
 kind: ExitCondition
-type: resource_ternary_statuses
 key: nectar.exit_conditions.select_resources_positive
 title: Any resource has a negative status
 selector: ["*:*"]
@@ -53,17 +49,25 @@ check_against: negative
 
 
 kind: ExitCondition
-type: job_pod_phase
 key: nectar.exit_conditions.job_in_failed_phase
 title: The steps's Job is in the Failed phase
-check_against: Failed
+property: has_succeeded
+check_against: True
+selector:
+  kind: Pod
+  labels:
+    role: wiz-step-job
 
 
 ---
 
 
 kind: ExitCondition
-type: job_pod_phase
 key: nectar.exit_conditions.any_resource_negative
 title: The steps's Job is in the Succeeded phase
-check_against: Suceeded
+property: has_failed
+check_against: True
+selector:
+  kind: Pod
+  labels:
+    role: wiz-step-job

@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Callable
 
 from wiz.core import step_job_client
+from wiz.core.osr import StepState
 from wiz.core.types import ExitConditionStatus, StepRunningStatus, ExitConditionStatuses, JobStatus
 from wiz.model.step.exit_condition import ExitCondition
 from wiz.model.step.step import Step
@@ -11,12 +12,12 @@ TEC = ExitCondition
 TECS = ExitConditionStatus
 TSRS = StepRunningStatus
 
+
 class StepStatusComputer:
 
-  def __init__(self, step: Step, op_state):
-    self.step = step
-    self.op_state = op_state
-    self.own_state = step.find_own_state(op_state)
+  def __init__(self, step: Step, own_state: StepState):
+    self.step: Step = step
+    self.own_state: Optional[StepState] = own_state
 
   def find_saved_cond_status(self, charge: str, cond_id: str) -> Optional[TECS]:
     if self.own_state:
@@ -46,18 +47,18 @@ class StepStatusComputer:
 
   def compute_status(self) -> StepRunningStatus:
     return StepRunningStatus(
-      **self.compute_job_status(),
+      **self.compute_conditions_status(),
       job_status=self.compute_job_status()
     )
 
   def compute_job_status(self) -> Optional[JobStatus]:
     if self.own_state and self.own_state.job_id:
       return step_job_client.compute_job_status(self.own_state.job_id)
-    return None
+    return {}
 
   def compute_conditions_status(self) -> StepRunningStatus:
-    pos_conds = self.load_type_exit_conds(POS)
-    neg_conds = self.load_type_exit_conds(NEG)
+    pos_conds = self.load_exit_conds(POS)
+    neg_conds = self.load_exit_conds(NEG)
     pos_cond_statuses = self.eval_conds(POS, pos_conds)
 
     if all_conditions_met(pos_cond_statuses):
@@ -69,7 +70,7 @@ class StepStatusComputer:
 
     return gen_step_exit_status('pending', pos_cond_statuses, neg_cond_statuses)
 
-  def load_type_exit_conds(self, charge) -> List[TEC]:
+  def load_exit_conds(self, charge) -> List[TEC]:
     explicit = self.step.config.get('exit', {}).get(charge)
     if explicit is not None:
       return self.step.load_related(explicit, ExitCondition)
@@ -113,7 +114,7 @@ def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSRS:
 
 halters: Dict[str, Callable[[bool], bool]] = dict(
   positive=lambda status: False,
-  negative=lambda status: status == True
+  negative=lambda status: status is True
 )
 
 

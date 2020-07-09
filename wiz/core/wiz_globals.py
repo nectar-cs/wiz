@@ -114,11 +114,8 @@ class WizApp:
     return matches[0] if len(matches) else None
 
   def clear(self):
-    self.configs = []
+    self.configs = default_configs()
     self.subclasses = []
 
 
 wiz_app = WizApp()
-
-
-

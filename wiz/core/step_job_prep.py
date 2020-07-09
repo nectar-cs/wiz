@@ -9,7 +9,7 @@ from wiz.core import utils
 from wiz.core.wiz_globals import wiz_app
 
 
-master_label = 'nectar-wiz-step'
+master_label = 'wiz-step-job'
 dir_mount_path = '/etc/wiz-step'
 status_fname = '/tmp/wiz-job-status.json'
 params_fname = 'params.json'
@@ -36,7 +36,7 @@ def _create_job(job_id, image, command, args):
     body=V1Job(
       metadata=V1ObjectMeta(
         name=job_id,
-        labels=dict(type=master_label)
+        labels=dict(role=master_label)
       ),
       spec=V1JobSpec(
         backoff_limit=0,
