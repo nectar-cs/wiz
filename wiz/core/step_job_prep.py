@@ -1,6 +1,8 @@
 import json
 from typing import Dict
 
+from k8_kat.res.job.kat_job import KatJob
+from k8_kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1ConfigMap, V1ObjectMeta, V1Job, V1JobSpec, V1PodSpec, V1PodTemplateSpec, \
   V1Container, V1VolumeMount, V1Volume, V1ConfigMapVolumeSource, V1ResourceRequirements
 
@@ -78,4 +80,5 @@ def create_and_run(image, command, args, values) -> str:
   job_id = utils.rand_str(string_len=10)
   _create_shared_config_map(job_id, values)
   _create_job(job_id, image, command, args)
+  KatJob.wait_until_exists(job_id, wiz_app.ns)
   return job_id

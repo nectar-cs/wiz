@@ -15,7 +15,7 @@ class TestStatusComputer(ClusterTest):
     pass
 
   def test_compute_conditions_status_no_res(self):
-    wiz_app.ns_overwrite = 'ns1'
+    wiz_app.ns_overwrite, = ns_factory.request(1)
     actual = mk_step(raf='Pod:wont-be-there').compute_status()
     actual_pos = actual['condition_statuses']['positive']
     expected_pos_key = 'nectar.exit_conditions.select_resources_positive'

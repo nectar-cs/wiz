@@ -13,12 +13,15 @@ from wiz.core.wiz_globals import wiz_app
 def ci_tedi_name():
   return "gcr.io/nectar-bazaar/wiz-ci-tedi"
 
+
 def one_step_op_state(**kwargs):
   return OperationState(step_states=[
     StepState(
       **kwargs,
-      chart_assigns=kwargs.get('cass', {}),
-      state_assigns=kwargs.get('sass', {})
+      commit_outcome=dict(
+        chart_assigns=kwargs.get('cass', {}),
+        state_assigns=kwargs.get('sass', {})
+      )
     ),
   ])
 

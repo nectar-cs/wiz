@@ -10,7 +10,9 @@ from wiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLI
 from wiz.model.step import step_exprs
 from wiz.model.step.step_exprs import parse_recalled_state
 
-OOS = Optional[OperationState]
+TOS = OperationState
+TOOS = Optional[OperationState]
+TCO = CommitOutcome
 
 
 class Step(WizModel):
@@ -75,24 +77,24 @@ class Step(WizModel):
   def gen_job_params(self, values, op_state: OperationState) -> Dict:
     return values
 
-  def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
+  def compute_recalled_assigns(self, target: str, op_state: TOS) -> Dict:
     predicate = lambda d: d.get('target', 'chart') == target
     descriptors = filter(predicate, self.config.get('state_recalls', []))
-    state_assigns, state_keys = op_state.bank(), op_state.bank().keys()
-    gather_keys = lambda d: parse_recalled_state(d, state_keys)
+    state_assigns = op_state.state_assigns()
+    gather_keys = lambda d: parse_recalled_state(d, state_assigns.keys())
     recalled_keys = utils.flatten(map(gather_keys, descriptors))
-    return {key: state_assigns[key] for key in recalled_keys}
+    return {key: state_assigns.get(key) for key in recalled_keys}
 
-  def finalize_chart_values(self, assigns: Dict, op_state: OperationState):
+  def finalize_chart_values(self, assigns: Dict, op_state: TOS):
     recalled_from_state = self.compute_recalled_assigns('chart', op_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
-  def finalize_inline_values(self, assigns: Dict, op_state: OperationState):
+  def finalize_inline_values(self, assigns: Dict, op_state: TOS):
     recalled_from_state = self.compute_recalled_assigns('inline', op_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
   # noinspection PyUnusedLocal
-  def finalize_state_values(self, assigns: Dict, op_state: OperationState):
+  def finalize_state_values(self, assigns: Dict, op_state: TOS):
     return self.sanitize_field_assigns(assigns)
 
   def begin_job(self, values, op_state: OperationState) -> str:
@@ -102,16 +104,19 @@ class Step(WizModel):
     params = self.gen_job_params(values, op_state)
     return step_job_prep.create_and_run(image, command, args, params)
 
-  def commit(self, assigns: Dict, op_state: OperationState = None) -> CommitOutcome:
+  def commit(self, assigns: Dict, op_state: OperationState = None) -> TCO:
     op_state = op_state or OperationState()
     final_assigns = self.partition_value_assigns(assigns, op_state)
     chart_assigns, inline_assigns, state_assigns = final_assigns
-    outcome = CommitOutcome(chart_assigns=chart_assigns, state_assigns=state_assigns)
+    outcome = CommitOutcome(
+      chart_assigns=chart_assigns,
+      state_assigns=state_assigns
+    )
 
     if len(chart_assigns):
       tedi_client.commit_values(chart_assigns.items())
 
-    rules = [ResMatchRule(rule_expr) for rule_expr in self.res_selector_descs]
+    rules = list(map(ResMatchRule, self.res_selector_descs))
     if len(rules):
       tedi_client.apply(rules=rules, inlines=inline_assigns.items())
       return CommitOutcome(**outcome, status='pending')
@@ -122,7 +127,7 @@ class Step(WizModel):
 
     return CommitOutcome(**outcome, status='positive')
 
-  def compute_status(self, op_state: OOS = None) -> StepRunningStatus:
+  def compute_status(self, op_state: TOOS = None) -> StepRunningStatus:
     from wiz.model.step.step_status_computer import StepStatusComputer
     own_state = self.find_own_state(op_state) if op_state else None
     computer = StepStatusComputer(self, own_state)

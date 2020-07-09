@@ -30,7 +30,6 @@ class TestChartVariablesController(ClusterTest):
     self.assertEqual('success', json.loads(response.data).get('status'))
     self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
 
-
   def test_validate(self):
     field_dict = g_conf(k='f')
     configs = [g_conf(i='ChartVariable', k='foo', field=field_dict)]
@@ -45,7 +44,6 @@ class TestChartVariablesController(ClusterTest):
     response2 = app.test_client().post(endpoint, json=dict(value='bar'))
     body2 = json.loads(response2.data).get('data')
     self.assertEqual('valid', body2.get('status'))
-
 
   def test_index(self):
     helper.foo_bar_setup(self.ns)

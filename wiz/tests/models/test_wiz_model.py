@@ -1,4 +1,3 @@
-import unittest
 from typing import Type
 
 from wiz.core.wiz_globals import wiz_app
@@ -10,6 +9,7 @@ from wiz.tests.models.helpers import g_conf
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 SUBCLASSES: [WizModel] = [Operation, Step, Field]
+
 
 class Base:
   class TestWizModel(ClusterTest):
@@ -40,6 +40,7 @@ class Base:
       self.assertEqual('bar', inflated.info)
 
     def test_inflate_all(self):
+      wiz_app.configs = []
       wiz_app.add_configs([
         g_conf(k='a', i=self.kind),
         g_conf(k='b', i=self.kind),
@@ -52,6 +53,7 @@ class Base:
 
     def test_inflate_when_subclassed(self):
       mks = self.model_class().type_key()
+
       class Sub(self.model_class()):
         @property
         def title(self):

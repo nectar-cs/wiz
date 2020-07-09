@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import List
+from functools import reduce
+from typing import List, Dict
 
 from k8_kat.utils.main.utils import deep_merge
 from wiz.core.types import CommitOutcome, StepRunningStatus
@@ -11,13 +12,25 @@ class StepState:
     self.stage_id = kwargs.get('stage_id')
     self.step_id = kwargs.get('step_id')
     self.started_at = kwargs.get('started_at', datetime.now())
-    self.commit_outcome: CommitOutcome = {}
+    self.commit_outcome: CommitOutcome = kwargs.get('commit_outcome', {})
     self.running_status: StepRunningStatus = {}
     self.committed_at = None
     self.terminated_at = None
     self.outcome = None
     self.job_id = None
     self.job_logs = []
+
+  @property
+  def chart_assigns(self):
+    return self.commit_outcome.get('chart_assigns', {})
+
+  @property
+  def state_assigns(self):
+    return self.commit_outcome.get('state_assigns', {})
+
+  @property
+  def all_assigns(self):
+    return dict(**self.chart_assigns, **self.state_assigns)
 
   def patch_committed(self, commit_outcome: CommitOutcome):
     self.committed_at = datetime.now()
@@ -88,12 +101,16 @@ class OperationState:
     matcher = (so for so in self.step_states if predicate(so))
     return next(matcher, None)
 
-  def bank(self):
-    merged = {}
-    for step_record in self.step_states:
-      source = step_record.commit_outcome or {}
-      merged = deep_merge(merged, source.get('state_assigns'))
-    return deepcopy(merged)
+  def state_assigns(self) -> Dict:
+    merge = lambda w, e: deep_merge(w, deepcopy(e.state_assigns))
+    return reduce(merge, self.step_states, {})
+
+  def chart_assigns(self) -> Dict:
+    merge = lambda w, e: deep_merge(w, deepcopy(e.chart_assigns))
+    return reduce(merge, self.step_states, {})
+
+  def all_assigns(self) -> Dict:
+    return {**self.state_assigns(), **self.chart_assigns()}
 
 
 operation_states: List[OperationState] = []

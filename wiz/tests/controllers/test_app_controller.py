@@ -1,12 +1,9 @@
 import json
 
-from k8_kat.res.quotas.kat_quota import KatQuota
 from k8_kat.tests.res.common import test_kat_quota
 from k8_kat.utils.testing import ns_factory
-
 from wiz.core import wiz_globals
 from wiz.core.wiz_globals import wiz_app
-from wiz.model.adapters.base_quotas_adapter import BaseQuotasAdapter
 from wiz.server import app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 

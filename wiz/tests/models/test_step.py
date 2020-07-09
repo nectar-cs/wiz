@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Dict
 from unittest.mock import patch
 
 from wiz.core import tedi_client, step_job_prep
@@ -22,10 +22,10 @@ class TestStep(Base.TestWizModel):
   def test_own_state(self):
     op_state = OperationState(
       step_states=[
-        StepState(stage_id='stage1', step_id='step1', chart_assigns={'k': 11}),
-        StepState(stage_id='stage1', step_id='step2', chart_assigns={'k': 12}),
-        StepState(stage_id='stage2', step_id='step1', chart_assigns={'k': 21}),
-        StepState(stage_id='stage2', step_id='step2', chart_assigns={'k': 22}),
+        mk_step_state('stage1', 'step1', {'k': 11}),
+        mk_step_state('stage1', 'step2', {'k': 12}),
+        mk_step_state('stage2', 'step1', {'k': 21}),
+        mk_step_state('stage2', 'step2', {'k': 22}),
       ]
     )
 
@@ -48,17 +48,17 @@ class TestStep(Base.TestWizModel):
   def test_commit_with_chart_vars(self):
     step = Step(dict(key='s', fields=[{'key': 'f1'}]))
     with patch.object(tedi_client, 'commit_values') as commit_mock:
-      with patch.object(tedi_client, 'apply') as apply_mock:
-        outcome = step.commit({'f1': 'v1'})
-        self.assertEqual('pending', outcome['status'])
-        self.assertEqual({'f1': 'v1'}, outcome['chart_assigns'])
-        self.assertEqual(None, outcome.get('job_id'))
-        commit_mock.assert_called_with({'f1': 'v1'}.items())
-        apply_mock.assert_called_with(rules=[], inlines={}.items())
+      outcome = step.commit({'f1': 'v1'})
+      self.assertEqual('positive', outcome['status'])
+      self.assertEqual({'f1': 'v1'}, outcome['chart_assigns'])
+      self.assertEqual({}, outcome['state_assigns'])
+      self.assertEqual(None, outcome.get('job_id'))
+      commit_mock.assert_called_with({'f1': 'v1'}.items())
 
   def test_commit_with_job(self):
     job_desc = dict(image='foo', command=['bar'], args=['baz'])
-    step = Step(dict(key='s', job=job_desc, fields=[{'key': 'f1', 'target': 'state'}]))
+    field_desc = {'key': 'f1', 'target': 'state'}
+    step = Step(dict(key='s', job=job_desc, fields=[field_desc]))
 
     with patch.object(step_job_prep, 'create_and_run') as run_mock:
       run_mock.return_value = 'id'
@@ -68,9 +68,10 @@ class TestStep(Base.TestWizModel):
       self.assertEqual('id', outcome['job_id'])
 
   def test_compute_recalled_assigns(self):
-    op_state = helper.one_step_op_state(sass=dict(a='a', b='b', c='c'))
-    recall_one = dict(target='chart', included_keys='all', excluded_keys=['b'])
-    recall_two = dict(target='inline', included_keys=['a', 'b'], excluded_keys=['b'])
+    step_state = dict(a='a', b='b', c='c')
+    op_state = helper.one_step_op_state(sass=step_state)
+    recall_one = mk_recall('chart', 'all', ['b'])
+    recall_two = mk_recall('inline', ['a', 'b'], ['b'])
     step = Step(dict(key='s', state_recalls=[recall_one, recall_two]))
 
     chart_actual = step.compute_recalled_assigns('chart', op_state)
@@ -83,11 +84,25 @@ class TestStep(Base.TestWizModel):
     chart_field = dict(key='f1', target='chart')
     inline_field = dict(key='f2', target='inline')
     state_field = dict(key='f3', target='state')
+    fields = [chart_field, inline_field, state_field]
 
-    step = Step(dict(key='s', fields=[chart_field, inline_field, state_field]))
+    step = Step(dict(key='s', fields=fields))
     op_state = helper.one_step_op_state()
-    actual = step.partition_value_assigns(dict(f1='v1', f2='v2', f3='v3'), op_state)
+    assign = dict(f1='v1', f2='v2', f3='v3')
+    actual = step.partition_value_assigns(assign, op_state)
     self.assertEqual(({'f1': 'v1'}, {'f2': 'v2'}, {'f3': 'v3'}), actual)
 
     actual = step.partition_value_assigns(dict(), op_state)
     self.assertEqual(({}, {}, {}), actual)
+
+
+def mk_recall(target, inc_keys, exc_keys) -> Dict:
+  return dict(target=target, included_keys=inc_keys, excluded_keys=exc_keys)
+
+
+def mk_step_state(stage_id, step_id, chart_assigns) -> StepState:
+  return StepState(
+    stage_id=stage_id,
+    step_id=step_id,
+    commit_outcome=dict(chart_assigns=chart_assigns)
+  )
