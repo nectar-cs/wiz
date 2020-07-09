@@ -29,10 +29,10 @@ class TestStepJobPrep(ClusterTest):
     pod.wait_until(pod.has_run)
     self.assertEqual('done', pod.clean_logs())
 
-    self.assertEqual(1, len(bundle.parts))
-    self.assertEqual('foo', bundle.parts[0].name)
-    self.assertEqual('bar', bundle.parts[0].status)
-    self.assertEqual(50, bundle.parts[0].pct)
+    self.assertEqual(1, len(bundle['parts']))
+    self.assertEqual('foo', bundle['parts'][0]['name'])
+    self.assertEqual('bar', bundle['parts'][0]['status'])
+    self.assertEqual(50, bundle['parts'][0]['pct'])
 
   def test_create_and_run_completed(self):
     wiz_app.ns_overwrite, = ns_factory.request(1)

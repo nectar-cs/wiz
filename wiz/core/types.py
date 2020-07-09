@@ -2,6 +2,7 @@ from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 
+
 class JobStatusPart(TypedDict):
   name: str
   status: str

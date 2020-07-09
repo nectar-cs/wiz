@@ -1,8 +1,6 @@
 import json
 from json import JSONDecodeError
-from typing import Dict, Union, List, Optional
-
-from typing_extensions import TypedDict
+from typing import Dict, Optional
 
 from k8_kat.res.job.kat_job import KatJob
 from k8_kat.res.pod.kat_pod import KatPod
@@ -11,7 +9,7 @@ from wiz.core.types import JobStatus, JobStatusPart
 from wiz.core.wiz_globals import wiz_app
 
 
-def _fmt_raw_status_part(raw: Dict, index: int) -> JobStatusPart:
+def _fmt_status_part(raw: Dict, index: int) -> JobStatusPart:
   return JobStatusPart(
     name=raw.get('name', f'Job Part {index + 1}'),
     status=raw.get('status', 'Working'),
@@ -21,8 +19,9 @@ def _fmt_raw_status_part(raw: Dict, index: int) -> JobStatusPart:
 
 def _fmt_raw_status(raw_dump: Dict, logs) -> JobStatus:
   raw_parts = raw_dump if type(raw_dump) == list else [raw_dump]
+  parts = [_fmt_status_part(raw, i) for i, raw in enumerate(raw_parts)]
   return JobStatus(
-    parts=list(map(_fmt_raw_status_part, enumerate(raw_parts))),
+    parts=parts,
     logs=logs
   )
 

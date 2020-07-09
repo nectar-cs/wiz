@@ -1,7 +1,6 @@
 from typing import Optional
 
 from k8_kat.res.base.kat_res import KatRes
-from wiz.core import step_job_client
 from wiz.core.osr import StepState
 from wiz.model.base import res_selector
 from wiz.model.base.wiz_model import WizModel
@@ -30,7 +29,6 @@ class ExitCondition(WizModel):
     if name in ['equals', 'equal', 'eq', '==']:
       return lambda a, b: str(a) == str(b)
     elif name in ['not-equals', 'not-equal', 'neq', '!=']:
-      print("BOOP")
       return lambda a, b: str(a) != str(b)
     else:
       print("Don't know operator " + name)
