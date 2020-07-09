@@ -25,22 +25,20 @@ class TestStatusComputer(ClusterTest):
 
   def test_compute_conditions_status_with_res(self):
     wiz_app.ns_overwrite, = ns_factory.request(1)
-    step = mk_step(raf='Pod:*')
+    cond = mk_cond('Pod:*', 'all', 'has_succeeded', 'True')
+    step = mk_step(raf='Pod:*', exit=dict(positive=[cond]))
 
     fast_pod, slow_pod = mk_sleeper(1), mk_sleeper(19)
+
     fast_pod.wait_until(fast_pod.has_run)
-    print("FAST HAS RUN")
     slow_pod.wait_until(slow_pod.is_running_normally)
-    print("SLOW RUNNING")
 
     actual = step.compute_status()
     actual_pos = actual['condition_statuses']['positive']
     self.assertFalse(actual_pos[0]['met'])
     self.assertEqual('pending', actual['status'])
 
-    print("NOW WAIT SLOW RUN")
     slow_pod.wait_until(slow_pod.has_run)
-    print("SLOWW HAS RUN")
 
     actual = step.compute_status()
     actual_pos = actual['condition_statuses']['positive']
@@ -57,6 +55,16 @@ def mk_sleeper(seconds):
     command=["ruby", "-e"],
     args=[f"sleep({seconds}); puts :done; exit 0"],
   ))
+
+
+def mk_cond(sel, match, prop, against):
+  return dict(
+    key=utils.rand_str(4),
+    selector=sel,
+    match=match,
+    property=prop,
+    check_against=against
+  )
 
 
 def mk_step(**kwargs) -> Step:

@@ -10,7 +10,7 @@ class WizModel:
 
   def __init__(self, config: Dict):
     self.config: Dict = config
-    self.key: str = config['key']
+    self.key: str = config.get('key')
     self.parent = None
 
   @property
@@ -42,7 +42,8 @@ class WizModel:
 
   @classmethod
   def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:
-    subclass = wiz_app.find_subclass(cls.type_key(), config['key'])
+    key = config.get('key')
+    subclass = key and wiz_app.find_subclass(cls.type_key(), key)
     host_class = subclass or cls
     return host_class(config)
 

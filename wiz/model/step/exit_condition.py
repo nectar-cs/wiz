@@ -26,6 +26,8 @@ class ExitCondition(WizModel):
       return None
 
   def eval_resource_property(self) -> bool:
+    print("EVAL TIME")
+    print(self.config)
     prop_name = self.config.get('property', 'ternary_status')
     selector_config = self.config.get('selector', '*:*')
     match_type = self.config.get('match', 'all')
