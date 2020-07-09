@@ -1,3 +1,4 @@
+from wiz.core.osr import OperationState
 from wiz.model.operations.operation import Operation
 from wiz.model.prerequisite import serial as prereq_serial
 from wiz.model.stage import serial as stage_serial
@@ -12,6 +13,13 @@ def standard(operation: Operation):
     affects_data=operation.affects_data,
     affects_uptime=operation.affects_uptime,
     res_access=operation.res_access()
+  )
+
+
+def state(operation_state: OperationState):
+  return dict(
+    id=operation_state.osr_id,
+    operation=operation_state.operation_id
   )
 
 

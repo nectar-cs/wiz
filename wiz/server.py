@@ -5,7 +5,8 @@ from flask_cors import CORS
 
 from k8_kat.auth.kube_broker import BrokerConnException, broker
 from wiz.controllers import operations_controller, status_controller, \
-  app_controller, chart_variables_controller, resources_controller
+  app_controller, chart_variables_controller, resources_controller, \
+  operation_states_controller
 from wiz.core.wiz_globals import wiz_app
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 controllers = [
   status_controller,
   operations_controller,
+  operation_states_controller,
   app_controller,
   resources_controller,
   chart_variables_controller

@@ -64,12 +64,21 @@ class OperationState:
 
   @classmethod
   def find_or_create(cls, osr_id: str, operation_id: str):
-    matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
-    instance = next(matcher, None)
+    instance = cls.find(osr_id)
     if not instance:
       instance = OperationState(id=osr_id, operation_id=operation_id)
       operation_states.append(instance)
     return instance
+
+  @classmethod
+  def find(cls, osr_id):
+    matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
+    return next(matcher, None)
+
+  @classmethod
+  def delete_if_exists(cls, osr_id: str):
+    instance = cls.find(osr_id)
+
 
   def is_tracked(self):
     return self.osr_id is not None

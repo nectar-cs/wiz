@@ -115,6 +115,7 @@ class Step(WizModel):
 
     if len(chart_assigns):
       tedi_client.commit_values(chart_assigns.items())
+      # outcome['prev_chart_vals'] =
 
     rules = list(map(ResMatchRule, self.res_selector_descs))
     if len(rules):

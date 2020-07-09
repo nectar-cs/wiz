@@ -9,6 +9,8 @@ from wiz.model.operations import serial as operation_serial
 from wiz.model.step import serial as step_serial
 from wiz.model.step.step import Step, CommitOutcome
 
+
+
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
 

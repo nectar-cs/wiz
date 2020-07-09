@@ -13,7 +13,7 @@ class SharingPerms:
 
   def can_share_prop(self, prop: str) -> bool:
     if not utils.is_dev():
-      category = prop_category(prop)
+      category = find_prop_category(prop)
       if category:
         return self.user_perms.get(category)
       else:
@@ -23,7 +23,7 @@ class SharingPerms:
       return True
 
 
-def prop_category(prop) -> Optional[str]:
+def find_prop_category(prop) -> Optional[str]:
   for category in category_props_mapping:
     if prop in category:
       return category
