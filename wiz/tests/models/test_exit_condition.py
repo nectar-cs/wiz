@@ -24,16 +24,19 @@ class TestStep(Base.TestWizModel):
     ec2 = mk_cond('ConfigMap:r2', 'all', 'name', 'r1')
     ec3 = mk_cond('ConfigMap:*', 'any', 'name', 'r1')
     ec4 = mk_cond('ConfigMap:*', 'all', 'has_settled', 'True')
+    ec5 = mk_cond('ConfigMap:*', 'any', 'ternary_status', 'positive', 'neq')
 
     self.assertTrue(ec1.evaluate())
     self.assertFalse(ec2.evaluate())
     self.assertTrue(ec3.evaluate())
     self.assertTrue(ec4.evaluate())
+    self.assertFalse(ec5.evaluate())
 
 
-def mk_cond(sel, match, prop, against):
+def mk_cond(sel, match, prop, against, op='eq'):
   return ExitCondition(dict(
     key='ec',
+    op=op,
     selector=sel,
     match=match,
     property=prop,

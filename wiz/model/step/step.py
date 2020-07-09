@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client, step_job_prep, utils
@@ -70,7 +71,8 @@ class Step(WizModel):
   def res_selectors(self) -> List[ResMatchRule]:
     return [ResMatchRule(obj) for obj in self.res_selector_descs]
 
-  def gen_job_params(self, values, op_state) -> Dict:
+  @abstractmethod
+  def gen_job_params(self, values, op_state: OperationState) -> Dict:
     return values
 
   def compute_recalled_assigns(self, target: str, op_state: OperationState) -> Dict:
