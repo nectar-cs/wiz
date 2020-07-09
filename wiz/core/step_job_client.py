@@ -56,16 +56,3 @@ def compute_job_status(job_id: str) -> Optional[JobStatus]:
     return _fmt_raw_status(extract_status(pod), logs)
   else:
     return None
-
-
-def read_job_ternary_status(job_id: str):
-  main_pod: KatPod = find_worker_pod(job_id)
-  if main_pod:
-    if main_pod.has_succeeded():
-      return 'positive'
-    elif main_pod.is_running_normally():
-      return 'pending'
-    else:
-      return 'negative'
-  else:
-    return 'pending'

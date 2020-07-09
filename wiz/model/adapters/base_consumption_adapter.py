@@ -8,6 +8,7 @@ from k8_kat.res.cluster.kat_cluster import KatCluster
 from wiz.core.wiz_globals import wiz_app
 from wiz.model.adapters.adapter import Adapter
 
+
 class BaseConsumptionAdapter(Adapter):
 
   @cached_property
