@@ -27,8 +27,8 @@ kind: ExitCondition
 key: nectar.exit_conditions.select_resources_positive
 title: All resources have a positive status
 selector: ["*:*"]
-match: all
 property: ternary_status
+match: all
 check_against: positive
 
 ---
@@ -37,6 +37,7 @@ kind: ExitCondition
 key: nectar.exit_conditions.select_resources_positive
 title: Any resource has a negative status
 selector: ["*:*"]
+property: ternary_status
 match: any
 check_against: negative
 

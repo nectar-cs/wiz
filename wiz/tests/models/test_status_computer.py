@@ -19,9 +19,22 @@ class TestStatusComputer(ClusterTest):
     actual = mk_step(raf='Pod:wont-be-there').compute_status()
     actual_pos = actual['condition_statuses']['positive']
     expected_pos_key = 'nectar.exit_conditions.select_resources_positive'
+
     self.assertEqual('pending', actual['status'])
     self.assertFalse(actual_pos[0]['met'])
     self.assertEqual(expected_pos_key, actual_pos[0]['key'])
+
+  def test_compute_conditions_neg(self):
+    wiz_app.ns_overwrite, = ns_factory.request(1)
+    step = mk_step(raf='Pod:*')
+
+    crasher = mk_sleeper('not-an-int')
+    crasher.wait_until(crasher.has_failed)
+
+    actual = step.compute_status()
+    actual_pos = actual['condition_statuses']['negative']
+    self.assertTrue(actual_pos[0]['met'])
+    self.assertEqual('negative', actual['status'])
 
   def test_compute_conditions_status_with_res(self):
     wiz_app.ns_overwrite, = ns_factory.request(1)

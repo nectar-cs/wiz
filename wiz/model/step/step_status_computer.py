@@ -99,7 +99,7 @@ def all_conditions_met(conditions: List[TECS]) -> bool:
 
 
 def any_condition_met(conditions: List[TECS]) -> bool:
-  return True in conditions
+  return True in [s['met'] for s in conditions]
 
 
 def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSRS:
