@@ -26,15 +26,21 @@ class TestPermsRedactor(ClusterTest):
       step_outcomes=[
         dict(
           stage_id='bar',
-          chart_assigns='should-be-redacted'
+          chart_assigns='should-get-redacted',
+          exit_condition_outcomes=dict(
+            condition_id='baz'
+          )
         )
       ]
     )
 
     actual = redact_op_outcome(op_outcome)
+    dd = actual['step_outcomes'][0]
     self.assertEqual('foo', actual['operation_id'])
-    self.assertEqual('bar', actual['step_outcomes'][0]['stage_id'])
-    self.assertIsNone(actual['step_outcomes'][0]['chart_assigns'])
+    self.assertEqual('bar', dd['stage_id'])
+    self.assertEqual('baz', dd['exit_condition_outcomes']['condition_id'])
+    self.assertIsNone(dd['chart_assigns'])
+
 
 
 def mk_map(contents: Dict):

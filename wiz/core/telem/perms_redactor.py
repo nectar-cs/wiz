@@ -11,16 +11,17 @@ def if_allowed(perms: SharingPerms, prop_name: str, value) -> Optional:
   return None
 
 
-def sanitize(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
+def redact_for_perms(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
   new_dict = {}
   for key, value in dirty_dict.items():
     full_key, sub_key = f'{prefix}{key}', f'{prefix}{key}.'
     if type(value) == list:
-      child_sanitizer = lambda itm: sanitize(perms, sub_key, itm)
+      child_sanitizer = lambda itm: redact_for_perms(perms, sub_key, itm)
       comp_children = lambda: list(map(child_sanitizer, value))
       new_dict[key] = if_allowed(perms, full_key, comp_children)
     elif type(value) == dict:
-      new_dict[key] = sanitize(perms, sub_key, value)
+      comp = lambda: redact_for_perms(perms, sub_key, value)
+      new_dict[key] = if_allowed(perms, full_key, comp)
     else:
       new_dict[key] = if_allowed(perms, full_key, value)
   return new_dict
@@ -28,5 +29,5 @@ def sanitize(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
 
 def redact_op_outcome(op_outcome: ApiOperationOutcome) -> ApiOperationOutcome:
   perms = SharingPerms()
-  return sanitize(perms, 'operation_outcome.', op_outcome)
+  return redact_for_perms(perms, 'operation_outcome.', op_outcome)
 
