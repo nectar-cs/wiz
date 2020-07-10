@@ -1,5 +1,5 @@
 import functools
-from typing import Optional
+from typing import Optional, Callable
 
 from k8_kat.res.base.kat_res import KatRes
 from wiz.core import tedi_client
@@ -26,7 +26,7 @@ class Predicate(WizModel):
       return self.eval_resource_count()
 
     elif cond_type == 'chart-value-compare':
-      return self.eval_resource_count()
+      return self.chart_value_compare()
 
     else:
       print("DANGER don't know condition type " + cond_type)
@@ -81,8 +81,8 @@ def getattr_deep(obj, attr):
     return None
 
 
-def comparator(name):
-  if name in ['equals', 'equal', 'eq', '==']:
+def comparator(name) -> Callable[[any, any], bool]:
+  if name in ['equals', 'equal', 'eq', '==', '=']:
     return lambda a, b: str(a) == str(b)
   elif name in ['not-equals', 'not-equal', 'neq', '!=']:
     return lambda a, b: str(a) != str(b)
@@ -93,11 +93,13 @@ def comparator(name):
   elif name in ['gte', '>=']:
     return lambda a, b: float(a) >= float(b)
   elif name in ['is-less-than', 'less-than', 'lt', '<']:
-    return lambda a, b: float(a) > float(b)
+    return lambda a, b: float(a) < float(b)
   elif name in ['lte', '<=']:
     return lambda a, b: float(a) <= float(b)
-  elif name in ['is-defined']:
+  elif name in ['defined', 'is-defined']:
     return lambda a, b: bool(a)
+  elif name in ['undefined', 'is-undefined']:
+    return lambda a, b: not bool(a)
   else:
-    print("Don't know operator " + name)
+    print(f"Don't know operator {name}")
     return lambda a, b: False
