@@ -28,9 +28,9 @@ class SharingPerms:
 def x_to_bool(raw) -> bool:
   if raw is None:
     return False
-  if type(raw) == bool:
-    return raw
   elif type(raw) == bool:
+    return raw
+  elif type(raw) == str:
     return raw.lower() == 'true'
 
 

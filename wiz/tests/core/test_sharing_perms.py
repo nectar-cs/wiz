@@ -28,7 +28,7 @@ class TestSharingPerms(ClusterTest):
     mk_map({sharing_perms.upload_telem_key: True})
     self.assertTrue(SharingPerms().can_sync_telem())
 
-  def test_can_share_prop_explicit(self):
+  def test_can_share_prop(self):
     mk_map({
       'operations.metadata': True,
       'operations.assignments': 'False'
@@ -38,7 +38,7 @@ class TestSharingPerms(ClusterTest):
     self.assertTrue(check('operation_outcome.operation_id'))
     self.assertTrue(check('operation_outcome.step_outcomes.started_at'))
     self.assertFalse(check('operation_outcome.step_outcomes.chart_assigns'))
-
+    self.assertFalse(check('not-real'))
 
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
