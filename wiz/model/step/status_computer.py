@@ -3,12 +3,12 @@ from typing import List, Optional, Dict, Callable
 from wiz.core import step_job_client
 from wiz.core.telem.ost import StepState
 from wiz.core.types import ExitConditionStatus, StepRunningStatus, ExitConditionStatuses, JobStatus
-from wiz.model.step.exit_condition import ExitCondition
+from wiz.model.predicate.predicate import Predicate
 from wiz.model.step.step import Step
 
 POS = 'positive'
 NEG = 'negative'
-TEC = ExitCondition
+TEC = Predicate
 TECS = ExitConditionStatus
 TSRS = StepRunningStatus
 
@@ -73,7 +73,7 @@ class StepStatusComputer:
   def load_exit_conds(self, charge) -> List[TEC]:
     explicit = self.step.config.get('exit', {}).get(charge)
     if explicit is not None:
-      return self.step.load_related(explicit, ExitCondition)
+      return self.step.load_related(explicit, Predicate)
     else:
       return self.default_exit_conditions(charge)
 
@@ -81,15 +81,15 @@ class StepStatusComputer:
     if self.step.applies_manifest():
       if self.step.res_selector_descs:
         custom_cond_name = default_some_res_exit_conds[charge]
-        custom_cond = ExitCondition.inflate(custom_cond_name)
+        custom_cond = Predicate.inflate(custom_cond_name)
         custom_cond.config['selector'] = self.step.res_selector_descs
         return [custom_cond]
       else:
         default_cond_names = default_res_exit_cond_ids[charge]
-        return list(map(ExitCondition.inflate, default_cond_names))
+        return list(map(Predicate.inflate, default_cond_names))
     elif self.step.runs_job():
       default_cond_names = default_job_exit_conds[charge]
-      return list(map(ExitCondition.inflate, default_cond_names))
+      return list(map(Predicate.inflate, default_cond_names))
     else:
       return []
 

@@ -129,7 +129,7 @@ class Step(WizModel):
     return CommitOutcome(**outcome, status='positive')
 
   def compute_status(self, op_state: TOOS = None) -> StepRunningStatus:
-    from wiz.model.step.step_status_computer import StepStatusComputer
+    from wiz.model.step.status_computer import StepStatusComputer
     own_state = self.find_own_state(op_state) if op_state else None
     computer = StepStatusComputer(self, own_state)
     return computer.compute_status()

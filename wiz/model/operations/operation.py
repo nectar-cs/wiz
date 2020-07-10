@@ -2,7 +2,7 @@ from typing import List
 
 from wiz.core.telem.ost import OperationState
 from wiz.model.base.wiz_model import WizModel, key_or_dict_to_key
-from wiz.model.prerequisite.prerequisite import Prerequisite
+from wiz.model.predicate.predicate import Predicate
 from wiz.model.stage.stage import Stage
 
 
@@ -50,12 +50,11 @@ class Operation(WizModel):
   def stage(self, key) -> Stage:
     return self.load_list_child('stages', Stage, key)
 
-  def prerequisites(self) -> List[Prerequisite]:
-    return self.load_children('prerequisites', Prerequisite)
+  def prerequisites(self) -> List[Predicate]:
+    return self.load_children('prerequisites', Predicate)
 
-  def prerequisite(self, key) -> Prerequisite:
-    return self.load_list_child('prerequisites', Prerequisite, key)
+  def prerequisite(self, key) -> Predicate:
+    return self.load_list_child('prerequisites', Predicate, key)
 
   def res_access(self):
     return self.config.get('res_access', [])
-
