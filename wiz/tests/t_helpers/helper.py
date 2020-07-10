@@ -6,7 +6,7 @@ from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from wiz.core import tedi_prep, tedi_client
-from wiz.core.osr import OperationState, StepState
+from wiz.core.telem.ost import OperationState, StepState
 from wiz.core.wiz_globals import wiz_app
 
 

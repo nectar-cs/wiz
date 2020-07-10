@@ -1,4 +1,4 @@
-from wiz.core.osr import OperationState
+from wiz.core.telem.ost import OperationState
 from wiz.model.operations.operation import Operation
 from wiz.model.prerequisite import serial as prereq_serial
 from wiz.model.stage import serial as stage_serial

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from k8_kat.res.base.kat_res import KatRes
-from wiz.core.osr import StepState
+from wiz.core.telem.ost import StepState
 from wiz.model.base import res_selector
 from wiz.model.base.wiz_model import WizModel
 

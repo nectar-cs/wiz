@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Callable
 
 from wiz.core import step_job_client
-from wiz.core.osr import StepState
+from wiz.core.telem.ost import StepState
 from wiz.core.types import ExitConditionStatus, StepRunningStatus, ExitConditionStatuses, JobStatus
 from wiz.model.step.exit_condition import ExitCondition
 from wiz.model.step.step import Step

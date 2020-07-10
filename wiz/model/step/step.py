@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client, step_job_prep, utils
-from wiz.core.osr import OperationState, StepState
+from wiz.core.telem.ost import OperationState, StepState
 from wiz.core.types import CommitOutcome, StepRunningStatus
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.model.base.wiz_model import WizModel

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from wiz.core.osr import OperationState
+from wiz.core.telem.ost import OperationState
 from wiz.model.prerequisite.prerequisite import Prerequisite
 from wiz.model.stage.stage import Stage
 from wiz.model.base.wiz_model import WizModel, key_or_dict_to_key

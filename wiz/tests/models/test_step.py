@@ -2,7 +2,7 @@ from typing import Type, Dict
 from unittest.mock import patch
 
 from wiz.core import tedi_client, step_job_prep
-from wiz.core.osr import OperationState, StepState
+from wiz.core.telem.ost import OperationState, StepState
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.stage.stage import Stage
 from wiz.model.step.step import Step

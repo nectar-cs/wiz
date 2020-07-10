@@ -16,7 +16,6 @@ class StepState:
     self.running_status: StepRunningStatus = {}
     self.committed_at = None
     self.terminated_at = None
-    self.outcome = None
     self.job_id = None
     self.job_logs = []
 
@@ -42,7 +41,6 @@ class StepState:
 
   def patch_terminated(self, status: StepRunningStatus):
     self.running_status = status
-    self.outcome = status['status']
     self.terminated_at = datetime.now()
 
   def belongs_to_step(self, step_id, stage_id):
@@ -77,8 +75,9 @@ class OperationState:
 
   @classmethod
   def delete_if_exists(cls, osr_id: str):
-    instance = cls.find(osr_id)
-
+    tuples = enumerate(operation_states)
+    index = next((i for i, ops in tuples if ops.osr_id == osr_id), None)
+    return operation_states.pop(index) if index else None
 
   def is_tracked(self):
     return self.osr_id is not None
