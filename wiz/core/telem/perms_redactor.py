@@ -30,4 +30,3 @@ def redact_for_perms(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
 def redact_op_outcome(op_outcome: ApiOperationOutcome) -> ApiOperationOutcome:
   perms = SharingPerms()
   return redact_for_perms(perms, 'operation_outcome.', op_outcome)
-

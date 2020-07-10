@@ -38,7 +38,7 @@ class AuditSink:
     self.db = None
 
   def save_op_outcome(self, op_state: OperationState, sync_status: bool):
-    pass
+    print("Soon save_op_outcome!")
 
   def save_chart_var_assign(self, var_name: str):
     pass

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from wiz.core import telem_sync
-from wiz.core.audit_sink import AuditConfig, audit_sink
+from wiz.core.telem import telem_sync
+from wiz.core.telem.audit_sink import AuditConfig, audit_sink
 from wiz.core.telem.ost import OperationState
 from wiz.core.telem.sharing_perms import SharingPerms
 from wiz.model.field.field import Field

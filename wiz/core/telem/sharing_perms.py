@@ -18,11 +18,8 @@ class SharingPerms:
     return x_to_bool(self.user_perms.get(upload_telem_key))
 
   def can_share_prop(self, prop: str) -> bool:
-    if not utils.is_dev():
-      category = find_prop_category(prop)
-      return x_to_bool(category and self.user_perms.get(category))
-    else:
-      return True
+    category = find_prop_category(prop)
+    return x_to_bool(category and self.user_perms.get(category))
 
 
 def x_to_bool(raw) -> bool:

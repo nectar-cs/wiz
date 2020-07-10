@@ -42,7 +42,6 @@ class TestPermsRedactor(ClusterTest):
     self.assertIsNone(dd['chart_assigns'])
 
 
-
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
     namespace=wiz_app.ns_overwrite,
