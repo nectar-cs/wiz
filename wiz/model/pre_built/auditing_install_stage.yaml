@@ -1,0 +1,31 @@
+kind: Stage
+key: nectar.auditing
+title: Auditing
+steps:
+  - kind: Step
+    key: nectar.auditing.strategy
+    title: Persistence
+    info: Decide how auditable are persisted
+    fields:
+      - kind: Field
+        title: Database Location
+        key: nectar.auditing.storoage_strategy
+        options:
+          - key: internal
+            value: "Internal - save to an in-cluster database"
+          - key: external
+            value: "External - save to a database outside the cluster"
+          - key: none
+            value: "None - do not backup the database"
+        validations:
+          - type: equality
+            check_against: none
+            tone: warning
+            message: "You will not be able to audit your actions"
+    next:
+      if:
+        - field: "hub.storage.type"
+          type: equality
+          check_against: 'internal'
+      then: installation.decide_pvc_strategy
+      else: installation.locate_external_db

@@ -41,8 +41,8 @@ class TestPredicate(Base.TestWizModel):
     self.assertTrue(mk_pred2('r1', 0, '>'))
     self.assertTrue(mk_pred2('r1', 2, '<'))
     self.assertTrue(mk_pred2('r1', 1, 'lte'))
-
     self.assertTrue(mk_pred2('*', 2, 'equals'))
+    self.assertFalse(mk_pred2('r1', 2))
 
   def test_eval_resource_property_compare(self):
     ns, = ns_factory.request(1)

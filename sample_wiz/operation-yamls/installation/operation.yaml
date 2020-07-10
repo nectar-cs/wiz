@@ -3,6 +3,8 @@ key: installation
 title: Installation
 stages:
 
+#  - 'nectar.auditing.strategy'
+
   - key: application
     title: Policies
     info: "Define global policies to limit the application's access to
