@@ -1,4 +1,5 @@
-from functools import cached_property
+from werkzeug.utils import cached_property
+
 from typing import Dict
 
 from sqlalchemy import Column, Integer, String, TIMESTAMP, UnicodeText

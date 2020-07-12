@@ -1,13 +1,12 @@
 from typing import List
 
 from flask import Blueprint, jsonify, request
-from k8_kat.res.dep.kat_dep import KatDep
 
+from k8_kat.res.dep.kat_dep import KatDep
 from wiz.core import wiz_globals
 from wiz.core.wiz_globals import wiz_app
 from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from wiz.model.adapters.base_consumption_adapter import BaseConsumptionAdapter
-from wiz.model.adapters.base_quotas_adapter import BaseQuotasAdapter
 
 controller = Blueprint('app_controller', __name__)
 

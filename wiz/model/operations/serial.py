@@ -1,6 +1,5 @@
 from wiz.core.telem.ost import OperationState
 from wiz.model.operations.operation import Operation
-from wiz.model.prerequisite import serial as prereq_serial
 from wiz.model.stage import serial as stage_serial
 
 
@@ -25,7 +24,8 @@ def state(operation_state: OperationState):
 
 def full(operation: Operation):
   stage_dicts = [stage_serial.standard(s) for s in operation.stages()]
-  prereq_dicts = [prereq_serial.standard(p) for p in operation.prerequisites()]
+  # prereq_dicts = [prereq_serial.standard(p) for p in operation.prerequisites()]
+  prereq_dicts = []
 
   return dict(
     **standard(operation),

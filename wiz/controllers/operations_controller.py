@@ -6,7 +6,7 @@ from wiz.core.telem.ost import OperationState
 from wiz.core.telem.sharing_perms import SharingPerms
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
-from wiz.model.prerequisite.prerequisite import Prerequisite
+from wiz.model.predicate.predicate import Predicate
 from wiz.model.stage.stage import Stage
 from wiz.model.operations import serial as operation_serial
 from wiz.model.step import serial as step_serial
@@ -47,7 +47,7 @@ def operations_show(operation_id):
 @controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
 def prerequisite_eval(operation_id, prerequisite_id):
   prereq = find_prereq(operation_id, prerequisite_id)
-  tone, message = prereq.decide()
+  tone, message = prereq.evaluate()
   if tone and message:
     return jsonify(data=dict(status=tone, message=message))
   else:
@@ -146,7 +146,7 @@ def find_operation(operation_id) -> Operation:
   return Operation.inflate(operation_id)
 
 
-def find_prereq(operation_id, prereq_id) -> Prerequisite:
+def find_prereq(operation_id, prereq_id) -> Predicate:
   operation = find_operation(operation_id)
   return operation.prerequisite(prereq_id)
 
