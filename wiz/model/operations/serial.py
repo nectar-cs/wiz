@@ -3,7 +3,7 @@ from wiz.model.operations.operation import Operation
 from wiz.model.stage import serial as stage_serial
 
 
-def standard(operation: Operation):
+def ser_standard(operation: Operation):
   return dict(
     id=operation.key,
     title=operation.title,
@@ -15,22 +15,28 @@ def standard(operation: Operation):
   )
 
 
-def state(operation_state: OperationState):
+def ser_state(operation_state: OperationState):
   return dict(
     id=operation_state.osr_id,
     operation=operation_state.operation_id
   )
 
+def ser_embedded_prereq(prereq):
+  return dict(
+    id=prereq.key,
+    title=prereq.title,
+    description=prereq.info
+  )
 
-def full(operation: Operation):
-  stage_dicts = [stage_serial.standard(s) for s in operation.stages()]
-  # prereq_dicts = [prereq_serial.standard(p) for p in operation.prerequisites()]
-  prereq_dicts = []
+
+def ser_full(operation: Operation):
+  stage_dicts = list(map(stage_serial.standard, operation.stages()))
+  prereq_dicts = list(map(ser_embedded_prereq, operation.prerequisites()))
 
   return dict(
-    **standard(operation),
+    **ser_standard(operation),
     long_description=operation.long_desc,
     risks=operation.risks,
     stages=stage_dicts,
-    prerequisites=prereq_dicts
+    pre_requisites=prereq_dicts
   )

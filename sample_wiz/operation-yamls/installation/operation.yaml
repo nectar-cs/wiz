@@ -1,6 +1,12 @@
 kind: Operation
 key: installation
 title: Installation
+
+prerequisites:
+  - move-to-own-pvc.current-pvc-is-default
+  - move-to-own-pvc.backups-enabled
+  - move-to-own-pvc.current-db-exists
+
 stages:
 
 #  - 'nectar.auditing.strategy'

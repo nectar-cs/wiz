@@ -17,6 +17,10 @@ class Predicate(WizModel):
     self.reason = None
     self.resources_considered = []
 
+  @property
+  def tone(self):
+    return self.config.get('tone', 'error')
+
   def evaluate(self, step_state: TOSS = None) -> Optional[bool]:
     cond_type = self.config.get('type', 'resource-property-compare')
     if cond_type == 'resource-property-compare':

@@ -34,24 +34,28 @@ controller = Blueprint('operations_controller', __name__)
 @controller.route(OPERATIONS_PATH)
 def operations_index():
   operations_list = [o for o in Operation.inflate_all() if not o.is_system]
-  dicts = [operation_serial.standard(c) for c in operations_list]
+  dicts = [operation_serial.ser_standard(c) for c in operations_list]
   return jsonify(data=dicts)
 
 
 @controller.route(OPERATION_PATH)
 def operations_show(operation_id):
   operation = find_operation(operation_id)
-  return jsonify(data=operation_serial.full(operation))
+  return jsonify(data=operation_serial.ser_full(operation))
 
 
 @controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
 def prerequisite_eval(operation_id, prerequisite_id):
   prereq = find_prereq(operation_id, prerequisite_id)
-  tone, message = prereq.evaluate()
-  if tone and message:
-    return jsonify(data=dict(status=tone, message=message))
-  else:
-    return jsonify(data=dict(status='valid'))
+  try:
+    condition_met = prereq.evaluate()
+  except:
+    condition_met = None
+  return jsonify(data=dict(
+    condition_met=condition_met,
+    tone=prereq.tone,
+    reason=prereq.reason
+  ))
 
 
 @controller.route(STEP_PATH)
