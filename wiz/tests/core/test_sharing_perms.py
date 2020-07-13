@@ -53,4 +53,4 @@ def mk_map(contents: Dict):
 
 
 def perms_map():
-  return SharingPerms().user_perms
+  return SharingPerms().user_perms()

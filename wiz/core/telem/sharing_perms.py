@@ -1,26 +1,35 @@
-from werkzeug.utils import cached_property
-
 from typing import Dict, Optional
 
-from wiz.core import tedi_client, utils
+from werkzeug.utils import cached_property
 
+from wiz.core import tedi_client
 
 cmap_field = 'sharing_prefs'
 upload_telem_key = 'upload_telem'
 
+
 class SharingPerms:
 
   @cached_property
+  def master_cmap(self):
+    return tedi_client.master_cmap()
+
   def user_perms(self) -> Dict:
-    kat_map = tedi_client.master_cmap()
+    kat_map = self.master_cmap
     return kat_map.jget(cmap_field, {}) if kat_map else {}
 
+  def patch(self, values: Dict):
+    values = {k: v for k, v in values.items() if v is not None}
+    if self.master_cmap:
+      merged = {**self.user_perms(), **values}
+      self.master_cmap.jpatch(merged, cmap_field, merge=False)
+
   def can_sync_telem(self) -> bool:
-    return x_to_bool(self.user_perms.get(upload_telem_key))
+    return x_to_bool(self.user_perms().get(upload_telem_key))
 
   def can_share_prop(self, prop: str) -> bool:
     category = find_prop_category(prop)
-    return x_to_bool(category and self.user_perms.get(category))
+    return x_to_bool(category and self.user_perms().get(category))
 
 
 def x_to_bool(raw) -> bool:
