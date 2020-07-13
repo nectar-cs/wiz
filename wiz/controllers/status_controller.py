@@ -1,6 +1,10 @@
+from typing import Dict
+
 from flask import Blueprint, jsonify
 
 from k8_kat.auth.kube_broker import broker
+from wiz.core.telem.sharing_perms import SharingPerms
+
 
 controller = Blueprint('status_controller', __name__)
 
@@ -8,6 +12,12 @@ controller = Blueprint('status_controller', __name__)
 @controller.route('/api/ping')
 def ping():
   return jsonify(ping='pong')
+
+
+@controller.route('/api/status/telem-perms')
+def status_telem_perms():
+  raw_perms: Dict = SharingPerms().user_perms
+  return jsonify(data=raw_perms)
 
 
 @controller.route('/api/status')

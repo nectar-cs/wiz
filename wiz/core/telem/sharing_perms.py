@@ -40,6 +40,9 @@ def find_prop_category(prop) -> Optional[str]:
 
 
 category_props_mapping = {
+  'telem.persist': [],
+  'telem.upload': [],
+  'telem.share_vendor': [],
   'operations.metadata': [
     'operation_outcome.operation_id',
     'operation_outcome.step_outcomes',
@@ -58,4 +61,7 @@ category_props_mapping = {
     'operation_outcome.step_outcomes.chart_assigns',
     'operation_outcome.step_outcomes.state_assigns',
   ],
+  'operations.asd': [
+
+  ]
 }

@@ -10,10 +10,6 @@ from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 class TestStatusComputer(ClusterTest):
 
-  @classmethod
-  def tearDownClass(cls) -> None:
-    pass
-
   def test_compute_conditions_status_no_res(self):
     wiz_app.ns_overwrite, = ns_factory.request(1)
     actual = mk_step(raf='Pod:wont-be-there').compute_status()
