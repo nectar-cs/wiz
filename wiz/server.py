@@ -41,7 +41,8 @@ def ensure_broker_connected():
 
 @app.before_request
 def set_namespace_from_headers():
-  ns_overwrite = request.headers.get('Wizns')
+  headers = request.headers
+  ns_overwrite = headers.get('wizns') or headers.get('Wizns')
   if ns_overwrite:
     wiz_app.ns_overwrite = ns_overwrite
 
