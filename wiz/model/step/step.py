@@ -43,7 +43,12 @@ class Step(WizModel):
 
   @property
   def res_selector_descs(self) -> List[Union[str, Dict]]:
-    return self.config.get('resource_apply_filter', [])
+    raw_descriptor = self.config.get('resource_apply_filter')
+    if raw_descriptor is not None:
+      is_list = type(raw_descriptor) == list
+      return raw_descriptor if is_list else [raw_descriptor]
+    else:
+      return []
 
   @property
   def next_step_descriptor(self) -> Union[Dict, str]:
@@ -71,7 +76,7 @@ class Step(WizModel):
     return {key: transform(key) for key, value in values.items()}
 
   def res_selectors(self) -> List[ResMatchRule]:
-    return [ResMatchRule(obj) for obj in self.res_selector_descs]
+    return list(map(ResMatchRule, self.res_selector_descs))
 
   @abstractmethod
   def gen_job_params(self, values, op_state: OperationState) -> Dict:
@@ -117,9 +122,8 @@ class Step(WizModel):
       tedi_client.commit_values(chart_assigns.items())
       # outcome['prev_chart_vals'] =
 
-    rules = list(map(ResMatchRule, self.res_selector_descs))
-    if len(rules):
-      tedi_client.apply(rules=rules, inlines=inline_assigns.items())
+    if len(self.res_selectors()) > 0:
+      tedi_client.apply(self.res_selectors(), inline_assigns.items())
       return CommitOutcome(**outcome, status='pending')
 
     if self.runs_job():

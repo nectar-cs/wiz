@@ -96,10 +96,10 @@ def kubectl_apply():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
-  # with open(tmp_file_mame, 'r') as file:
-  #   print(file.read())
+  with open(tmp_file_mame, 'r') as file:
+    print(file.read())
 
-  # print(f"Running {cmd}")
+  print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
   # print(result)
   return result

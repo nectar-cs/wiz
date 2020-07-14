@@ -3,7 +3,7 @@
 
 key: hub.quotas.limits.cpu
 kind: Field
-title: Application CPU Limit
+title: Cummulative CPU Limit Cap
 info: The sum of Nectar Hub's workloads' CPU limits cannot exceed this value.
 type: slider
 default: 1.3
@@ -18,7 +18,7 @@ options:
 
 key: hub.quotas.limits.memory
 kind: Field
-title: Application Memory Limit
+title: Cummulative Memory Limit Cap
 info: The sum of Nectar Hub's workloads' memory limits cannot exceed this.
 type: slider
 default: 1
@@ -33,7 +33,7 @@ options:
 
 key: hub.quotas.requests.cpu
 kind: Field
-title: Application CPU Limit
+title: Cummulative CPU Request Cap
 info: The sum of Nectar Hub's workloads' CPU requests cannot exceed this.
 type: slider
 default: 1.3
@@ -48,7 +48,7 @@ options:
 
 key: hub.quotas.requests.memory
 kind: Field
-title: Application Memory Limit
+title: Cummulative Memory Request Cap
 info: The sum of Nectar Hub's workloads' memory requests cannot exceed this value.
 type: slider
 default: 1
