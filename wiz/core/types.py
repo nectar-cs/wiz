@@ -39,6 +39,7 @@ class CommitOutcome(TypedDict, total=False):
   chart_assigns: Dict
   state_assigns: Dict
   job_id: Optional[str]
+  logs: List[str]
 
 
 class K8sResMeta(TypedDict):

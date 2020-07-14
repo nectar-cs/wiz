@@ -70,7 +70,6 @@ next:
       type: equality
       check_against: 'true'
   then: installation.set_db_secrets
-
   else: installation.locate_external_pvc
 
 ---

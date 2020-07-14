@@ -40,9 +40,9 @@ def chart_value(deep_key: str) -> Optional[str]:
   return deep_get(chart_dump(), deep_key.split('.'))
 
 
-def apply(rules: Optional[List[ResMatchRule]], inlines=None):
+def apply(rules: Optional[List[ResMatchRule]], inlines=None) -> str:
   write_manifest(rules, inlines)
-  kubectl_apply()
+  return kubectl_apply()
 
 
 def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
@@ -101,8 +101,8 @@ def kubectl_apply():
 
   print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
-  # print(result)
-  return result
+  print(result)
+  return result.decode('utf-8') if result else None
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):

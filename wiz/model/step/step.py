@@ -123,8 +123,9 @@ class Step(WizModel):
       # outcome['prev_chart_vals'] =
 
     if len(self.res_selectors()) > 0:
-      tedi_client.apply(self.res_selectors(), inline_assigns.items())
-      return CommitOutcome(**outcome, status='pending')
+      out = tedi_client.apply(self.res_selectors(), inline_assigns.items())
+      logs = out.split("\n") if out else []
+      return CommitOutcome(**outcome, status='pending', logs=logs)
 
     if self.runs_job():
       job_id = self.begin_job(state_assigns, op_state)

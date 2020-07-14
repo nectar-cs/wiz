@@ -72,7 +72,11 @@ def step_submit(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   outcome: CommitOutcome = step.commit(values, op_state)
   op_state.record_step_committed(step_id, stage_id, outcome)
-  return jsonify(status=outcome['status'], message=outcome.get('reason'))
+  return jsonify(
+    status=outcome['status'],
+    message=outcome.get('reason'),
+    logs=outcome.get('logs')
+  )
 
 
 @controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])
