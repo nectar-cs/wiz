@@ -30,7 +30,11 @@ wiz_app.add_providers([
   app_endpoints.AppEndpointsProvider
 ])
 
-wiz_app.ns_overwrite = 'hub-self-hosted'
+
+wiz_app.ns = 'hub-self-hosted'
+wiz_app.tedi_image = 'gcr.io/nectar-bazaar/nectar-tedi:latest'
+wiz_app.tedi_args = '-e hub-self-hosted'
+
 
 dotenv.load_dotenv()
 server.start()

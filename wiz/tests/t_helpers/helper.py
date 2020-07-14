@@ -5,7 +5,7 @@ import yaml
 from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from wiz.core import tedi_prep, tedi_client
+from wiz.core import tedi_client
 from wiz.core.telem.ost import OperationState, StepState
 from wiz.core.wiz_globals import wiz_app
 
@@ -26,14 +26,12 @@ def one_step_op_state(**kwargs):
   ])
 
 
-def mock_globals(ns, app_tedi_image=None):
-  app_tedi_image = app_tedi_image or ci_tedi_name()
+def mock_globals(ns, tedi_image=None):
+  tedi_image = tedi_image or ci_tedi_name()
   if ns:
-    wiz_app.ns_overwrite = ns
-
-  wiz_app.app_overwrite = dict(
-    tedi_image=app_tedi_image
-  )
+    wiz_app.ns = ns
+  if tedi_image:
+    wiz_app.tedi_image = tedi_image
 
 
 def create_base_master_map(ns):

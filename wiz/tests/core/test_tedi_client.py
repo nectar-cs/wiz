@@ -79,7 +79,7 @@ class TestTecClient(ClusterTest):
     self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):
-    wiz_app.ns_overwrite = self.ns
+    wiz_app.ns = self.ns
     tedi_client.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),

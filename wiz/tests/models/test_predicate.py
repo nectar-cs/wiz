@@ -17,7 +17,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app.ns_overwrite = ns
+    wiz_app.ns = ns
     TestKatConfigMap.create_res('master', ns, dict(
       master=json.dumps(dict(foo='bar', x=1))
     ))
@@ -31,7 +31,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_eval_resource_count_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app.ns_overwrite = ns
+    wiz_app.ns = ns
     TestKatConfigMap.create_res('r1', ns)
     TestKatConfigMap.create_res('r2', ns)
 
@@ -46,7 +46,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_eval_resource_property_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app.ns_overwrite = ns
+    wiz_app.ns = ns
     TestKatConfigMap.create_res('r1', ns)
     TestKatConfigMap.create_res('r2', ns)
 

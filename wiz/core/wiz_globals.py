@@ -1,6 +1,4 @@
-import json
 import os
-from json import JSONDecodeError
 from typing import Dict, Type, Optional, List
 
 from wiz.core import utils
@@ -26,26 +24,6 @@ def clear_cache():
     os.remove(f'{cache_root}/ns.txt')
 
 
-def persist_ns_and_app(ns, app):
-  with open(f'{cache_root}/hub-app.json', 'w') as file:
-    file.write(json.dumps(app))
-
-  with open(f'{cache_root}/ns.txt', 'w') as file:
-    file.write(ns)
-
-
-def read_ns_and_app():
-  root = '/tmp'
-  try:
-    with open(f'{root}/hub-app.json', 'r') as file:
-      app = json.loads(file.read())
-    with open(f'{root}/ns.txt', 'r') as file:
-      ns = file.read()
-    return [ns, app]
-  except (FileNotFoundError, JSONDecodeError):
-    return [None, None]
-
-
 def is_config_match(config: Dict, kind: str, key: str):
   return config['kind'] == kind and config['key'] == key
 
@@ -68,18 +46,9 @@ class WizApp:
     self.subclasses: List[Type] = []
     self.providers = []
     self.adapters = []
-    self.ns_overwrite: Optional[str] = None
-    self.app_overwrite: Optional[Dict] = None
-
-  @property
-  def ns(self):
-    return self.ns_overwrite or read_ns_and_app()[0]
-
-  def app(self):
-    return self.app_overwrite or read_ns_and_app()[1] or {}
-
-  def tedi_image_name(self) -> Optional[str]:
-    return self.app() and self.app().get('tedi_image')
+    self.ns: Optional[str] = None
+    self.tedi_image: Optional[str] = None
+    self.tedi_args: Optional[str] = None
 
   def add_configs(self, new_configs: List[Dict]):
     self.configs = self.configs + new_configs

@@ -11,7 +11,7 @@ from wiz.tests.t_helpers.cluster_test import ClusterTest
 class TestStatusComputer(ClusterTest):
 
   def test_compute_conditions_status_no_res(self):
-    wiz_app.ns_overwrite, = ns_factory.request(1)
+    wiz_app.ns, = ns_factory.request(1)
     actual = mk_step(raf='Pod:wont-be-there').compute_status()
     actual_pos = actual['condition_statuses']['positive']
     expected_pos_key = 'nectar.exit_conditions.select_resources_positive'
@@ -21,7 +21,7 @@ class TestStatusComputer(ClusterTest):
     self.assertEqual(expected_pos_key, actual_pos[0]['key'])
 
   def test_compute_conditions_neg(self):
-    wiz_app.ns_overwrite, = ns_factory.request(1)
+    wiz_app.ns, = ns_factory.request(1)
     step = mk_step(raf='Pod:*')
 
     crasher = mk_sleeper('not-an-int')
@@ -33,7 +33,7 @@ class TestStatusComputer(ClusterTest):
     self.assertEqual('negative', actual['status'])
 
   def test_compute_conditions_status_with_res(self):
-    wiz_app.ns_overwrite, = ns_factory.request(1)
+    wiz_app.ns, = ns_factory.request(1)
     cond = mk_cond('Pod:*', 'all', 'has_succeeded', 'True')
     step = mk_step(raf='Pod:*', exit=dict(positive=[cond]))
 

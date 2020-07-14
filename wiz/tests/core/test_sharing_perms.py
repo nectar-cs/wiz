@@ -16,7 +16,7 @@ class TestSharingPerms(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app.ns_overwrite, = ns_factory.request(1)
+    wiz_app.ns, = ns_factory.request(1)
 
   def test_user_perms(self):
     self.assertEqual({}, perms_map())
@@ -42,7 +42,7 @@ class TestSharingPerms(ClusterTest):
 
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app.ns_overwrite,
+    namespace=wiz_app.ns,
     body=V1ConfigMap(
       metadata=V1ObjectMeta(name='master'),
       data={

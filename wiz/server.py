@@ -22,6 +22,7 @@ controllers = [
 for controller in controllers:
   app.register_blueprint(controller.controller)
 
+
 CORS(app)
 
 
@@ -39,11 +40,18 @@ def ensure_broker_connected():
     # broker.check_connected_or_raise()
     pass
 
+
 @app.before_request
-def set_namespace_from_headers():
-  ns_overwrite = request.headers.get('Wizns')
-  if ns_overwrite:
-    wiz_app.ns_overwrite = ns_overwrite
+def apply_globals_from_headers():
+  if request.headers.get('Wizns'):
+    wiz_app.ns = request.headers.get('Wizns')
+
+  if request.headers.get('Tedi-image'):
+    wiz_app.tedi_image = request.headers.get('Tedi-Image')
+
+  if request.headers.get('Tedi-args'):
+    wiz_app.tedi_args = request.headers.get('Tedi-Args')
+
 
 def start():
   broker.connect()

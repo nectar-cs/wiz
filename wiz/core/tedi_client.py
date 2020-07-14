@@ -55,14 +55,14 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
 
 def gen_tedi_args(inlines) -> List[str]:
   values_flag: str = "-f /values/master"
-  vendor_flags: str = wiz_app.app().get('tedi_args', '')
+  vendor_flags: str = wiz_app.tedi_args
   inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
   return all_flags.split(" ")
 
 
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
-  ns, image_name = wiz_app.ns, wiz_app.tedi_image_name()
+  ns, image_name = wiz_app.ns, wiz_app.tedi_image
   pod_args = gen_tedi_args(inlines)
   result = tedi_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))

@@ -43,7 +43,7 @@ class TestResMatchRules(ClusterTest):
     from k8_kat.tests.res.common.test_kat_pod import TestKatPod
 
     ns, = ns_factory.request(1)
-    wiz_app.ns_overwrite = ns
+    wiz_app.ns = ns
     TestKatSvc.create_res('s1', ns)
     TestKatSvc.create_res('s2', ns)
 
