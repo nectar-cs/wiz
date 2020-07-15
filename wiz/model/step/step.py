@@ -78,7 +78,6 @@ class Step(WizModel):
   def res_selectors(self) -> List[ResMatchRule]:
     return list(map(ResMatchRule, self.res_selector_descs))
 
-  @abstractmethod
   def gen_job_params(self, values, op_state: OperationState) -> Dict:
     return values
 
@@ -90,16 +89,18 @@ class Step(WizModel):
     recalled_keys = utils.flatten(map(gather_keys, descriptors))
     return {key: state_assigns.get(key) for key in recalled_keys}
 
-  def finalize_chart_values(self, assigns: Dict, op_state: TOS):
+  # noinspection PyUnusedLocal
+  def finalize_chart_values(self, assigns: Dict, all_assigns, op_state: TOS):
     recalled_from_state = self.compute_recalled_assigns('chart', op_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
-  def finalize_inline_values(self, assigns: Dict, op_state: TOS):
+  # noinspection PyUnusedLocal
+  def finalize_inline_values(self, assigns: Dict, all_assigns, op_state: TOS):
     recalled_from_state = self.compute_recalled_assigns('inline', op_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
   # noinspection PyUnusedLocal
-  def finalize_state_values(self, assigns: Dict, op_state: TOS):
+  def finalize_state_values(self, assigns: Dict, all_assigns, op_state: TOS):
     return self.sanitize_field_assigns(assigns)
 
   def begin_job(self, values, op_state: OperationState) -> str:
@@ -163,15 +164,19 @@ class Step(WizModel):
         buckets[field.target][key] = value
 
     for target_type in TARGET_TYPES:
-      finalizer = target_type_to_finalizer_mapping[target_type]
+      finalizer = bucket_finalizer_mapping(target_type, self)
       # noinspection PyArgumentList
-      buckets[target_type] = finalizer(self, buckets[target_type], op_state)
+      buckets[target_type] = finalizer(buckets[target_type], assigns, op_state)
 
     return tuple(buckets[target_type] for target_type in TARGET_TYPES)
 
 
-target_type_to_finalizer_mapping = {
-  TARGET_CHART: Step.finalize_chart_values,
-  TARGET_INLINE: Step.finalize_inline_values,
-  TARGET_STATE: Step.finalize_state_values
-}
+def bucket_finalizer_mapping(key, obj: Step):
+  if key == TARGET_CHART:
+    return obj.finalize_chart_values
+  elif key == TARGET_INLINE:
+    return obj.finalize_inline_values
+  elif key == TARGET_STATE:
+    return obj.finalize_state_values
+  else:
+    print("DANGER UNKNOWN ASSIGNMENT TARGET " + key)

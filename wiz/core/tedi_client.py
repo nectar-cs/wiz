@@ -64,6 +64,8 @@ def gen_tedi_args(inlines) -> List[str]:
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   ns, image_name = wiz_app.ns, wiz_app.tedi_image
   pod_args = gen_tedi_args(inlines)
+  print(f"THE POD ARGS SHALL BE FROM {inlines}")
+  print(pod_args)
   result = tedi_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 

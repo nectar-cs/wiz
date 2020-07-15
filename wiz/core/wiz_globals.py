@@ -79,8 +79,8 @@ class WizApp:
     return [c for c in self.configs if c['kind'] == kind]
 
   def find_subclass(self, kind: str, key: str) -> Optional[Type]:
-    matches = [c for c in self.subclasses if is_subclass_match(c, kind, key)]
-    return matches[0] if len(matches) else None
+    predicate = lambda klass: is_subclass_match(klass, kind, key)
+    return next((c for c in self.subclasses if predicate(c)), None)
 
   def clear(self):
     self.configs = default_configs()

@@ -22,7 +22,6 @@ wiz_app.add_overrides([
   fields.AttrEncField,
   fields.CpuQuotaFields,
   fields.MemQuotaFields,
-  steps.LocateExternalDatabaseStep,
   steps.AvailabilityStep,
 ])
 
