@@ -5,8 +5,9 @@ from wiz.model.field.field import Field
 
 
 class DbPasswordField(Field):
+
   @classmethod
-  def key(cls):
+  def expected_key(cls):
     return 'hub.storage.secrets.password'
 
   @classmethod
@@ -19,7 +20,7 @@ class DbPasswordField(Field):
 
 class SecKeyBaseField(Field):
   @classmethod
-  def key(cls):
+  def expected_key(cls):
     return 'hub.backend.secrets.key_base'
 
   @classmethod
@@ -32,7 +33,7 @@ class SecKeyBaseField(Field):
 
 class AttrEncField(Field):
   @classmethod
-  def key(cls):
+  def expected_key(cls):
     return 'hub.backend.secrets.attr_enc_key'
 
   @classmethod
@@ -43,7 +44,11 @@ class AttrEncField(Field):
     return utils.rand_str(string_len=32)
 
 
-class CpuQuotaField(Field):
+class CpuQuotaFields(Field):
+  @classmethod
+  def covers_key(cls, key):
+    return "hub.quotas" in key and "cpu" in key
+
   @classmethod
   def type_key(cls):
     return Field.type_key()
@@ -56,7 +61,11 @@ class CpuQuotaField(Field):
     )
 
 
-class MemQuotaField(Field):
+class MemQuotaFields(Field):
+  @classmethod
+  def covers_key(cls, key):
+    return "hub.quotas" in key and "memory" in key
+
   @classmethod
   def type_key(cls):
     return Field.type_key()
@@ -70,28 +79,3 @@ class MemQuotaField(Field):
 
   def sanitize_value(self, value):
     return f"{value}G"
-
-
-class CPURequestsQuotaField(CpuQuotaField):
-  @classmethod
-  def key(cls):
-    return 'hub.quotas.requests.cpu'
-
-
-class CPULimitsQuotaField(CpuQuotaField):
-  @classmethod
-  def key(cls):
-    return 'hub.quotas.limits.cpu'
-
-
-class MemRequestsQuotaField(MemQuotaField):
-  @classmethod
-  def key(cls):
-    return 'hub.quotas.requests.memory'
-
-
-class MemLimitsQuotaField(MemQuotaField):
-  @classmethod
-  def key(cls):
-    return 'hub.quotas.limits.memory'
-

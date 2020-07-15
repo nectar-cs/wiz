@@ -41,11 +41,9 @@ class WizModel:
     return key_or_dict_to_child(key_or_dict, child_class, self)
 
   @classmethod
-  def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:
-    key = config.get('key')
-    subclass = key and wiz_app.find_subclass(cls.type_key(), key)
-    host_class = subclass or cls
-    return host_class(config)
+  def inflate_all(cls):
+    configs = wiz_app.configs_of_kind(cls.type_key())
+    return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
   def inflate_with_key(cls, key: str) -> Optional['WizModel']:
@@ -53,9 +51,11 @@ class WizModel:
     return cls.inflate_with_config(config)
 
   @classmethod
-  def inflate_all(cls):
-    configs = wiz_app.configs_of_kind(cls.type_key())
-    return [cls.inflate_with_config(config) for config in configs]
+  def inflate_with_config(cls, config: Dict) -> Optional['WizModel']:
+    key = config.get('key')
+    subclass = key and wiz_app.find_subclass(cls.type_key(), key)
+    host_class = subclass or cls
+    return host_class(config)
 
   @classmethod
   def inflate(cls: Type[T], key_or_dict: Union[str, Dict]) -> Optional[T]:
@@ -68,6 +68,14 @@ class WizModel:
   @classmethod
   def type_key(cls):
     return f"{cls.__name__}"
+
+  @classmethod
+  def expected_key(cls):
+    return None
+
+  @classmethod
+  def covers_key(cls, key):
+    return cls.expected_key() == key
 
 
 def key_or_dict_to_key(key_or_dict) -> str:

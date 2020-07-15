@@ -30,8 +30,8 @@ def is_config_match(config: Dict, kind: str, key: str):
 
 def is_subclass_match(subclass, kind: str, key: str):
   from wiz.model.base.wiz_model import WizModel
-  actual: WizModel = subclass
-  return actual.type_key() == kind and actual.key() == key
+  actual: Type[WizModel] = subclass
+  return actual.type_key() == kind and actual.covers_key(key)
 
 
 def default_configs() -> List[Dict]:
