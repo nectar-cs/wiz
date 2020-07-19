@@ -5,7 +5,7 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from k8_kat.auth.kube_broker import broker
 from k8_kat.utils.testing import ns_factory
-from wiz.core.telem import sharing_perms
+from wiz.core.telem import telem_perms
 from wiz.core.telem.perms_redactor import redact_op_outcome
 from wiz.core.wiz_globals import wiz_app
 
@@ -48,7 +48,7 @@ def mk_map(contents: Dict):
     body=V1ConfigMap(
       metadata=V1ObjectMeta(name='master'),
       data={
-        sharing_perms.cmap_field: json.dumps(contents)
+        telem_perms.cmap_field: json.dumps(contents)
       }
     )
   )

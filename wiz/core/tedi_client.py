@@ -33,7 +33,7 @@ def commit_values(assignments: List[Tuple[str, any]]):
 
 def chart_dump() -> Dict:
   config_map = master_cmap()
-  return config_map.yget()
+  return config_map.yget() if config_map else {}
 
 
 def chart_value(deep_key: str) -> Optional[str]:

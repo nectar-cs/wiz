@@ -1,10 +1,10 @@
 from typing import Dict, Optional, Union, List
 
 from wiz.core.telem.serial import ApiOperationOutcome
-from wiz.core.telem.sharing_perms import SharingPerms
+from wiz.core.telem.telem_perms import TelemPerms
 
 
-def if_allowed(perms: SharingPerms, prop_name: str, value) -> Optional:
+def if_allowed(perms: TelemPerms, prop_name: str, value) -> Optional:
   can_share = perms.can_share_prop(prop_name)
   if can_share:
     return value() if callable(value) else value
@@ -28,5 +28,5 @@ def redact_for_perms(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
 
 
 def redact_op_outcome(op_outcome: ApiOperationOutcome) -> ApiOperationOutcome:
-  perms = SharingPerms()
+  perms = TelemPerms()
   return redact_for_perms(perms, 'operation_outcome.', op_outcome)

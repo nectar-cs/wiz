@@ -8,7 +8,7 @@ cmap_field = 'sharing_prefs'
 upload_telem_key = 'upload_telem'
 
 
-class SharingPerms:
+class TelemPerms:
 
   @cached_property
   def master_cmap(self):

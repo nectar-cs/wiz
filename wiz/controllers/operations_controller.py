@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from wiz.core.telem import telem_sync
 from wiz.core.telem.audit_sink import AuditConfig, audit_sink
 from wiz.core.telem.ost import OperationState
-from wiz.core.telem.sharing_perms import SharingPerms
+from wiz.core.telem.telem_perms import TelemPerms
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.predicate.predicate import Predicate
@@ -135,9 +135,9 @@ def mark_finished(operation_id):
   active_op_state = OperationState.find(token) if token else None
 
   if active_op_state and active_op_state.operation_id == operation_id:
-    sharing_perms, audit_config = SharingPerms(), AuditConfig()
+    telem_perms, audit_config = TelemPerms(), AuditConfig()
 
-    if sharing_perms.can_sync_telem():
+    if telem_perms.can_sync_telem():
       success = telem_sync.upload_operation_outcome(active_op_state)
       sync_status = 'success' if success else 'mem-failed'
 
@@ -175,7 +175,7 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
 
 
 def osr_token():
-  return request.headers.get('osr_id')
+  return request.headers.get('ost_id')
 
 
 def find_op_state(operation_id: str) -> OperationState:
