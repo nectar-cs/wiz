@@ -43,9 +43,8 @@ class StepState:
     self.running_status = status
     self.terminated_at = datetime.now()
 
-  def belongs_to_step(self, step_id, stage_id):
-    return self.step_id == step_id and \
-           self.stage_id == stage_id
+  def belongs_to_step(self, stage_id, step_id):
+    return self.step_id == step_id and self.stage_id == stage_id
 
   def serialize(self):
     return dict(
@@ -61,10 +60,10 @@ class OperationState:
     self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
-  def find_or_create(cls, osr_id: str, operation_id: str):
-    instance = cls.find(osr_id)
+  def find_or_create(cls, ost_id: str, operation_id: str):
+    instance = cls.find(ost_id)
     if not instance:
-      instance = OperationState(id=osr_id, operation_id=operation_id)
+      instance = OperationState(id=ost_id, operation_id=operation_id)
       operation_states.append(instance)
     return instance
 
@@ -82,10 +81,10 @@ class OperationState:
   def is_tracked(self):
     return self.osr_id is not None
 
-  def record_step_started(self, step_id, stage_id):
+  def record_step_started(self, stage_id, step_id):
     self.step_states.append(StepState(
       step_id=step_id,
-      stage_key=stage_id,
+      stage_id=stage_id,
       started_at=datetime.now()
     ))
 

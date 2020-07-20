@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import List, Dict, Union, Tuple, Optional
 
 from wiz.core import tedi_client, step_job_prep, utils
@@ -32,8 +31,7 @@ class Step(WizModel):
     if 'applies_manifest' in self.config.keys():
       return self.config.get('applies_manifest', True)
     else:
-      manifest_fields = filter(Field.is_manifest_bound, self.fields())
-      return len(list(manifest_fields)) > 0
+      return len(self.res_selectors()) > 0
 
   def runs_job(self) -> bool:
     return bool(self.job_descriptor)
@@ -123,7 +121,7 @@ class Step(WizModel):
       tedi_client.commit_values(chart_assigns.items())
       # outcome['prev_chart_vals'] =
 
-    if len(self.res_selectors()) > 0:
+    if self.applies_manifest():
       out = tedi_client.apply(self.res_selectors(), inline_assigns.items())
       logs = out.split("\n") if out else []
       return CommitOutcome(**outcome, status='pending', logs=logs)

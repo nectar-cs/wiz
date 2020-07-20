@@ -1,0 +1,46 @@
+kind: Operation
+title: Fast Outcomes FakeOp
+key: fast-ost
+info: "This is not a real operation, and exists for testing purposes only."
+
+stages:
+  - kind: Stage
+    key: fast-ost.stage1
+    title: Assignments
+    info: "This is not a real stage, and exists for testing purposes only."
+    steps:
+      - kind: Step
+        key: fast-ost.stage1.cv-and-state
+        info: "This is not a real step, and exists for testing purposes only."
+        title: "One of each var"
+        resource_apply_filter:  []
+        fields:
+          - kind: Field
+            key: fast-ost.stage1.multi-var.chart-no-apply
+            title: "Target = chart (no-apply)"
+            target: chart
+            default: foo
+
+          - kind: Field
+            key: fast-ost.stage1.multi-var.state
+            title: "Target = state"
+            target: state
+            default: bar
+
+      - kind: Step
+        key: fast-ost.stage1.reg-and-inline
+        info: "This is not a real step, and exists for testing purposes only."
+        title: "One of each var"
+        resource_apply_filter: 'Deployment:*'
+        fields:
+          - kind: Field
+            key: fast-ost.stage1.multi-var.chart-apply
+            title: "Target = chart"
+            target: chart
+            default: foo
+
+          - kind: Field
+            key: fast-ost.stage1.multi-var.inline
+            title: "Target = inline"
+            target: inline
+            default: bar

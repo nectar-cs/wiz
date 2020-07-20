@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 
+from wiz.core import utils
 from wiz.core.telem import telem_sync
 from wiz.core.telem.audit_sink import AuditConfig, audit_sink
-from wiz.core.telem.ost import OperationState
+from wiz.core.telem.ost import OperationState, operation_states
 from wiz.core.telem.telem_perms import TelemPerms
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
@@ -44,9 +45,20 @@ def operations_show(operation_id):
   return jsonify(data=operation_serial.ser_full(operation))
 
 
+@controller.route(f'{OPERATIONS_PATH}/request-ost')
+def operations_gen_ost():
+  return jsonify(data=utils.rand_str(string_len=10))
+
+
+@controller.route(f'{OPERATIONS_PATH}/osts')
+def operations_ost_index():
+  return jsonify(data=operation_states)
+
+
 @controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
 def prerequisite_eval(operation_id, prerequisite_id):
   prereq = find_prereq(operation_id, prerequisite_id)
+  # noinspection PyBroadException
   try:
     condition_met = prereq.evaluate()
   except:
@@ -70,8 +82,9 @@ def step_submit(operation_id, stage_id, step_id):
   values = request.json['values']
   op_state = find_op_state(operation_id)
   step = find_step(operation_id, stage_id, step_id)
+  op_state.record_step_started(stage_id, step_id)
   outcome: CommitOutcome = step.commit(values, op_state)
-  op_state.record_step_committed(step_id, stage_id, outcome)
+  op_state.record_step_committed(stage_id, step_id, outcome)
   return jsonify(
     status=outcome['status'],
     message=outcome.get('reason'),
@@ -131,7 +144,7 @@ def fields_decorate(operation_id, stage_id, step_id, field_id):
 
 @controller.route(f'{OPERATION_PATH}/mark_finished', methods=['POST'])
 def mark_finished(operation_id):
-  token, sync_status = osr_token(), 'avoid'
+  token, sync_status = parse_ost_header(), 'avoid'
   active_op_state = OperationState.find(token) if token else None
 
   if active_op_state and active_op_state.operation_id == operation_id:
@@ -174,12 +187,15 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   return step.field(field_id)
 
 
-def osr_token():
-  return request.headers.get('ost_id')
+def parse_ost_header():
+  return request.headers.get('Ostid')
 
 
 def find_op_state(operation_id: str) -> OperationState:
-  if osr_token():
-    return OperationState.find_or_create(osr_token(), operation_id)
+  if parse_ost_header():
+    return OperationState.find_or_create(
+      parse_ost_header(),
+      operation_id
+    )
   else:
     return OperationState(operation_id=operation_id)

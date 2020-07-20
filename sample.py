@@ -6,12 +6,13 @@ from wiz import server
 from wiz.core import utils
 from wiz.core.wiz_globals import wiz_app
 
-yamls_base = 'sample_wiz/operation-yamls'
+op_yamls_base = 'sample_wiz/operation-yamls'
 
 
 wiz_app.add_configs(
-  utils.yamls_in_dir(f'{yamls_base}/installation') +
-  utils.yamls_in_dir(f'{yamls_base}/move-to-own-pvc') +
+  utils.yamls_in_dir(f'{op_yamls_base}/installation') +
+  utils.yamls_in_dir(f'{op_yamls_base}/move-to-own-pvc') +
+  utils.yamls_in_dir(f'{op_yamls_base}/easy-win') +
   utils.yamls_in_dir(f'sample_wiz/variables-yamls')
 )
 
