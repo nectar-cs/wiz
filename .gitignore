@@ -113,3 +113,5 @@ dmypy.json
 
 /k8_kat
 .idea
+.env
+/k8-kat
