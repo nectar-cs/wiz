@@ -22,6 +22,11 @@ BASE_PATH = '/api/resources'
 
 @controller.route(f'{BASE_PATH}/category/<category_id>', methods=['GET'])
 def list_by_category(category_id):
+  """
+  Lists KatRes resources by category.
+  :param category_id: eg "workloads" would list KatDep resources.
+  :return: list of serialized KatRes instances.
+  """
   kat_res_classes: List[Type[KatRes]] = category_mapping[category_id]
   all_serialized_res = []
   for kat_class in kat_res_classes:
@@ -33,6 +38,12 @@ def list_by_category(category_id):
 
 @controller.route(f'{BASE_PATH}/<kind>/<name>', methods=['GET'])
 def resource_detail(kind: str, name: str):
+  """
+  Finds a particular KatRes resource instance.
+  :param kind: kind of resource, eg KatDep.
+  :param name: name of resource.
+  :return: serialized resource KatRes instance.
+  """
   kat_class = KatRes.find_res_class(kind)
   res = kat_class.find(name, wiz_app.ns)
   serializer = kind_serializer_mapping.get(kind)

@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import datetime
 from functools import reduce
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from k8_kat.utils.main.utils import deep_merge
 from wiz.core.types import CommitOutcome, StepRunningStatus
@@ -21,46 +21,90 @@ class StepState:
 
   @property
   def chart_assigns(self):
+    """
+    Getter for chart assigns from the Step's commit outcome.
+    :return: chart assigns dict.
+    """
     return self.commit_outcome.get('chart_assigns', {})
 
   @property
   def state_assigns(self):
+    """
+    Getter for state assigns from the Step's commit outcome.
+    :return: state assigns dict.
+    """
     return self.commit_outcome.get('state_assigns', {})
 
   @property
   def all_assigns(self):
+    """
+    Merges chart assigns and state assigns extracted from the commit outcome.
+    :return:
+    """
     return dict(**self.chart_assigns, **self.state_assigns)
 
   def patch_committed(self, commit_outcome: CommitOutcome):
+    """
+    Patches the current StepState with the details of the commit outcome. Eg
+    happens when the user submits a form with the given state in the Front End.
+    :param commit_outcome: details of last commit outcome.
+    """
     self.committed_at = datetime.now()
     self.commit_outcome = deepcopy(commit_outcome)
     self.job_id = commit_outcome.get('job_id')
 
   def patch_pending(self, status: StepRunningStatus):
+    """
+    Patches the status of the current StepState as pending. Occurs while not all
+    exit checks have passed.
+    :param status: dict with status details used to patch the state.
+    """
     self.running_status = status
 
   def patch_terminated(self, status: StepRunningStatus):
+    """
+    Patches the current StepState with the terminated status and termination time.
+    :param status: dict with status details used to patch the state.
+    """
     self.running_status = status
     self.terminated_at = datetime.now()
 
-  def belongs_to_step(self, stage_id, step_id):
+  def belongs_to_step(self, stage_id:str, step_id:str) -> bool:
+    """
+    Checks if the current StepOutcome belongs to a given Step.
+    :param stage_id: stage id to check against.
+    :param step_id: step id to check against.
+    :return: True if both match, False otherwise.
+    """
     return self.step_id == step_id and self.stage_id == stage_id
 
   def serialize(self):
+    """
+    Serializes the StepState object into a simple dict.
+    :return: dict with step id and stage id.
+    """
     return dict(
       step_id=self.step_id,
+      # todo is this correct? stage_id = step_id?
       stage_id=self.step_id,
     )
 
 
 class OperationState:
   def __init__(self, **kwargs):
-    self.osr_id = kwargs.get('id')
+    self.osr_id = kwargs.get('id') #OSR = operation state recorder
     self.operation_id = kwargs.get('operation_id')
     self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
   def find_or_create(cls, ost_id: str, operation_id: str):
+    # todo half places are using osr_id, half ost_id - we should decide on one
+    """
+    Tries to find an OperationState with a matching osr id, else creates a new one.
+    :param ost_id: id to match by.
+    :param operation_id: operation for which the OperationState is being located.
+    :return: instance of the OperationState.
+    """
     instance = cls.find(ost_id)
     if not instance:
       instance = OperationState(id=ost_id, operation_id=operation_id)
@@ -68,55 +112,111 @@ class OperationState:
     return instance
 
   @classmethod
-  def find(cls, osr_id):
+  def find(cls, osr_id:str) -> 'OperationState':
+    """
+    Finds the OperationState with the marching osr id.
+    :param osr_id: id to match by.
+    :return: OperationState or None
+    """
     matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
     return next(matcher, None)
 
   @classmethod
-  def delete_if_exists(cls, osr_id: str):
+  def delete_if_exists(cls, osr_id: str) -> Optional['OperationState']:
+    """
+    Deletes the OperationState if one with the given osr id exists.
+    :param osr_id: id used to locate the OperationState.
+    :return: deleted instance of the OperationState if found, else None.
+    """
     tuples = enumerate(operation_states)
     index = next((i for i, ops in tuples if ops.osr_id == osr_id), None)
     return operation_states.pop(index) if index else None
 
   def is_tracked(self):
+    """
+    Checks if a given OperationState has an osr id associated with it.
+    :return: True if it does, False otherwise.
+    """
     return self.osr_id is not None
 
-  def record_step_started(self, stage_id, step_id):
+  def record_step_started(self, stage_id:str, step_id:str):
+    """
+    Append a new StepState to the current OperationState.
+    :param stage_id: stage id to be recorded for the StepState.
+    :param step_id: step id to be recorded for the StepState.
+    """
     self.step_states.append(StepState(
       step_id=step_id,
       stage_id=stage_id,
       started_at=datetime.now()
     ))
 
-  def record_step_committed(self, stage_id, step_id, commit_outcome: CommitOutcome):
+  def record_step_committed(self, stage_id:str, step_id:str, commit_outcome: CommitOutcome):
+    """
+    Records that a given step has been committed.
+    :param stage_id: stage id to find the right step.
+    :param step_id: step id to find the right step.
+    :param commit_outcome: commit outcome with the details of the commit.
+    """
     step_state = self.find_step_record(stage_id, step_id)
     if step_state:
       step_state.patch_committed(commit_outcome)
 
   def record_step_terminated(self, stage_id, step_id, status: StepRunningStatus):
+    """
+    Records that a given step has been terminated.
+    :param stage_id: stage id to find the right step.
+    :param step_id: step id to find the right step.
+    :param status: dict with status details used to patch the state.
+    """
     step_state = self.find_step_record(stage_id, step_id)
     if step_state:
       step_state.patch_terminated(status)
 
   def record_step_pending(self, stage_id, step_id, status: StepRunningStatus):
+    """
+    Records that a given step is still pending.
+    :param stage_id: stage id to find the right step.
+    :param step_id: step id to find the right step.
+    :param status: dict with status details used to patch the state.
+    """
     step_state = self.find_step_record(stage_id, step_id)
     if step_state:
       step_state.patch_pending(status)
 
-  def find_step_record(self, stage_id, step_id):
+  def find_step_record(self, stage_id, step_id) -> StepState:
+    """
+    Finds the StepOutcome with a matching stage_id and step_id.
+    :param stage_id: stage id to match against.
+    :param step_id: step id to match against.
+    :return: matching StepOutcome or None.
+    """
     predicate = lambda so: so.belongs_to_step(stage_id, step_id)
     matcher = (so for so in self.step_states if predicate(so))
     return next(matcher, None)
 
   def state_assigns(self) -> Dict:
+    """
+    Deep merges state assigns from a list of StepStates
+    :return: all state assigns in one dict.
+    """
+    # todo what is w, e?
     merge = lambda w, e: deep_merge(w, deepcopy(e.state_assigns))
     return reduce(merge, self.step_states, {})
 
   def chart_assigns(self) -> Dict:
+    """
+    Deep merges chart assigns from a list of StepStates.
+    :return: all chart assigns in one dict.
+    """
     merge = lambda w, e: deep_merge(w, deepcopy(e.chart_assigns))
     return reduce(merge, self.step_states, {})
 
   def all_assigns(self) -> Dict:
+    """
+    Merges together state assigns and chart assigns into a single dict.
+    :return: dict containing state assigns and chart assigns.
+    """
     return {**self.state_assigns(), **self.chart_assigns()}
 
 

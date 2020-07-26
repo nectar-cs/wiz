@@ -3,7 +3,12 @@ from wiz.model.field import serial as field_serial
 from wiz.model.operations.operation import Operation
 
 
-def _mini_operation_ser(operation: Operation):
+def _mini_operation_ser(operation: Operation) -> dict:
+  """
+  Miniature serializer for the Operation instance.
+  :param operation: Operation class instance.
+  :return: serialized Operation object (dict).
+  """
   return dict(
     id=operation.key,
     title=operation.title
@@ -11,6 +16,12 @@ def _mini_operation_ser(operation: Operation):
 
 
 def standard(cv: ChartVariable, cache=None):
+  """
+  Standard serializer for the ChartVariable instance.
+  :param cv: ChartVariable class instance.
+  :param cache: cache to extract the chart value.
+  :return: serialized ChartVariable object (dict).
+  """
   ops_ser = [_mini_operation_ser(o) for o in cv.operations()]
   return dict(
     id=cv.key,
@@ -26,6 +37,12 @@ def standard(cv: ChartVariable, cache=None):
 
 
 def with_field(cv: ChartVariable):
+  """
+  Extended serializer for the ChartVariable instance, which also includes includes
+  details about the associated field.
+  :param cv: ChartVariable class instance.
+  :return: extended serialized ChartVariable object (dict).
+  """
   field = cv.field()
   return dict(
     **standard(cv),

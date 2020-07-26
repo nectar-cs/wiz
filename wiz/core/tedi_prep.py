@@ -11,7 +11,13 @@ from wiz.core import utils, wiz_globals
 
 
 def consume(ns, image: str, args: List[str]) -> Optional[str]:
-
+  """
+  Creates a tedi image with the passed namespace, image and args.
+  :param ns: desired namespace for Tedi container.
+  :param image: desired image for Tedi container.
+  :param args: desiered args for Tedi container.
+  :return: logs from the Tedi container.
+  """
   pod_name = f"tedi-{utils.rand_str()}"
 
   broker.coreV1.create_namespaced_pod(
@@ -53,6 +59,10 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
 
 
 def volume_mounts() -> List[V1VolumeMount]:
+  """
+  Creates a volume mount.
+  :return: volume mount data.
+  """
   return [
     V1VolumeMount(
       name='master-config-map',
