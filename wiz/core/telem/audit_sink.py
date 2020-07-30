@@ -9,19 +9,31 @@ from wiz.core.telem.ost import OperationState
 
 
 class AuditConfig:
+  """Class to work with the audit details in the config."""
 
   @cached_property
   def config_dict(self) -> Dict:
+    """
+    Returns the auditing section from the ConfigMap.
+    :return: auditing section as dict.
+    """
     kat_map = tedi_client.master_cmap()
     chart = kat_map.jget('master', {}) if kat_map else {}
     return chart.get('nectar', {}).get('auditing', {})
 
   def is_persistence_enabled(self) -> bool:
+    """
+    Checks if persistent storage is enabled.
+    :return: True if enabled, False otherwise.
+    """
+    # TODO FIX BUG WITH BOOLEAN
     strategy = self.config_dict.get('storage_strategy', '')
     return bool(strategy.strip())
 
 
 class AuditableEvent:
+  """Model for persisting events in the db."""
+
   __tablename__ = 'audit_items'
 
   id = Column(Integer, primary_key=True)
@@ -34,6 +46,7 @@ class AuditableEvent:
 
 
 class AuditSink:
+  """Persists telem events in the database."""
 
   def __init__(self):
     self.db = None

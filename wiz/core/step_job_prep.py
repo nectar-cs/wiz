@@ -18,6 +18,12 @@ params_fname = 'params.json'
 
 
 def _create_shared_config_map(job_id, values: Dict):
+  """
+  Creates a k8s ConfigMap.
+  :param job_id: desired job id
+  :param values: values to be stored in data section of the job, under "params.json" key
+  :return: newly created ConfigMap data
+  """
   return broker.coreV1.create_namespaced_config_map(
     namespace=wiz_app.ns,
     body=V1ConfigMap(
@@ -33,6 +39,14 @@ def _create_shared_config_map(job_id, values: Dict):
 
 
 def _create_job(job_id, image, command, args):
+  """
+  Launches a k8s job.
+  :param job_id: desired job id
+  :param image: desired image
+  :param command: desired startup command
+  :param args: desired args for the command
+  :return: newly created job data
+  """
   return broker.batchV1.create_namespaced_job(
     namespace=wiz_app.ns,
     body=V1Job(
@@ -77,6 +91,14 @@ def _create_job(job_id, image, command, args):
 
 
 def create_and_run(image, command, args, values) -> str:
+  """
+  Updates the ConfigMap, then creates and launches a k8s job.
+  :param image: desired job image
+  :param command: desired job startup command
+  :param args: desired args for the command
+  :param values: values to be stored in data section of the job, under "params.json" key
+  :return: job id for the newly created job
+  """
   job_id = utils.rand_str(string_len=10)
   _create_shared_config_map(job_id, values)
   _create_job(job_id, image, command, args)

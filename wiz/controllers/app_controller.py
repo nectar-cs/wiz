@@ -14,6 +14,10 @@ BASE_PATH = '/api/app'
 
 @controller.route(f'{BASE_PATH}/resource-stats', methods=["GET"])
 def app_resource_usage():
+  """
+  Returns the Base Consumption adapter.
+  :return: serialized adapter object.
+  """
   adapter = wiz_app.find_adapter_subclass(BaseConsumptionAdapter, True)
   output = adapter().serialize()
   return jsonify(data=output)
@@ -21,6 +25,10 @@ def app_resource_usage():
 
 @controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
 def application_endpoints():
+  """
+  Returns a list of application endpoint adapters.
+  :return: list of serialized adapters.
+  """
   provider = wiz_app.find_provider(AppEndpointAdapter)()
   if provider:
     adapters = provider.produce_adapters()
@@ -32,6 +40,10 @@ def application_endpoints():
 
 @controller.route(f'{BASE_PATH}/workload_versions', methods=["GET"])
 def workload_versions():
+  """
+  Returns the versions and last update times for workloads.
+  :return: list with versions and last updates times for each workload.
+  """
   ns = wiz_app.ns
   kat_deps: List[KatDep] = KatDep.list(ns=ns)
   version_list = []

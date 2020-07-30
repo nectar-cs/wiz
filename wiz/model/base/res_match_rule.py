@@ -15,6 +15,14 @@ class RuleDict(TypedDict, total=False):
 
 
 class ResMatchRule:
+  """Class that holds Resource Match Rules used to filter resources.
+  Such rules include:
+    1. Resource kind, eg Operation
+    2. Resource name
+    3. Resource label selectors (as per k8s)
+    4. Resource field selectors (as per k8s)
+  """
+
   def __init__(self, obj: Union[str, RuleDict]):
     rule_dict: RuleDict = obj
     if type(obj) == str:
@@ -26,6 +34,11 @@ class ResMatchRule:
     self.field_selectors = rule_dict.get('field_selectors')
 
   def evaluate(self, res: K8sResDict) -> bool:
+    """
+    Compares own kind and name with that of the passed k8s resource's.
+    :param res: k8s resource to be used for comparison.
+    :return: returns True if both match, False otherwise.
+    """
     res_kind = res['kind']
     res_name = res['metadata']['name']
 
@@ -40,6 +53,11 @@ class ResMatchRule:
     return True
 
   def query(self) -> List[KatRes]:
+    """
+    Uses the rules defined at instantiation (kind, name, label selectors, field
+    selectors) to locate all matching k8s resources.
+    :return: list of k8s resources, instantiated as k8-kat classes.
+    """
     kat_class = KatRes.find_res_class(self.kind)
     if kat_class:
       field_selectors = self.field_selectors
@@ -61,6 +79,11 @@ class ResMatchRule:
 
 
 def coerce_rule_expr_to_dict(expr: str) -> RuleDict:
+  """
+  Coerces a rule expression from string to dict.
+  :param expr: rule expression in string form.
+  :return: rule expression in dict form.
+  """
   parts = expr.split(':')
   return RuleDict(
     kind=parts[len(parts) - 2],
@@ -69,6 +92,13 @@ def coerce_rule_expr_to_dict(expr: str) -> RuleDict:
 
 
 def component_matches(rule_exp: str, challenge: str) -> bool:
+  """
+  Checks if rule expression matches the challenge. Accounts for rule expressions
+  being passed as "*".
+  :param rule_exp: rule expression to be matched.
+  :param challenge: challenged to be matched.
+  :return: True if matches, False otherwise.
+  """
   if rule_exp:
     if rule_exp == '*' or rule_exp == challenge:
       return True

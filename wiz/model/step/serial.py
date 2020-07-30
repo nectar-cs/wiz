@@ -3,6 +3,11 @@ from wiz.model.step.step import Step
 
 
 def standard(step: Step):
+  """
+  Standard serializer for a step.
+  :param step: Step class instance.
+  :return: serialized Step in dict form.
+  """
   return dict(
     id=step.key,
     title=step.title,

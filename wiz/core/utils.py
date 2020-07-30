@@ -6,7 +6,7 @@ import subprocess
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import yaml
 
@@ -23,12 +23,22 @@ def shell_exec(cmd) -> str:
 
 
 def yamls_in_dir(dirpath) -> [Dict]:
+  """
+  Parses all YAMLs in the passed dirpath into a single list of dicts.
+  :param dirpath: path where YAMLs are located.
+  :return: list of dicts.
+  """
   fnames = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
   yaml_arrays = [yamls_in_file(f"{dirpath}/{fname}") for fname in fnames]
   return [item for sublist in yaml_arrays for item in sublist]
 
 
-def yamls_in_file(fname):
+def yamls_in_file(fname) -> List[Dict]:
+  """
+  Converts a YAML file into a list of dicts.
+  :param fname: YAML file.
+  :return: list of dicts.
+  """
   with open(fname, 'r') as stream:
     file_contents = stream.read()
     return list(yaml.full_load_all(file_contents))
