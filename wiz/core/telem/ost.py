@@ -85,22 +85,20 @@ class StepState:
     """
     return dict(
       step_id=self.step_id,
-      # todo is this correct? stage_id = step_id?
-      stage_id=self.step_id,
+      stage_id=self.stage_id
     )
 
 
 class OperationState:
   def __init__(self, **kwargs):
-    self.osr_id = kwargs.get('id') #OSR = operation state recorder
+    self.ost_id = kwargs.get('id') #ost = operation state
     self.operation_id = kwargs.get('operation_id')
     self.step_states: List[StepState] = kwargs.get('step_states', [])
 
   @classmethod
   def find_or_create(cls, ost_id: str, operation_id: str):
-    # todo half places are using osr_id, half ost_id - we should decide on one
     """
-    Tries to find an OperationState with a matching osr id, else creates a new one.
+    Tries to find an OperationState with a matching ost id, else creates a new one.
     :param ost_id: id to match by.
     :param operation_id: operation for which the OperationState is being located.
     :return: instance of the OperationState.
@@ -112,24 +110,24 @@ class OperationState:
     return instance
 
   @classmethod
-  def find(cls, osr_id:str) -> 'OperationState':
+  def find(cls, ost_id:str) -> 'OperationState':
     """
     Finds the OperationState with the marching osr id.
-    :param osr_id: id to match by.
+    :param ost_id: id to match by.
     :return: OperationState or None
     """
-    matcher = (oo for oo in operation_states if oo.osr_id == osr_id)
+    matcher = (oo for oo in operation_states if oo.ost_id == ost_id)
     return next(matcher, None)
 
   @classmethod
-  def delete_if_exists(cls, osr_id: str) -> Optional['OperationState']:
+  def delete_if_exists(cls, ost_id: str) -> Optional['OperationState']:
     """
     Deletes the OperationState if one with the given osr id exists.
-    :param osr_id: id used to locate the OperationState.
+    :param ost_id: id used to locate the OperationState.
     :return: deleted instance of the OperationState if found, else None.
     """
     tuples = enumerate(operation_states)
-    index = next((i for i, ops in tuples if ops.osr_id == osr_id), None)
+    index = next((i for i, ops in tuples if ops.ost_id == ost_id), None)
     return operation_states.pop(index) if index else None
 
   def is_tracked(self):
@@ -137,7 +135,7 @@ class OperationState:
     Checks if a given OperationState has an osr id associated with it.
     :return: True if it does, False otherwise.
     """
-    return self.osr_id is not None
+    return self.ost_id is not None
 
   def record_step_started(self, stage_id:str, step_id:str):
     """
@@ -200,8 +198,7 @@ class OperationState:
     Deep merges state assigns from a list of StepStates
     :return: all state assigns in one dict.
     """
-    # todo what is w, e?
-    merge = lambda w, e: deep_merge(w, deepcopy(e.state_assigns))
+    merge = lambda w, e: deep_merge(w, deepcopy(e.state_assigns)) #whole, #element
     return reduce(merge, self.step_states, {})
 
   def chart_assigns(self) -> Dict:

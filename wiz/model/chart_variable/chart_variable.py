@@ -95,7 +95,7 @@ class ChartVariable(WizModel):
   def read_crt_value(self, cache=None) -> Optional[str]:
     """
     Reads the current value of the associated field. Tries to read from cache
-    first, else dumps the master ConfigMap and gets the value from there.
+    first, else dumps the ConfigMap and gets the value from there.
     :param cache: cache object to be checked first.
     :return: string containing the current value of the field.
     """

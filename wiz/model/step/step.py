@@ -25,7 +25,6 @@ class Step(WizModel):
     return self.config.get('fields', [])
 
   def updates_chart(self) -> bool:
-    # todo is my understanding correct? there are no usages
     """
     Decides whether the chart needs to be updated. First looks at "updates_chart"
     variable, then at whether there are any chart fields associated with the step.
@@ -53,10 +52,6 @@ class Step(WizModel):
     :return: True if yes, False otherwise.
     """
     return bool(self.job_descriptor)
-
-  def is_long_running(self):
-    # todo no usages?
-    return self.runs_job() or self.applies_manifest()
 
   @property
   def res_selector_descs(self) -> List[Union[str, dict]]:
@@ -175,6 +170,7 @@ class Step(WizModel):
   def finalize_chart_values(self, assigns: Dict, all_assigns, op_state: TOS) -> dict:
     """
     Merges existing chart assigns with new ones from the Front End and sanitizes both.
+    Called by the partition function via reflection.
     :param assigns: ultimately come from request.json['values']
     :param all_assigns: todo don't seem to be used?
     :param op_state: OperationState for which to compute chart assigns.
@@ -187,6 +183,7 @@ class Step(WizModel):
   def finalize_inline_values(self, assigns: Dict, all_assigns, op_state: TOS) -> dict:
     """
     Merges existing inline assigns with new ones from the Front End and sanitizes both.
+    Called by the partition function via reflection.
     :param assigns: ultimately come from request.json['values']
     :param all_assigns: todo don't seem to be used?
     :param op_state: OperationState for which to compute inline assigns.
@@ -199,6 +196,7 @@ class Step(WizModel):
   def finalize_state_values(self, assigns: Dict, all_assigns, op_state: TOS) -> dict:
     """
     Sanitizes state assigns retrieved from the Front End.
+    Called by the partition function via reflection.
     :param assigns: ultimately come from request.json['values']
     :param all_assigns: todo don't seem to be used?
     :param op_state: OperationState for which to compute state assigns.
@@ -229,7 +227,7 @@ class Step(WizModel):
       5. Creating and starting any associated jobs
 
     :param assigns: new assigns to be committed.
-    :param op_state: needed to fetch and merge existing assigns for all 3 buckets
+    :param op_state: needed to merge with existing assigns for all 3 buckets
     :return: CommitOutcome, a dict containing chart/state assigns as well as logs
     from applying inline assigns and job_id for any generated jobs.
     """

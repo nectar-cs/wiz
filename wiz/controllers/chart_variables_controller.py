@@ -10,7 +10,7 @@ controller = Blueprint('variables_controller', __name__)
 @controller.route('/api/chart-variables')
 def chart_variables_index():
   """
-  Fetches, inflates and serializes a list of chart variables.
+  Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
   chart_dump = tedi_client.chart_dump()
@@ -34,7 +34,7 @@ def chart_variables_show(key):
 @controller.route('/api/chart-variables/<key>/submit', methods=['POST'])
 def chart_variables_submit(key):
   """
-  Updates the chart variable with new values.
+  Updates the chart variable with new value.
   :param key: key to locate the right chart variable.
   :return: status of the update.
   """

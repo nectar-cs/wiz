@@ -11,7 +11,7 @@ from wiz.core.wiz_globals import wiz_app
 
 def _fmt_status_part(raw: Dict, index: int) -> JobStatusPart:
   """
-  Parses job status dump to extract name, status and pct. #todo what is pct?
+  Parses job status dump to extract name, status and percentage.
   :param raw: raw status dump, in dict form.
   :param index: passed job index to record job part.
   :return: instance of JobsStatusPart typedict.
@@ -99,7 +99,6 @@ def compute_job_status(job_id: str) -> Optional[JobStatus]:
   """
   pod = find_worker_pod(job_id)
   if pod:
-    pod = find_worker_pod(job_id) #todo huh? why repeat this line?
     logs = pod.log_lines() if pod else []
     return _fmt_raw_status(extract_status(pod), logs)
   else:

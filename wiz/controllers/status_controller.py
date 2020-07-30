@@ -17,7 +17,7 @@ def ping():
 @controller.route('/api/status/telem-perms')
 def status_telem_perms():
   """
-  Fetches the default user perms.
+  Returns the default user perms.
   :return: serialized user perms.
   """
   raw_perms: Dict = TelemPerms().user_perms()

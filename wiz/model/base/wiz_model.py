@@ -57,7 +57,7 @@ class WizModel:
     """
     Finds child by child key, then inflates (instantiates) into an instance of
     the child class.
-    :param config_key: key to fetch the appropriate descriptor list, eg "steps" or "fields".
+    :param config_key: key to find the appropriate descriptor list, eg "steps" or "fields".
     :param child_class: target class to be instantiated, eg Operation or Stage.
     :param child_key: key to find the child by.
     :return: instance of the child class.
@@ -134,12 +134,11 @@ class WizModel:
     return f"{cls.__name__}"
 
   @classmethod
-  def expected_key(cls) -> str:
+  def expected_key(cls):
     """
     Used during vendor overrides to specify which keys the subclass applies to.
     :return: string containing desired keys.
     """
-    # todo raise notimplemented?
     return None
 
   @classmethod

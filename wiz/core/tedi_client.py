@@ -17,7 +17,7 @@ interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 
 def master_cmap() -> KatMap:
   """
-  Fetches the master ConfigMap.
+  Returns the ConfigMap.
   :return: ConfigMap.
   """
   return KatMap.find('master', wiz_app.ns)
@@ -25,14 +25,13 @@ def master_cmap() -> KatMap:
 
 def commit_values(assignments: List[Tuple[str, any]]):
   """
-  Updates the ConfigMap's master section with the new assignments. Saves it.
+  Updates the ConfigMap with the new assignments. Saves it.
   :param assignments: assigns to be inserted.
   """
   config_map = master_cmap()
   existing_config = config_map.yget() #parse yaml
   for assignment in assignments:
-    # todo what is fghq?
-    fqhk_array = assignment[0].split('.')
+    fqhk_array = assignment[0].split('.')  # fully qualified hash key
     value = assignment[1]
     deep_set(existing_config, fqhk_array, value)
 
@@ -42,8 +41,8 @@ def commit_values(assignments: List[Tuple[str, any]]):
 
 def chart_dump() -> Dict:
   """
-  Fetches the master ConfigMap and parses from YAML to dict.
-  :return: dict with master ConfigMap.
+  Parses the ConfigMap from YAML to a dict.
+  :return: ConfigMap in dict form.
   """
   config_map = master_cmap()
   return config_map.yget() if config_map else {}
@@ -51,7 +50,7 @@ def chart_dump() -> Dict:
 
 def chart_value(deep_key: str) -> Optional[str]:
   """
-  Fetches the value behind the deep_key inside of master ConfigMap.
+  Deep-gets the value specified as deep_key from the ConfigMap.
   :param deep_key: key in the following format: level1.level2.level3, where levels
   refer to keys at various depths of the dict, from most shallow to deepest.
   :return: value behind deep key.
@@ -61,9 +60,9 @@ def chart_value(deep_key: str) -> Optional[str]:
 
 def apply(rules: Optional[List[ResMatchRule]], inlines=None) -> str:
   """
-  Filters the manifest based on selector rules and kubectl applies it. Inline
-  values can be passed as optional.
-  :param rules: rules to filter down the manifest, if any.
+  Retrieves the manifest from Tedi, writes its contents to a temporary local
+  file (filtering resources by rules), and runs kubectl apply -f on it.
+  :param rules: rules to filter the manifest, if any.
   :param inlines: inline values to be applied together with the manifest, if any.
   :return: any generated terminal output from kubectl apply.
   """
@@ -73,7 +72,9 @@ def apply(rules: Optional[List[ResMatchRule]], inlines=None) -> str:
 
 def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   """
-  Prepares the command to be used for inline assigns.
+  Transforms in-memory assignments represented as tuples into a formatted
+  assignment string following the --set = format usable for Tedi's command line
+  arguments.
   :param str_assignments: desired inline assigns.
   :return: command for the Tedi image to apply inline assigns.
   """
@@ -99,7 +100,8 @@ def gen_tedi_args(inlines) -> List[str]:
 
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   """
-  Launches Tedi with the passed inline arguments.
+  Creates a Kubernetes pod running the vendor-specified image, then reads the
+  output logs, expected to be a string literal of the interpolated application manifest.
   :param inlines:
   :return: parsed logs from the Tedi container.
   """
@@ -127,8 +129,8 @@ def write_manifest(rules: List[ResMatchRule], inlines=None):
 
 def filter_res(res_list: List[K8sResDict], rules: List[ResMatchRule]) -> List[K8sResDict]:
   """
-  Filters the passed list of k8s resources to keep only those that match at least
-  one of the rules.
+  Filters the list of parsed kubernetes resources from the tedi-generated
+  application manifest according to the passed rule-set.
   :param res_list: k8s resource list to be filtered.
   :param rules: rules to be used for filtering.
   :return: filtered resource list.

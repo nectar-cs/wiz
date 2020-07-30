@@ -6,17 +6,6 @@ from wiz.core import utils
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
 
-
-def category_default() -> Dict[str, any]:
-  # todo no usages
-  return dict(
-    install_stages=[],
-    steps=[],
-    fields=[],
-    operations=[]
-  )
-
-
 def clear_cache():
   """
   Clears any existing cache.
@@ -55,7 +44,7 @@ def is_subclass_match(subclass, kind: str, key: str):
 
 def default_configs() -> List[Dict]:
   """
-  Fetches pre-built configs, converting from YAMLs to dicts.
+  Gets the pre-built configs, converting from YAMLs to dicts.
   :return: dictionary containing pre-built configs.
   """
   pwd = os.path.join(os.path.dirname(__file__))

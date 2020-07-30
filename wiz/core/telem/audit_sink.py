@@ -14,8 +14,8 @@ class AuditConfig:
   @cached_property
   def config_dict(self) -> Dict:
     """
-    Fetches the auditing section of the Nectar's master ConfigMap.
-    :return: auditing sectio as dict.
+    Returns the auditing section from the ConfigMap.
+    :return: auditing section as dict.
     """
     kat_map = tedi_client.master_cmap()
     chart = kat_map.jget('master', {}) if kat_map else {}
@@ -26,6 +26,7 @@ class AuditConfig:
     Checks if persistent storage is enabled.
     :return: True if enabled, False otherwise.
     """
+    # TODO FIX BUG WITH BOOLEAN
     strategy = self.config_dict.get('storage_strategy', '')
     return bool(strategy.strip())
 

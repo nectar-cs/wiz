@@ -1,5 +1,6 @@
 from typing import Dict, Optional
 
+from k8_kat.res.config_map.kat_map import KatMap
 from werkzeug.utils import cached_property
 
 from wiz.core import tedi_client
@@ -12,16 +13,16 @@ class TelemPerms:
   """This class is responsible for Telemetry screen in the Pre-installation."""
 
   @cached_property
-  def master_cmap(self):
+  def master_cmap(self) -> KatMap:
     """
-    Fetches the master ConfigMap.
-    :return: master ConfigMap.
+    Uses Tedi client to return the ConfigMap.
+    :return: ConfigMap object.
     """
     return tedi_client.master_cmap()
 
   def user_perms(self) -> Dict:
     """
-    Fetches the default "sharing prefs" value from master ConfigMap.
+    Gets the default "sharing prefs" value from the ConfigMap.
     :return: dict with sharing prefs.
     """
     kat_map = self.master_cmap
@@ -39,7 +40,7 @@ class TelemPerms:
 
   def can_sync_telem(self) -> bool:
     """
-    Fetches "upload telem" key from user_perms and converts it to a boolean.
+    Gets the "upload telem" key from user_perms and converts it to a boolean.
     This defines the permission to sync telem information with the database.
     :return:
     """
@@ -47,8 +48,8 @@ class TelemPerms:
 
   def can_share_prop(self, prop: str) -> bool:
     """
-    Fetches (from user_perms) the value of the category that matches the passed
-    property. Converts to boolean.
+    Gets the value of the category that matches the passed property from
+    user_perms and converts it to boolean.
     :param prop: property to find the category.
     :return: True if value is True, otherwise False.
     """

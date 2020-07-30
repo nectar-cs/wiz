@@ -112,7 +112,3 @@ class Operation(WizModel):
     :return: Predicate instance.
     """
     return self.load_list_child('prerequisites', Predicate, key)
-
-  def res_access(self):
-    # todo potentially depricated and needs to be removed
-    return self.config.get('res_access', [])

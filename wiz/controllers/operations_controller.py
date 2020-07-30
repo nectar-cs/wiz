@@ -36,7 +36,7 @@ controller = Blueprint('operations_controller', __name__)
 def operations_index():
   """
   Lists all existing Operations for a local app, except system ones.
-  :return: list of serialized Operation objects.
+  :return: list of minimally serialized Operation objects.
   """
   operations_list = [o for o in Operation.inflate_all() if not o.is_system]
   dicts = [operation_serial.ser_standard(c) for c in operations_list]
@@ -48,7 +48,7 @@ def operations_show(operation_id):
   """
   Finds and returns a particular Operation using operation_id.
   :param operation_id: operation id to search by.
-  :return: serialized Operation object.
+  :return: fully serialized Operation object.
   """
   operation = find_operation(operation_id)
   return jsonify(data=operation_serial.ser_full(operation))
@@ -75,7 +75,7 @@ def operations_ost_index():
 @controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
 def prerequisite_eval(operation_id, prerequisite_id):
   """
-  Fetches the Prerequisite with a matching operation_id and prerequisite_id,
+  Finds the Prerequisite with a matching operation_id and prerequisite_id,
   and evaluates it.
   :param operation_id: operation id to search by.
   :param prerequisite_id: prerequisite id to search by.
@@ -137,10 +137,11 @@ def step_submit(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])
 def step_stage(operation_id, stage_id, step_id):
   """
-  Fetches the current state of chart assigns.
-  :param operation_id: operation id for which to fetch.
-  :param stage_id: stage id for which to fetch.
-  :param step_id: step id for which to fetch.
+  Returns the chart assignments that would be committed if the step were submitted
+  with current user input.
+  :param operation_id: operation id used to locate the right step
+  :param stage_id: stage id used to locate the right step
+  :param step_id: step id used to locate the right step
   :return: dictionary with chart assigns.
   """
   values = request.json['values']
@@ -191,11 +192,11 @@ def step_status(operation_id, stage_id, step_id):
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])
 def steps_next_id(operation_id, stage_id, step_id):
   """
-  Fetches the id of the next step.
+  computes and returns the id of the next step.
   :param operation_id: operation id to locate the right step.
-  :param stage_id: stage id to locate the right stage.
+  :param stage_id: stage id to locate the right step.
   :param step_id: step id to locate the right step.
-  :return: id of next step or "done" if no more steps left.
+  :return: computed id of next step or "done" if no more steps left.
   """
   values = request.json['values']
   stage = find_stage(operation_id, stage_id)
@@ -262,7 +263,7 @@ def mark_finished(operation_id):
     if audit_config.is_persistence_enabled():
       audit_sink.save_op_outcome(active_op_state, sync_status)
 
-    OperationState.delete_if_exists(active_op_state.osr_id)
+    OperationState.delete_if_exists(active_op_state.ost_id)
     return jsonify(data=dict(status='success'))
   else:
     return jsonify(data=dict(status='failure')), 400

@@ -12,7 +12,7 @@ from wiz.core import utils, wiz_globals
 
 def consume(ns, image: str, args: List[str]) -> Optional[str]:
   """
-  Creates a tedi image with the passed namespace, image and args.
+  Runs a terminating pod, returns the output, and destroys the pod upon termination.
   :param ns: desired namespace for Tedi container.
   :param image: desired image for Tedi container.
   :param args: desiered args for Tedi container.

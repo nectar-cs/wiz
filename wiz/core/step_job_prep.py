@@ -19,7 +19,7 @@ params_fname = 'params.json'
 
 def _create_shared_config_map(job_id, values: Dict):
   """
-  Creates the ConfigMAp for the job.
+  Creates a k8s ConfigMap.
   :param job_id: desired job id
   :param values: values to be stored in data section of the job, under "params.json" key
   :return: newly created ConfigMap data
@@ -40,7 +40,7 @@ def _create_shared_config_map(job_id, values: Dict):
 
 def _create_job(job_id, image, command, args):
   """
-  Launches the job from the job ConfigMap.
+  Launches a k8s job.
   :param job_id: desired job id
   :param image: desired image
   :param command: desired startup command
@@ -92,7 +92,7 @@ def _create_job(job_id, image, command, args):
 
 def create_and_run(image, command, args, values) -> str:
   """
-  Creates the ConfigMap for a job and uses it to launch a job.
+  Updates the ConfigMap, then creates and launches a k8s job.
   :param image: desired job image
   :param command: desired job startup command
   :param args: desired args for the command

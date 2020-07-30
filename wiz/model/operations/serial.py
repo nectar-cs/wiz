@@ -15,8 +15,7 @@ def ser_standard(operation: Operation):
     description=operation.info,
     synopsis=operation.synopsis,
     affects_data=operation.affects_data,
-    affects_uptime=operation.affects_uptime,
-    res_access=operation.res_access()
+    affects_uptime=operation.affects_uptime
   )
 
 
@@ -27,7 +26,7 @@ def ser_state(operation_state: OperationState):
   :return: serialized Operation State dict.
   """
   return dict(
-    id=operation_state.osr_id,
+    id=operation_state.ost_id,
     operation=operation_state.operation_id
   )
 

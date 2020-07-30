@@ -83,7 +83,7 @@ class EqValidator(Validator):
     :param value: value to be matched.
     :return: True if validation fails, False otherwise.
     """
-    # todo shouldn't this be "!="? Everywhere else True is returned if perform FAILS, and you use if self.perform() to print [tone, messsage]
+    # todo TO BE REFACTORED
     return self.check == str(value).lower()
 
 

@@ -65,10 +65,6 @@ class Field(WizModel):
       if _type == 'select-k8s-res':
         rule_descriptors = self.options_source.get('res_match_rules', [])
         rules = [ResMatchRule(rd) for rd in rule_descriptors]
-        # todo this is the bug we discussed on slack. does the fix look correct? which one do you prefer?
-        # option 1 - add set
-        res_list = set(reduce(lambda whole, rule: whole + rule.query(), rules, []))
-        # option 2 - list comprehension > flatten > set
         res_list = set(sum([rule.query() for rule in rules], []))
         return [{'key': r.name, 'value': r.name} for r in res_list]
       else:
@@ -147,9 +143,7 @@ class Field(WizModel):
     return [None, None]
 
   def sanitize_value(self, value):
-    # todo raise notimplemented?
     return value
 
   def decorate_value(self, value: str) -> Optional[any]:
-    # todo raise not implemented?
     return None

@@ -29,7 +29,7 @@ class Predicate(WizModel):
     """
     Chooses the appropriate evaluation procedure based on condition type
     and performs it.
-    :param step_state: #todo not used?
+    :param step_state: necessary for implementation by vendors.
     :return: the result of evaluation - True if success, False otherwise.
     """
     cond_type = self.config.get('type', 'resource-property-compare')
