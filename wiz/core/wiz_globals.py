@@ -1,20 +1,15 @@
+import base64
 import os
 from typing import Dict, Type, Optional, List
+
+from k8_kat.res.secret.kat_secret import KatSecret
 
 from wiz.core import utils
 
 tedi_pod_name = 'tedi'
 cache_root = '/tmp'
-
-def clear_cache():
-  """
-  Clears any existing cache.
-  """
-  if os.path.exists(f'{cache_root}/hub-app.json'):
-    os.remove(f'{cache_root}/hub-app.json')
-
-  if os.path.exists(f'{cache_root}/ns.txt'):
-    os.remove(f'{cache_root}/ns.txt')
+install_uuid_path = '/var/install_uuid'
+dev_install_uuid_path = '/tmp/install_uuid'
 
 
 def is_config_match(config: Dict, kind: str, key: str):
@@ -51,6 +46,22 @@ def default_configs() -> List[Dict]:
   return utils.yamls_in_dir(f"{pwd}/../model/pre_built")
 
 
+def read_install_uuid_secret(ns):
+  if utils.is_dev():
+    secret = KatSecret.find('master', ns) if ns else None
+    if secret:
+      raw_enc = secret.raw.data.get('install_uuid')
+      raw_enc_bytes = bytes(raw_enc, 'utf-8')
+      return base64.b64decode(raw_enc_bytes).decode()
+    return None
+  else:
+    try:
+      with open(install_uuid_path, 'r') as file:
+        return file.read()
+    except FileNotFoundError:
+      return None
+
+
 class WizApp:
 
   def __init__(self):
@@ -58,9 +69,15 @@ class WizApp:
     self.subclasses: List[Type] = []
     self.providers = []
     self.adapters = []
+    self.app_name: Optional[str] = None
     self.ns: Optional[str] = None
+    self.install_uuid: Optional[str] = None
     self.tedi_image: Optional[str] = None
     self.tedi_args: Optional[str] = None
+
+  def reload_install_uuid(self):
+    if self.ns and not self.install_uuid:
+      self.install_uuid = read_install_uuid_secret(self.ns)
 
   def add_configs(self, new_configs: List[Dict]):
     """

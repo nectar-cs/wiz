@@ -32,6 +32,7 @@ wiz_app.add_providers([
 ])
 
 
+wiz_app.app_name = 'hub-self-hosted'
 wiz_app.ns = 'hub-self-hosted'
 wiz_app.tedi_image = 'gcr.io/nectar-bazaar/nectar-tedi:latest'
 wiz_app.tedi_args = '-e hub-self-hosted'

@@ -250,21 +250,15 @@ def mark_finished(operation_id):
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
-  token, sync_status = parse_ost_header(), 'avoid'
+  token = parse_ost_header()
+  print(f"GOT OST HEADER {token}")
   active_op_state = OperationState.find(token) if token else None
 
-  if active_op_state and active_op_state.operation_id == operation_id:
-    telem_perms, audit_config = TelemPerms(), AuditConfig()
-
-    if telem_perms.can_sync_telem():
-      success = telem_sync.upload_operation_outcome(active_op_state)
-      sync_status = 'success' if success else 'mem-failed'
-
-    if audit_config.is_persistence_enabled():
-      audit_sink.save_op_outcome(active_op_state, sync_status)
-
-    OperationState.delete_if_exists(active_op_state.ost_id)
-    return jsonify(data=dict(status='success'))
+  if active_op_state:
+    success = telem_sync.upload_operation_outcome(active_op_state)
+    if success:
+      OperationState.delete_if_exists(active_op_state.ost_id)
+    return jsonify(data=dict(success=success))
   else:
     return jsonify(data=dict(status='failure')), 400
 

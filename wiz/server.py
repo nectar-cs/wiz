@@ -45,6 +45,7 @@ def ensure_broker_connected():
 def apply_globals_from_headers():
   if request.headers.get('Wizns'):
     wiz_app.ns = request.headers.get('Wizns')
+    wiz_app.reload_install_uuid()
 
   if request.headers.get('Tedi-image'):
     wiz_app.tedi_image = request.headers.get('Tedi-Image')
