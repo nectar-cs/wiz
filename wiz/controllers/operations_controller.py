@@ -241,7 +241,7 @@ def fields_decorate(operation_id, stage_id, step_id, field_id):
   return jsonify(data=field.decorate_value(value))
 
 
-@controller.route(f'{OPERATION_PATH}/mark_finished', methods=['POST'])
+@controller.route(f'{OPERATION_PATH}/mark-finished', methods=['POST'])
 def mark_finished(operation_id):
   """
   Syncs telemetry information with the database if permissions allow to do so.

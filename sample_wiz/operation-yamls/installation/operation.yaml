@@ -17,7 +17,7 @@ stages:
     resources, as well well as its network visibility across the cluster."
     steps:
       - step.global.quotas.requests
-      - step.global.quotas.limits
+#      - step.global.quotas.limits
 
 #  - key: storage
 #    kind: Stage

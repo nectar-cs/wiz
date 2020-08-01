@@ -15,9 +15,8 @@ def backend_host():
 
 def upload_operation_outcome(op_state: OperationState):
   install_uuid = wiz_app.install_uuid
-  payload = operation_state_ser.serialize(op_state)
+  serialized_outcome = operation_state_ser.serialize(op_state)
+  payload = dict(data=serialized_outcome)
   ep = f'/api/cli/installs/{install_uuid}/operation_outcomes'
-  resp = requests.post(f'{backend_host()}{ep}', payload)
-  print(resp)
-  print(resp.text)
+  resp = requests.post(f'{backend_host()}{ep}', json=payload)
   return True
