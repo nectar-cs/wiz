@@ -3,7 +3,7 @@ from typing import Type, Optional
 
 from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
 from k8_kat.utils.testing import ns_factory
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.predicate.predicate import Predicate
 from wiz.tests.models.test_wiz_model import Base

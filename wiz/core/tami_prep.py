@@ -7,18 +7,18 @@ from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements
 
 from k8_kat.auth.kube_broker import broker
-from wiz.core import utils, wiz_globals
+from wiz.core import utils, wiz_app
 
 
 def consume(ns, image: str, args: List[str]) -> Optional[str]:
   """
   Runs a terminating pod, returns the output, and destroys the pod upon termination.
-  :param ns: desired namespace for Tedi container.
-  :param image: desired image for Tedi container.
-  :param args: desiered args for Tedi container.
-  :return: logs from the Tedi container.
+  :param ns: desired namespace for Tami container.
+  :param image: desired image for Tami container.
+  :param args: desiered args for Tami container.
+  :return: logs from the Tami container.
   """
-  pod_name = f"tedi-{utils.rand_str()}"
+  pod_name = f"tami-{utils.rand_str()}"
 
   broker.coreV1.create_namespaced_pod(
     namespace=ns,

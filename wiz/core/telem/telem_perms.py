@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from k8_kat.res.config_map.kat_map import KatMap
 from werkzeug.utils import cached_property
 
-from wiz.core import tedi_client
+from wiz.core import tami_client
 
 cmap_field = 'sharing_prefs'
 upload_telem_key = 'upload_telem'
@@ -15,10 +15,10 @@ class TelemPerms:
   @cached_property
   def master_cmap(self) -> KatMap:
     """
-    Uses Tedi client to return the ConfigMap.
+    Uses Tami client to return the ConfigMap.
     :return: ConfigMap object.
     """
-    return tedi_client.master_cmap()
+    return tami_client.master_cmap()
 
   def user_perms(self) -> Dict:
     """

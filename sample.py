@@ -4,7 +4,8 @@ from sample_wiz.adapters import app_endpoints
 from sample_wiz.overrides import fields, steps
 from wiz import server
 from wiz.core import utils
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
+
 
 op_yamls_base = 'sample_wiz/operation-yamls'
 
@@ -34,8 +35,8 @@ wiz_app.add_providers([
 
 wiz_app.app_name = 'hub-self-hosted'
 wiz_app.ns = 'hub-self-hosted'
-wiz_app.tedi_image = 'gcr.io/nectar-bazaar/nectar-tedi:latest'
-wiz_app.tedi_args = '-e hub-self-hosted'
+wiz_app.tami_name = 'gcr.io/nectar-bazaar/nectar-tami:latest'
+wiz_app.tami_args = '-e hub-self-hosted'
 
 
 dotenv.load_dotenv()

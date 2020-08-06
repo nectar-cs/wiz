@@ -1,7 +1,7 @@
 from typing import Type, Dict
 from unittest.mock import patch
 
-from wiz.core import tedi_client, step_job_prep
+from wiz.core import tami_client, step_job_prep
 from wiz.core.telem.ost import OperationState, StepState
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.stage.stage import Stage
@@ -37,7 +37,7 @@ class TestStep(Base.TestWizModel):
     self.assertEqual({'k': 22}, step_state.chart_assigns)
 
   def test_commit_no_work(self):
-    with patch.object(tedi_client, 'commit_values') as mock:
+    with patch.object(tami_client, 'commit_values') as mock:
       outcome = Step(dict(key='s')).commit({})
       mock.assert_not_called()
       self.assertEqual('positive', outcome['status'])
@@ -47,7 +47,7 @@ class TestStep(Base.TestWizModel):
 
   def test_commit_with_chart_vars(self):
     step = Step(dict(key='s', fields=[{'key': 'f1'}]))
-    with patch.object(tedi_client, 'commit_values') as commit_mock:
+    with patch.object(tami_client, 'commit_values') as commit_mock:
       outcome = step.commit({'f1': 'v1'})
       self.assertEqual('positive', outcome['status'])
       self.assertEqual({'f1': 'v1'}, outcome['chart_assigns'])

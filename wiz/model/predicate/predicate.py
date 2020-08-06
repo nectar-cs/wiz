@@ -2,7 +2,7 @@ import functools
 from typing import Optional, Callable
 
 from k8_kat.res.base.kat_res import KatRes
-from wiz.core import tedi_client
+from wiz.core import tami_client
 from wiz.core.telem.ost import StepState
 from wiz.model.base import res_selector
 from wiz.model.base.wiz_model import WizModel
@@ -64,7 +64,7 @@ class Predicate(WizModel):
     """
     variable_name = self.config.get('variable')
     check_against = self.config.get('check_against')
-    current_value = tedi_client.chart_value(variable_name)
+    current_value = tami_client.chart_value(variable_name)
     operator = self.config.get('op', 'equals')
     return comparator(operator)(current_value, check_against)
 

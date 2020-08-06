@@ -8,11 +8,12 @@ from k8_kat.auth.kube_broker import broker
 from k8_kat.res.config_map.kat_map import KatMap
 from wiz.model.base.res_match_rule import ResMatchRule
 from wiz.core.types import K8sResDict
-from wiz.core.wiz_globals import wiz_app
-from wiz.core import tedi_prep
+from wiz.core.wiz_app import wiz_app
+from wiz.core import tami_prep
 
 tmp_file_mame = '/tmp/man.yaml'
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
+tami_name_key = 'tami_name'
 
 
 def master_cmap() -> KatMap:
@@ -39,6 +40,16 @@ def commit_values(assignments: List[Tuple[str, any]]):
   config_map.touch(save=True)
 
 
+def update_tami_name(new_name: str):
+  config_map = master_cmap()
+  config_map.kv_set(tami_name_key, new_name)
+
+
+def read_tami_name():
+  config_map = master_cmap()
+  config_map.data.get(tami_name_key)
+
+
 def chart_dump() -> Dict:
   """
   Parses the ConfigMap from YAML to a dict.
@@ -60,7 +71,7 @@ def chart_value(deep_key: str) -> Optional[str]:
 
 def apply(rules: Optional[List[ResMatchRule]], inlines=None) -> str:
   """
-  Retrieves the manifest from Tedi, writes its contents to a temporary local
+  Retrieves the manifest from Tami, writes its contents to a temporary local
   file (filtering resources by rules), and runs kubectl apply -f on it.
   :param rules: rules to filter the manifest, if any.
   :param inlines: inline values to be applied together with the manifest, if any.
@@ -73,10 +84,10 @@ def apply(rules: Optional[List[ResMatchRule]], inlines=None) -> str:
 def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   """
   Transforms in-memory assignments represented as tuples into a formatted
-  assignment string following the --set = format usable for Tedi's command line
+  assignment string following the --set = format usable for Tami's command line
   arguments.
   :param str_assignments: desired inline assigns.
-  :return: command for the Tedi image to apply inline assigns.
+  :return: command for the Tami image to apply inline assigns.
   """
   expr_array = []
   for str_assignment in str_assignments:
@@ -85,14 +96,14 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def gen_tedi_args(inlines) -> List[str]:
+def gen_tami_args(inlines) -> List[str]:
   """
-  Generates arguments to pass to the Tedi image at startup.
+  Generates arguments to pass to the Tami image at startup.
   :param inlines: desired inline assigns.
-  :return: list of flags to pass to Tedi image.
+  :return: list of flags to pass to Tami image.
   """
   values_flag: str = "-f /values/master"
-  vendor_flags: str = wiz_app.tedi_args
+  vendor_flags: str = wiz_app.tami_args
   inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
   return all_flags.split(" ")
@@ -103,22 +114,22 @@ def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   Creates a Kubernetes pod running the vendor-specified image, then reads the
   output logs, expected to be a string literal of the interpolated application manifest.
   :param inlines:
-  :return: parsed logs from the Tedi container.
+  :return: parsed logs from the Tami container.
   """
-  ns, image_name = wiz_app.ns, wiz_app.tedi_image
-  pod_args = gen_tedi_args(inlines)
+  ns, image_name = wiz_app.ns, wiz_app.tami_name
+  pod_args = gen_tami_args(inlines)
   print(f"THE POD ARGS SHALL BE FROM {inlines}")
   print(pod_args)
-  result = tedi_prep.consume(ns, image_name, pod_args)
+  result = tami_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
 def write_manifest(rules: List[ResMatchRule], inlines=None):
   """
-  Launches Tedi container with passed inline arguments. Then collects logs from
+  Launches Tami container with passed inline arguments. Then collects logs from
   resources that match the rules, and writes them out to a file.
   :param rules: rules to be used for filtering resources.
-  :param inlines: inline arguments to be passed to the Tedi container.
+  :param inlines: inline arguments to be passed to the Tami container.
   """
   all_res = load_raw_manifest(inlines)
   filtered = filter_res(all_res, rules)
@@ -129,7 +140,7 @@ def write_manifest(rules: List[ResMatchRule], inlines=None):
 
 def filter_res(res_list: List[K8sResDict], rules: List[ResMatchRule]) -> List[K8sResDict]:
   """
-  Filters the list of parsed kubernetes resources from the tedi-generated
+  Filters the list of parsed kubernetes resources from the tami-generated
   application manifest according to the passed rule-set.
   :param res_list: k8s resource list to be filtered.
   :param rules: rules to be used for filtering.

@@ -3,15 +3,15 @@ import yaml
 from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.res.svc.kat_svc import KatSvc
 from k8_kat.utils.testing import ns_factory
-from wiz.core import tedi_client
+from wiz.core import tami_client
 from wiz.model.base.res_match_rule import ResMatchRule
-from wiz.core.tedi_client import deep_set, filter_res
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.tami_client import deep_set, filter_res
+from wiz.core.wiz_app import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 from wiz.tests.t_helpers import helper
 
 
-class TestTecClient(ClusterTest):
+class TestTamiClient(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
@@ -39,7 +39,7 @@ class TestTecClient(ClusterTest):
 
   def test_fmt_inline_assigns(self):
     str_assignments = [('foo.bar', 'baz'), ('x', 'y')]
-    actual = tedi_client.fmt_inline_assigns(str_assignments)
+    actual = tami_client.fmt_inline_assigns(str_assignments)
     self.assertEqual(actual, "--set foo.bar=baz --set x=y")
 
   def test_filter_res(self):
@@ -48,44 +48,44 @@ class TestTecClient(ClusterTest):
     self.assertEqual(result, [res_list[0]])
 
   def test_load_raw_manifest(self):
-    res_list = tedi_client.load_raw_manifest()
+    res_list = tami_client.load_raw_manifest()
     kinds = sorted([r['kind'] for r in res_list])
     self.assertEqual(len(res_list), 2)
     self.assertEqual(kinds, sorted(['Pod', 'Service']))
 
   def test_load_raw_manifest_with_inlines(self):
-    res_list = tedi_client.load_raw_manifest([('service.name', 'inline')])
+    res_list = tami_client.load_raw_manifest([('service.name', 'inline')])
     print(res_list)
     svc = [r for r in res_list if r['kind'] == 'Service'][0]
     self.assertEqual(svc['metadata']['name'], 'inline')
 
   def test_write_manifest(self):
-    tedi_client.write_manifest([g_rule("Pod:*")])
-    with open(tedi_client.tmp_file_mame) as file:
+    tami_client.write_manifest([g_rule("Pod:*")])
+    with open(tami_client.tmp_file_mame) as file:
       logical = list(yaml.load_all(file.read(), Loader=yaml.FullLoader))
       self.assertEqual(len(logical), 1)
 
   def test_apply(self):
     pod, svc = find_pod_svc(self.ns)
     self.assertEqual([pod, svc], [None, None])
-    tedi_client.apply([g_rule("*:*")], [('namespace', self.ns)])
+    tami_client.apply([g_rule("*:*")], [('namespace', self.ns)])
     pod, svc = find_pod_svc(self.ns)
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
 
   def test_commit_values(self):
-    tedi_client.commit_values([('foo', 'bar')])
-    new_values = tedi_client.master_cmap().yget()
+    tami_client.commit_values([('foo', 'bar')])
+    new_values = tami_client.master_cmap().yget()
     self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):
     wiz_app.ns = self.ns
-    tedi_client.commit_values([
+    tami_client.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])
-    new_res = tedi_client.load_raw_manifest()
+    new_res = tami_client.load_raw_manifest()
     svc = [r for r in new_res if r['kind'] == 'Service'][0]
     self.assertEqual(svc['metadata']['name'], 'updated-service')
     # noinspection PyTypeChecker,PyTypedDict
@@ -93,13 +93,13 @@ class TestTecClient(ClusterTest):
     self.assertIsNotNone(svc)
 
   def test_integration(self):
-    tedi_client.commit_values([
+    tami_client.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)
     ])
-    tedi_client.write_manifest([])
-    tedi_client.kubectl_apply()
+    tami_client.write_manifest([])
+    tami_client.kubectl_apply()
     svc = KatSvc.find('updated-service', self.ns)
     self.assertIsNotNone(svc)
     self.assertEqual(svc.from_port, 81)

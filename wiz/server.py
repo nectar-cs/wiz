@@ -6,7 +6,7 @@ from flask_cors import CORS
 from k8_kat.auth.kube_broker import BrokerConnException, broker
 from wiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller, resources_controller
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -47,11 +47,11 @@ def apply_globals_from_headers():
     wiz_app.ns = request.headers.get('Wizns')
     wiz_app.reload_install_uuid()
 
-  if request.headers.get('Tedi-image'):
-    wiz_app.tedi_image = request.headers.get('Tedi-Image')
+  if request.headers.get('Tami-image'):
+    wiz_app.tami_name = request.headers.get('Tami-Image')
 
-  if request.headers.get('Tedi-args'):
-    wiz_app.tedi_args = request.headers.get('Tedi-Args')
+  if request.headers.get('Tami-args'):
+    wiz_app.tami_args = request.headers.get('Tami-Args')
 
 
 def start():

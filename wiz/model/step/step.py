@@ -1,6 +1,6 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from wiz.core import tedi_client, step_job_prep, utils
+from wiz.core import tami_client, step_job_prep, utils
 from wiz.core.telem.ost import OperationState, StepState
 from wiz.core.types import CommitOutcome, StepRunningStatus
 from wiz.model.base.res_match_rule import ResMatchRule
@@ -240,11 +240,11 @@ class Step(WizModel):
     )
 
     if len(chart_assigns):
-      tedi_client.commit_values(chart_assigns.items())
+      tami_client.commit_values(chart_assigns.items())
       # outcome['prev_chart_vals'] =
 
     if self.applies_manifest():
-      out = tedi_client.apply(self.res_selectors(), inline_assigns.items())
+      out = tami_client.apply(self.res_selectors(), inline_assigns.items())
       logs = out.split("\n") if out else []
       return CommitOutcome(**outcome, status='pending', logs=logs)
 

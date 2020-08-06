@@ -2,8 +2,19 @@ from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 
-class Release(TypedDict):
-  tami_version: str
+
+class UpdateOutcome(TypedDict, total=False):
+  update_key: str
+  pre_inject: Dict
+  post_inject: Dict
+  release_logs: Optional[List[str]]
+  apply_logs: List[str]
+
+
+class Update(TypedDict):
+  id: str
+  type: str
+  tami_name: str
   injections: Dict[str, str]
 
 

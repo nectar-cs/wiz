@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from wiz.core import tedi_client
+from wiz.core import tami_client
 from wiz.model.chart_variable import serial
 from wiz.model.chart_variable.chart_variable import ChartVariable
 
@@ -13,7 +13,7 @@ def chart_variables_index():
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
-  chart_dump = tedi_client.chart_dump()
+  chart_dump = tami_client.chart_dump()
   chart_variables = ChartVariable.inflate_all()
   serialize = lambda cv: serial.standard(cv=cv, cache=chart_dump)
   serialized = [serialize(cv) for cv in chart_variables]

@@ -1,7 +1,7 @@
 from k8_kat.res.quotas.kat_quota import KatQuota
 from k8_kat.utils.main import units
 
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.adapters.adapter import Adapter
 
 

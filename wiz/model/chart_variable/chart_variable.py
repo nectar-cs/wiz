@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from wiz.core import tedi_client
+from wiz.core import tami_client
 from wiz.model.base.wiz_model import WizModel
 
 
@@ -100,19 +100,19 @@ class ChartVariable(WizModel):
     :return: string containing the current value of the field.
     """
     if cache is not None:
-      return tedi_client.deep_get(cache, self.key.split('.'))
+      return tami_client.deep_get(cache, self.key.split('.'))
     else:
-      return tedi_client.chart_value(self.key)
+      return tami_client.chart_value(self.key)
 
   def commit(self, value:str):
     """
-    Use tedi client to commit new values to an associated key. If the value is of
+    Use tami client to commit new values to an associated key. If the value is of
     mode "public", then also writes (applies) the manifest.
     :param value: value to be committed (and potentially applied).
     """
-    tedi_client.commit_values([(self.key, value)])
+    tami_client.commit_values([(self.key, value)])
     if self.is_safe_to_set():
-      tedi_client.apply(rules=None, inlines=None)
+      tami_client.apply(rules=None, inlines=None)
 
   def operations(self):
     """

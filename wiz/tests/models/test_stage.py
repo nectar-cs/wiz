@@ -1,6 +1,6 @@
 from typing import Type
 
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.base.wiz_model import WizModel
 from wiz.model.stage.stage import Stage
 from wiz.model.step.step import Step
