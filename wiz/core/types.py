@@ -2,6 +2,10 @@ from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 
+class Release(TypedDict):
+  tami_version: str
+  injections: Dict[str, str]
+
 
 class JobStatusPart(TypedDict):
   name: str

@@ -41,6 +41,7 @@ def ser_step_outcome(step_outcome: StepState):
 
 def serialize(op_state: OperationState):
   return dict(
+    operation_key=op_state.operation_id,
     step_outcomes_attributes=list(
       map(ser_step_outcome, op_state.step_states)
     )
