@@ -250,17 +250,18 @@ def mark_finished(operation_id):
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
-  token = parse_ost_header()
-  print(f"GOT OST HEADER {token}")
-  active_op_state = OperationState.find(token) if token else None
-
-  if active_op_state:
-    success = telem_sync.upload_operation_outcome(active_op_state)
-    if success:
-      OperationState.delete_if_exists(active_op_state.ost_id)
-    return jsonify(data=dict(success=success))
-  else:
-    return jsonify(data=dict(status='failure')), 400
+  # token = parse_ost_header()
+  # print(f"GOT OST HEADER {token}")
+  # active_op_state = OperationState.find(token) if token else None
+  #
+  # if active_op_state:
+  #   success = telem_sync.upload_operation_outcome(active_op_state)
+  #   if success:
+  #     OperationState.delete_if_exists(active_op_state.ost_id)
+  #   return jsonify(data=dict(success=success))
+  # else:
+  #   return jsonify(data=dict(status='failure')), 400
+  return jsonify(data=dict(success=True))
 
 
 def find_operation(operation_id: str) -> Operation:
