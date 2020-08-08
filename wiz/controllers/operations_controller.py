@@ -2,9 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from wiz.core import utils
 from wiz.core.telem import telem_sync
-from wiz.core.telem.audit_sink import AuditConfig, audit_sink
 from wiz.core.telem.ost import OperationState, operation_states
-from wiz.core.telem.telem_perms import TelemPerms
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.predicate.predicate import Predicate

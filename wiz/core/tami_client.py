@@ -162,8 +162,7 @@ def kubectl_apply() -> str:
   Kubectl applies the manifest and returns any generated terminal output.
   :return: any generated teminal output.
   """
-  kubectl_bin = "kubectl"
-  cmd = f"{kubectl_bin} apply -f {tmp_file_mame}"
+  cmd = f"kubectl apply -f {tmp_file_mame}"
 
   if not broker.is_in_cluster_auth():
     if broker.connect_config.get('context'):
