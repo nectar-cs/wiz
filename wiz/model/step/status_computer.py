@@ -28,10 +28,10 @@ class StepStatusComputer:
     :param cond_id: condition id to locate the appropriate condition.
     :return: status of a given condition or None.
     """
-    if self.own_state:
-      root = self.own_state.running_status or {}
-      root = root.get('condition_statuses', {}).get(charge, {})
-      return root.get(cond_id)
+    # if self.own_state:
+    #   root = self.own_state.running_status or {}
+    #   root = root.get('condition_statuses', {}).get(charge, {})
+    #   return root.get(cond_id)
     return None
 
   def eval_cond(self, condition: TEC) -> TECS:

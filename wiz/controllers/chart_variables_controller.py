@@ -20,6 +20,12 @@ def chart_variables_index():
   return jsonify(data=serialized)
 
 
+@controller.route('/api/chart-variables/apply')
+def chart_variables_apply():
+  logs = tami_client.apply([], [])
+  return jsonify(data=logs)
+
+
 @controller.route('/api/chart-variables/<key>')
 def chart_variables_show(key):
   """

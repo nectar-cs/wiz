@@ -35,7 +35,7 @@ wiz_app.add_providers([
 
 wiz_app.app_name = 'hub-self-hosted'
 wiz_app.ns = 'hub-self-hosted'
-wiz_app.tami_name = 'gcr.io/nectar-bazaar/nectar-tami:latest'
+wiz_app.tami_name = 'gcr.io/nectar-bazaar/nectar-tedi:latest'
 wiz_app.tami_args = '-e hub-self-hosted'
 
 

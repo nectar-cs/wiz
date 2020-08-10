@@ -46,8 +46,8 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
             resources=V1ResourceRequirements(
-              requests=dict(cpu='0.3', memory='100M'),
-              limits=dict(cpu='0.5', memory='200M')
+              requests=dict(cpu='20m', memory='100M'),
+              limits=dict(cpu='40m', memory='200M')
             )
           )
         ]
