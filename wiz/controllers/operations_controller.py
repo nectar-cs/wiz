@@ -239,14 +239,24 @@ def fields_decorate(operation_id, stage_id, step_id, field_id):
   return jsonify(data=field.decorate_value(value))
 
 
+@controller.route(f'{OPERATION_PATH}/mark-finished', methods=['POST'])
+def mark_finished(operation_id):
+  """
+  Syncs telemetry information with the database if permissions allow to do so.
+  Deletes OperationState after its done.
+  :param operation_id: operation id to search by.
+  :return: success or failure status depending if managed to find and delete
+  the appropriate operation.
+  """
+  token = parse_ost_header()
+  _status = OperationState.set_status_if_exists(token)
+  return jsonify(data=dict(success=_status))
+
+
 @controller.route(f'{OPERATIONS_PATH}/flush-telem', methods=['POST'])
 def flush_telem():
-  for op_state in operation_states:
-    success = telem_sync.upload_operation_outcome(op_state)
-    if success:
-      OperationState.delete_if_exists(op_state.ost_id)
-  return jsonify(remaining=len(operation_states))
-
+  telem_sync.upload_operation_outcomes()
+  return jsonify(status='success')
 
 
 def find_operation(operation_id: str) -> Operation:

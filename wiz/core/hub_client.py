@@ -12,8 +12,8 @@ def backend_host():
     return 'https://api.codenectar.com'
 
 
-def post(path, payload):
-  url = f'{backend_host()}{api_path}{path}'
+def post(endpoint, payload):
+  url = f'{backend_host()}{api_path}{endpoint}'
   return requests.post(url, json=payload)
 
 
