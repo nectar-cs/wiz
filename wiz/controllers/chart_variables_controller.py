@@ -20,10 +20,18 @@ def chart_variables_index():
   return jsonify(data=serialized)
 
 
-@controller.route('/api/chart-variables/apply')
-def chart_variables_apply():
-  logs = tami_client.apply([], [])
-  return jsonify(data=logs)
+@controller.route('/api/chart-variables/commit-apply', methods=['POST'])
+def chart_variables_submit():
+  """
+  Updates the chart variable with new value.
+  :param key: key to locate the right chart variable.
+  :return: status of the update.
+  """
+  assignments = request.json['assignments']
+  tami_client.commit_values(list(assignments.items()))
+  logs = tami_client.apply([])
+  print(logs)
+  return jsonify(status='success')
 
 
 @controller.route('/api/chart-variables/<key>')
@@ -36,18 +44,6 @@ def chart_variables_show(key):
   chart_variable = find_variable(key)
   return jsonify(data=serial.with_field(chart_variable))
 
-
-@controller.route('/api/chart-variables/<key>/submit', methods=['POST'])
-def chart_variables_submit(key):
-  """
-  Updates the chart variable with new value.
-  :param key: key to locate the right chart variable.
-  :return: status of the update.
-  """
-  value = request.json['value']
-  chart_variable = find_variable(key)
-  chart_variable.commit(value)
-  return jsonify(status='success')
 
 @controller.route('/api/chart-variables/<key>/validate', methods=['POST'])
 def chart_variables_validate(key):
