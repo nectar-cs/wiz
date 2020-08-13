@@ -30,9 +30,9 @@ class StepStatusComputer:
     :return: status of a given condition or None.
     """
     if self.own_state:
-      root: StepRunningStatus = self.own_state.running_status or {}
+      root: TSRS = self.own_state.running_status or {}
       polarities: ExitConditionStatuses = root.get('condition_statuses', {})
-      statuses: List[ExitConditionStatus] = polarities.get(polarity, [])
+      statuses: List[TECS] = polarities.get(polarity, [])
       matcher = lambda ecs: ecs.get('key') == cond_id
       return next(filter(matcher, statuses), None)
     return None
@@ -52,11 +52,11 @@ class StepStatusComputer:
       resources_considered=condition.resources_considered
     )
 
-  def eval_conds(self, charge: str, conditions: List[TEC]) -> List[TECS]:
+  def eval_conds(self, polarity: str, conditions: List[TEC]) -> List[TECS]:
     """
     Evaluates the list of passed conditions. Depending on halter selected, the
     evaluation may terminate early.
-    :param charge: positive or negative. Early evaluation only possible with
+    :param polarity: positive or negative. Early evaluation only possible with
     negative halters, and only when the condition evaluates to True. Reasoning:
     if any one negative condition evaluates to True, there is no point checking
     the rest. We know we failed.
@@ -65,12 +65,13 @@ class StepStatusComputer:
     """
     cond_statuses = []
     for condition in conditions:
-      saved_cond_status = self.find_saved_cond_status(charge, condition.key)
-      cond_status = saved_cond_status or self.eval_cond(condition)
+      saved_cond_status = self.find_saved_cond_status(polarity, condition.key)
+      saved_cond_status = discriminate_saved_cond(polarity, saved_cond_status)
+      cond_status: TECS = saved_cond_status or self.eval_cond(condition)
       cond_statuses.append(cond_status)
       # if positive halters, this never evaluates to True, so we keep going
       # if negative halters, it cond_status is True, halter also returns True and the if clause triggers
-      if halters[charge](cond_status['met']):
+      if halters[polarity](cond_status['met']):
         return cond_statuses
     return cond_statuses
 
@@ -215,3 +216,16 @@ default_job_exit_conds: Dict[str, List[str]] = {
   POS: ['nectar.exit_conditions.job_in_succeeded_phase'],
   NEG: ['nectar.exit_conditions.job_in_failed_phase']
 }
+
+
+def discriminate_saved_cond(polarity: str, status: TECS) -> Optional[TECS]:
+  """
+  Determines whether a past condition status is relevant in
+  computing the current status.
+  :param polarity: positive or negative
+  :param status: the saved status if one exists
+  :return: true only for pos-needing conditions that were already pos
+  """
+  if polarity == POS and status is not None:
+    return status if status.get('met') else None
+  return None
