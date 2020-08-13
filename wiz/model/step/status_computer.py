@@ -20,18 +20,21 @@ class StepStatusComputer:
     self.step: Step = step
     self.own_state: Optional[StepState] = own_state
 
-  def find_saved_cond_status(self, charge: str, cond_id: str) -> Optional[TECS]:
+  # noinspection PyTypedDict
+  def find_saved_cond_status(self, polarity: str, cond_id: str) -> Optional[TECS]:
     """
     Tries to locate and return the saved status of a given condition
     (specified by condition id), else returns None.
-    :param charge: "positive" or "negative" charge.
+    :param polarity: "positive" or "negative" charge.
     :param cond_id: condition id to locate the appropriate condition.
     :return: status of a given condition or None.
     """
     if self.own_state:
-      root = self.own_state.running_status or {}
-      root = root.get('condition_statuses', {}).get(charge, {})
-      return root.get(cond_id)
+      root: StepRunningStatus = self.own_state.running_status or {}
+      polarities: ExitConditionStatuses = root.get('condition_statuses', {})
+      statuses: List[ExitConditionStatus] = polarities.get(polarity, [])
+      matcher = lambda ecs: ecs.get('key') == cond_id
+      return next(filter(matcher, statuses), None)
     return None
 
   def eval_cond(self, condition: TEC) -> TECS:
