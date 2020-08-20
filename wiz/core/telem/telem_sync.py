@@ -1,3 +1,5 @@
+from typing import List
+
 import requests
 
 from wiz.core import utils, hub_client
@@ -7,15 +9,22 @@ from wiz.serializers import operation_state_ser
 
 
 def upload_operation_outcomes():
+  victim_osts: List[str] = []
+  OperationState.prune()
   for op_state in operation_states:
-    upload_operation_outcome(op_state)
+    if upload_operation_outcome(op_state):
+      victim_osts.append(op_state.ost_id)
+
+  for victim_ost in victim_osts:
+    OperationState.delete_if_exists(victim_ost)
 
 
-def upload_operation_outcome(op_state: OperationState, delete=False):
-  if wiz_app.install_uuid:
+def upload_operation_outcome(op_state: OperationState) -> bool:
+  install_uuid = wiz_app.reload_install_uuid(force=True)
+  if install_uuid:
     serialized_outcome = operation_state_ser.serialize(op_state)
-    ep = f'/installs/{wiz_app.install_uuid}/operation_outcomes'
-    print(f"TO {ep} ----> {serialized_outcome}")
+    ep = f'/installs/{install_uuid}/operation_outcomes'
     resp = hub_client.post(ep, dict(data=serialized_outcome))
-    print(resp)
-    return True
+    return resp.status_code < 300
+  else:
+    return False

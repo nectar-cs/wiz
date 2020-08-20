@@ -35,14 +35,19 @@ def chart_variables_show(key):
 
 @controller.route('/api/chart-variables/commit-injections', methods=['POST'])
 def chart_vars_commit_injections():
-  route = f'/installs/{wiz_app.install_uuid}/injections'
-  resp = hub_client.get(route)
-  injections = None
-  if resp.status_code < 300:
-    injections = resp.json().get('data')
-    if injections:
-      tami_client.commit_values(injections.items())
-  return jsonify(data=injections)
+  install_uuid = wiz_app.reload_install_uuid(force=True)
+  if install_uuid:
+    route = f'/installs/{install_uuid}/injections'
+    resp = hub_client.get(route)
+    injections = None
+    if resp.status_code < 300:
+      injections = resp.json().get('data')
+      if injections:
+        tami_client.commit_values(injections.items())
+    return jsonify(data=injections)
+  else:
+    print("Install UUID not found!")
+    return {}
 
 
 @controller.route('/api/chart-variables/<key>/submit', methods=['POST'])

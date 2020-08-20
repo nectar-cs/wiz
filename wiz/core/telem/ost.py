@@ -97,21 +97,7 @@ class OperationState:
     self.status = 'pending'
 
   @classmethod
-  def find_or_create(cls, ost_id: str, operation_id: str):
-    """
-    Tries to find an OperationState with a matching ost id, else creates a new one.
-    :param ost_id: id to match by.
-    :param operation_id: operation for which the OperationState is being located.
-    :return: instance of the OperationState.
-    """
-    instance = cls.find(ost_id)
-    if not instance:
-      instance = OperationState(id=ost_id, operation_id=operation_id)
-      operation_states.append(instance)
-    return instance
-
-  @classmethod
-  def find(cls, ost_id:str) -> 'OperationState':
+  def find(cls, ost_id: Optional[str]) -> 'OperationState':
     """
     Finds the OperationState with the marching osr id.
     :param ost_id: id to match by.
@@ -129,7 +115,7 @@ class OperationState:
     return False
 
   @classmethod
-  def delete_if_exists(cls, ost_id: str) -> Optional['OperationState']:
+  def delete_if_exists(cls, ost_id: Optional[str]) -> Optional['OperationState']:
     """
     Deletes the OperationState if one with the given osr id exists.
     :param ost_id: id used to locate the OperationState.
@@ -138,6 +124,11 @@ class OperationState:
     tuples = enumerate(operation_states)
     index = next((i for i, ops in tuples if ops.ost_id == ost_id), None)
     return operation_states.pop(index) if index else None
+
+  @classmethod
+  def prune(cls):
+    while cls.find(None):
+      cls.delete_if_exists(None)
 
   def is_tracked(self):
     """

@@ -120,7 +120,7 @@ def step_submit(operation_id, stage_id, step_id):
   :return: dict containing submit status, message and logs.
   """
   values = request.json['values']
-  op_state = find_op_state(operation_id)
+  op_state = find_op_state()
   step = find_step(operation_id, stage_id, step_id)
   op_state.record_step_started(stage_id, step_id)
   outcome: CommitOutcome = step.commit(values, op_state)
@@ -133,7 +133,7 @@ def step_submit(operation_id, stage_id, step_id):
 
 
 @controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])
-def step_stage(operation_id, stage_id, step_id):
+def step_preview_chart_assigns(operation_id, stage_id, step_id):
   """
   Returns the chart assignments that would be committed if the step were submitted
   with current user input.
@@ -144,7 +144,7 @@ def step_stage(operation_id, stage_id, step_id):
   """
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state(operation_id)
+  op_state = find_op_state()
   chart_assigns, _, _ = step.partition_value_assigns(values, op_state)
   return jsonify(data=chart_assigns)
 
@@ -176,7 +176,7 @@ def step_status(operation_id, stage_id, step_id):
     )
   """
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state(operation_id)
+  op_state = find_op_state()
   status_bundle = step.compute_status(op_state)
   status_word = status_bundle['status']
   if op_state.is_tracked():
@@ -319,21 +319,21 @@ def parse_ost_header() -> str:
   Extracts osr id from the passed header.
   :return: osr id.
   """
-  return request.headers.get('Ostid')
+  value = request.headers.get('Ostid')
+  if not value:
+    raise RuntimeError('OST ID not provided in headers!')
+  return value
 
 
-def find_op_state(operation_id: str) -> OperationState:
+def find_op_state() -> OperationState:
   """
   If osr id supplied, finds/creates the appropriate OperationState. Else creates
   an OperationState without an osr id.
-  :param operation_id: id of the operation for which the OperationState is being
-  located / created.
   :return: OperationState.
   """
-  if parse_ost_header():
-    return OperationState.find_or_create(
-      parse_ost_header(),
-      operation_id
-    )
-  else:
-    return OperationState(operation_id=operation_id)
+  value = OperationState.find(parse_ost_header())
+  if not value:
+    print(f"For OST not found {parse_ost_header()}")
+    print([op.ost_id for op in operation_states])
+    # raise RuntimeError('OST ID did not resolve to an active operation!')
+  return value

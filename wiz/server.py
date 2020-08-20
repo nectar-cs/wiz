@@ -45,7 +45,8 @@ def ensure_broker_connected():
 def apply_globals_from_headers():
   if request.headers.get('Wizns'):
     wiz_app.ns = request.headers.get('Wizns')
-    wiz_app.reload_install_uuid()
+
+  wiz_app.reload_install_uuid()
 
   if request.headers.get('Tami-image'):
     wiz_app.tami_name = request.headers.get('Tami-Image')

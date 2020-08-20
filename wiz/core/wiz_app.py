@@ -75,9 +75,10 @@ class WizApp:
     self.tami_name: Optional[str] = None
     self.tami_args: Optional[str] = None
 
-  def reload_install_uuid(self):
-    if self.ns and not self.install_uuid:
+  def reload_install_uuid(self, force=False) -> str:
+    if self.ns and (force or not self.install_uuid):
       self.install_uuid = read_install_uuid_secret(self.ns)
+    return self.install_uuid
 
   def reload_tami_name(self):
     from wiz.core import tami_client

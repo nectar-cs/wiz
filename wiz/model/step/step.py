@@ -159,7 +159,7 @@ class Step(WizModel):
     # Step 1- get matching state_recalls
     predicate = lambda d: d.get('target', 'chart') == target
     descriptors = filter(predicate, self.config.get('state_recalls', []))
-    state_assigns = op_state.state_assigns()
+    state_assigns = op_state.state_assigns() if op_state else {}
     # Step 2 - get included - excluded keys for those state_recalls
     gather_keys = lambda d: parse_recalled_state(d, state_assigns.keys())
     recalled_keys = utils.flatten(map(gather_keys, descriptors))
