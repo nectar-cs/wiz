@@ -6,7 +6,7 @@ from k8_kat.res.secret.kat_secret import KatSecret
 
 from wiz.core import utils
 
-tedi_pod_name = 'tedi'
+tami_pod_name = 'tami'
 cache_root = '/tmp'
 install_uuid_path = '/var/install_uuid'
 dev_install_uuid_path = '/tmp/install_uuid'
@@ -72,12 +72,16 @@ class WizApp:
     self.app_name: Optional[str] = None
     self.ns: Optional[str] = None
     self.install_uuid: Optional[str] = None
-    self.tedi_image: Optional[str] = None
-    self.tedi_args: Optional[str] = None
+    self.tami_name: Optional[str] = None
+    self.tami_args: Optional[str] = None
 
   def reload_install_uuid(self):
     if self.ns and not self.install_uuid:
       self.install_uuid = read_install_uuid_secret(self.ns)
+
+  def reload_tami_name(self):
+    from wiz.core import tami_client
+    self.tami_name = tami_client.read_tami_name()
 
   def add_configs(self, new_configs: List[Dict]):
     """

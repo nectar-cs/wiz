@@ -3,7 +3,7 @@ from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.utils.testing import simple_pod, ns_factory
 from wiz.core import utils
 
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.step.step import Step
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 

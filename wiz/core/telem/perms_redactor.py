@@ -1,6 +1,5 @@
 from typing import Dict, Optional, Union, List
 
-from wiz.core.telem.serial import ApiOperationOutcome
 from wiz.core.telem.telem_perms import TelemPerms
 
 
@@ -27,6 +26,6 @@ def redact_for_perms(perms, prefix, dirty_dict: Union[Dict, List]) -> Dict:
   return new_dict
 
 
-def redact_op_outcome(op_outcome: ApiOperationOutcome) -> ApiOperationOutcome:
+def redact_op_outcome(op_outcome: Dict) -> Dict:
   perms = TelemPerms()
   return redact_for_perms(perms, 'operation_outcome.', op_outcome)

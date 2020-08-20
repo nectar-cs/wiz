@@ -4,7 +4,7 @@ from k8_kat.res.base.kat_res import KatRes
 from typing_extensions import TypedDict
 
 from wiz.core.types import K8sResDict
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 
 
 class RuleDict(TypedDict, total=False):

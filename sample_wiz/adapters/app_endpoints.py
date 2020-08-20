@@ -3,7 +3,7 @@ from typing import List, TypeVar
 from k8_kat.res.ingress.kat_ingress import KatIngress
 from k8_kat.res.svc.kat_svc import KatSvc
 
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from wiz.model.adapters.provider import Provider
 

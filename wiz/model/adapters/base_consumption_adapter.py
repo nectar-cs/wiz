@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 
 
 from k8_kat.res.cluster.kat_cluster import KatCluster
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.model.adapters.adapter import Adapter
 
 

@@ -5,13 +5,13 @@ import yaml
 from k8_kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from wiz.core import tedi_client
+from wiz.core import tami_client
 from wiz.core.telem.ost import OperationState, StepState
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 
 
-def ci_tedi_name():
-  return "gcr.io/nectar-bazaar/wiz-ci-tedi"
+def ci_tami_name():
+  return "gcr.io/nectar-bazaar/wiz-ci-tami"
 
 
 def one_step_op_state(**kwargs):
@@ -26,12 +26,12 @@ def one_step_op_state(**kwargs):
   ])
 
 
-def mock_globals(ns, tedi_image=None):
-  tedi_image = tedi_image or ci_tedi_name()
+def mock_globals(ns, tami_image=None):
+  tami_image = tami_image or ci_tami_name()
   if ns:
     wiz_app.ns = ns
-  if tedi_image:
-    wiz_app.tedi_image = tedi_image
+  if tami_image:
+    wiz_app.tami_name = tami_image
 
 
 def create_base_master_map(ns):
@@ -49,7 +49,7 @@ def create_base_master_map(ns):
 
 def foo_bar_setup(ns):
   create_base_master_map(ns)
-  tedi_client.commit_values([
+  tami_client.commit_values([
     ('foo', 'bar'),
     ('bar.foo', 'baz')
   ])

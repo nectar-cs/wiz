@@ -1,9 +1,9 @@
 import yaml
 from k8_kat.utils.testing import ns_factory
 
-from wiz.core import tedi_prep
+from wiz.core import tami_prep
 from wiz.tests.t_helpers.cluster_test import ClusterTest
-from wiz.tests.t_helpers.helper import create_base_master_map, ci_tedi_name
+from wiz.tests.t_helpers.helper import create_base_master_map, ci_tami_name
 
 
 class TestTecPrep(ClusterTest):
@@ -20,7 +20,7 @@ class TestTecPrep(ClusterTest):
 
   def test_consume(self):
     create_base_master_map(self.ns)
-    output = tedi_prep.consume(self.ns, ci_tedi_name(), [])
+    output = tami_prep.consume(self.ns, ci_tami_name(), [])
     self.assertIsNotNone(output)
     res_dicts = list(yaml.load_all(output, yaml.FullLoader))
     self.assertEqual(2, len(res_dicts))

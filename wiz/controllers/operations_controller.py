@@ -2,9 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from wiz.core import utils
 from wiz.core.telem import telem_sync
-from wiz.core.telem.audit_sink import AuditConfig, audit_sink
 from wiz.core.telem.ost import OperationState, operation_states
-from wiz.core.telem.telem_perms import TelemPerms
 from wiz.model.field.field import Field
 from wiz.model.operations.operation import Operation
 from wiz.model.predicate.predicate import Predicate
@@ -250,18 +248,15 @@ def mark_finished(operation_id):
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
-  # token = parse_ost_header()
-  # print(f"GOT OST HEADER {token}")
-  # active_op_state = OperationState.find(token) if token else None
-  #
-  # if active_op_state:
-  #   success = telem_sync.upload_operation_outcome(active_op_state)
-  #   if success:
-  #     OperationState.delete_if_exists(active_op_state.ost_id)
-  #   return jsonify(data=dict(success=success))
-  # else:
-  #   return jsonify(data=dict(status='failure')), 400
-  return jsonify(data=dict(success=True))
+  token = parse_ost_header()
+  _status = OperationState.set_status_if_exists(token)
+  return jsonify(data=dict(success=_status))
+
+
+@controller.route(f'{OPERATIONS_PATH}/flush-telem', methods=['POST'])
+def flush_telem():
+  telem_sync.upload_operation_outcomes()
+  return jsonify(status='success')
 
 
 def find_operation(operation_id: str) -> Operation:

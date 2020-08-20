@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from wiz.core import tedi_client, hub_client
-from wiz.core.wiz_globals import wiz_app
+from wiz.core import tami_client
+from wiz.core import hub_client
 from wiz.model.chart_variable import serial
 from wiz.model.chart_variable.chart_variable import ChartVariable
 
@@ -14,11 +14,25 @@ def chart_variables_index():
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
-  chart_dump = tedi_client.chart_dump()
+  chart_dump = tami_client.chart_dump()
   chart_variables = ChartVariable.inflate_all()
   serialize = lambda cv: serial.standard(cv=cv, cache=chart_dump)
   serialized = [serialize(cv) for cv in chart_variables]
   return jsonify(data=serialized)
+
+
+@controller.route('/api/chart-variables/commit-apply', methods=['POST'])
+def chart_variables_submit():
+  """
+  Updates the chart variable with new value.
+  :param key: key to locate the right chart variable.
+  :return: status of the update.
+  """
+  assignments = request.json['assignments']
+  tami_client.commit_values(list(assignments.items()))
+  logs = tami_client.apply([])
+  print(logs)
+  return jsonify(status='success')
 
 
 @controller.route('/api/chart-variables/<key>')

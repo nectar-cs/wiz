@@ -6,7 +6,7 @@ from k8_kat.res.job.kat_job import KatJob
 from k8_kat.res.pod.kat_pod import KatPod
 from wiz.core import step_job_prep
 from wiz.core.types import JobStatus, JobStatusPart
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 
 
 def _fmt_status_part(raw: Dict, index: int) -> JobStatusPart:

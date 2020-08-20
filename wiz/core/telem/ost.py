@@ -94,6 +94,7 @@ class OperationState:
     self.ost_id = kwargs.get('id') #ost = operation state
     self.operation_id = kwargs.get('operation_id')
     self.step_states: List[StepState] = kwargs.get('step_states', [])
+    self.status = 'pending'
 
   @classmethod
   def find_or_create(cls, ost_id: str, operation_id: str):
@@ -120,6 +121,17 @@ class OperationState:
     return next(matcher, None)
 
   @classmethod
+  def mark_status_if_exists(cls, ost_id, status: str):
+    op_state = cls.find(ost_id)
+    if op_state:
+      op_state['status'] = status
+      return True
+    else:
+      return False
+
+
+
+  @classmethod
   def delete_if_exists(cls, ost_id: str) -> Optional['OperationState']:
     """
     Deletes the OperationState if one with the given osr id exists.
@@ -136,6 +148,7 @@ class OperationState:
     :return: True if it does, False otherwise.
     """
     return self.ost_id is not None
+
 
   def record_step_started(self, stage_id:str, step_id:str):
     """

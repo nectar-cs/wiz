@@ -8,7 +8,7 @@ from k8_kat.auth.kube_broker import broker
 from k8_kat.utils.testing import ns_factory
 from wiz.core.telem import telem_perms
 from wiz.core.telem.telem_perms import TelemPerms
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 from wiz.tests.t_helpers.cluster_test import ClusterTest
 
 

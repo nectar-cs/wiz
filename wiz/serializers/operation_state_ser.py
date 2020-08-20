@@ -17,8 +17,8 @@ def ser_exit_cond_outcome(outcome: ExitConditionStatus, polarity: str):
 
 
 def ser_exit_cond_outcomes(exit_outcomes: ExitConditionStatuses):
-  positive_exit_outcomes = exit_outcomes.get('positive')
-  negative_exit_outcomes = exit_outcomes.get('negative')
+  positive_exit_outcomes = exit_outcomes.get('positive', [])
+  negative_exit_outcomes = exit_outcomes.get('negative', [])
   return (
     [ser_exit_cond_outcome(o, 'positive') for o in positive_exit_outcomes] +
     [ser_exit_cond_outcome(o, 'negative') for o in negative_exit_outcomes]
@@ -41,6 +41,7 @@ def ser_step_outcome(step_outcome: StepState):
 
 def serialize(op_state: OperationState):
   return dict(
+    operation_key=op_state.operation_id,
     step_outcomes_attributes=list(
       map(ser_step_outcome, op_state.step_states)
     )

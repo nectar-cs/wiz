@@ -1,6 +1,6 @@
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
-from wiz.core.wiz_globals import wiz_app
+from wiz.core.wiz_app import wiz_app
 
 
 T = TypeVar('T', bound='WizModel')
