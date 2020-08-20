@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from wiz.core import tedi_client
+from wiz.core import tedi_client, hub_client
+from wiz.core.wiz_globals import wiz_app
 from wiz.model.chart_variable import serial
 from wiz.model.chart_variable.chart_variable import ChartVariable
 
@@ -29,6 +30,18 @@ def chart_variables_show(key):
   """
   chart_variable = find_variable(key)
   return jsonify(data=serial.with_field(chart_variable))
+
+
+@controller.route('/api/chart-variables/commit-injections', methods=['POST'])
+def chart_vars_commit_injections():
+  route = f'/installs/{wiz_app.install_uuid}/injections'
+  resp = hub_client.get(route)
+  injections = None
+  if resp.status_code < 300:
+    injections = resp.json().get('data')
+    if injections:
+      tedi_client.commit_values(injections.items())
+  return jsonify(data=injections)
 
 
 @controller.route('/api/chart-variables/<key>/submit', methods=['POST'])
