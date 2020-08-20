@@ -12,9 +12,10 @@ def upload_operation_outcomes():
 
 
 def upload_operation_outcome(op_state: OperationState, delete=False):
-  install_uuid = wiz_app.install_uuid
-  serialized_outcome = operation_state_ser.serialize(op_state)
-  ep = f'/api/cli/installs/{install_uuid}/operation_outcomes'
-  resp = hub_client.post(ep, dict(data=serialized_outcome))
-  print(resp)
-  return True
+  if wiz_app.install_uuid:
+    serialized_outcome = operation_state_ser.serialize(op_state)
+    ep = f'/installs/{wiz_app.install_uuid}/operation_outcomes'
+    print(f"TO {ep} ----> {serialized_outcome}")
+    resp = hub_client.post(ep, dict(data=serialized_outcome))
+    print(resp)
+    return True

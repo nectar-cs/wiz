@@ -239,17 +239,16 @@ def fields_decorate(operation_id, stage_id, step_id, field_id):
   return jsonify(data=field.decorate_value(value))
 
 
-@controller.route(f'{OPERATION_PATH}/mark-finished', methods=['POST'])
-def mark_finished(operation_id):
+@controller.route(f'{OPERATIONS_PATH}/mark-finished', methods=['POST'])
+def mark_finished():
   """
   Syncs telemetry information with the database if permissions allow to do so.
   Deletes OperationState after its done.
-  :param operation_id: operation id to search by.
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
   token = parse_ost_header()
-  _status = OperationState.set_status_if_exists(token)
+  _status = OperationState.mark_status_if_exists(token, 'positive')
   return jsonify(data=dict(success=_status))
 
 

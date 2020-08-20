@@ -9,7 +9,7 @@ def ser_commit_outcome(commit_outcome: CommitOutcome):
 def ser_exit_cond_outcome(outcome: ExitConditionStatus, polarity: str):
   return dict(
     key=outcome.get('key'),
-    met=outcome.get('met'),
+    condition_met=outcome.get('met'),
     reason=outcome.get('reason'),
     resources_considered=outcome.get('resources_considered'),
     polarity=polarity

@@ -121,15 +121,12 @@ class OperationState:
     return next(matcher, None)
 
   @classmethod
-  def mark_status_if_exists(cls, ost_id, status: str):
+  def mark_status_if_exists(cls, ost_id, status: str) -> bool:
     op_state = cls.find(ost_id)
     if op_state:
-      op_state['status'] = status
+      op_state.status = status
       return True
-    else:
-      return False
-
-
+    return False
 
   @classmethod
   def delete_if_exists(cls, ost_id: str) -> Optional['OperationState']:

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from wiz.core import tami_client
 from wiz.core import hub_client
+from wiz.core.wiz_app import wiz_app
 from wiz.model.chart_variable import serial
 from wiz.model.chart_variable.chart_variable import ChartVariable
 
@@ -19,20 +20,6 @@ def chart_variables_index():
   serialize = lambda cv: serial.standard(cv=cv, cache=chart_dump)
   serialized = [serialize(cv) for cv in chart_variables]
   return jsonify(data=serialized)
-
-
-@controller.route('/api/chart-variables/commit-apply', methods=['POST'])
-def chart_variables_submit():
-  """
-  Updates the chart variable with new value.
-  :param key: key to locate the right chart variable.
-  :return: status of the update.
-  """
-  assignments = request.json['assignments']
-  tami_client.commit_values(list(assignments.items()))
-  logs = tami_client.apply([])
-  print(logs)
-  return jsonify(status='success')
 
 
 @controller.route('/api/chart-variables/<key>')
@@ -54,7 +41,7 @@ def chart_vars_commit_injections():
   if resp.status_code < 300:
     injections = resp.json().get('data')
     if injections:
-      tedi_client.commit_values(injections.items())
+      tami_client.commit_values(injections.items())
   return jsonify(data=injections)
 
 
@@ -69,6 +56,20 @@ def chart_variables_submit(key):
   chart_variable = find_variable(key)
   chart_variable.commit(value)
   return jsonify(status='success')
+
+
+@controller.route('/api/chart-variables/commit-apply', methods=['POST'])
+def chart_variables_commit_apply():
+  """
+  Updates the chart variable with new value.
+  :return: status of the update.
+  """
+  assignments = request.json['assignments']
+  tami_client.commit_values(list(assignments.items()))
+  logs = tami_client.apply([])
+  print(logs)
+  return jsonify(status='success')
+
 
 @controller.route('/api/chart-variables/<key>/validate', methods=['POST'])
 def chart_variables_validate(key):
