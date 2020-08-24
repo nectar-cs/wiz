@@ -107,6 +107,13 @@ class OperationState:
     return next(matcher, None)
 
   @classmethod
+  def create(cls, operation_id: str, osd_id: str):
+    operation_states.append(OperationState(
+      id=osd_id,
+      operation_id=operation_id
+    ))
+
+  @classmethod
   def mark_status_if_exists(cls, ost_id, status: str) -> bool:
     op_state = cls.find(ost_id)
     if op_state:

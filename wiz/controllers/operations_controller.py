@@ -52,13 +52,15 @@ def operations_show(operation_id):
   return jsonify(data=operation_serial.ser_full(operation))
 
 
-@controller.route(f'{OPERATIONS_PATH}/request-ost')
-def operations_gen_ost():
+@controller.route(f'{OPERATION_PATH}/request-ost')
+def operations_gen_ost(operation_id):
   """
   Generates a new OST (random 10 character string).
   :return: new OST.
   """
-  return jsonify(data=utils.rand_str(string_len=10))
+  ost_id = utils.rand_str(string_len=10)
+  OperationState.create(operation_id, ost_id)
+  return jsonify(data=ost_id)
 
 
 @controller.route(f'{OPERATIONS_PATH}/osts')
