@@ -25,6 +25,7 @@ codecov = "*"
 twine = "*"
 validators = "*"
 sqlalchemy = "*"
+google-auth = "==1.20.1"
 
 [requires]
 python_version = "3.6"
