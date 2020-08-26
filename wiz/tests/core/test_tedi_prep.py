@@ -20,7 +20,7 @@ class TestTecPrep(ClusterTest):
 
   def test_consume(self):
     create_base_master_map(self.ns)
-    output = tami_prep.consume(self.ns, ci_tami_name(), [])
+    output = tami_prep.consume(self.ns, ci_tami_name(), ['template'])
     self.assertIsNotNone(output)
     res_dicts = list(yaml.load_all(output, yaml.FullLoader))
     self.assertEqual(2, len(res_dicts))

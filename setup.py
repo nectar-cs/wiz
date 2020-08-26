@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-  name="nectar-wiz",
-  version="0.0.1",
+  name="nectwiz",
+  version="0.0.03",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
   description="App Wizard",

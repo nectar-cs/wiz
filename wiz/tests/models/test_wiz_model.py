@@ -52,7 +52,7 @@ class Base:
       self.assertEqual(actual, ['a', 'b', 'c'])
 
     def test_inflate_when_subclassed(self):
-      mks = self.model_class().type_key()
+      model_type_key = self.model_class().type_key()
 
       class Sub(self.model_class()):
         @property
@@ -60,12 +60,12 @@ class Base:
           return "bar"
 
         @classmethod
-        def key(cls):
-          return "k"
+        def type_key(cls):
+          return model_type_key
 
         @classmethod
-        def type_key(cls):
-          return mks
+        def expected_key(cls):
+          return 'k'
 
       config = g_conf(k='k', i=self.kind, t='foo')
       wiz_app.add_overrides([Sub])

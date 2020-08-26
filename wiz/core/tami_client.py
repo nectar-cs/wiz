@@ -109,6 +109,14 @@ def gen_tami_args(inlines) -> List[str]:
   return all_flags.split(" ")
 
 
+def read_tami_def_values() -> Dict[str, str]:
+  ns, image_name = wiz_app.ns, wiz_app.tami_name
+  pod_args = ['values', wiz_app.tami_args]
+  pod_args = [v for v in pod_args if v]
+  result = tami_prep.consume(ns, image_name, pod_args)
+  return yaml.load(result)
+
+
 def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   """
   Creates a Kubernetes pod running the vendor-specified image, then reads the
@@ -117,9 +125,7 @@ def load_raw_manifest(inlines=None) -> List[K8sResDict]:
   :return: parsed logs from the Tami container.
   """
   ns, image_name = wiz_app.ns, wiz_app.tami_name
-  pod_args = gen_tami_args(inlines)
-  print(f"THE POD ARGS SHALL BE FROM {inlines}")
-  print(pod_args)
+  pod_args = ['template'] + gen_tami_args(inlines)
   result = tami_prep.consume(ns, image_name, pod_args)
   return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
