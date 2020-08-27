@@ -1,6 +1,7 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from nectwiz.core import tami_client, step_job_prep, utils
+from nectwiz.core import step_job_prep, utils, config_man
+from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.core.types import CommitOutcome, StepRunningStatus
 from nectwiz.model.base.res_match_rule import ResMatchRule
@@ -240,11 +241,11 @@ class Step(WizModel):
     )
 
     if len(chart_assigns):
-      tami_client.commit_values(chart_assigns.items())
+      config_man.commit_manifest_variables(chart_assigns.items())
       # outcome['prev_chart_vals'] =
 
     if self.applies_manifest():
-      out = tami_client.apply(self.res_selectors(), inline_assigns.items())
+      out = tam_client().apply(self.res_selectors(), inline_assigns.items())
       logs = out.split("\n") if out else []
       return CommitOutcome(**outcome, status='pending', logs=logs)
 

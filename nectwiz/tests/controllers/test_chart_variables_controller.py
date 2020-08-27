@@ -25,7 +25,7 @@ class TestChartVariablesController(ClusterTest):
 
     endpoint = '/api/chart-variables/foo/submit'
     payload = dict(value='baz')
-    response = app.test_client().post(endpoint, json=payload)
+    response = app.http_post(endpoint, json=payload)
 
     self.assertEqual('success', json.loads(response.data).get('status'))
     self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
@@ -36,12 +36,12 @@ class TestChartVariablesController(ClusterTest):
     wiz_app.add_configs(configs)
 
     endpoint = '/api/chart-variables/foo/validate'
-    response = app.test_client().post(endpoint, json=dict(value=''))
+    response = app.http_post(endpoint, json=dict(value=''))
     body = json.loads(response.data).get('data')
     self.assertEqual('error', body.get('status'))
     self.assertEqual('Cannot be empty', body.get('message'))
 
-    response2 = app.test_client().post(endpoint, json=dict(value='bar'))
+    response2 = app.http_post(endpoint, json=dict(value='bar'))
     body2 = json.loads(response2.data).get('data')
     self.assertEqual('valid', body2.get('status'))
 

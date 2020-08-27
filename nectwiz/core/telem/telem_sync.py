@@ -1,8 +1,6 @@
 from typing import List
 
-import requests
-
-from nectwiz.core import utils, hub_client
+from nectwiz.core import hub_client
 from nectwiz.core.telem.ost import OperationState, operation_states
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.serializers import operation_state_ser
@@ -20,7 +18,7 @@ def upload_operation_outcomes():
 
 
 def upload_operation_outcome(op_state: OperationState) -> bool:
-  install_uuid = wiz_app.reload_install_uuid(force=True)
+  install_uuid = wiz_app.install_uuid(force=True)
   if install_uuid:
     serialized_outcome = operation_state_ser.serialize(op_state)
     ep = f'/installs/{install_uuid}/operation_outcomes'

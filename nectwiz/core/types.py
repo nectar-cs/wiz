@@ -65,3 +65,10 @@ class K8sResMeta(TypedDict):
 class K8sResDict(TypedDict):
   kind: str
   metadata: K8sResMeta
+
+
+class TamDict(TypedDict):
+  type: str
+  uri: str
+  args: Optional[List[str]]
+  ver: str

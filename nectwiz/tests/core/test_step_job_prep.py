@@ -9,7 +9,7 @@ from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 class TestStepJobPrep(ClusterTest):
 
   def test_status(self):
-    wiz_app.ns, = ns_factory.request(1)
+    wiz_app._ns, = ns_factory.request(1)
     job_id = step_job_prep.create_and_run(
       image='ruby:2.6.6-alpine3.12',
       command=["ruby", "-e"],
@@ -35,7 +35,7 @@ class TestStepJobPrep(ClusterTest):
     self.assertEqual(50, bundle['parts'][0]['pct'])
 
   def test_create_and_run_completed(self):
-    wiz_app.ns, = ns_factory.request(1)
+    wiz_app._ns, = ns_factory.request(1)
     job_id = step_job_prep.create_and_run(
       image='ruby:2.6.6-alpine3.12',
       command=["ruby", "-e"],
@@ -54,7 +54,7 @@ class TestStepJobPrep(ClusterTest):
     self.assertEqual("hello wiz", pod.clean_logs())
 
   def test_create_and_run_failed(self):
-    wiz_app.ns, = ns_factory.request(1)
+    wiz_app._ns, = ns_factory.request(1)
     job_id = step_job_prep.create_and_run(
       image='ruby:2.6.6-alpine3.12',
       command=["ruby", "-e", "fail!"],

@@ -21,7 +21,7 @@ class BaseConsumptionAdapter(Adapter):
 
   @cached_property
   def kat_quota(self) -> KatQuota:
-    matches = KatQuota.list(ns=wiz_app.ns)
+    matches = KatQuota.list(ns=wiz_app.ns())
     return matches[len(matches) - 1] if len(matches) > 0 else None
 
   def cpu_request_sum_allowed(self):

@@ -3,6 +3,7 @@ import os
 import random
 import string
 import subprocess
+from functools import reduce
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
@@ -11,6 +12,38 @@ from typing import Dict, List
 import yaml
 
 legal_envs = ['production', 'development', 'test']
+
+
+def deep_set(dict_root: Dict, names: List[str], value: any):
+  """
+  Iterates over items in names list, using them as keys to go deeper into the
+  dictionary at each iteration. Eventually sets the passed value with the final key.
+  with the passed value.
+  :param dict_root: dict to be modified with the desired value.
+  :param names: list of names to be iterated over, to find the right depth.
+  :param value: value to be eventually set at the right depth.
+  """
+  if len(names) == 1:
+    dict_root[names[0]] = value
+  else:
+    if not dict_root.get(names[0]):
+      dict_root[names[0]] = dict()
+    deep_set(dict_root[names[0]], names[1:], value)
+
+
+def deep_get(dict_root: Dict, keys: List[str]) -> str:
+  """
+  Iterates over items in keys list, using them as keys to go deeper into the
+  dictionary at each iteration. Eventually retrieves the value of the final key.
+  :param dict_root: dict containing the desired value.
+  :param keys: list of keys to be iterated over, to find the right depth.
+  :return: value of the final key.
+  """
+  return reduce(
+    lambda d, key: d.get(key, None)
+    if isinstance(d, dict)
+    else None, keys, dict_root
+  )
 
 
 def shell_exec(cmd) -> str:

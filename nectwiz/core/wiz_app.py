@@ -1,15 +1,11 @@
-import base64
 import os
 from typing import Dict, Type, Optional, List
 
-from k8_kat.res.secret.kat_secret import KatSecret
-
 from nectwiz.core import utils
+from nectwiz.core.types import TamDict
 
 tami_pod_name = 'tami'
 cache_root = '/tmp'
-install_uuid_path = '/var/install_uuid'
-dev_install_uuid_path = '/tmp/install_uuid'
 
 
 def is_config_match(config: Dict, kind: str, key: str):
@@ -46,20 +42,6 @@ def default_configs() -> List[Dict]:
   return utils.yamls_in_dir(f"{pwd}/../model/pre_built")
 
 
-def read_install_uuid_secret(ns):
-  if utils.is_dev():
-    secret = KatSecret.find('master', ns) if ns else None
-    if secret:
-      raw_enc = secret.raw.data.get('install_uuid')
-      raw_enc_bytes = bytes(raw_enc, 'utf-8')
-      return base64.b64decode(raw_enc_bytes).decode()
-    return None
-  else:
-    try:
-      with open(install_uuid_path, 'r') as file:
-        return file.read()
-    except FileNotFoundError:
-      return None
 
 
 class WizApp:
@@ -67,22 +49,31 @@ class WizApp:
   def __init__(self):
     self.configs: List[Dict] = default_configs()
     self.subclasses: List[Type] = []
+    self.tam_client_override = None
     self.providers = []
     self.adapters = []
-    self.app_name: Optional[str] = None
-    self.ns: Optional[str] = None
-    self.install_uuid: Optional[str] = None
-    self.tami_name: Optional[str] = None
-    self.tami_args: Optional[str] = None
 
-  def reload_install_uuid(self, force=False) -> str:
-    if self.ns and (force or not self.install_uuid):
-      self.install_uuid = read_install_uuid_secret(self.ns)
-    return self.install_uuid
+    self._ns: Optional[str] = None
+    self._tam: Optional[TamDict] = None
+    self._install_uuid: Optional[str] = None
 
-  def reload_tami_name(self):
-    from nectwiz.core import tami_client
-    self.tami_name = tami_client.read_tami_name()
+  def ns(self, force_reload=False):
+    if force_reload or not self._ns:
+      from nectwiz.core import config_man
+      self._ns = config_man.read_ns()
+    return self._ns
+
+  def tam(self, force_reload=False) -> TamDict:
+    if force_reload or not self._tam:
+      from nectwiz.core import config_man
+      self._tam = config_man.read_tam()
+    return self._tam
+
+  def install_uuid(self, force_reload=False) -> str:
+    if self.ns() and (force_reload or not self.install_uuid):
+      from nectwiz.core import config_man
+      self._install_uuid = config_man.read_install_uuid(self.ns())
+    return self._install_uuid
 
   def add_configs(self, new_configs: List[Dict]):
     """

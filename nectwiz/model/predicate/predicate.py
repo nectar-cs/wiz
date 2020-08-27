@@ -2,7 +2,8 @@ import functools
 from typing import Optional, Callable
 
 from k8_kat.res.base.kat_res import KatRes
-from nectwiz.core import tami_client
+
+from nectwiz.core import config_man
 from nectwiz.core.telem.ost import StepState
 from nectwiz.model.base import res_selector
 from nectwiz.model.base.wiz_model import WizModel
@@ -64,7 +65,7 @@ class Predicate(WizModel):
     """
     variable_name = self.config.get('variable')
     check_against = self.config.get('check_against')
-    current_value = tami_client.chart_value(variable_name)
+    current_value = config_man.read_tam_var(variable_name)
     operator = self.config.get('op', 'equals')
     return comparator(operator)(current_value, check_against)
 

@@ -30,7 +30,7 @@ def list_by_category(category_id):
   kat_res_classes: List[Type[KatRes]] = category_mapping[category_id]
   all_serialized_res = []
   for kat_class in kat_res_classes:
-    res_instances = kat_class.list_excluding_sys(ns=wiz_app.ns)
+    res_instances = kat_class.list_excluding_sys(ns=wiz_app.ns())
     serialized = [res_serializers.basic(res) for res in res_instances]
     all_serialized_res += serialized
   return jsonify(data=all_serialized_res)
@@ -45,7 +45,7 @@ def resource_detail(kind: str, name: str):
   :return: serialized resource KatRes instance.
   """
   kat_class = KatRes.find_res_class(kind)
-  res = kat_class.find(name, wiz_app.ns)
+  res = kat_class.find(name, wiz_app.ns())
   serializer = kind_serializer_mapping.get(kind)
   serialized = serializer(res) if res and serializer else None
   return jsonify(data=serialized)

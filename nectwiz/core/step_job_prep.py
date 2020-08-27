@@ -2,7 +2,6 @@ import json
 from typing import Dict
 
 from k8_kat.res.job.kat_job import KatJob
-from k8_kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1ConfigMap, V1ObjectMeta, V1Job, V1JobSpec, V1PodSpec, V1PodTemplateSpec, \
   V1Container, V1VolumeMount, V1Volume, V1ConfigMapVolumeSource, V1ResourceRequirements
 
@@ -25,7 +24,7 @@ def _create_shared_config_map(job_id, values: Dict):
   :return: newly created ConfigMap data
   """
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app.ns,
+    namespace=wiz_app._ns,
     body=V1ConfigMap(
       metadata=V1ObjectMeta(
         name=job_id,
@@ -48,7 +47,7 @@ def _create_job(job_id, image, command, args):
   :return: newly created job data
   """
   return broker.batchV1.create_namespaced_job(
-    namespace=wiz_app.ns,
+    namespace=wiz_app._ns,
     body=V1Job(
       metadata=V1ObjectMeta(
         name=job_id,

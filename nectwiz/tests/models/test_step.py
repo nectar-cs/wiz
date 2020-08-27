@@ -1,7 +1,8 @@
 from typing import Type, Dict
 from unittest.mock import patch
 
-from nectwiz.core import tami_client, step_job_prep
+from nectwiz.core import step_job_prep
+from nectwiz.core.tam import tami_client
 from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.stage.stage import Stage

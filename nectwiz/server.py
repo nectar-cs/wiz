@@ -2,11 +2,10 @@ import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
 from k8_kat.auth.kube_broker import BrokerConnException, broker
+
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller, resources_controller
-from nectwiz.core.wiz_app import wiz_app
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -39,21 +38,6 @@ def ensure_broker_connected():
   if "/api/status" not in request.path:
     # broker.check_connected_or_raise()
     pass
-
-
-@app.before_request
-def apply_globals_from_headers():
-  if request.headers.get('Wizns'):
-    wiz_app.ns = request.headers.get('Wizns')
-
-  wiz_app.reload_install_uuid()
-
-  if request.headers.get('Tami-image'):
-    wiz_app.tami_name = request.headers.get('Tami-Image')
-
-  if request.headers.get('Tami-args'):
-    wiz_app.tami_args = request.headers.get('Tami-Args')
-
 
 def start():
   broker.connect()

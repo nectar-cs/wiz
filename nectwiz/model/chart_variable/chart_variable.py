@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from nectwiz.core import tami_client
+from nectwiz.core.tam import tami_client
 from nectwiz.model.base.wiz_model import WizModel
 
 

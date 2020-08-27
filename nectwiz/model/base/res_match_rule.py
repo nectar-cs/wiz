@@ -69,7 +69,7 @@ class ResMatchRule:
         }
 
       return kat_class.list(
-        ns=wiz_app.ns,
+        ns=wiz_app.ns(),
         labels=self.label_selectors,
         fields=field_selectors
       )

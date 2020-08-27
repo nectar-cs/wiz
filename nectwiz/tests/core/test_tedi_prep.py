@@ -1,7 +1,7 @@
 import yaml
 from k8_kat.utils.testing import ns_factory
 
-from nectwiz.core import tami_prep
+from nectwiz.core.tam import tami_prep
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers.helper import create_base_master_map, ci_tami_name
 

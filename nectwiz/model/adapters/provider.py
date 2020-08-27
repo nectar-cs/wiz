@@ -14,5 +14,3 @@ class Provider(Generic[T]):
 
   def produce_adapters(self) -> List[T]:
     raise NotImplementedError
-
-

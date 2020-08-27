@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from k8_kat.res.config_map.kat_map import KatMap
 from werkzeug.utils import cached_property
 
-from nectwiz.core import tami_client
+from nectwiz.core import config_man
 
 cmap_field = 'sharing_prefs'
 upload_telem_key = 'upload_telem'
@@ -18,7 +18,7 @@ class TelemPerms:
     Uses Tami client to return the ConfigMap.
     :return: ConfigMap object.
     """
-    return tami_client.master_cmap()
+    return config_man.master_cmap()
 
   def user_perms(self) -> Dict:
     """

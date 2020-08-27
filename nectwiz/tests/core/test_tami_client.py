@@ -3,9 +3,9 @@ import yaml
 from k8_kat.res.pod.kat_pod import KatPod
 from k8_kat.res.svc.kat_svc import KatSvc
 from k8_kat.utils.testing import ns_factory
-from nectwiz.core import tami_client
+
+from nectwiz.core.tam import tami_client
 from nectwiz.model.base.res_match_rule import ResMatchRule
-from nectwiz.core.tami_client import deep_set, filter_res
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers import helper
@@ -22,20 +22,6 @@ class TestTamiClient(ClusterTest):
   def tearDown(self) -> None:
     super().tearDown()
     ns_factory.relinquish(self.ns)
-
-  def test_deep_set(self):
-    root = dict(x='x', y='y')
-    deep_set(root, ['x'], 'y')
-    self.assertEqual(root, dict(x='y', y='y'))
-
-    root = dict(x=dict(x='x', y='y'), y='y')
-    deep_set(root, ['x', 'x'], 'y')
-    expect = dict(x=dict(x='y', y='y'), y='y')
-    self.assertEqual(root, expect)
-
-    root = dict()
-    deep_set(root, ['x', 'x'], 'x')
-    self.assertEqual(root, dict(x=dict(x='x')))
 
   def test_fmt_inline_assigns(self):
     str_assignments = [('foo.bar', 'baz'), ('x', 'y')]
@@ -73,14 +59,10 @@ class TestTamiClient(ClusterTest):
     self.assertIsNotNone(pod)
     self.assertIsNotNone(svc)
 
-  def test_commit_values(self):
-    tami_client.commit_values([('foo', 'bar')])
-    new_values = tami_client.master_cmap().yget()
-    self.assertEqual(new_values, dict(foo='bar'))
 
   def test_commit_and_load(self):
-    wiz_app.ns = self.ns
-    tami_client.commit_values([
+    wiz_app._ns = self.ns
+    variables_man.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)
@@ -93,7 +75,7 @@ class TestTamiClient(ClusterTest):
     self.assertIsNotNone(svc)
 
   def test_integration(self):
-    tami_client.commit_values([
+    variables_man.commit_values([
       ('namespace', self.ns),
       ('service.name', 'updated-service'),
       ('service.port', 81)

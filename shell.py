@@ -14,8 +14,6 @@ from k8_kat.res.dep.kat_dep import KatDep
 from k8_kat.auth.kube_broker import broker
 # noinspection PyUnresolvedReferences
 from k8_kat.res.ns.kat_ns import KatNs
-from nectwiz.core import tami_prep, tami_client
-
 
 if __name__ == '__main__':
   dotenv.load_dotenv()

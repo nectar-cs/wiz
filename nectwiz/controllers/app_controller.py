@@ -57,8 +57,7 @@ def workload_versions():
   Returns the versions and last update times for workloads.
   :return: list with versions and last updates times for each workload.
   """
-  ns = wiz_app.ns
-  kat_deps: List[KatDep] = KatDep.list(ns=ns)
+  kat_deps: List[KatDep] = KatDep.list(ns=wiz_app.ns())
   version_list = []
   for res in kat_deps:
     if res.name != 'nectar-wizard':

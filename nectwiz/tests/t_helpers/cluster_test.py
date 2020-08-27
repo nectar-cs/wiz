@@ -10,12 +10,12 @@ class ClusterTest(unittest.TestCase):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app.ns = None
+    wiz_app._ns = None
     wiz_app.clear()
 
   def tearDown(self) -> None:
     super().setUp()
-    wiz_app.ns = None
+    wiz_app._ns = None
     wiz_app.clear()
 
   @classmethod

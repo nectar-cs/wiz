@@ -1,4 +1,3 @@
-import time
 from typing import List, Optional
 
 from k8_kat.res.pod.kat_pod import KatPod

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from nectwiz.core import tami_client
-from nectwiz.core import hub_client
+from nectwiz.core import hub_client, config_man
+from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.chart_variable import serial
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
@@ -15,7 +15,7 @@ def chart_variables_index():
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
-  chart_dump = tami_client.chart_dump()
+  chart_dump = config_man.read_tam_vars()
   chart_variables = ChartVariable.inflate_all()
   serialize = lambda cv: serial.standard(cv=cv, cache=chart_dump)
   serialized = [serialize(cv) for cv in chart_variables]
@@ -35,7 +35,7 @@ def chart_variables_show(key):
 
 @controller.route('/api/chart-variables/commit-injections', methods=['POST'])
 def chart_vars_commit_injections():
-  install_uuid = wiz_app.reload_install_uuid(force=True)
+  install_uuid = wiz_app.install_uuid(force_reload=True)
   if install_uuid:
     route = f'/installs/{install_uuid}/injections'
     resp = hub_client.get(route)
@@ -43,7 +43,7 @@ def chart_vars_commit_injections():
     if resp.status_code < 300:
       injections = resp.json().get('data')
       if injections:
-        tami_client.commit_values(injections.items())
+        config_man.commit_manifest_variables(injections.items())
     return jsonify(data=injections)
   else:
     print("Install UUID not found!")
@@ -70,8 +70,8 @@ def chart_variables_commit_apply():
   :return: status of the update.
   """
   assignments = request.json['assignments']
-  tami_client.commit_values(list(assignments.items()))
-  logs = tami_client.apply([])
+  config_man.commit_manifest_variables(list(assignments.items()))
+  logs = tam_client().apply([])
   print(logs)
   return jsonify(status='success')
 

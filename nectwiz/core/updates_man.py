@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional
 
-from nectwiz.core import tami_client, hub_client
+from nectwiz.core import hub_client, config_man
+from nectwiz.core.tam import tami_client
+from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.types import Update, UpdateOutcome
 from nectwiz.core.wiz_app import wiz_app
 
@@ -23,7 +25,7 @@ def apply_release(release: Update) -> UpdateOutcome:
   new_name = release.get('tami_name')
   tami_client.update_tami_name(new_name)
   wiz_app.reload_tami_name()
-  out = tami_client.kubectl_apply()
+  out = tam_client().apply([])
   logs = out.split("\n") if out else []
   return UpdateOutcome(release_logs=logs)
 
@@ -31,9 +33,9 @@ def apply_release(release: Update) -> UpdateOutcome:
 def apply_patch(patch: Update) -> UpdateOutcome:
   assignments: Dict = patch.get('injections', {})
   pre_telem = _gen_injection_telem(list(assignments.keys()))
-  tami_client.commit_values(assignments.items())
+  config_man.commit_manifest_variables(list(assignments.items()))
   post_telem = _gen_injection_telem(list(assignments.keys()))
-  out = tami_client.kubectl_apply()
+  out = tam_client().apply([])
   logs = out.split("\n") if out else []
 
   return UpdateOutcome(
@@ -45,5 +47,5 @@ def apply_patch(patch: Update) -> UpdateOutcome:
 
 
 def _gen_injection_telem(keys: List[str]):
-  all_vars = tami_client.chart_dump()
+  all_vars = config_man.read_tam_vars()
   return {k: all_vars[k] for k in keys}

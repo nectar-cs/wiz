@@ -45,7 +45,7 @@ def find_job(job_id: str) -> KatJob:
   :param job_id: job id to locate the job pod.
   :return: job pod (KatJob) instance.
   """
-  return KatJob.find(job_id, wiz_app.ns)
+  return KatJob.find(job_id, wiz_app.ns())
 
 
 def find_worker_pod(job_id) -> Optional[KatPod]:

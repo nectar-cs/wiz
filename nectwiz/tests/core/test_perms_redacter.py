@@ -16,7 +16,7 @@ class TestPermsRedactor(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app.ns, = ns_factory.request(1)
+    wiz_app._ns, = ns_factory.request(1)
 
   def test_redact_op_outcome(self):
     mk_map({'operations.metadata': True})
@@ -44,7 +44,7 @@ class TestPermsRedactor(ClusterTest):
 
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app.ns,
+    namespace=wiz_app.ns(),
     body=V1ConfigMap(
       metadata=V1ObjectMeta(name='master'),
       data={
