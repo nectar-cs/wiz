@@ -1,12 +1,15 @@
 from typing import List, Optional
 
+from k8_kat.auth.kube_broker import broker
 from k8_kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1PodSpec, V1Container, \
-  V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements
+  V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements, V1KeyToPath
 
-from k8_kat.auth.kube_broker import broker
-from nectwiz.core import utils, wiz_app
+from nectwiz.core import utils
+
+vars_mount_dir = '/values'
+vars_file_name = 'master'
 
 
 def consume(ns, image: str, args: List[str]) -> Optional[str]:
@@ -18,7 +21,9 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
   :return: logs from the Tami container.
   """
   pod_name = f"tami-{utils.rand_str()}"
-
+  print("THE ARGS ARE")
+  print(args)
+  from nectwiz.core import config_man
   broker.coreV1.create_namespaced_pod(
     namespace=ns,
     body=V1Pod(
@@ -33,7 +38,13 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
           V1Volume(
             name='master-config-map',
             config_map=V1ConfigMapVolumeSource(
-              name='master'
+              name='master',
+              items=[
+                V1KeyToPath(
+                  key=config_man.tam_vars_key,
+                  path=vars_file_name
+                )
+              ]
             )
           )
         ],
@@ -41,6 +52,8 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
           V1Container(
             name='main',
             image=image,
+            # command=["/bin/sh", "-c", "--" ],
+            # args=["while true; do sleep 30; done;" ],
             args=args,
             image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
             volume_mounts=volume_mounts(),
@@ -65,6 +78,6 @@ def volume_mounts() -> List[V1VolumeMount]:
   return [
     V1VolumeMount(
       name='master-config-map',
-      mount_path='/values'
+      mount_path=vars_mount_dir
     ),
   ]

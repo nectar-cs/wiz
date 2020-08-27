@@ -1,17 +1,16 @@
 import base64
 import json
 import os
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict
 
-import yaml
 from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.secret.kat_secret import KatSecret
 
 from nectwiz.core import utils
 from nectwiz.core.types import TamDict
 
+cmap_name = 'master'
 install_uuid_path = '/var/install_uuid'
-dev_install_uuid_path = '/tmp/install_uuid'
 tam_config_key = 'tam'
 tam_vars_key = 'manifest_variables'
 
@@ -22,7 +21,7 @@ def master_cmap() -> KatMap:
   :return: ConfigMap.
   """
   from nectwiz.core.wiz_app import wiz_app
-  return KatMap.find('master', wiz_app.ns())
+  return KatMap.find(cmap_name, wiz_app.ns())
 
 
 def read_cmap_dict(outer_key: str) -> Dict:
@@ -45,7 +44,7 @@ def read_ns() -> Optional[str]:
 
 
 def read_tam() -> TamDict:
-  return read_cmap_dict('tam')
+  return read_cmap_dict(tam_config_key)
 
 
 def read_tam_vars() -> Dict:

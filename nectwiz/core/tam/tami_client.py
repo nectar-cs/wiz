@@ -9,6 +9,7 @@ from nectwiz.core.wiz_app import wiz_app
 
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 tami_name_key = 'tami_name'
+vars_full_path = f'{tami_prep.vars_mount_dir}/{tami_prep.vars_file_name}'
 
 
 class TamiClient(TamClient):
@@ -28,6 +29,7 @@ class TamiClient(TamClient):
     """
     pod_args = ['template'] + gen_tami_args(inlines)
     result = tami_prep.consume(wiz_app.ns(), image_name(), pod_args)
+    print(result)
     return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 
@@ -37,11 +39,11 @@ def gen_tami_args(inlines) -> List[str]:
   :param inlines: desired inline assigns.
   :return: list of flags to pass to Tami image.
   """
-  values_flag: str = "-f /values/master"
+  values_flag: str = f"-f {vars_full_path}"
   vendor_flags: str = wiz_app.tam()['args']
   inline_flags: str = fmt_inline_assigns(inlines or {})
   all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
-  return all_flags.split(" ")
+  return [w for w in all_flags.split(" ") if w]
 
 
 def image_name():

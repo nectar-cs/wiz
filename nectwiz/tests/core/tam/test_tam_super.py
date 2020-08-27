@@ -1,5 +1,6 @@
 from k8_kat.utils.testing import ns_factory
 
+from nectwiz.core import config_man
 from nectwiz.core.tam.tam_client import TamClient
 from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -21,22 +22,40 @@ class Base:
       super().tearDown()
       ns_factory.relinquish(self.ns)
 
-    def test_load_templated_man_simple(self):
-      res_list = self.client_instance().load_tpd_manifest()
-      kinds = sorted([r['kind'] for r in res_list])
-      self.assertEqual(len(res_list), 2)
-      self.assertEqual(kinds, sorted(['Pod', 'Service']))
+    def test_load_manifest_defaults(self):
+      values = self.client_instance().load_manifest_defaults()
+      self.assertEqual(exp_default_values, values)
 
-    def test_load_templated_man_with_inlines(self):
+    def test_load_tpd_manifest(self):
+      config_man.commit_tam_vars(self.mock_tam_vars())
       inlines = [('service.name', 'inline')]
-      res_list = self.client_instance().load_tpd_manifest(inlines)
-      print(res_list)
-      svc = [r for r in res_list if r['kind'] == 'Service'][0]
-      self.assertEqual(svc['metadata']['name'], 'inline')
+      result = self.client_instance().load_tpd_manifest(inlines)
 
-    def mock_tam_commit(self):
+      kinds = sorted([r['kind'] for r in result])
+      svc = [r for r in result if r['kind'] == 'Service'][0]
+      pod = [r for r in result if r['kind'] == 'Pod'][0]
+
+      self.assertEqual(len(result), 2)
+      self.assertEqual(kinds, sorted(['Pod', 'Service']))
+      self.assertEqual(svc['metadata']['name'], 'inline')
+      self.assertEqual(pod['metadata']['name'], 'updated-pod')
+
+    def mock_tam_vars(self):
       return {
         'namespace': self.ns,
-        'service.name': 'updated-service',
+        'pod.name': 'updated-pod',
         'service.port': 81
       }
+
+
+exp_default_values = {
+  'namespace': 'default',
+  'service': {
+    'name': 'service',
+    'port': 80
+  },
+  'pod': {
+    'name': 'pod',
+    'image': 'nginx'
+  }
+}

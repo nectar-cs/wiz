@@ -6,13 +6,20 @@ from nectwiz.tests.core.tam.test_tam_super import Base
 
 class TestTamiClient(Base.TestTamSuper):
 
+  def client_instance(self) -> TamClient:
+    return TamiClient()
+
   def setUp(self) -> None:
     super().setUp()
     wiz_app._tam = dict(
       type='image',
-      uri='gcr.io/nectar-bazaar/wiz-ci-tami:latest',
-      args=None
+      uri='gcr.io/nectar-bazaar/wiz-ci-tami',
+      args=None,
+      ver='latest'
     )
 
-  def client_instance(self) -> TamClient:
-    return TamiClient()
+  def test_load_manifest_defaults(self):
+    super().test_load_manifest_defaults()
+
+  def test_load_tpd_manifest(self):
+    super().test_load_tpd_manifest()
