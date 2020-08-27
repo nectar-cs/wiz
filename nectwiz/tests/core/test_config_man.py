@@ -1,6 +1,6 @@
 from k8_kat.utils.testing import ns_factory
 
-from nectwiz.core import variables_man
+from nectwiz.core import config_man
 from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
@@ -17,7 +17,7 @@ class TestVariablesMan(ClusterTest):
     super().tearDown()
     ns_factory.relinquish(self.ns)
 
-def test_commit_values(self):
-    variables_man.commit_values([('foo', 'bar')])
-    new_values = variables_man.master_cmap().yget()
+  def test_commit_values(self):
+    config_man.commit_tam_vars(dict(foo='bar'))
+    new_values = config_man.read_tam_vars()
     self.assertEqual(new_values, dict(foo='bar'))

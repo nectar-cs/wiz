@@ -241,7 +241,7 @@ class Step(WizModel):
     )
 
     if len(chart_assigns):
-      config_man.commit_manifest_variables(chart_assigns.items())
+      config_man.commit_tam_vars(chart_assigns)
       # outcome['prev_chart_vals'] =
 
     if self.applies_manifest():

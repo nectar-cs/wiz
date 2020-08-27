@@ -78,13 +78,13 @@ def read_install_uuid(ns):
       return None
 
 
-def commit_manifest_variables(assignments: List[Tuple[str, any]]):
+def commit_tam_vars(assignments: Dict[str, any]):
   """
   Updates the ConfigMap with the new assignments. Saves it.
   :param assignments: assigns to be inserted.
   """
   tam_vars = read_tam_vars()
-  for assignment in assignments:
+  for assignment in list(assignments.items()):
     deep_key_as_list = assignment[0].split('.')  # fully qualified hash key
     value = assignment[1]
     utils.deep_set(tam_vars, deep_key_as_list, value)

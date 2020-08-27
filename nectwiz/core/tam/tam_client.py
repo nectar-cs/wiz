@@ -15,7 +15,7 @@ class TamClient:
   def load_manifest_defaults(self):
     raise NotImplemented
 
-  def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
     raise NotImplemented
 
   def apply(self, rules: Optional[List[ResMatchRule]], inlines=None) -> str:
@@ -26,7 +26,7 @@ class TamClient:
     :param inlines: inline values to be applied together with the manifest, if any.
     :return: any generated terminal output from kubectl apply.
     """
-    res_dicts = self.load_templated_manifest(inlines)
+    res_dicts = self.load_tpd_manifest(inlines)
     save_manifest_as_tmp(res_dicts, rules)
     return kubectl_apply()
 

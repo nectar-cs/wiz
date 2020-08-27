@@ -53,7 +53,7 @@ def create_base_master_map(ns):
 
 def foo_bar_setup(ns):
   create_base_master_map(ns)
-  config_man.commit_manifest_variables([
-    ('foo', 'bar'),
-    ('bar.foo', 'baz')
-  ])
+  config_man.commit_tam_vars({
+    'foo': 'bar',
+    'foo.bar': 'baz'
+  })

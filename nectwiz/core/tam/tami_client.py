@@ -19,7 +19,7 @@ class TamiClient(TamClient):
     result = tami_prep.consume(wiz_app.ns(), image_name(), pod_args)
     return yaml.load(result)
 
-  def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
     """
     Creates a Kubernetes pod running the vendor-specified image, then reads the
     output logs, expected to be a string literal of the interpolated application manifest.

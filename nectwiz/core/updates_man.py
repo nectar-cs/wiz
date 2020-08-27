@@ -33,7 +33,7 @@ def apply_release(release: Update) -> UpdateOutcome:
 def apply_patch(patch: Update) -> UpdateOutcome:
   assignments: Dict = patch.get('injections', {})
   pre_telem = _gen_injection_telem(list(assignments.keys()))
-  config_man.commit_manifest_variables(list(assignments.items()))
+  config_man.commit_tam_vars(assignments)
   post_telem = _gen_injection_telem(list(assignments.keys()))
   out = tam_client().apply([])
   logs = out.split("\n") if out else []
