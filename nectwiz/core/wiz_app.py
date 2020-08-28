@@ -69,6 +69,12 @@ class WizApp:
       self._tam = config_man.read_tam()
     return self._tam
 
+  def change_tam_version(self, new_tam_version: str):
+    from nectwiz.core import config_man
+    updated_tam = { **wiz_app.tam(), 'ver': new_tam_version }
+    config_man.write_tam(updated_tam)
+    self._tam = config_man.read_tam()
+
   def install_uuid(self, force_reload=False) -> str:
     if self.ns() and (force_reload or not self.install_uuid):
       from nectwiz.core import config_man

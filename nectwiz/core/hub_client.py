@@ -16,6 +16,11 @@ def post(endpoint, payload):
   return requests.post(url, json=payload)
 
 
+def patch(endpoint, payload):
+  url = f'{backend_host()}{api_path}{endpoint}'
+  return requests.patch(url, json=payload)
+
+
 def get(endpoint):
   url = f'{backend_host()}{api_path}{endpoint}'
   return requests.get(url)

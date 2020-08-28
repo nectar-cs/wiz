@@ -59,7 +59,7 @@ def mk_sleeper(seconds):
   return KatPod(simple_pod.create(
     name=utils.rand_str(),
     restart='Never',
-    ns=wiz_app._ns,
+    ns=wiz_app.ns(),
     image='ruby:2.6.6-alpine3.12',
     command=["ruby", "-e"],
     args=[f"sleep({seconds}); puts :done; exit 0"],

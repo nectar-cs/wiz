@@ -14,7 +14,7 @@ class UpdateOutcome(TypedDict, total=False):
 class Update(TypedDict):
   id: str
   type: str
-  tami_name: str
+  tam_version: str
   injections: Dict[str, str]
 
 

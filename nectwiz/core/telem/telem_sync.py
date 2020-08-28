@@ -1,9 +1,23 @@
 from typing import List
 
-from nectwiz.core import hub_client
+from nectwiz.core import hub_client, config_man
 from nectwiz.core.telem.ost import OperationState, operation_states
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.serializers import operation_state_ser
+
+
+def upload_meta():
+  tam = config_man.read_tam()
+  last_updated_checked = config_man.read_last_update_checked()
+  payload = {
+    'tam_type': tam['type'],
+    'tam_uri': tam['uri'],
+    'tam_ver': tam['ver'],
+    'last_updated_checked': last_updated_checked
+  }
+
+  endpoint = f'/installs/{wiz_app.install_uuid()}'
+  hub_client.patch(endpoint, payload)
 
 
 def upload_operation_outcomes():

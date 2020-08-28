@@ -15,6 +15,7 @@ cmap_name = 'master'
 install_uuid_path = '/var/install_uuid'
 tam_config_key = 'tam'
 tam_vars_key = 'manifest_variables'
+update_checked_at_key = 'update_checked_at'
 
 
 def master_cmap() -> KatMap:
@@ -29,6 +30,11 @@ def master_cmap() -> KatMap:
 def read_cmap_dict(outer_key: str) -> Dict:
   cmap = master_cmap()
   return cmap.jget(outer_key, {}) if cmap else {}
+
+
+def read_cmap_primitive(flat_key: str):
+  cmap = master_cmap()
+  return cmap.data.get(flat_key) if cmap else None
 
 
 def patch_cmap(outer_key: str, value: any):
@@ -49,8 +55,20 @@ def read_tam() -> TamDict:
   return read_cmap_dict(tam_config_key)
 
 
+def write_tam(new_tam: TamDict):
+  patch_cmap_with_dict(tam_config_key, new_tam)
+
+
 def read_tam_vars() -> Dict:
   return read_cmap_dict(tam_vars_key)
+
+
+def read_last_update_checked() -> str:
+  return read_cmap_primitive(update_checked_at_key)
+
+
+def write_last_update_checked(new_value) -> str:
+  return patch_cmap(update_checked_at_key, new_value)
 
 
 def read_tam_var(deep_key: str) -> Optional[str]:

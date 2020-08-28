@@ -47,4 +47,6 @@ def gen_tami_args(inlines) -> List[str]:
 
 
 def image_name():
-  return f"{wiz_app.tam()['uri']}:{wiz_app.tam()['ver']}"
+  image_base = wiz_app.tam()['uri']
+  version = wiz_app.tam().get('ver', 'latest')
+  return f"{image_base}:{version}"
