@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify
 
 from k8_kat.res.dep.kat_dep import KatDep
 
-from nectwiz.core import update_manager
+# from nectwiz.core import update_manager
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from nectwiz.model.adapters.base_consumption_adapter import BaseConsumptionAdapter
@@ -14,10 +14,10 @@ controller = Blueprint('app_controller', __name__)
 BASE_PATH = '/api/app'
 
 
-@controller.route(f'{BASE_PATH}/check-for-updates')
-def app_check_updates():
-  update = update_manager.fetch_next_update()
-  return jsonify(data=update)
+# @controller.route(f'{BASE_PATH}/check-for-updates')
+# def app_check_updates():
+#   update = update_manager.fetch_next_update()
+#   return jsonify(data=update)
 
 
 @controller.route(f'{BASE_PATH}/apply-updates')

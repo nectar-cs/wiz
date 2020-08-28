@@ -1,10 +1,12 @@
 import base64
+
 import json
 import os
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Tuple
 
 from k8_kat.res.config_map.kat_map import KatMap
 from k8_kat.res.secret.kat_secret import KatSecret
+from k8_kat.utils.main.utils import deep_merge
 
 from nectwiz.core import utils
 from nectwiz.core.types import TamDict
@@ -77,15 +79,20 @@ def read_install_uuid(ns):
       return None
 
 
-def commit_tam_vars(assignments: Dict[str, any]):
+def commit_tam_assigns(assignments: Dict[str, any]):
   """
   Updates the ConfigMap with the new assignments. Saves it.
   :param assignments: assigns to be inserted.
   """
-  tam_vars = read_tam_vars()
-  for assignment in list(assignments.items()):
-    deep_key_as_list = assignment[0].split('.')  # fully qualified hash key
-    value = assignment[1]
-    utils.deep_set(tam_vars, deep_key_as_list, value)
 
-  patch_cmap_with_dict(tam_vars_key, tam_vars)
+  merged = deep_merge(read_tam_vars(), assignments)
+  # merged = { **read_tam_vars(), **assignments }
+  patch_cmap_with_dict(tam_vars_key, merged)
+
+
+def commit_keyed_tam_assigns(assignments: List[Tuple[str, any]]):
+  """
+  Updates the ConfigMap with the new assignments. Saves it.
+  :param assignments: assigns to be inserted.
+  """
+  commit_tam_assigns(utils.deep_build(assignments))

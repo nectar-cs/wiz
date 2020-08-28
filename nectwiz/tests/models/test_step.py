@@ -1,7 +1,7 @@
 from typing import Type, Dict
 from unittest.mock import patch
 
-from nectwiz.core import step_job_prep
+from nectwiz.core import step_job_prep, config_man
 from nectwiz.core.tam import tami_client
 from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.model.base.wiz_model import WizModel
@@ -38,7 +38,7 @@ class TestStep(Base.TestWizModel):
     self.assertEqual({'k': 22}, step_state.chart_assigns)
 
   def test_commit_no_work(self):
-    with patch.object(tami_client, 'commit_values') as mock:
+    with patch.object(config_man, 'commit_keyed_tam_assigns') as mock:
       outcome = Step(dict(key='s')).commit({})
       mock.assert_not_called()
       self.assertEqual('positive', outcome['status'])
@@ -47,14 +47,14 @@ class TestStep(Base.TestWizModel):
       self.assertEqual(None, outcome.get('job_id'))
 
   def test_commit_with_chart_vars(self):
-    step = Step(dict(key='s', fields=[{'key': 'f1'}]))
-    with patch.object(tami_client, 'commit_values') as commit_mock:
-      outcome = step.commit({'f1': 'v1'})
+    step = Step(dict(key='s', fields=[{'key': 'f1.foo'}]))
+    with patch.object(config_man, 'commit_keyed_tam_assigns') as commit_mock:
+      outcome = step.commit({'f1.foo': 'v1'})
       self.assertEqual('positive', outcome['status'])
-      self.assertEqual({'f1': 'v1'}, outcome['chart_assigns'])
+      self.assertEqual({'f1.foo': 'v1'}, outcome['chart_assigns'])
       self.assertEqual({}, outcome['state_assigns'])
       self.assertEqual(None, outcome.get('job_id'))
-      commit_mock.assert_called_with({'f1': 'v1'}.items())
+      commit_mock.assert_called_with([('f1.foo', 'v1')])
 
   def test_commit_with_job(self):
     job_desc = dict(image='foo', command=['bar'], args=['baz'])

@@ -35,7 +35,7 @@ class TestOperationsController(ClusterTest):
     wg.add_configs(basic_operation())
 
     endpoint = '/api/operations/o1/stages/g1/steps/s1/fields/f1/validate'
-    response = app.http_post(endpoint, json=dict(value='bar'))
+    response = app.test_client().post(endpoint, json=dict(value='bar'))
     body = json.loads(response.data)['data']
     self.assertEqual(body, dict(status='valid'))
 
@@ -47,7 +47,7 @@ class TestOperationsController(ClusterTest):
       g_conf(k='s1', fields=['f1'], i='Step', next='bar'),
     ])
 
-    response = app.http_post(endpoint, json=dict(values={}))
+    response = app.test_client().post(endpoint, json=dict(values={}))
     body = json.loads(response.data)
     self.assertEqual('bar', body.get('step_id'))
 

@@ -1,6 +1,8 @@
 from typing import Optional, List
 
+from nectwiz.core import config_man, utils
 from nectwiz.core.tam import tami_client
+from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -100,9 +102,9 @@ class ChartVariable(WizModel):
     :return: string containing the current value of the field.
     """
     if cache is not None:
-      return tami_client.deep_get(cache, self.key.split('.'))
+      return utils.deep_get(cache, self.key.split('.'))
     else:
-      return tami_client.chart_value(self.key)
+      return config_man.read_tam_var(self.key)
 
   def commit(self, value:str):
     """
@@ -110,9 +112,9 @@ class ChartVariable(WizModel):
     mode "public", then also writes (applies) the manifest.
     :param value: value to be committed (and potentially applied).
     """
-    tami_client.commit_values([(self.key, value)])
+    config_man.commit_keyed_tam_assigns([(self.key, value)])
     if self.is_safe_to_set():
-      tami_client.apply(rules=None, inlines=None)
+      tam_client().apply(rules=None, inlines=None)
 
   def operations(self):
     """

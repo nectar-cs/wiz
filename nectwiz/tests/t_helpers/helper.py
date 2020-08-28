@@ -27,12 +27,11 @@ def one_step_op_state(**kwargs):
   ])
 
 
-def mock_globals(ns, tami_image=None):
-  tami_image = tami_image or ci_tami_name()
+def mock_globals(ns):
   if ns:
     wiz_app._ns = ns
-  if tami_image:
-    wiz_app.tam_uri = tami_image
+  # if tami_image:
+  #   wiz_app.tam_uri = tami_image
 
 
 def create_base_master_map(ns):
@@ -53,7 +52,7 @@ def create_base_master_map(ns):
 
 def foo_bar_setup(ns):
   create_base_master_map(ns)
-  config_man.commit_tam_vars({
-    'foo': 'bar',
-    'foo.bar': 'baz'
-  })
+  config_man.commit_keyed_tam_assigns([
+    ('foo', 'bar'),
+    ('bar.foo', 'baz')
+  ])

@@ -24,7 +24,7 @@ def _create_shared_config_map(job_id, values: Dict):
   :return: newly created ConfigMap data
   """
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app._ns,
+    namespace=wiz_app.ns(),
     body=V1ConfigMap(
       metadata=V1ObjectMeta(
         name=job_id,
@@ -47,7 +47,7 @@ def _create_job(job_id, image, command, args):
   :return: newly created job data
   """
   return broker.batchV1.create_namespaced_job(
-    namespace=wiz_app._ns,
+    namespace=wiz_app.ns(),
     body=V1Job(
       metadata=V1ObjectMeta(
         name=job_id,
@@ -101,5 +101,5 @@ def create_and_run(image, command, args, values) -> str:
   job_id = utils.rand_str(string_len=10)
   _create_shared_config_map(job_id, values)
   _create_job(job_id, image, command, args)
-  KatJob.wait_until_exists(job_id, wiz_app.ns)
+  KatJob.wait_until_exists(job_id, wiz_app.ns())
   return job_id

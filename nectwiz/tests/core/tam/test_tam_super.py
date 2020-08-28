@@ -27,7 +27,7 @@ class Base:
       self.assertEqual(exp_default_values, values)
 
     def test_load_tpd_manifest(self):
-      config_man.commit_tam_vars(self.mock_tam_vars())
+      config_man.commit_keyed_tam_assigns(self.mock_tam_vars())
       inlines = [('service.name', 'inline')]
       result = self.client_instance().load_tpd_manifest(inlines)
 
@@ -41,11 +41,11 @@ class Base:
       self.assertEqual(pod['metadata']['name'], 'updated-pod')
 
     def mock_tam_vars(self):
-      return {
-        'namespace': self.ns,
-        'pod.name': 'updated-pod',
-        'service.port': 81
-      }
+      return [
+        ('namespace', self.ns),
+        ('pod.name', 'updated-pod'),
+        ('service.port', 81)
+      ]
 
 
 exp_default_values = {

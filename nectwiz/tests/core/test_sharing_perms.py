@@ -42,7 +42,7 @@ class TestSharingPerms(ClusterTest):
 
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app._ns,
+    namespace=wiz_app.ns(),
     body=V1ConfigMap(
       metadata=V1ObjectMeta(name='master'),
       data={

@@ -21,8 +21,6 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
   :return: logs from the Tami container.
   """
   pod_name = f"tami-{utils.rand_str()}"
-  print("THE ARGS ARE")
-  print(args)
   from nectwiz.core import config_man
   broker.coreV1.create_namespaced_pod(
     namespace=ns,

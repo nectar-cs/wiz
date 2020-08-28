@@ -7,11 +7,19 @@ from functools import reduce
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import yaml
 
 legal_envs = ['production', 'development', 'test']
+
+
+def deep_build(assignments: List[Tuple[str, any]]):
+  root = {}
+  for assignment in assignments:
+    deep_key_as_list = assignment[0].split('.')  # fully qualified hash key
+    deep_set(root, deep_key_as_list, assignment[1])
+  return root
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):

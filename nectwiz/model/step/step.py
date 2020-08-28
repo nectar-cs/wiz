@@ -241,7 +241,8 @@ class Step(WizModel):
     )
 
     if len(chart_assigns):
-      config_man.commit_tam_vars(chart_assigns)
+      keyed_tuples = list(chart_assigns.items())
+      config_man.commit_keyed_tam_assigns(keyed_tuples)
       # outcome['prev_chart_vals'] =
 
     if self.applies_manifest():

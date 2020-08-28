@@ -35,13 +35,13 @@ class TestTamiClient(ClusterTest):
     result = tam_client.filter_res(res_list, [ResMatchRule("k1:n1")])
     self.assertEqual(result, [res_list[0]])
 
-  def test_apply(self):
-    pod, svc = find_pod_svc(self.ns)
-    self.assertEqual([pod, svc], [None, None])
-    tami_client.apply([g_rule("*:*")], [('namespace', self.ns)])
-    pod, svc = find_pod_svc(self.ns)
-    self.assertIsNotNone(pod)
-    self.assertIsNotNone(svc)
+  # def test_apply(self):
+  #   pod, svc = find_pod_svc(self.ns)
+  #   self.assertEqual([pod, svc], [None, None])
+  #   tami_client.apply([g_rule("*:*")], [('namespace', self.ns)])
+  #   pod, svc = find_pod_svc(self.ns)
+  #   self.assertIsNotNone(pod)
+  #   self.assertIsNotNone(svc)
 
 def g_res(_tuple):
   return dict(
