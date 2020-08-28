@@ -1,12 +1,14 @@
-import json
 from typing import Type, Optional
 
 from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
 from k8_kat.utils.testing import ns_factory
+
+from nectwiz.core import config_man
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.tests.models.test_wiz_model import Base
+from nectwiz.tests.t_helpers.helper import create_base_master_map
 
 
 class TestPredicate(Base.TestWizModel):
@@ -18,9 +20,12 @@ class TestPredicate(Base.TestWizModel):
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
     wiz_app._ns = ns
-    TestKatConfigMap.create_res('master', ns, dict(
-      master=json.dumps(dict(foo='bar', x=1))
-    ))
+    create_base_master_map(ns)
+    config_man.commit_keyed_tam_assigns([
+      ('foo', 'bar'),
+      ('x', '1')
+    ])
+
     self.assertTrue(mk_pred3('foo', None, 'defined'))
     self.assertTrue(mk_pred3('foo', 'bar'))
     self.assertTrue(mk_pred3('x', '1'))
