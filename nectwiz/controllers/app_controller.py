@@ -50,23 +50,3 @@ def application_endpoints():
   else:
     return jsonify(data=[])
 
-
-@controller.route(f'{BASE_PATH}/workload_versions', methods=["GET"])
-def workload_versions():
-  """
-  Returns the versions and last update times for workloads.
-  :return: list with versions and last updates times for each workload.
-  """
-  kat_deps: List[KatDep] = KatDep.list(ns=wiz_app.ns())
-  version_list = []
-  for res in kat_deps:
-    if res.name != 'nectar-wizard':
-      version = res.annotations.get('nectar-version') or \
-                res.annotations.get('version')
-      last_update_at = res.annotations.get('last-updated-at')
-      version_list.append(dict(
-        workload=res.name,
-        version=version,
-        last_update_at=last_update_at
-      ))
-  return jsonify(data=version_list)

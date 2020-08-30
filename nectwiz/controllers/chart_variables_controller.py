@@ -22,17 +22,6 @@ def chart_variables_index():
   return jsonify(data=serialized)
 
 
-@controller.route('/api/chart-variables/<key>')
-def chart_variables_show(key):
-  """
-  Finds and serializes the chart variable.
-  :param key: key used to locate the right chart variable.
-  :return: serialized chart variable.
-  """
-  chart_variable = find_variable(key)
-  return jsonify(data=serial.with_field(chart_variable))
-
-
 @controller.route('/api/chart-variables/commit-injections', methods=['POST'])
 def chart_vars_commit_injections():
   install_uuid = wiz_app.install_uuid(force_reload=True)
@@ -48,6 +37,26 @@ def chart_vars_commit_injections():
   else:
     print("Install UUID not found!")
     return {}
+
+
+@controller.route('/api/chart-variables/populate-defaults')
+def chart_vars_populate_defaults():
+  defaults = tam_client().load_manifest_defaults()
+  print("DEFULTS")
+  print(defaults)
+  config_man.write_tam_var_defaults(defaults)
+  return jsonify(data=defaults)
+
+
+@controller.route('/api/chart-variables/<key>')
+def chart_variables_show(key):
+  """
+  Finds and serializes the chart variable.
+  :param key: key used to locate the right chart variable.
+  :return: serialized chart variable.
+  """
+  chart_variable = find_variable(key)
+  return jsonify(data=serial.with_field(chart_variable))
 
 
 @controller.route('/api/chart-variables/<key>/submit', methods=['POST'])

@@ -13,7 +13,7 @@ def upload_meta():
     'tam_type': tam['type'],
     'tam_uri': tam['uri'],
     'tam_ver': tam['ver'],
-    'last_updated_checked': last_updated_checked
+    'last_update_check': last_updated_checked
   }
 
   endpoint = f'/installs/{wiz_app.install_uuid()}'

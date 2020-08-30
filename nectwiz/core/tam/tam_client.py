@@ -59,7 +59,6 @@ def kubectl_apply() -> str:
 
   print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
-  print(result)
   return result.decode('utf-8') if result else None
 
 

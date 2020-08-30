@@ -14,12 +14,16 @@ import yaml
 legal_envs = ['production', 'development', 'test']
 
 
-def deep_build(assignments: List[Tuple[str, any]]):
+def keyed2dict(keyed_assigns: List[Tuple[str, any]]):
   root = {}
-  for assignment in assignments:
-    deep_key_as_list = assignment[0].split('.')  # fully qualified hash key
-    deep_set(root, deep_key_as_list, assignment[1])
+  for keyed_assign in keyed_assigns:
+    deep_key_as_list = keyed_assign[0].split('.')  # fully qualified hash key
+    deep_set(root, deep_key_as_list, keyed_assign[1])
   return root
+
+
+def dict2keyed(assigns: Dict):
+  pass
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):

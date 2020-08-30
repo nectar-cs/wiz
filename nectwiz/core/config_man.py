@@ -15,6 +15,7 @@ cmap_name = 'master'
 install_uuid_path = '/var/install_uuid'
 tam_config_key = 'tam'
 tam_vars_key = 'manifest_variables'
+tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
 
 
@@ -63,11 +64,19 @@ def read_tam_vars() -> Dict:
   return read_cmap_dict(tam_vars_key)
 
 
+def write_tam_var_defaults(assigns: Dict):
+  patch_cmap_with_dict(tam_defaults_key, assigns)
+
+
+# def read_keyed_tam_var_defaults() -> List[Tuple]:
+#   assigns_dict = read_cmap_dict(tam_defaults_key)
+
+
 def read_last_update_checked() -> str:
   return read_cmap_primitive(update_checked_at_key)
 
 
-def write_last_update_checked(new_value) -> str:
+def write_last_update_checked(new_value):
   return patch_cmap(update_checked_at_key, new_value)
 
 
@@ -97,20 +106,10 @@ def read_install_uuid(ns):
       return None
 
 
-def commit_tam_assigns(assignments: Dict[str, any]):
-  """
-  Updates the ConfigMap with the new assignments. Saves it.
-  :param assignments: assigns to be inserted.
-  """
-
-  merged = deep_merge(read_tam_vars(), assignments)
-  # merged = { **read_tam_vars(), **assignments }
-  patch_cmap_with_dict(tam_vars_key, merged)
-
-
 def commit_keyed_tam_assigns(assignments: List[Tuple[str, any]]):
-  """
-  Updates the ConfigMap with the new assignments. Saves it.
-  :param assignments: assigns to be inserted.
-  """
-  commit_tam_assigns(utils.deep_build(assignments))
+  commit_tam_assigns(utils.keyed2dict(assignments))
+
+
+def commit_tam_assigns(assignments: Dict[str, any]):
+  merged = deep_merge(read_tam_vars(), assignments)
+  patch_cmap_with_dict(tam_vars_key, merged)

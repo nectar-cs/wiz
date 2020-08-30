@@ -19,7 +19,7 @@ class TamsClient(TamClient):
 
 
 def base_url():
-  return f"{wiz_app.tam_uri}/{wiz_app.tam()['ver']}"
+  return f"{wiz_app.tam()['uri']}/{wiz_app.tam()['ver']}"
 
 
 def http_post(endpoint, payload):

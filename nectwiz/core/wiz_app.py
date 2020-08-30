@@ -42,8 +42,6 @@ def default_configs() -> List[Dict]:
   return utils.yamls_in_dir(f"{pwd}/../model/pre_built")
 
 
-
-
 class WizApp:
 
   def __init__(self):

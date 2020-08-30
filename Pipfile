@@ -26,7 +26,7 @@ twine = "*"
 validators = "*"
 sqlalchemy = "*"
 google-auth = "==1.20.1"
-unittest = "*"
+#unittest = "*"
 
 [requires]
 python_version = "3.6"
