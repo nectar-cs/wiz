@@ -1,28 +1,14 @@
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.model.field import serial as field_serial
-from nectwiz.model.operations.operation import Operation
 
 
-def _mini_operation_ser(operation: Operation) -> dict:
-  """
-  Miniature serializer for the Operation instance.
-  :param operation: Operation class instance.
-  :return: serialized Operation object (dict).
-  """
-  return dict(
-    id=operation.key,
-    title=operation.title
-  )
-
-
-def standard(cv: ChartVariable, cache=None):
+def standard(cv: ChartVariable):
   """
   Standard serializer for the ChartVariable instance.
   :param cv: ChartVariable class instance.
   :param cache: cache to extract the chart value.
   :return: serialized ChartVariable object (dict).
   """
-  ops_ser = [_mini_operation_ser(o) for o in cv.operations()]
   return dict(
     id=cv.key,
     mode=cv.mode,
@@ -31,8 +17,7 @@ def standard(cv: ChartVariable, cache=None):
     default_value=cv.default_value,
     resource=cv.linked_res_name,
     category=cv.category,
-    value=cv.read_crt_value(cache),
-    operations=ops_ser
+    value=cv.read_crt_value(force_reload=False),
   )
 
 

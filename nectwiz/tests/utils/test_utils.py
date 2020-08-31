@@ -17,3 +17,19 @@ class TestUtils(unittest.TestCase):
     root = dict()
     utils.deep_set(root, ['x', 'x'], 'x')
     self.assertEqual(root, dict(x=dict(x='x')))
+
+  def test_keyed2dict(self):
+    actual = utils.keyed2dict([('bar', 'foo'), ('foo.bar', 'baz')])
+    expected = dict(bar='foo', foo=dict(bar='baz'))
+    self.assertEqual(expected, actual)
+
+  def test_dict_to_keyed(self):
+    actual = utils.dict2keyed(dict(
+      bar='foo',
+      foo=dict(
+        bar='baz',
+        foo=dict(bar='baz')
+      )
+    ))
+    expected = [('bar', 'foo'), ('foo.bar', 'baz'), ('foo.foo.bar', 'baz')]
+    self.assertEqual(expected, actual)

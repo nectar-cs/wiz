@@ -14,7 +14,7 @@ import yaml
 legal_envs = ['production', 'development', 'test']
 
 
-def keyed2dict(keyed_assigns: List[Tuple[str, any]]):
+def keyed2dict(keyed_assigns: List[Tuple[str, any]]) -> Dict:
   root = {}
   for keyed_assign in keyed_assigns:
     deep_key_as_list = keyed_assign[0].split('.')  # fully qualified hash key
@@ -22,8 +22,24 @@ def keyed2dict(keyed_assigns: List[Tuple[str, any]]):
   return root
 
 
-def dict2keyed(assigns: Dict):
-  pass
+def dict2keyed(assigns: Dict) -> List[Tuple[str, any]]:
+  list_keyed_dict = _dict2keyed([], assigns)
+  massager = lambda t: (".".join(t[0]), t[1])
+  return list(map(massager, list_keyed_dict))
+
+
+def _dict2keyed(parents, assigns: Dict) -> List[Tuple[List[str], any]]:
+  result: List[Tuple[List[str], any]] = []
+
+  for assign in assigns.items():
+    key, value = assign
+    if type(value) == dict:
+      result = result + _dict2keyed(parents + [key], value)
+    else:
+      result.append((parents + [key], value))
+  return result
+
+
 
 
 def deep_set(dict_root: Dict, names: List[str], value: any):

@@ -3,6 +3,8 @@ from typing import Optional, List
 from nectwiz.core import config_man, utils
 from nectwiz.core.tam import tami_client
 from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.core.utils import dict2keyed
+from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -30,7 +32,10 @@ class ChartVariable(WizModel):
     Getter for the default value of the chart variable.
     :return: the default value.
     """
-    return self.config.get('default')
+    explicit_default = self.config.get('default')
+    if explicit_default:
+      return explicit_default
+    return wiz_app.tam_defaults().get(self.key)
 
   @property
   def linked_res_name(self) -> str:
@@ -94,17 +99,13 @@ class ChartVariable(WizModel):
     else:
       return [None, None]
 
-  def read_crt_value(self, cache=None) -> Optional[str]:
+  def read_crt_value(self, force_reload=False) -> Optional[str]:
     """
     Reads the current value of the associated field. Tries to read from cache
     first, else dumps the ConfigMap and gets the value from there.
-    :param cache: cache object to be checked first.
     :return: string containing the current value of the field.
     """
-    if cache is not None:
-      return utils.deep_get(cache, self.key.split('.'))
-    else:
-      return config_man.read_tam_var(self.key)
+    return wiz_app.tam_vars(force_reload=force_reload).get(self.key)
 
   def commit(self, value:str):
     """
@@ -124,3 +125,15 @@ class ChartVariable(WizModel):
     """
     from nectwiz.model.operations.operation import Operation
     return self.load_children('operations', Operation)
+
+  @classmethod
+  def all_vars(cls):
+    raw = wiz_app.tam_vars(force_reload=True)
+    committed_vars = dict2keyed(raw)
+    descriptors = cls.inflate_all()
+    pres = lambda k: len([cv for cv in descriptors if cv.key == k]) > 0
+    for committed_var in committed_vars:
+      key = committed_var[0]
+      if not pres(key):
+        descriptors.append(ChartVariable(dict(key=key)))
+    return descriptors

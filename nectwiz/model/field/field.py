@@ -1,17 +1,17 @@
-from functools import reduce
-from typing import List, Optional, Dict
+from typing import List, Optional
 
-from nectwiz.core import utils
 from nectwiz.core.utils import deep_get
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel
 
+
 TARGET_CHART = 'chart'
 TARGET_INLINE = 'inline'
 TARGET_STATE = 'state'
 TARGET_TYPES = [TARGET_CHART, TARGET_INLINE, TARGET_STATE]
+
 
 class Field(WizModel):
 

@@ -15,9 +15,8 @@ def chart_variables_index():
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
-  chart_dump = config_man.read_tam_vars()
-  chart_variables = ChartVariable.inflate_all()
-  serialize = lambda cv: serial.standard(cv=cv, cache=chart_dump)
+  chart_variables = ChartVariable.all_vars()
+  serialize = lambda cv: serial.standard(cv=cv)
   serialized = [serialize(cv) for cv in chart_variables]
   return jsonify(data=serialized)
 

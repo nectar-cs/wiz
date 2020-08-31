@@ -54,8 +54,9 @@ class WizApp:
     self._ns: Optional[str] = None
     self._tam: Optional[TamDict] = None
     self._install_uuid: Optional[str] = None
-    self._tam_defaults: Optional[str] = None
-
+    self._tam_defaults: Optional[Dict] = None
+    self._tam_vars: Optional[Dict] = None
+    
   def ns(self, force_reload=False):
     if force_reload or not self._ns:
       from nectwiz.core import config_man
@@ -73,6 +74,12 @@ class WizApp:
       from nectwiz.core import config_man
       self._tam_defaults = config_man.read_tam_var_defaults()
     return self._tam_defaults
+
+  def tam_vars(self, force_reload=False) -> Dict:
+    if force_reload or not self._tam_vars:
+      from nectwiz.core import config_man
+      self._tam_vars = config_man.read_tam_vars()
+    return self._tam_vars
 
   def change_tam_version(self, new_tam_version: str):
     from nectwiz.core import config_man
