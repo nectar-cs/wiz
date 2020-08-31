@@ -68,8 +68,8 @@ def write_tam_var_defaults(assigns: Dict):
   patch_cmap_with_dict(tam_defaults_key, assigns)
 
 
-# def read_keyed_tam_var_defaults() -> List[Tuple]:
-#   assigns_dict = read_cmap_dict(tam_defaults_key)
+def read_tam_var_defaults() -> Dict:
+  return read_cmap_dict(tam_defaults_key)
 
 
 def read_last_update_checked() -> str:

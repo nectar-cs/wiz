@@ -1,3 +1,5 @@
+from typing import Dict
+
 from nectwiz.model.field.field import Field
 
 

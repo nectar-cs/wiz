@@ -1,3 +1,5 @@
+from typing import Dict
+
 from nectwiz.model.field import serial as field_serial
 from nectwiz.model.step.step import Step
 
@@ -8,10 +10,13 @@ def standard(step: Step):
   :param step: Step class instance.
   :return: serialized Step in dict form.
   """
+
+  ser_field = lambda f: field_serial.embedded(f)
+
   return dict(
     id=step.key,
     title=step.title,
     info=step.info,
     flags=step.flags(),
-    fields=[field_serial.embedded(f) for f in step.fields()]
+    fields=[ser_field(f) for f in step.fields()]
   )

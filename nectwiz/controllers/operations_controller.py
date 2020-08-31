@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from nectwiz.core import utils
+from nectwiz.core import utils, config_man
 from nectwiz.core.telem import telem_sync
 from nectwiz.core.telem.ost import OperationState, operation_states
 from nectwiz.model.field.field import Field

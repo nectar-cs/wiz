@@ -18,3 +18,5 @@ def tam_client() -> TamClient:
     return TamsClient()
   elif tam_type == 'local_executable':
     return TamleClient()
+  else:
+    raise RuntimeError(f"Illegal TAM type {tam_type}")

@@ -3,8 +3,11 @@ from typing import Dict
 from flask import Blueprint, jsonify, request
 
 from k8_kat.auth.kube_broker import broker
-from nectwiz.core.telem.telem_perms import TelemPerms
 
+from nectwiz.core import config_man
+from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.core.telem.telem_perms import TelemPerms
+from nectwiz.core.wiz_app import wiz_app
 
 controller = Blueprint('status_controller', __name__)
 
@@ -42,7 +45,20 @@ def status():
   :return: dict containing status details.
   """
   return jsonify(
-    is_k8_kat_connected=broker.is_connected,
-    last_k8_kat_conn_error=broker.last_error,
-    connect_config=broker.connect_config
+    cluster_connection=dict(
+      is_k8_kat_connected=broker.is_connected,
+      connect_config=broker.connect_config
+    ),
+    ns=wiz_app.ns(),
+    master_cmap_present=config_man.master_cmap() is not None,
+    tam_config=wiz_app.tam(),
+    tam_defaults=wiz_app.tam_defaults(),
+    tam_variables=config_man.read_tam_vars()
+  )
+
+
+@controller.route('/api/status/templated_manifest')
+def templated_manifest():
+  return jsonify(
+    data=tam_client().load_tpd_manifest()
   )

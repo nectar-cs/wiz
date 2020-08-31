@@ -1,6 +1,9 @@
 from functools import reduce
-from typing import List, Optional
+from typing import List, Optional, Dict
 
+from nectwiz.core import utils
+from nectwiz.core.utils import deep_get
+from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel
@@ -107,18 +110,25 @@ class Field(WizModel):
     """
     return self.config.get('type') == 'slider'
 
-  def default_value(self) -> str:
+  def default_value(self) -> Optional[str]:
     """
     Prepares the default value for a field. Uses the explicitly defined one if
     that exists, otherwise simply uses the first option.
     :return: string with default value.
     """
     explicit_default = self.config.get('default')
-    if not explicit_default and self.type == 'select':
-      options = self.options()
-      return options[0]['key'] if len(options) > 0 else None
-    else:
+    if explicit_default:
       return explicit_default
+    else:
+      tam_defaults = wiz_app.tam_defaults() or {}
+      native_default = deep_get(tam_defaults, self.key.split("."))
+      if native_default:
+        return native_default
+      elif self.type == 'select':
+        options = self.options()
+        return options[0]['key'] if len(options) > 0 else None
+      else:
+        return None
 
   def validators(self) -> List[Validator]:
     """
