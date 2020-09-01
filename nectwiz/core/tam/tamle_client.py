@@ -15,12 +15,14 @@ class TamleClient(TamClient):
     raw = exec_cmd('values')
     return yaml.load(raw, Loader=yaml.FullLoader)
 
-
   def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
     formatted_inlines = fmt_inline_assigns(inlines or [])
-    raw = exec_cmd(f'template {formatted_inlines}')
+    raw = exec_cmd(f'template {formatted_inlines} {flags()}')
     return list(yaml.load_all(raw, Loader=yaml.FullLoader))
 
+
+def flags():
+  return f"--set namespace={wiz_app.ns()}"
 
 def exec_cmd(cmd):
   full_cmd = f"{wiz_app.tam()['uri']} {cmd}".split(" ")

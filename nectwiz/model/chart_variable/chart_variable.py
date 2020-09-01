@@ -105,7 +105,8 @@ class ChartVariable(WizModel):
     first, else dumps the ConfigMap and gets the value from there.
     :return: string containing the current value of the field.
     """
-    return wiz_app.tam_vars(force_reload=force_reload).get(self.key)
+    root = wiz_app.tam_vars(force_reload)
+    return utils.deep_get(root, self.key.split('.'))
 
   def commit(self, value:str):
     """

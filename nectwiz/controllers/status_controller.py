@@ -45,6 +45,7 @@ def status():
   :return: dict containing status details.
   """
   return jsonify(
+    is_healthy=broker.is_connected,
     cluster_connection=dict(
       is_k8_kat_connected=broker.is_connected,
       connect_config=broker.connect_config

@@ -24,15 +24,15 @@ def upload_operation_outcomes():
   victim_osts: List[str] = []
   OperationState.prune()
   for op_state in operation_states:
-    if upload_operation_outcome(op_state):
-      victim_osts.append(op_state.ost_id)
+    upload_operation_outcome(op_state)
+    victim_osts.append(op_state.ost_id)
 
   for victim_ost in victim_osts:
     OperationState.delete_if_exists(victim_ost)
 
 
 def upload_operation_outcome(op_state: OperationState) -> bool:
-  install_uuid = wiz_app.install_uuid(force=True)
+  install_uuid = wiz_app.install_uuid(True)
   if install_uuid:
     serialized_outcome = operation_state_ser.serialize(op_state)
     ep = f'/installs/{install_uuid}/operation_outcomes'
