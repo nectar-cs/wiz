@@ -18,17 +18,17 @@ class TestChartVariablesController(ClusterTest):
     self.ns, = ns_factory.request(1)
     helper.mock_globals(self.ns)
 
-  def test_submit(self):
-    helper.foo_bar_setup(self.ns)
-    wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
-    self.assertEqual('bar', ChartVariable.inflate('foo').read_crt_value())
-
-    endpoint = '/api/chart-variables/foo/submit'
-    payload = dict(value='baz')
-    response = app.test_client().post(endpoint, json=payload)
-
-    self.assertEqual('success', json.loads(response.data).get('status'))
-    self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
+  # def test_submit(self):
+  #   helper.foo_bar_setup(self.ns)
+  #   wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
+  #   self.assertEqual('bar', ChartVariable.inflate('foo').read_crt_value())
+  #
+  #   endpoint = '/api/chart-variables/foo/submit'
+  #   payload = dict(value='baz')
+  #   response = app.test_client().post(endpoint, json=payload)
+  #
+  #   self.assertEqual('success', json.loads(response.data).get('status'))
+  #   self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
 
   def test_validate(self):
     field_dict = g_conf(k='f')
@@ -60,15 +60,15 @@ class TestChartVariablesController(ClusterTest):
     self.assertEqual('bar.foo', cv2.get('id'))
     self.assertEqual('baz', cv2.get('value'))
 
-  def test_show_no_field(self):
-    helper.foo_bar_setup(self.ns)
-    wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
-
-    response1 = app.test_client().get('/api/chart-variables/foo')
-    cv1 = json.loads(response1.data).get('data')
-
-    self.assertEqual([], cv1['operations'])
-    self.assertIsNone(cv1['field'])
+  # def test_show_no_field(self):
+  #   helper.foo_bar_setup(self.ns)
+  #   wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
+  #
+  #   response1 = app.test_client().get('/api/chart-variables/foo')
+  #   cv1 = json.loads(response1.data).get('data')
+  #
+  #   self.assertEqual([], cv1['operations'])
+  #   self.assertIsNone(cv1['field'])
 
   def test_show_with_field(self):
     helper.foo_bar_setup(self.ns)

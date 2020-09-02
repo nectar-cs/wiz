@@ -19,13 +19,16 @@ tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
 
 
-def master_cmap() -> KatMap:
+def master_cmap() -> Optional[KatMap]:
   """
   Returns the ConfigMap.
   :return: ConfigMap.
   """
   from nectwiz.core.wiz_app import wiz_app
-  return KatMap.find(cmap_name, wiz_app.ns())
+  if wiz_app.ns():
+    return KatMap.find(cmap_name, wiz_app.ns())
+  else:
+    return None
 
 
 def read_cmap_dict(outer_key: str) -> Dict:

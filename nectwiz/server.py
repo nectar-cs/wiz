@@ -42,5 +42,5 @@ def ensure_broker_connected():
 def start():
   broker.connect()
   app.config["cmd"] = ["bash"]
-  port = 5000 if broker.is_in_cluster_auth() else 5001
+  port = 5000
   app.run(host='0.0.0.0', port=port)
