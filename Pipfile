@@ -4,29 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-flask-shell-ipython = "*"
 
 [packages]
-kubernetes = "~=10.0.1"
-requests = "*"
-flask-cors = "*"
-python-engineio = "*"
-flask = "~=1.1"
-urllib3 = "~=1.25"
-cachetools = "~=3.1"
-rsa = "~=4.0"
-six = "~=1.12.0"
-inflection = "*"
-python-dotenv = "*"
-k8-kat="~=0.0.156"
-typing-extensions = "*"
-coverage = "*"
-codecov = "*"
-twine = "*"
-validators = "*"
-sqlalchemy = "*"
-google-auth = "==1.20.1"
-#unittest = "*"
+nectwiz = {editable = true,path = "."}
 
 [requires]
 python_version = "3.6"
