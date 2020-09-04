@@ -1,5 +1,8 @@
 timeout: 1200s
 
+images:
+  - "gcr.io/nectar-bazaar/nectwiz-ci:latest"
+
 steps:
 
   - id: "Fetch Secrets"
@@ -18,14 +21,23 @@ steps:
       - "pull"
       - "gcr.io/nectar-bazaar/kind-ci-cluster"
 
+  - id: "Pull old nectwiz-ci image"
+    waitFor: []
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      - "pull"
+      - "gcr.io/nectar-bazaar/nectwiz-ci:latest"
+
   - id: "Build Image"
-    waitFor: ["Fetch Secrets"]
+    waitFor:
+      - 'Fetch Secrets'
+      - "Pull old nectwiz-ci image"
     name: 'gcr.io/cloud-builders/docker'
     args:
       - "build"
       - "."
       - "--cache-from"
-      - "gcr.io/nectar-bazaar/wiz:latest"
+      - "gcr.io/nectar-bazaar/nectwiz-ci:latest"
       - "--build-arg"
       - "CODECOV_TOKEN=$(cat covp.txt)"
       - "-t"

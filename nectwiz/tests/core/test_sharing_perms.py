@@ -3,9 +3,9 @@ from typing import Dict
 
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from k8_kat.auth.kube_broker import broker
+from k8kat.auth.kube_broker import broker
 
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory
 from nectwiz.core.telem import telem_perms
 from nectwiz.core.telem.telem_perms import TelemPerms
 from nectwiz.core.wiz_app import wiz_app

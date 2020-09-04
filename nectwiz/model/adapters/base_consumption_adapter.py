@@ -1,10 +1,10 @@
-from k8_kat.res.quotas.kat_quota import KatQuota
+from k8kat.res.quotas.kat_quota import KatQuota
 
-from k8_kat.res.ns.kat_ns import KatNs
+from k8kat.res.ns.kat_ns import KatNs
 from werkzeug.utils import cached_property
 
 
-from k8_kat.res.cluster.kat_cluster import KatCluster
+from k8kat.res.cluster.kat_cluster import KatCluster
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.adapters.adapter import Adapter
 

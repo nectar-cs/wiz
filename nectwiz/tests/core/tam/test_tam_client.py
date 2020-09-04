@@ -1,5 +1,5 @@
 import yaml
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.tam import tam_client
 from nectwiz.model.base.res_match_rule import ResMatchRule

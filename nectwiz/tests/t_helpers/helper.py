@@ -2,7 +2,7 @@ import json
 
 import yaml
 
-from k8_kat.auth.kube_broker import broker
+from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core import config_man

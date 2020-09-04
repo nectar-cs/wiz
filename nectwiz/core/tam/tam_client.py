@@ -2,7 +2,7 @@ import subprocess
 from typing import List, Tuple, Optional, Dict
 
 import yaml
-from k8_kat.auth.kube_broker import broker
+from k8kat.auth.kube_broker import broker
 
 from nectwiz.core.types import K8sResDict
 from nectwiz.core.wiz_app import wiz_app

@@ -1,6 +1,6 @@
 import json
 
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.chart_variable.chart_variable import ChartVariable

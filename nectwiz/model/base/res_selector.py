@@ -1,6 +1,6 @@
 from typing import List
 
-from k8_kat.res.base.kat_res import KatRes
+from k8kat.res.base.kat_res import KatRes
 
 from nectwiz.model.base.res_match_rule import ResMatchRule
 

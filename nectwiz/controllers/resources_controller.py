@@ -2,16 +2,16 @@ from typing import Type, List
 
 from flask import Blueprint, jsonify
 
-from k8_kat.res.base.kat_res import KatRes
-from k8_kat.res.config_map.kat_map import KatMap
-from k8_kat.res.dep.kat_dep import KatDep
-from k8_kat.res.ingress.kat_ingress import KatIngress
-from k8_kat.res.pvc.kat_pvc import KatPvc
-from k8_kat.res.quotas.kat_quota import KatQuota
-from k8_kat.res.rbac.rbac import KatRole, KatRoleBinding
-from k8_kat.res.sa.kat_service_account import KatServiceAccount
-from k8_kat.res.secret.kat_secret import KatSecret
-from k8_kat.res.svc.kat_svc import KatSvc
+from k8kat.res.base.kat_res import KatRes
+from k8kat.res.config_map.kat_map import KatMap
+from k8kat.res.dep.kat_dep import KatDep
+from k8kat.res.ingress.kat_ingress import KatIngress
+from k8kat.res.pvc.kat_pvc import KatPvc
+from k8kat.res.quotas.kat_quota import KatQuota
+from k8kat.res.rbac.rbac import KatRole, KatRoleBinding
+from k8kat.res.sa.kat_service_account import KatServiceAccount
+from k8kat.res.secret.kat_secret import KatSecret
+from k8kat.res.svc.kat_svc import KatSvc
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.serializers import res_serializers
 

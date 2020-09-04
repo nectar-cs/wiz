@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import reduce
 from typing import List, Dict, Optional
 
-from k8_kat.utils.main.utils import deep_merge
+from k8kat.utils.main.utils import deep_merge
 from nectwiz.core.types import CommitOutcome, StepRunningStatus
 
 

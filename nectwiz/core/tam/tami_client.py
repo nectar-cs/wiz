@@ -18,7 +18,7 @@ class TamiClient(TamClient):
     pod_args = ['values', wiz_app.tam()['args']]
     pod_args = [v for v in pod_args if v]
     result = tami_prep.consume(wiz_app.ns(), image_name(), pod_args)
-    return yaml.load(result)
+    return yaml.load(result, Loader=yaml.FullLoader)
 
   def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
     """

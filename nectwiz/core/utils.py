@@ -134,6 +134,7 @@ def root_path() -> str:
 
 def set_run_env(_run_env):
   if _run_env in legal_envs:
+    os.environ['FLASK_ENV'] = _run_env
     os.environ['KAT_ENV'] = _run_env
   else:
     raise Exception(f"Bad environment '{_run_env}'")

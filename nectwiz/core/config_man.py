@@ -4,9 +4,9 @@ import json
 import os
 from typing import Optional, Dict, List, Tuple
 
-from k8_kat.res.config_map.kat_map import KatMap
-from k8_kat.res.secret.kat_secret import KatSecret
-from k8_kat.utils.main.utils import deep_merge
+from k8kat.res.config_map.kat_map import KatMap
+from k8kat.res.secret.kat_secret import KatSecret
+from k8kat.utils.main.utils import deep_merge
 
 from nectwiz.core import utils
 from nectwiz.core.types import TamDict

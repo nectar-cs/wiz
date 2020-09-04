@@ -1,14 +1,14 @@
 from typing import Dict
 
-from k8_kat.res.rbac.rbac import KatRole
+from k8kat.res.rbac.rbac import KatRole
 
-from k8_kat.res.quotas.kat_quota import KatQuota
+from k8kat.res.quotas.kat_quota import KatQuota
 
-from k8_kat.res.pod.kat_pod import KatPod
+from k8kat.res.pod.kat_pod import KatPod
 
-from k8_kat.res.dep.kat_dep import KatDep
+from k8kat.res.dep.kat_dep import KatDep
 
-from k8_kat.res.base.kat_res import KatRes
+from k8kat.res.base.kat_res import KatRes
 
 
 def basic(res: KatRes) -> Dict:

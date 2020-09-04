@@ -2,8 +2,8 @@ import json
 from json import JSONDecodeError
 from typing import Dict, Optional
 
-from k8_kat.res.job.kat_job import KatJob
-from k8_kat.res.pod.kat_pod import KatPod
+from k8kat.res.job.kat_job import KatJob
+from k8kat.res.pod.kat_pod import KatPod
 from nectwiz.core import step_job_prep
 from nectwiz.core.types import JobStatus, JobStatusPart
 from nectwiz.core.wiz_app import wiz_app

@@ -115,6 +115,6 @@ dmypy.json
 .idea
 logs/
 *.log.*
-k8_kat
+k8kat
 k8-kat
 .env

@@ -1,7 +1,8 @@
 from typing import Type, Optional
 
-from k8_kat.tests.res.common.test_kat_config_map import TestKatConfigMap
-from k8_kat.utils.testing import ns_factory
+from k8kat.auth.kube_broker import broker
+from k8kat.utils.testing import ns_factory
+from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core import config_man
 from nectwiz.core.wiz_app import wiz_app
@@ -37,8 +38,8 @@ class TestPredicate(Base.TestWizModel):
   def test_eval_resource_count_compare(self):
     ns, = ns_factory.request(1)
     wiz_app._ns = ns
-    TestKatConfigMap.create_res('r1', ns)
-    TestKatConfigMap.create_res('r2', ns)
+    create_cmap('r1', ns)
+    create_cmap('r2', ns)
 
     self.assertTrue(mk_pred2('r1', 1, '='))
     self.assertTrue(mk_pred2('r1', 1, 'gte'))
@@ -52,8 +53,8 @@ class TestPredicate(Base.TestWizModel):
   def test_eval_resource_property_compare(self):
     ns, = ns_factory.request(1)
     wiz_app._ns = ns
-    TestKatConfigMap.create_res('r1', ns)
-    TestKatConfigMap.create_res('r2', ns)
+    create_cmap('r1', ns)
+    create_cmap('r2', ns)
 
     self.assertTrue(mk_pred1('r1', 'all', 'sig', 'ConfigMap:r1'))
     self.assertTrue(mk_pred1('*', 'any', 'name', 'r1'))
@@ -95,3 +96,13 @@ def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
     variable=variable_name,
     check_against=against
   )).evaluate()
+
+def create_cmap(name, ns=None, data=None):
+  data = data if data else dict(foo='bar')
+  return broker.coreV1.create_namespaced_config_map(
+    namespace=ns,
+    body=V1ConfigMap(
+      metadata=V1ObjectMeta(name=name),
+      data=data
+    )
+  )

@@ -1,7 +1,7 @@
 import functools
 from typing import Optional, Callable
 
-from k8_kat.res.base.kat_res import KatRes
+from k8kat.res.base.kat_res import KatRes
 
 from nectwiz.core import config_man
 from nectwiz.core.telem.ost import StepState

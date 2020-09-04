@@ -1,4 +1,4 @@
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory
 
 from nectwiz.core import config_man
 from nectwiz.tests.t_helpers import helper

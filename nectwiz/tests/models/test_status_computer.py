@@ -1,6 +1,6 @@
-from k8_kat.res.pod.kat_pod import KatPod
+from k8kat.res.pod.kat_pod import KatPod
 
-from k8_kat.utils.testing import simple_pod, ns_factory
+from k8kat.utils.testing import simple_pod, ns_factory
 from nectwiz.core import utils
 
 from nectwiz.core.wiz_app import wiz_app

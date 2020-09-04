@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from k8_kat.auth.kube_broker import broker
-from k8_kat.res.pod.kat_pod import KatPod
+from k8kat.auth.kube_broker import broker
+from k8kat.res.pod.kat_pod import KatPod
 from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1PodSpec, V1Container, \
   V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements, V1KeyToPath

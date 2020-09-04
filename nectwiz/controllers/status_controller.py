@@ -2,7 +2,7 @@ from typing import Dict
 
 from flask import Blueprint, jsonify, request
 
-from k8_kat.auth.kube_broker import broker
+from k8kat.auth.kube_broker import broker
 
 from nectwiz.core import config_man
 from nectwiz.core.tam.tam_provider import tam_client
@@ -47,7 +47,7 @@ def status():
   return jsonify(
     is_healthy=broker.is_connected,
     cluster_connection=dict(
-      is_k8_kat_connected=broker.is_connected,
+      is_k8kat_connected=broker.is_connected,
       connect_config=broker.connect_config
     ),
     ns=wiz_app.ns(),

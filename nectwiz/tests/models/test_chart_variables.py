@@ -1,6 +1,6 @@
 from typing import Type
 
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel

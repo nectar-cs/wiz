@@ -1,11 +1,11 @@
 import json
 from typing import Dict
 
-from k8_kat.res.job.kat_job import KatJob
+from k8kat.res.job.kat_job import KatJob
 from kubernetes.client import V1ConfigMap, V1ObjectMeta, V1Job, V1JobSpec, V1PodSpec, V1PodTemplateSpec, \
   V1Container, V1VolumeMount, V1Volume, V1ConfigMapVolumeSource, V1ResourceRequirements
 
-from k8_kat.auth.kube_broker import broker
+from k8kat.auth.kube_broker import broker
 from nectwiz.core import utils
 from nectwiz.core.wiz_app import wiz_app
 

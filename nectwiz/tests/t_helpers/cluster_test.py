@@ -1,12 +1,27 @@
 import unittest
 
 import dotenv
-from k8_kat.utils.testing import ci_perms, ns_factory
+from k8kat.auth.kube_broker import broker
+from k8kat.utils.testing import ns_factory
 
+from nectwiz.core import utils
 from nectwiz.core.wiz_app import wiz_app
 
 
 class ClusterTest(unittest.TestCase):
+
+  @classmethod
+  def setUpClass(cls) -> None:
+    super().setUpClass()
+    if not is_ready():
+      dotenv.load_dotenv()
+      utils.set_run_env('test')
+      broker.connect()
+      update_readiness(True)
+
+  @classmethod
+  def tearDownClass(cls) -> None:
+    ns_factory.relinquish_all()
 
   def setUp(self) -> None:
     super().setUp()
@@ -18,11 +33,13 @@ class ClusterTest(unittest.TestCase):
     wiz_app._ns = None
     wiz_app.clear()
 
-  @classmethod
-  def setUpClass(cls) -> None:
-    dotenv.load_dotenv()
-    ci_perms.init_test_suite(False)
 
-  @classmethod
-  def tearDownClass(cls) -> None:
-    ns_factory.relinquish_all()
+test_ready_obj = dict(ready=False)
+
+
+def is_ready():
+  return test_ready_obj['ready']
+
+
+def update_readiness(readiness):
+  test_ready_obj['ready'] = readiness

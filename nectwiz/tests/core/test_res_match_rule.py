@@ -1,4 +1,4 @@
-from k8_kat.utils.testing import ns_factory
+from k8kat.utils.testing import ns_factory, simple_pod, simple_svc
 from nectwiz.model.base.res_match_rule import ResMatchRule, component_matches
 from nectwiz.core.wiz_app import wiz_app
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -39,16 +39,13 @@ class TestResMatchRules(ClusterTest):
     self.assertTrue(subject.evaluate(gen_res('x', 'z')))
 
   def test_query(self):
-    from k8_kat.tests.res.common.test_kat_svc import TestKatSvc
-    from k8_kat.tests.res.common.test_kat_pod import TestKatPod
-
     ns, = ns_factory.request(1)
     wiz_app._ns = ns
-    TestKatSvc.create_res('s1', ns)
-    TestKatSvc.create_res('s2', ns)
+    simple_svc.create(name='s1', ns=ns)
+    simple_svc.create(name='s2', ns=ns)
 
-    TestKatPod.create_res('p1', ns)
-    TestKatPod.create_res('p2', ns)
+    simple_pod.create(name='p1', ns=ns)
+    simple_pod.create(name='p2', ns=ns)
 
     actual = ResMatchRule("Service:s0").query()
     self.assertEqual(names(actual), [])

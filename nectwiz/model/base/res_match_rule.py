@@ -1,6 +1,6 @@
 from typing import Union, Dict, Optional, List
 
-from k8_kat.res.base.kat_res import KatRes
+from k8kat.res.base.kat_res import KatRes
 from typing_extensions import TypedDict
 
 from nectwiz.core.types import K8sResDict
