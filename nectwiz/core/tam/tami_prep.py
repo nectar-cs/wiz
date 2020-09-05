@@ -53,7 +53,7 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
             # command=["/bin/sh", "-c", "--" ],
             # args=["while true; do sleep 30; done;" ],
             args=args,
-            image_pull_policy='Always' if utils.is_prod() else 'IfNotPresent',
+            image_pull_policy='IfNotPresent',
             volume_mounts=volume_mounts(),
             resources=V1ResourceRequirements(
               requests=dict(cpu='20m', memory='100M'),

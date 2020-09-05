@@ -54,9 +54,6 @@ def kubectl_apply() -> str:
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
-  with open(tmp_file_mame, 'r') as file:
-    print(file.read())
-
   print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
   return result.decode('utf-8') if result else None
