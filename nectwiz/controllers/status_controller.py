@@ -44,14 +44,18 @@ def status():
   Checks Wiz's status.
   :return: dict containing status details.
   """
+
+  if not is_healthy():
+    broker.connect()
+
   return jsonify(
-    is_healthy=broker.is_connected,
+    sanity='1',
+    is_healthy=is_healthy(),
     cluster_connection=dict(
       is_k8kat_connected=broker.is_connected,
       connect_config=broker.connect_config
     ),
     ns=wiz_app.ns(),
-    master_cmap_present=config_man.master_cmap() is not None,
     tam_config=wiz_app.tam(),
     tam_defaults=wiz_app.tam_defaults(),
     tam_variables=config_man.read_tam_vars()
@@ -63,3 +67,12 @@ def templated_manifest():
   return jsonify(
     data=tam_client().load_tpd_manifest()
   )
+
+
+def is_healthy() -> bool:
+  if broker.is_connected:
+    return config_man.master_cmap() is not None
+  else:
+    return False
+
+
