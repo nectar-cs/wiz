@@ -8,7 +8,7 @@ from k8kat.auth.kube_broker import broker
 from k8kat.utils.testing import ns_factory
 from nectwiz.core.telem import telem_perms
 from nectwiz.core.telem.telem_perms import TelemPerms
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 

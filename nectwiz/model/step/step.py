@@ -1,16 +1,19 @@
 from typing import List, Dict, Union, Tuple, Optional
 
-from nectwiz.core import step_job_prep, utils, config_man
-from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.telem.ost import OperationState, StepState
-from nectwiz.core.types import CommitOutcome, StepRunningStatus
+from nectwiz.core.core import config_man, utils
+from nectwiz.core.job import job_client
+from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.step.step_state import StepState
+from nectwiz.core.core.types import CommitOutcome, StepCommitActionKwargs
+from nectwiz.model.action.action import Action
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLINE, TARGET_TYPES
-from nectwiz.model.step import step_exprs
+from nectwiz.model.step import step_exprs, status_computer
 from nectwiz.model.step.step_exprs import parse_recalled_state
 
 TOS = OperationState
+TSS = StepState
 TOOS = Optional[OperationState]
 TCO = CommitOutcome
 
@@ -24,6 +27,9 @@ class Step(WizModel):
     :return:
     """
     return self.config.get('fields', [])
+
+  def sig(self):
+    return f"{self.parent.id()}::{self.id()}"
 
   def updates_chart(self) -> bool:
     """
@@ -47,12 +53,15 @@ class Step(WizModel):
     else:
       return len(self.res_selectors()) > 0
 
-  def runs_job(self) -> bool:
+  def triggers_action(self) -> bool:
     """
     Checks if there is at least one associated job.
     :return: True if yes, False otherwise.
     """
-    return bool(self.job_descriptor)
+    return self.applies_manifest() or bool(self.action())
+
+  def action(self):
+    return 3
 
   @property
   def res_selector_descs(self) -> List[Union[str, dict]]:
@@ -134,16 +143,7 @@ class Step(WizModel):
     """
     return list(map(ResMatchRule, self.res_selector_descs))
 
-  def gen_job_params(self, values:dict, op_state: OperationState) -> dict:
-    """
-    Generates parameters for the k8s job from the passed values dict.
-    :param values: values to be converted to params.
-    :param op_state:
-    :return: a dict of job params.
-    """
-    return values
-
-  def compute_recalled_assigns(self, target: str, op_state: TOS) -> dict:
+  def compute_recalled_assigns(self, target: str, prev_state: TSS) -> dict:
     """
     Collects all the state assigns of target type, then filters them by
     included/excluded tag.
@@ -154,13 +154,13 @@ class Step(WizModel):
       excluded_key = [4,5,6]
     }
     :param target: type of state_assigns to collect, eg "chart" or "inline".
-    :param op_state: for which OperationState to collect.
+    :param prev_state: for which OperationState to collect.
     :return: dict with included state_assigns.
     """
     # Step 1- get matching state_recalls
     predicate = lambda d: d.get('target', 'chart') == target
     descriptors = filter(predicate, self.config.get('state_recalls', []))
-    state_assigns = op_state.state_assigns() if op_state else {}
+    state_assigns = prev_state.state_assigns
     # Step 2 - get included - excluded keys for those state_recalls
     gather_keys = lambda d: parse_recalled_state(d, state_assigns.keys())
     recalled_keys = utils.flatten(map(gather_keys, descriptors))
@@ -168,29 +168,29 @@ class Step(WizModel):
     return {key: state_assigns.get(key) for key in recalled_keys}
 
   # noinspection PyUnusedLocal
-  def finalize_chart_values(self, assigns: Dict, all_assigns, op_state: TOS) -> dict:
+  def finalize_chart_values(self, assigns: Dict, all_assigns, prev_state: TSS) -> dict:
     """
     Merges existing chart assigns with new ones from the Front End and sanitizes both.
     Called by the partition function via reflection.
     :param assigns: ultimately come from request.json['values']
     :param all_assigns: todo don't seem to be used?
-    :param op_state: OperationState for which to compute chart assigns.
+    :param prev_state: OperationState for which to compute chart assigns.
     :return: updated and sanitized dict with chart assigns.
     """
-    recalled_from_state = self.compute_recalled_assigns('chart', op_state)
+    recalled_from_state = self.compute_recalled_assigns('chart', prev_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
   # noinspection PyUnusedLocal
-  def finalize_inline_values(self, assigns: Dict, all_assigns, op_state: TOS) -> dict:
+  def finalize_inline_values(self, assigns: Dict, all_assigns, prev_state: TSS) -> dict:
     """
     Merges existing inline assigns with new ones from the Front End and sanitizes both.
     Called by the partition function via reflection.
     :param assigns: ultimately come from request.json['values']
     :param all_assigns: todo don't seem to be used?
-    :param op_state: OperationState for which to compute inline assigns.
+    :param prev_state: OperationState for which to compute inline assigns.
     :return: updated and sanitized dict with inline assigns.
     """
-    recalled_from_state = self.compute_recalled_assigns('inline', op_state)
+    recalled_from_state = self.compute_recalled_assigns('inline', prev_state)
     return self.sanitize_field_assigns({**recalled_from_state, **assigns})
 
   # noinspection PyUnusedLocal
@@ -205,20 +205,11 @@ class Step(WizModel):
     """
     return self.sanitize_field_assigns(assigns)
 
-  def begin_job(self, values:dict, op_state: OperationState) -> str:
-    """
-    Creates and runs the job associated with a given Step.
-    :param values: values used to generate params for the job.
-    :param op_state: OperationState used to generate params for the job.
-    :return: job_id of the newly created job.
-    """
-    image = self.job_descriptor.get('image', 'busybox')
-    command = self.job_descriptor.get('command')
-    args = self.job_descriptor.get('args', [])
-    params = self.gen_job_params(values, op_state)
-    return step_job_prep.create_and_run(image, command, args, params)
+  def find_commit_status(self, op_state):
+    pass
 
-  def commit(self, assigns: Dict, op_state: OperationState = None) -> TCO:
+
+  def run(self, assigns: Dict, prev_state: StepState):
     """
     Commits a step, which involves:
       1. Partitioning assigns into chart/inline/state + merging with existing
@@ -228,63 +219,52 @@ class Step(WizModel):
       5. Creating and starting any associated jobs
 
     :param assigns: new assigns to be committed.
-    :param op_state: needed to merge with existing assigns for all 3 buckets
+    :param prev_state: needed to merge with existing assigns for all 3 buckets
     :return: CommitOutcome, a dict containing chart/state assigns as well as logs
     from applying inline assigns and job_id for any generated jobs.
     """
-    op_state = op_state or OperationState()
-    final_assigns = self.partition_value_assigns(assigns, op_state)
-    chart_assigns, inline_assigns, state_assigns = final_assigns
-    outcome = CommitOutcome(
-      chart_assigns=chart_assigns,
-      state_assigns=state_assigns
+    op_state: OperationState = prev_state.parent_op()
+
+    final_assigns = self.partition_user_asgs(assigns, op_state)
+    chart_asg, inline_asg, state_asg = final_assigns
+
+    if len(chart_asg):
+      keyed_tuples = list(chart_asg.items())
+      config_man.commit_keyed_tam_assigns(keyed_tuples)
+
+    if self.triggers_action():
+      action_kwargs = self.g_action_kwargs(chart_asg, inline_asg, state_asg)
+      action_cls = self.load_child(Action, 'action').__class__
+      job_id = job_client.enqueue_action(action_cls, **action_kwargs)
+      prev_state.notify_action_started(job_id)
+    else:
+      prev_state.notify_succeeded()
+
+  def g_action_kwargs(self, chart, inline, state) -> StepCommitActionKwargs:
+    return StepCommitActionKwargs(
+      inline_assigns=inline,
+      chart_assigns=chart,
+      state_assigns=state,
+      res_selector_descs=self.res_selector_descs
     )
 
-    if len(chart_assigns):
-      keyed_tuples = list(chart_assigns.items())
-      config_man.commit_keyed_tam_assigns(keyed_tuples)
-      # outcome['prev_chart_vals'] =
+  def compute_status(self, prev_state: TSS = None) -> bool:
+    if prev_state.was_running():
+      parallel_job = job_client.find_job(prev_state.job_id)
+      if parallel_job.is_finished:
+        prev_state.notify_is_verifying()
+        return self.compute_status_verifying(prev_state)
+      else:
+        print("Job still running")
+        return False
 
-    if self.applies_manifest():
-      out = tam_client().apply(self.res_selectors(), inline_assigns.items())
-      logs = out.split("\n") if out else []
-      return CommitOutcome(**outcome, status='pending', logs=logs)
+    elif prev_state.was_verifying():
+      status_computer.compute_status(self.config.get('exit'), prev_state)
+      return self.compute_status_verifying(prev_state)
 
-    if self.runs_job():
-      job_id = self.begin_job(state_assigns, op_state)
-      return CommitOutcome(**outcome, status='pending', job_id=job_id)
-
-    return CommitOutcome(**outcome, status='positive')
-
-  def compute_status(self, op_state: TOOS = None) -> StepRunningStatus:
-    """
-    Computes the status of a given step based on exit conditions and the status
-    of any related jobs.
-    :param op_state: OperationState containing previous status.
-    :return: newly computed StepRunningStatus.
-    """
-    from nectwiz.model.step.status_computer import StepStatusComputer
-    own_state = self.find_own_state(op_state) if op_state else None
-    computer = StepStatusComputer(self, own_state)
-    return computer.compute_status()
-
-  def is_state_owner(self, ss: StepState) -> bool:
-    """
-    Checks if current Step owns the passed StepState.
-    :param ss: StepState to be checked.
-    :return: True if yes, False otherwise.
-    """
-    return ss.step_id == self.key and \
-           ss.stage_id == self.parent.key
-
-  def find_own_state(self, op_state: OperationState) -> Optional[StepState]:
-    """
-    Filters the passed OperationState object to find StepState owned by current
-    Step.
-    :param op_state: OperationState object to be searched.
-    :return: own StepState if found, else None.
-    """
-    return next(filter(self.is_state_owner, op_state.step_states), None)
+  def compute_status_verifying(self, prev_state):
+    status_computer.compute_status(self.config.get('exit'), prev_state)
+    return True
 
   def flags(self):
     """
@@ -296,11 +276,11 @@ class Step(WizModel):
     _flags: List[str] = self.config.get('flags', [])
     if self.applies_manifest():
       _flags.append('manifest_applying')
-    if self.runs_job():
+    if self.triggers_action():
       _flags.append('job_running')
     return list(set(_flags))
 
-  def partition_value_assigns(self, assigns, op_state) -> Tuple:
+  def partition_user_asgs(self, assigns, op_state: TOS) -> Tuple:
     """
     Partitions new assigns into 3 buckets (chart, inline, state) and
     merges with existing assigns in each bucket.

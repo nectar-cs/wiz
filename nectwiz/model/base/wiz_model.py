@@ -1,6 +1,6 @@
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 
 
 T = TypeVar('T', bound='WizModel')
@@ -12,6 +12,9 @@ class WizModel:
     self.config: Dict = config
     self.key: str = config.get('key')
     self.parent = None
+
+  def id(self):
+    return self.key
 
   @property
   def title(self):
@@ -29,7 +32,7 @@ class WizModel:
     """
     return self.config.get('info')
 
-  def load_children(self, config_key:str , child_class:Type[T]) -> List[Type[T]]:
+  def load_children(self, config_key:str , child_class:Type[T]) -> List[T]:
     """
     Loads a list of descriptors matching config_key, then inflates
     (instantiates) each one into an instance of the child class.
@@ -40,7 +43,7 @@ class WizModel:
     descriptor_list = self.config.get(config_key, [])
     return self.load_related(descriptor_list, child_class)
 
-  def load_related(self, descriptor_list: List, child_class: Type[T]) -> List[Type[T]]:
+  def load_related(self, descriptor_list: List, child_class: Type[T]) -> List[T]:
     """
     Inflates (instantiates) each object of the descriptor_list into an instance
     of the passed child_class.
@@ -53,7 +56,7 @@ class WizModel:
     to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
     return list(map(to_child, descriptor_list))
 
-  def load_list_child(self, config_key:str, child_class: Type[T], child_key:str) -> Type[T]:
+  def load_list_child(self, config_key:str, child_class: Type[T], child_key:str) -> T:
     """
     Finds child by child key, then inflates (instantiates) into an instance of
     the child class.
@@ -67,7 +70,7 @@ class WizModel:
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
     return self.load_child(child_class, match) if match else None
 
-  def load_child(self, child_class: Type[T], key_or_dict: Union[str, dict]) -> Type[T]:
+  def load_child(self, child_cls: Type[T], key_or_dict: Union[str, dict]) -> T:
     """
     Inflates (instantiates) the passed key or config into an instance of the
     child class.
@@ -75,7 +78,7 @@ class WizModel:
     :param child_cls: target class to be instantiated, eg Operation or Stage.
     :return: instance of the child class.
     """
-    return key_or_dict_to_child(key_or_dict, child_class, self)
+    return key_or_dict_to_child(key_or_dict, child_cls, self)
 
   @classmethod
   def inflate_all(cls) -> List[Type[T]]:
@@ -98,7 +101,7 @@ class WizModel:
     return cls.inflate_with_config(config)
 
   @classmethod
-  def inflate_with_config(cls, config: Dict) -> Type[T]:
+  def inflate_with_config(cls, config: Dict) -> T:
     """
     Inflates (instantiates) the passed config into an instance of the caller
     class, eg Operation or Stage. Takes into account any
@@ -177,7 +180,7 @@ def key_or_dict_matches(key_or_dict: Union[str, dict], target_key: str) -> bool:
 
 
 def key_or_dict_to_child(key_or_dict: Union[str, dict], child_cls: Type[T],
-                         parent: Type[T] = None) -> Type[T]:
+                         parent: T = None) -> T:
   """
   Inflates (instantiates) the passed key or config into an instance of the
   child class. Sets the passed parent.

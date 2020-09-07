@@ -12,7 +12,7 @@ from k8kat.res.rbac.rbac import KatRole, KatRoleBinding
 from k8kat.res.sa.kat_service_account import KatServiceAccount
 from k8kat.res.secret.kat_secret import KatSecret
 from k8kat.res.svc.kat_svc import KatSvc
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.serializers import res_serializers
 
 controller = Blueprint('resources_controller', __name__)

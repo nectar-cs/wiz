@@ -1,6 +1,6 @@
 from typing import Type
 
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.operations.operation import Operation
 from nectwiz.model.field.field import Field
 from nectwiz.model.step.step import Step

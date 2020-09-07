@@ -2,7 +2,6 @@ from typing import Type
 
 from k8kat.utils.testing import ns_factory
 
-from nectwiz.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.tests.models.test_wiz_model import Base

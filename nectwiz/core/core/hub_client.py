@@ -1,6 +1,6 @@
 import requests
 
-from nectwiz.core import utils
+from nectwiz.core.core import utils
 
 api_path = '/api/cli'
 

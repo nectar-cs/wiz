@@ -2,8 +2,7 @@ import json
 
 from k8kat.utils.testing import ns_factory
 
-from nectwiz.core.wiz_app import wiz_app
-from nectwiz.model.chart_variable.chart_variable import ChartVariable
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers import helper

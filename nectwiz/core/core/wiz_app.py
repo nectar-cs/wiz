@@ -1,8 +1,8 @@
 import os
 from typing import Dict, Type, Optional, List
 
-from nectwiz.core import utils
-from nectwiz.core.types import TamDict
+from nectwiz.core.core import utils
+from nectwiz.core.core.types import TamDict
 
 tami_pod_name = 'tami'
 cache_root = '/tmp'
@@ -59,37 +59,37 @@ class WizApp:
     
   def ns(self, force_reload=False):
     if force_reload or not self._ns:
-      from nectwiz.core import config_man
+      from nectwiz.core.core import config_man
       self._ns = config_man.read_ns()
     return self._ns
 
   def tam(self, force_reload=False) -> TamDict:
     if force_reload or not self._tam:
-      from nectwiz.core import config_man
+      from nectwiz.core.core import config_man
       self._tam = config_man.read_tam()
     return self._tam
 
   def tam_defaults(self, force_reload=False) -> Dict:
     if force_reload or not self._tam_defaults:
-      from nectwiz.core import config_man
+      from nectwiz.core.core import config_man
       self._tam_defaults = config_man.read_tam_var_defaults()
     return self._tam_defaults
 
   def tam_vars(self, force_reload=False) -> Dict:
     if force_reload or not self._tam_vars:
-      from nectwiz.core import config_man
+      from nectwiz.core.core import config_man
       self._tam_vars = config_man.read_tam_vars()
     return self._tam_vars
 
   def change_tam_version(self, new_tam_version: str):
-    from nectwiz.core import config_man
+    from nectwiz.core.core import config_man
     updated_tam = { **wiz_app.tam(), 'ver': new_tam_version }
     config_man.write_tam(updated_tam)
     self._tam = config_man.read_tam()
 
   def install_uuid(self, force_reload=False) -> str:
     if self.ns() and (force_reload or not self.install_uuid):
-      from nectwiz.core import config_man
+      from nectwiz.core.core import config_man
       self._install_uuid = config_man.read_install_uuid(self.ns())
     return self._install_uuid
 
@@ -176,6 +176,10 @@ class WizApp:
     """
     self.configs = default_configs()
     self.subclasses = []
+
+
+  def jobs_backend(self):
+    return "rq"
 
 
 wiz_app = WizApp()

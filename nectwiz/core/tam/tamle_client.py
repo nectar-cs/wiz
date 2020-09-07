@@ -3,8 +3,8 @@ from typing import Dict, List
 
 import yaml
 
-from nectwiz.core.types import K8sResDict
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.core.wiz_app import wiz_app
 
 from nectwiz.core.tam.tam_client import TamClient, fmt_inline_assigns
 

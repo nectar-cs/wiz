@@ -1,8 +1,8 @@
 from typing import Type, Dict
 from unittest.mock import patch
 
-from nectwiz.core import step_job_prep, config_man
-from nectwiz.core.tam import tami_client
+from nectwiz.core import step_job_prep
+from nectwiz.core.core import config_man
 from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.stage.stage import Stage
@@ -39,7 +39,7 @@ class TestStep(Base.TestWizModel):
 
   def test_commit_no_work(self):
     with patch.object(config_man, 'commit_keyed_tam_assigns') as mock:
-      outcome = Step(dict(key='s')).commit({})
+      outcome = Step(dict(key='s')).run({})
       mock.assert_not_called()
       self.assertEqual('positive', outcome['status'])
       self.assertEqual({}, outcome['chart_assigns'])
@@ -49,7 +49,7 @@ class TestStep(Base.TestWizModel):
   def test_commit_with_chart_vars(self):
     step = Step(dict(key='s', fields=[{'key': 'f1.foo'}]))
     with patch.object(config_man, 'commit_keyed_tam_assigns') as commit_mock:
-      outcome = step.commit({'f1.foo': 'v1'})
+      outcome = step.run({'f1.foo': 'v1'})
       self.assertEqual('positive', outcome['status'])
       self.assertEqual({'f1.foo': 'v1'}, outcome['chart_assigns'])
       self.assertEqual({}, outcome['state_assigns'])
@@ -63,7 +63,7 @@ class TestStep(Base.TestWizModel):
 
     with patch.object(step_job_prep, 'create_and_run') as run_mock:
       run_mock.return_value = 'id'
-      outcome = step.commit(dict(f1='v1'))
+      outcome = step.run(dict(f1='v1'))
       run_mock.assert_called_with('foo', ['bar'], ['baz'], {'f1': 'v1'})
       self.assertEqual('pending', outcome['status'])
       self.assertEqual('id', outcome['job_id'])
@@ -90,10 +90,10 @@ class TestStep(Base.TestWizModel):
     step = Step(dict(key='s', fields=fields))
     op_state = helper.one_step_op_state()
     assign = dict(f1='v1', f2='v2', f3='v3')
-    actual = step.partition_value_assigns(assign, op_state)
+    actual = step.partition_user_asgs(assign, op_state)
     self.assertEqual(({'f1': 'v1'}, {'f2': 'v2'}, {'f3': 'v3'}), actual)
 
-    actual = step.partition_value_assigns(dict(), op_state)
+    actual = step.partition_user_asgs(dict(), op_state)
     self.assertEqual(({}, {}, {}), actual)
 
 

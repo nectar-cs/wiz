@@ -1,10 +1,9 @@
 from typing import Optional, List
 
-from nectwiz.core import config_man, utils
-from nectwiz.core.tam import tami_client
+from nectwiz.core.core import config_man, utils
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.utils import dict2keyed
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.utils import dict2keyed
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 
 

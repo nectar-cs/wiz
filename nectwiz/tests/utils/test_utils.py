@@ -1,6 +1,6 @@
 import unittest
 
-from nectwiz.core import utils
+from nectwiz.core.core import utils
 
 
 class TestUtils(unittest.TestCase):

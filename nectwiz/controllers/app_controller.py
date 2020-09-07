@@ -1,11 +1,7 @@
-from typing import List
-
 from flask import Blueprint, jsonify
 
-from k8kat.res.dep.kat_dep import KatDep
-
 # from nectwiz.core import update_manager
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from nectwiz.model.adapters.base_consumption_adapter import BaseConsumptionAdapter
 

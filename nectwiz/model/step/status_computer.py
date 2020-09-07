@@ -1,165 +1,100 @@
 from typing import List, Optional, Dict, Callable
 
-from nectwiz.core import step_job_client
-from nectwiz.core.telem.ost import StepState
-from nectwiz.core.types import ExitConditionStatus, StepRunningStatus, ExitConditionStatuses, JobStatus
+from nectwiz.core.core.types import ExitStatus, ExitStatuses
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.step.step import Step
+from nectwiz.model.step.step_state import StepState
 
 POS = 'positive'
 NEG = 'negative'
-TEC = Predicate
-TECS = ExitConditionStatus
-TSRS = StepRunningStatus
+TPD = Predicate
+TEXS = ExitStatus
 
 
-class StepStatusComputer:
-  """Computes the status of all exit conditions for a given step."""
+def eval_cond(condition: Predicate) -> ExitStatus:
+  """
+  Evaluates the passed condition and prepares an output with details of the
+  evaluation.
+  :param condition: condition to be evaluated.
+  :return: dict with results of evaluation.
+  """
+  eval_result = condition.evaluate()
+  return ExitStatus(
+    key=condition.key,
+    met=eval_result,
+    name=condition.title,
+  )
 
-  def __init__(self, step: Step, own_state: StepState):
-    self.step: Step = step
-    self.own_state: Optional[StepState] = own_state
 
-  # noinspection PyTypedDict
-  def find_saved_cond_status(self, polarity: str, cond_id: str) -> Optional[TECS]:
-    """
-    Tries to locate and return the saved status of a given condition
-    (specified by condition id), else returns None.
-    :param polarity: "positive" or "negative" charge.
-    :param cond_id: condition id to locate the appropriate condition.
-    :return: status of a given condition or None.
-    """
-    if self.own_state:
-      root: TSRS = self.own_state.running_status or {}
-      polarities: ExitConditionStatuses = root.get('condition_statuses', {})
-      statuses: List[TECS] = polarities.get(polarity, [])
-      matcher = lambda ecs: ecs.get('key') == cond_id
-      return next(filter(matcher, statuses), None)
-    return None
+def eval_conds(predicates: List[TPD], polarity: str, prev_state) -> List[TEXS]:
+  cond_statuses = []
+  for predicate in predicates:
+    saved_cond_status = find_prev_cs(prev_state, polarity, predicate.id())
+    saved_cond_status = discriminate_saved_cond(polarity, saved_cond_status)
+    cond_status: TEXS = saved_cond_status or eval_cond(predicate)
+    cond_statuses.append(cond_status)
+    if halters[polarity](cond_status['met']):
+      return cond_statuses
+  return cond_statuses
 
-  def eval_cond(self, condition: TEC) -> TECS:
-    """
-    Evaluates the passed condition and prepares an output with details of the
-    evaluation.
-    :param condition: condition to be evaluated.
-    :return: dict with results of evaluation.
-    """
-    eval_result = condition.evaluate(self.own_state)
-    return ExitConditionStatus(
-      key=condition.key,
-      met=eval_result,
-      name=condition.title,
-      resources_considered=condition.resources_considered
-    )
 
-  def eval_conds(self, polarity: str, conditions: List[TEC]) -> List[TECS]:
-    """
-    Evaluates the list of passed conditions. Depending on halter selected, the
-    evaluation may terminate early.
-    :param polarity: positive or negative. Early evaluation only possible with
-    negative halters, and only when the condition evaluates to True. Reasoning:
-    if any one negative condition evaluates to True, there is no point checking
-    the rest. We know we failed.
-    :param conditions: list of conditions to be evaluated.
-    :return: list of condition statuses.
-    """
-    cond_statuses = []
-    for condition in conditions:
-      saved_cond_status = self.find_saved_cond_status(polarity, condition.key)
-      saved_cond_status = discriminate_saved_cond(polarity, saved_cond_status)
-      cond_status: TECS = saved_cond_status or self.eval_cond(condition)
-      cond_statuses.append(cond_status)
-      # if positive halters, this never evaluates to True, so we keep going
-      # if negative halters, it cond_status is True, halter also returns True and the if clause triggers
-      if halters[polarity](cond_status['met']):
-        return cond_statuses
-    return cond_statuses
+def compute_status(exit_conds, prev_state: StepState) -> List[ExitStatus]:
+  """
+  Computes positive and negative conditions statuses for a given Step.
+  Terminates when either ALL positive conditions have been met, or ANY one negative is met.
+  Otherwise returns pending status.
+  :return: instance of StepRunningStatus dict, with details of exit conditions
+  evaluated and status assigned.
+  """
+  pos_conds = load_exit_conds(exit_conds, POS)
+  neg_conds = load_exit_conds(exit_conds, POS)
 
-  def compute_status(self) -> StepRunningStatus:
-    """
-    Computes exit conditions statuses and merges with job completion status, if one
-    exists.
-    :return: instance of StepRunningStatus dict, with details of exit conditions
-    evaluated and status assigned.
-    """
-    return StepRunningStatus(
-      **self.compute_conditions_status(),
-      job_status=self.compute_job_status()
-    )
+  pos_cond_statuses = eval_conds(pos_conds, POS, prev_state)
+  if all_conditions_met(pos_cond_statuses):
+    return gen_step_exit_status(POS, pos_cond_statuses, [])
 
-  def compute_job_status(self) -> Optional[JobStatus]:
-    """
-    Computes the condition status for a job.
-    :return: job status or empty dict if no job defined.
-    """
-    if self.own_state and self.own_state.job_id:
-      return step_job_client.compute_job_status(self.own_state.job_id)
-    return {}
+  return gen_step_exit_status('pending', pos_cond_statuses, neg_cond_statuses)
 
-  def compute_conditions_status(self) -> StepRunningStatus:
-    """
-    Computes positive and negative conditions statuses for a given Step.
-    Terminates when either ALL positive conditions have been met, or ANY one negative is met.
-    Otherwise returns pending status.
-    :return: instance of StepRunningStatus dict, with details of exit conditions
-    evaluated and status assigned.
-    """
-    pos_conds = self.load_exit_conds(POS)
-    neg_conds = self.load_exit_conds(NEG)
+def load_exit_conds(exit_conds, charge: str) -> List[TPD]:
+  """
+  Loads exit conditions that will be checked. If explicit conditions are not
+  defined by the vendor, Nectar's default conditions are used.
+  :return: list of Predicate class instances.
+  """
+  explicit = exit_conds.get(charge)
+  if explicit is not None:
+    return self.step.load_related(explicit, Predicate)
+  else:
+    return self.default_exit_conditions(charge)
 
-    pos_cond_statuses = self.eval_conds(POS, pos_conds)
-    if all_conditions_met(pos_cond_statuses):
-      return gen_step_exit_status(POS, pos_cond_statuses, [])
-
-    neg_cond_statuses = self.eval_conds(NEG, neg_conds)
-    if any_condition_met(neg_cond_statuses):
-      return gen_step_exit_status(NEG, pos_cond_statuses, neg_cond_statuses)
-
-    return gen_step_exit_status('pending', pos_cond_statuses, neg_cond_statuses)
-
-  def load_exit_conds(self, charge:str) -> List[TEC]:
-    """
-    Loads exit conditions that will be checked. If explicit conditions are not
-    defined by the vendor, Nectar's default conditions are used.
-    :param charge: "positive" or "negative", specifies the type of default
-    conditions to load.
-    :return: list of Predicate class instances.
-    """
-    explicit = self.step.config.get('exit', {}).get(charge)
-    if explicit is not None:
-      return self.step.load_related(explicit, Predicate)
+def default_exit_conditions(self, charge) -> List[TPD]:
+  """
+  Inflates (instantiates) a list of default conditions, positive or negative.
+  One of 4 things can happen:
+    1. If applies_manifest is positive, select resource default conditions are loaded
+    2. If applies_manifest is negative, all/any resources default conditions are loaded
+    3. If runs_job is positive, job-specific default conditions are loaded
+    4. If none apply, an empty list is returned
+  :param charge: "positive" or "negative", defines the kind of conditions to
+  load.
+  :return: list of Predicate class instances, or empty list.
+  """
+  if self.step.applies_manifest():
+    if self.step.res_selector_descs:
+      custom_cond_name = default_some_res_exit_conds[charge]
+      custom_cond = Predicate.inflate(custom_cond_name)
+      custom_cond.config['selector'] = self.step.res_selector_descs
+      return [custom_cond]
     else:
-      return self.default_exit_conditions(charge)
-
-  def default_exit_conditions(self, charge) -> List[TEC]:
-    """
-    Inflates (instantiates) a list of default conditions, positive or negative.
-    One of 4 things can happen:
-      1. If applies_manifest is positive, select resource default conditions are loaded
-      2. If applies_manifest is negative, all/any resources default conditions are loaded
-      3. If runs_job is positive, job-specific default conditions are loaded
-      4. If none apply, an empty list is returned
-    :param charge: "positive" or "negative", defines the kind of conditions to
-    load.
-    :return: list of Predicate class instances, or empty list.
-    """
-    if self.step.applies_manifest():
-      if self.step.res_selector_descs:
-        custom_cond_name = default_some_res_exit_conds[charge]
-        custom_cond = Predicate.inflate(custom_cond_name)
-        custom_cond.config['selector'] = self.step.res_selector_descs
-        return [custom_cond]
-      else:
-        default_cond_names = default_res_exit_cond_ids[charge]
-        return list(map(Predicate.inflate, default_cond_names))
-    elif self.step.runs_job():
-      default_cond_names = default_job_exit_conds[charge]
+      default_cond_names = default_res_exit_cond_ids[charge]
       return list(map(Predicate.inflate, default_cond_names))
-    else:
-      return []
+  elif self.step.triggers_action():
+    default_cond_names = default_job_exit_conds[charge]
+    return list(map(Predicate.inflate, default_cond_names))
+  else:
+    return []
 
 
-def all_conditions_met(conditions: List[TECS]) -> bool:
+def all_conditions_met(conditions: List[TEXS]) -> bool:
   """
   Checks that all conditions in the passed list are met.
   :param conditions: list of conditions statuses, as TECS instances.
@@ -168,7 +103,7 @@ def all_conditions_met(conditions: List[TECS]) -> bool:
   return set([s['met'] for s in conditions]) == {True}
 
 
-def any_condition_met(conditions: List[TECS]) -> bool:
+def any_condition_met(conditions: List[TEXS]) -> bool:
   """
   Checks that at least one condition in the passed list is met.
   :param conditions: list of conditions statuses, as TECS instances.
@@ -177,7 +112,14 @@ def any_condition_met(conditions: List[TECS]) -> bool:
   return True in [s['met'] for s in conditions]
 
 
-def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSRS:
+def find_prev_cs(prev_state: StepState, polarity, cond_id) -> Optional[TEXS]:
+  root = prev_state.exit_statuses or {}
+  statuses: List[TEXS] = root.get(polarity, [])
+  matcher = lambda ecs: ecs.get('key') == cond_id
+  return next(filter(matcher, statuses), None)
+
+
+def gen_step_exit_status(status, pos: List[TEXS], neg: List[TEXS]) -> TSRS:
   """
   Generates step exit status with details of all exit condition evaluations.
   :param status: desired status, eg "pending", "positive" or "negative".
@@ -187,11 +129,25 @@ def gen_step_exit_status(status, pos: List[TECS], neg: List[TECS]) -> TSRS:
   """
   return StepRunningStatus(
     status=status,
-    condition_statuses=ExitConditionStatuses(
+    condition_statuses=ExitStatuses(
       positive=pos,
       negative=neg
     )
   )
+
+
+def discriminate_saved_cond(polarity: str, status: TEXS) -> Optional[TEXS]:
+  """
+  Determines whether a past condition status is relevant in
+  computing the current status.
+  :param polarity: positive or negative
+  :param status: the saved status if one exists
+  :return: true only for pos-needing conditions that were already pos
+  """
+  if status is not None and polarity == POS:
+    return status if status.get('met') else None
+  else:
+    return None
 
 
 halters: Dict[str, Callable[[bool], bool]] = dict(
@@ -217,15 +173,3 @@ default_job_exit_conds: Dict[str, List[str]] = {
   NEG: ['nectar.exit_conditions.job_in_failed_phase']
 }
 
-
-def discriminate_saved_cond(polarity: str, status: TECS) -> Optional[TECS]:
-  """
-  Determines whether a past condition status is relevant in
-  computing the current status.
-  :param polarity: positive or negative
-  :param status: the saved status if one exists
-  :return: true only for pos-needing conditions that were already pos
-  """
-  if polarity == POS and status is not None:
-    return status if status.get('met') else None
-  return None

@@ -23,7 +23,7 @@ class Operation(WizModel):
     :param op_state: OperationState instance.
     :return: True if belongs, False otherwise.
     """
-    return op_state.operation_id == self.key
+    return op_state.op_id == self.key
 
   @classmethod
   def find_own_state(cls, op_states: List[OperationState]):

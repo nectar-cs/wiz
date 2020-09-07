@@ -1,14 +1,11 @@
 import json
 
-import yaml
-
 from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from nectwiz.core import config_man
-from nectwiz.core.tam import tami_client
+from nectwiz.core.core import config_man
 from nectwiz.core.telem.ost import OperationState, StepState
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 
 
 def ci_tami_name():

@@ -3,15 +3,34 @@ import os
 import random
 import string
 import subprocess
+import sys
 from functools import reduce
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import yaml
 
 legal_envs = ['production', 'development', 'test']
+
+
+def exec_mode() -> str:
+  from_argv = sys.argv[1] if len(sys.argv) else None
+  from_env = os.environ.get('WIZ_EXEC_MODE')
+  return from_argv or from_env or 'server'
+
+
+def is_server() -> bool:
+  return exec_mode() == 'server'
+
+
+def is_worker() -> bool:
+  return exec_mode() == 'worker'
+
+
+def worker_uuid() -> Optional[str]:
+  return os.environ.get('WIZ_WORKER_UUID')
 
 
 def keyed2dict(keyed_assigns: List[Tuple[str, any]]) -> Dict:

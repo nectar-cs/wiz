@@ -3,12 +3,9 @@ from typing import Optional, Callable
 
 from k8kat.res.base.kat_res import KatRes
 
-from nectwiz.core import config_man
-from nectwiz.core.telem.ost import StepState
+from nectwiz.core.core import config_man
 from nectwiz.model.base import res_selector
 from nectwiz.model.base.wiz_model import WizModel
-
-TOSS = Optional[StepState]
 
 
 class Predicate(WizModel):
@@ -26,11 +23,10 @@ class Predicate(WizModel):
     """
     return self.config.get('tone', 'error')
 
-  def evaluate(self, step_state: TOSS = None) -> Optional[bool]:
+  def evaluate(self) -> Optional[bool]:
     """
     Chooses the appropriate evaluation procedure based on condition type
     and performs it.
-    :param step_state: necessary for implementation by vendors.
     :return: the result of evaluation - True if success, False otherwise.
     """
     cond_type = self.config.get('type', 'resource-property-compare')

@@ -1,8 +1,4 @@
-import time
-
-from k8kat.utils.testing import ns_factory
-from nectwiz.core import step_job_prep, step_job_client
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core import step_job_prep
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 

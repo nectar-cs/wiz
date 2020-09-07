@@ -1,9 +1,9 @@
 from k8kat.res.pod.kat_pod import KatPod
 
 from k8kat.utils.testing import simple_pod, ns_factory
-from nectwiz.core import utils
+from nectwiz.core.core import utils
 
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.step.step import Step
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 

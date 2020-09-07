@@ -2,10 +2,10 @@ from typing import Dict, List
 
 import requests
 
-from nectwiz.core import config_man
+from nectwiz.core.core import config_man
 from nectwiz.core.tam.tam_client import TamClient
-from nectwiz.core.types import K8sResDict
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.core.wiz_app import wiz_app
 
 
 class TamsClient(TamClient):

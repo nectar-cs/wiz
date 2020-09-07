@@ -1,11 +1,10 @@
 import subprocess
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Optional
 
 import yaml
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core.types import K8sResDict
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.types import K8sResDict
 from nectwiz.model.base.res_match_rule import ResMatchRule
 
 tmp_file_mame = '/tmp/man.yaml'

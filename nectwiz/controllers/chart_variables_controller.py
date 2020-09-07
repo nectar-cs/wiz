@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 
-from nectwiz.core import hub_client, config_man
+from nectwiz.core.core import hub_client, config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.chart_variable import serial
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 

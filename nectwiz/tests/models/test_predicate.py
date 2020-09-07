@@ -4,8 +4,8 @@ from k8kat.auth.kube_broker import broker
 from k8kat.utils.testing import ns_factory
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from nectwiz.core import config_man
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core import config_man
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.tests.models.test_wiz_model import Base

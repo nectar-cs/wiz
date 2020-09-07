@@ -4,10 +4,10 @@ from flask import Blueprint, jsonify, request
 
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core import config_man
+from nectwiz.core.core import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.telem_perms import TelemPerms
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 
 controller = Blueprint('status_controller', __name__)
 

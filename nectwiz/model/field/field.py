@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from nectwiz.core.utils import deep_get
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.utils import deep_get
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel

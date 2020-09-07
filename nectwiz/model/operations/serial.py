@@ -27,7 +27,7 @@ def ser_state(operation_state: OperationState):
   """
   return dict(
     id=operation_state.ost_id,
-    operation=operation_state.operation_id
+    operation=operation_state.op_id
   )
 
 def ser_embedded_prereq(prereq):

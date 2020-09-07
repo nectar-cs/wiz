@@ -1,6 +1,6 @@
 from k8kat.utils.testing import ns_factory
 
-from nectwiz.core import config_man
+from nectwiz.core.core import config_man
 from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 

@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 
 from typing_extensions import TypedDict
 
@@ -29,31 +29,21 @@ class JobStatus(TypedDict):
   logs: List[str]
 
 
-class ExitConditionStatus(TypedDict, total=False):
+class ExitStatus(TypedDict, total=False):
   key: str
   name: str
   met: bool
   reason: Optional[str]
-  resources_considered: List[str]
 
 
-class ExitConditionStatuses(TypedDict, total=False):
-  positive: List[ExitConditionStatus]
-  negative: List[ExitConditionStatus]
-
-
-class StepRunningStatus(TypedDict, total=False):
-  status: str
-  condition_statuses: ExitConditionStatuses
-  job_status: JobStatus
+class ExitStatuses(TypedDict, total=False):
+  positive: List[ExitStatus]
+  negative: List[ExitStatus]
 
 
 class CommitOutcome(TypedDict, total=False):
   status: str
   reason: Optional[str]
-  chart_assigns: Dict
-  state_assigns: Dict
-  job_id: Optional[str]
   logs: List[str]
 
 
@@ -72,3 +62,16 @@ class TamDict(TypedDict):
   uri: str
   args: Optional[List[str]]
   ver: str
+
+
+class ActionOutcome(TypedDict):
+  charge: str
+  summary: str
+  data: Dict
+
+
+class StepCommitActionKwargs(TypedDict):
+  inline_assigns: Dict
+  chart_assigns: Dict
+  state_assigns: Dict
+  res_selector_descs: List[Union[str, dict]]

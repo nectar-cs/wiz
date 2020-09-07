@@ -8,8 +8,8 @@ from k8kat.res.config_map.kat_map import KatMap
 from k8kat.res.secret.kat_secret import KatSecret
 from k8kat.utils.main.utils import deep_merge
 
-from nectwiz.core import utils
-from nectwiz.core.types import TamDict
+from nectwiz.core.core import utils
+from nectwiz.core.core.types import TamDict
 
 cmap_name = 'master'
 install_uuid_path = '/var/install_uuid'
@@ -24,7 +24,7 @@ def master_cmap() -> Optional[KatMap]:
   Returns the ConfigMap.
   :return: ConfigMap.
   """
-  from nectwiz.core.wiz_app import wiz_app
+  from nectwiz.core.core.wiz_app import wiz_app
   if wiz_app.ns():
     return KatMap.find(cmap_name, wiz_app.ns())
   else:
@@ -107,6 +107,18 @@ def read_install_uuid(ns):
         return file.read()
     except FileNotFoundError:
       return None
+
+
+def put_worker_status():
+  pass
+
+
+def clear_worker_status():
+  pass
+
+
+def read_worker_status(job_uuid: str):
+  pass
 
 
 def commit_keyed_tam_assigns(assignments: List[Tuple[str, any]]):

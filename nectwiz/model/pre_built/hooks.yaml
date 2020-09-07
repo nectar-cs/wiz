@@ -1,0 +1,4 @@
+kind: Hook
+trigger: before::uninstall
+actions:
+  - 'flush-telem'

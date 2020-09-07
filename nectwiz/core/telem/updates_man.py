@@ -1,9 +1,9 @@
 from typing import Dict, List, Optional
 
-from nectwiz.core import config_man
+from nectwiz.core.core import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.types import Update, UpdateOutcome
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.types import Update, UpdateOutcome
+from nectwiz.core.core.wiz_app import wiz_app
 from datetime import datetime
 
 

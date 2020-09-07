@@ -4,8 +4,8 @@ import yaml
 
 from nectwiz.core.tam import tami_prep
 from nectwiz.core.tam.tam_client import TamClient, fmt_inline_assigns
-from nectwiz.core.types import K8sResDict
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.core.wiz_app import wiz_app
 
 interpolate_cmd = "pipenv run python3 app.py kerbi interpolate"
 tami_name_key = 'tami_name'
@@ -29,6 +29,8 @@ class TamiClient(TamClient):
     """
     pod_args = ['template'] + gen_tami_args(inlines)
     result = tami_prep.consume(wiz_app.ns(), image_name(), pod_args)
+    if not result:
+      print(f"[nectwiz::tami_client]Fatal tami returned {result}!")
     return list(yaml.load_all(result, Loader=yaml.FullLoader))
 
 

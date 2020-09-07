@@ -1,8 +1,8 @@
 from typing import List
 
-from nectwiz.core import hub_client, config_man
-from nectwiz.core.telem.ost import OperationState, operation_states
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core import hub_client, config_man
+from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.serializers import operation_state_ser
 
 
@@ -20,7 +20,7 @@ def upload_meta():
   hub_client.patch(endpoint, payload)
 
 
-def upload_operation_outcomes():
+def upload_operation_outcomes() -> int:
   victim_osts: List[str] = []
   OperationState.prune()
   for op_state in operation_states:
@@ -29,6 +29,8 @@ def upload_operation_outcomes():
 
   for victim_ost in victim_osts:
     OperationState.delete_if_exists(victim_ost)
+
+  return len(victim_osts)
 
 
 def upload_operation_outcome(op_state: OperationState) -> bool:

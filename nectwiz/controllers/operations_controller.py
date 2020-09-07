@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-from nectwiz.core import utils
 from nectwiz.core.telem import telem_sync
-from nectwiz.core.telem.ost import OperationState, operation_states
 from nectwiz.model.field.field import Field
 from nectwiz.model.operations.operation import Operation
+from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
 from nectwiz.model.operations import serial as operation_serial
@@ -58,9 +57,8 @@ def operations_gen_ost(operation_id):
   Generates a new OST (random 10 character string).
   :return: new OST.
   """
-  ost_id = utils.rand_str(string_len=10)
-  OperationState.create(operation_id, ost_id)
-  return jsonify(data=ost_id)
+  uuid = OperationState.gen(operation_id)
+  return jsonify(data=uuid)
 
 
 @controller.route(f'{OPERATIONS_PATH}/osts')
@@ -108,32 +106,6 @@ def steps_show(operation_id, stage_id, step_id):
   return jsonify(data=serialized)
 
 
-@controller.route(f"{STEP_PATH}/submit", methods=['POST'])
-def step_submit(operation_id, stage_id, step_id):
-  """
-  Submits a step. This includes:
-    1. Finding the appropriate OperationState
-    2. Appending a new StepState to OperationState
-    3. Committing the step (See docs for step commit)
-    4. Updating the StepState with the details of the commit outcome
-  :param operation_id: operation id to search by.
-  :param stage_id: stage id to search by.
-  :param step_id: step id to search by.
-  :return: dict containing submit status, message and logs.
-  """
-  values = request.json['values']
-  op_state = find_op_state()
-  step = find_step(operation_id, stage_id, step_id)
-  op_state.record_step_started(stage_id, step_id)
-  outcome: CommitOutcome = step.commit(values, op_state)
-  op_state.record_step_committed(stage_id, step_id, outcome)
-  return jsonify(
-    status=outcome['status'],
-    message=outcome.get('reason'),
-    logs=outcome.get('logs')
-  )
-
-
 @controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])
 def step_preview_chart_assigns(operation_id, stage_id, step_id):
   """
@@ -147,45 +119,39 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
   op_state = find_op_state()
-  chart_assigns, _, _ = step.partition_value_assigns(values, op_state)
+  chart_assigns, _, _ = step.partition_user_asgs(values, op_state)
   return jsonify(data=chart_assigns)
 
 
-@controller.route(f"{STEP_PATH}/status")
-def step_status(operation_id, stage_id, step_id):
+@controller.route(f"{STEP_PATH}/run", methods=['POST'])
+def step_run(operation_id, stage_id, step_id):
   """
-  Computes a step's status based on evaluation of exit conditions and status of
-  any related jobs.
-  :param operation_id: operation id to find the right step.
-  :param stage_id: stage id to find the right step.
-  :param step_id: step id to find the right step.
-  :return: dict of the following form:
-   StepRunningStatus(
-    status=status,
-    condition_statuses=ExitConditionStatuses(
-      positive=pos,
-      negative=neg
-    ),
-    job_status=JobStatus(
-      parts=[
-        JobStatusPart(
-          name=raw.get('name', f'Job Part {index + 1}'),
-          status=raw.get('status', 'Working'),
-          pct = int(raw.get('pct')) if raw.get('pct') else None
-        )
-      ],
-      logs=logs
-    )
+  Submits a step. This includes:
+    1. Finding the appropriate OperationState
+    2. Appending a new StepState to OperationState
+    3. Committing the step (See docs for step commit)
+    4. Updating the StepState with the details of the commit outcome
+  :param operation_id: operation id to search by.
+  :param stage_id: stage id to search by.
+  :param step_id: step id to search by.
+  :return: dict containing submit status, message and logs.
   """
+  values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
   op_state = find_op_state()
-  status_bundle = step.compute_status(op_state)
-  status_word = status_bundle['status']
-  if op_state.is_tracked():
-    if status_word == 'pending':
-      op_state.record_step_pending(stage_id, step_id, status_bundle)
-    else:
-      op_state.record_step_terminated(stage_id, step_id, status_bundle)
+  step_state = op_state.gen_step_state(step)
+  step.run(values, step_state)
+  return jsonify(status=step_state.status)
+
+
+@controller.route(f"{STEP_PATH}/recompute-status", methods=['POST'])
+def step_status(operation_id, stage_id, step_id):
+  step = find_step(operation_id, stage_id, step_id)
+  op_state = find_op_state()
+  step_state = op_state.find_step_state(step)
+
+
+
   return jsonify(data=status_bundle)
 
 

@@ -4,8 +4,8 @@ import dotenv
 from k8kat.auth.kube_broker import broker
 from k8kat.utils.testing import ns_factory
 
-from nectwiz.core import utils
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core import utils
+from nectwiz.core.core.wiz_app import wiz_app
 
 
 class ClusterTest(unittest.TestCase):

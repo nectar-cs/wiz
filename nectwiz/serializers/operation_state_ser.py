@@ -1,12 +1,12 @@
 from nectwiz.core.telem.ost import OperationState, StepState
-from nectwiz.core.types import CommitOutcome, ExitConditionStatus, ExitConditionStatuses
+from nectwiz.core.core.types import CommitOutcome, ExitStatus, ExitStatuses
 
 
 def ser_commit_outcome(commit_outcome: CommitOutcome):
   return commit_outcome
 
 
-def ser_exit_cond_outcome(outcome: ExitConditionStatus, polarity: str):
+def ser_exit_cond_outcome(outcome: ExitStatus, polarity: str):
   return dict(
     key=outcome.get('key'),
     condition_met=outcome.get('met'),
@@ -16,7 +16,7 @@ def ser_exit_cond_outcome(outcome: ExitConditionStatus, polarity: str):
   )
 
 
-def ser_exit_cond_outcomes(exit_outcomes: ExitConditionStatuses):
+def ser_exit_cond_outcomes(exit_outcomes: ExitStatuses):
   positive_exit_outcomes = exit_outcomes.get('positive', [])
   negative_exit_outcomes = exit_outcomes.get('negative', [])
   return (
@@ -41,7 +41,7 @@ def ser_step_outcome(step_outcome: StepState):
 
 def serialize(op_state: OperationState):
   return dict(
-    operation_key=op_state.operation_id,
+    operation_key=op_state.op_id,
     step_outcomes_attributes=list(
       map(ser_step_outcome, op_state.step_states)
     )

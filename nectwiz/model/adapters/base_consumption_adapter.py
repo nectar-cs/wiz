@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 
 
 from k8kat.res.cluster.kat_cluster import KatCluster
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.adapters.adapter import Adapter
 
 

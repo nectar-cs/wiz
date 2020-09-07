@@ -1,6 +1,6 @@
 from nectwiz.core.tam.tam_client import TamClient
 from nectwiz.core.tam.tami_client import TamiClient
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.tests.core.tam.test_tam_super import Base
 
 

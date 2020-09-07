@@ -1,6 +1,6 @@
 from k8kat.res.quotas.kat_quota import KatQuota
 
-from nectwiz.core.wiz_app import wiz_app
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.adapters.adapter import Adapter
 
 
