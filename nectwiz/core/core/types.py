@@ -65,6 +65,8 @@ class TamDict(TypedDict):
 
 
 class ActionOutcome(TypedDict):
+  cls_name: str
+  id: str
   charge: str
   summary: str
   data: Dict

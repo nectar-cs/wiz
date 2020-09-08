@@ -30,6 +30,12 @@ class StepState:
   def has_settled(self):
     return self.status in [SETTLED_POS, SETTLED_NEG]
 
+  def action_was(self, cls_name) -> bool:
+    if self.action_outcome:
+      return self.action_outcome['charge'] == cls_name
+    else:
+      return False
+
   def is_awaiting_settlement(self):
     return self.status == SETTLING
 

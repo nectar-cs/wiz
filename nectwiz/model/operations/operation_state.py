@@ -15,10 +15,11 @@ class OperationState:
     matcher = lambda ss: ss.step_sig == step.sig()
     return next(filter(matcher, self.step_states), None)
 
-  def gen_step_state(self, step) -> StepState:
+  def gen_step_state(self, step, keep=True) -> StepState:
     if not self.find_step_state(step):
       new_ss = StepState(step.sig(), self)
-      self.step_states.append(new_ss)
+      if keep:
+        self.step_states.append(new_ss)
       return new_ss
     else:
       raise RuntimeError("Step with same signature exists!")

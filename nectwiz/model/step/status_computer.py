@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from nectwiz.core.core.types import PredEval
 from nectwiz.model.predicate.predicate import Predicate
@@ -37,16 +37,16 @@ def needs_recomputing(pred_eval: PredEval, charge: str) -> bool:
   return charge == NEG or not pred_eval['met']
 
 
-def compute(predicates_root, step_state: StepState):
-  pos_preds = predicates_root.get(POS)
-  neg_preds = predicates_root.get(NEG)
+def compute(root: Dict[str, List[Predicate]], step_state: StepState):
+  pos_predicates = root.get(POS, [])
+  neg_predicates = root.get(NEG, [])
 
-  if len(pos_preds + neg_preds) > 0:
-    eval_preds(pos_preds, POS, step_state)
+  if len(pos_predicates + neg_predicates) > 0:
+    eval_preds(pos_predicates, POS, step_state)
     if all_conditions_met(step_state.exit_statuses[POS]):
       step_state.notify_succeeded()
 
-    eval_preds(neg_preds, NEG, step_state)
+    eval_preds(neg_predicates, NEG, step_state)
     if any_condition_met(step_state.exit_statuses[POS]):
       step_state.notify_failed()
   else:

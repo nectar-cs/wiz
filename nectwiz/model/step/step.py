@@ -6,8 +6,10 @@ from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.predicate import default_predicates
 from nectwiz.model.step import step_exprs, status_computer
 from nectwiz.model.step.step_state import StepState
+
 
 TOS = OperationState
 TSS = StepState
@@ -96,24 +98,28 @@ class Step(WizModel):
         return self.compute_settling_status(prev_state)
       elif action_job.is_failed:
         print("Oh crap job failed!")
-        return False
+        return True
       else:
+        print("Job still going...")
         return False
     elif prev_state.is_awaiting_settlement():
       return self.compute_settling_status(prev_state)
 
-  def compute_settling_status(self, prev_state):
-    exit_predicates = self.exit_predicates(prev_state)
-    status_computer.compute(exit_predicates, prev_state)
-    return True
+  def compute_settling_status(self, step_state: StepState):
+    exit_predicates = self.exit_predicates(step_state)
+    status_computer.compute(exit_predicates, step_state)
+    return step_state.has_settled()
 
-  def exit_predicates(self, prev_state):
+  def exit_predicates(self, step_state: StepState):
     if self.exit_predicate_descs:
       return self.exit_predicate_descs
-    elif prev_state.action_outcome
-
-
-
+    elif step_state.action_was("StepApplyResAction"):
+      logs = step_state.action_outcome['data'].get('logs', [])
+      return default_predicates.from_apply_outcome(logs)
+    else:
+      print("DANGER I SHOULD HAVE PREDS BUT DONT")
+      print(self.exit_predicate_descs)
+      print(step_state.action_outcome)
 
   def partition_user_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     return {

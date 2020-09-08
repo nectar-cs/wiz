@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from nectwiz.core.telem import telem_sync
-from nectwiz.model.field.field import Field
+from nectwiz.model.field.field import Field, TARGET_CHART
 from nectwiz.model.operations.operation import Operation
 from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.model.predicate.predicate import Predicate
@@ -118,9 +118,9 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   """
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state()
-  chart_assigns, _, _ = step.partition_user_asgs(values, op_state)
-  return jsonify(data=chart_assigns)
+  synth_step_state = find_op_state().gen_step_state(step, keep=False)
+  asgs = step.partition_user_asgs(values, synth_step_state)
+  return jsonify(data=asgs[TARGET_CHART])
 
 
 @controller.route(f"{STEP_PATH}/run", methods=['POST'])
@@ -138,8 +138,7 @@ def step_run(operation_id, stage_id, step_id):
   """
   values = request.json['values']
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state()
-  step_state = op_state.gen_step_state(step)
+  step_state = find_op_state().gen_step_state(step)
   step.run(values, step_state)
   return jsonify(status=step_state.status)
 
@@ -147,12 +146,9 @@ def step_run(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/recompute-status", methods=['POST'])
 def step_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state()
-  step_state = op_state.find_step_state(step)
-
-
-
-  return jsonify(data=status_bundle)
+  prev_state = find_op_state().find_step_state(step)
+  step.compute_status(prev_state)
+  return jsonify(data=prev_state.status)
 
 
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])

@@ -22,6 +22,7 @@ class StepApplyResAction(Action):
     logs = out.split("\n") if out else []
 
     return ActionOutcome(
+      **self.outcome_template(),
       charge='positive',
       summary=f'Applied {len(logs)} resources',
       data=dict(logs=logs)
