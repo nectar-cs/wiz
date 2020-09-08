@@ -12,6 +12,8 @@ from typing import Dict, List, Tuple, Optional
 
 import yaml
 
+from nectwiz.core.core.types import KtlApplyOutcome
+
 legal_envs = ['production', 'development', 'test']
 
 
@@ -242,6 +244,12 @@ def coerce_cmd_format(cmd):
     return cmd.split(" ")
   else:
     return cmd
+
+
+def log2ktlapplyoutcome(log: str) -> KtlApplyOutcome:
+  kind_and_name, verb = log.split(" ")
+  kind, name = kind_and_name.split("/")
+  return KtlApplyOutcome(kind=kind, name=name, verb=verb)
 
 
 def flatten(nested_list):

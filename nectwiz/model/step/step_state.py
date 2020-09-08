@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from nectwiz.core.core.types import PredEval, ExitStatuses
+from nectwiz.core.core.types import PredEval, ExitStatuses, ActionOutcome
 
 IDLE = 'idle'
 RUNNING = 'running'
@@ -18,11 +18,11 @@ class StepState:
     self.started_at = datetime.now()
     self.chart_assigns: Dict = {}
     self.state_assigns: Dict = {}
+    self.action_outcome: Optional[ActionOutcome] = None
     self.exit_statuses: ExitStatuses = default_exit_statuses()
     self.committed_at = None
     self.terminated_at = None
     self.job_id = None
-    self.job_logs = []
 
   def was_running(self):
     return self.status == RUNNING

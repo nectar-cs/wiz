@@ -74,3 +74,9 @@ class StepActionKwargs(TypedDict):
   inline_assigns: Dict
   chart_assigns: Dict
   state_assigns: Dict
+
+
+class KtlApplyOutcome(TypedDict):
+  kind: str
+  name: str
+  verb: str

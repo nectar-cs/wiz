@@ -5,7 +5,7 @@ from k8kat.res.base.kat_res import KatRes
 from nectwiz.model.base.res_match_rule import ResMatchRule
 
 
-def res_sel_to_res(root) -> List[KatRes]:
+def to_reslist(root) -> List[KatRes]:
   """
   Selects resources that match the set of rules provided in root.
   :param root: polymorphic: string, eg "pod:*" or ["pod:*", "dep:*"]

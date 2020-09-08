@@ -41,13 +41,16 @@ def compute(predicates_root, step_state: StepState):
   pos_preds = predicates_root.get(POS)
   neg_preds = predicates_root.get(NEG)
 
-  eval_preds(pos_preds, POS, step_state)
-  if all_conditions_met(step_state.exit_statuses[POS]):
-    step_state.notify_succeeded()
+  if len(pos_preds + neg_preds) > 0:
+    eval_preds(pos_preds, POS, step_state)
+    if all_conditions_met(step_state.exit_statuses[POS]):
+      step_state.notify_succeeded()
 
-  eval_preds(neg_preds, NEG, step_state)
-  if any_condition_met(step_state.exit_statuses[POS]):
-    step_state.notify_failed()
+    eval_preds(neg_preds, NEG, step_state)
+    if any_condition_met(step_state.exit_statuses[POS]):
+      step_state.notify_failed()
+  else:
+    step_state.notify_succeeded()
 
 
 def all_conditions_met(conditions: List[TEXS]) -> bool:

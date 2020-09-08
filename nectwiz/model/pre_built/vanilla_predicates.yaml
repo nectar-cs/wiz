@@ -1,7 +1,7 @@
 --- # VARIABLE RESOURCES POS + NEG
 
 kind: Predicate
-key: nectar.exit_conditions.select_resources_positive
+key: nectar.predicates.select_resources_positive
 title: All relevant resources have a positive status
 selector: []
 match: all
@@ -10,7 +10,7 @@ check_against: positive
 ---
 
 kind: Predicate
-key: nectar.exit_conditions.select_resources_negative
+key: nectar.predicates.select_resources_negative
 title: Any relevant resource has a negative status
 selector: []
 match: any
@@ -24,7 +24,7 @@ check_against: negative
 
 
 kind: Predicate
-key: nectar.exit_conditions.select_resources_positive
+key: nectar.predicates.select_resources_positive
 title: All resources have a positive status
 selector: ["*:*"]
 property: ternary_status
@@ -34,7 +34,7 @@ check_against: positive
 ---
 
 kind: Predicate
-key: nectar.exit_conditions.select_resources_positive
+key: nectar.predicates.select_resources_positive
 title: Any resource has a negative status
 selector: ["*:*"]
 property: ternary_status
@@ -50,7 +50,7 @@ check_against: negative
 
 
 kind: Predicate
-key: nectar.exit_conditions.job_in_failed_phase
+key: nectar.predicates.job_in_failed_phase
 title: The steps's Job is in the Failed phase
 property: has_succeeded
 check_against: True
@@ -64,7 +64,7 @@ selector:
 
 
 kind: Predicate
-key: nectar.exit_conditions.any_resource_negative
+key: nectar.predicates.any_resource_negative
 title: The steps's Job is in the Succeeded phase
 property: has_failed
 check_against: True

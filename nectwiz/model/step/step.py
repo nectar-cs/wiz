@@ -52,7 +52,7 @@ class Step(WizModel):
     return {key: transform(key) for key, value in values.items()}
 
   def state_recall_descriptors2(self, target):
-    predicate = lambda d: d.get('target', 'chart') == target
+    predicate = lambda d: d.get('target', TARGET_CHART) == target
     return filter(predicate, self.state_recall_descs)
 
   def comp_recalled_asgs(self, target: str, prev_state: TSS) -> dict:
@@ -94,17 +94,26 @@ class Step(WizModel):
       if action_job.is_finished:
         prev_state.notify_is_settling()
         return self.compute_settling_status(prev_state)
+      elif action_job.is_failed:
+        print("Oh crap job failed!")
+        return False
       else:
         return False
     elif prev_state.is_awaiting_settlement():
       return self.compute_settling_status(prev_state)
 
   def compute_settling_status(self, prev_state):
-    status_computer.compute(self.exit_predicates(), prev_state)
+    exit_predicates = self.exit_predicates(prev_state)
+    status_computer.compute(exit_predicates, prev_state)
     return True
 
-  def exit_predicates(self):
-    descs = self.exit_predicate_descs
+  def exit_predicates(self, prev_state):
+    if self.exit_predicate_descs:
+      return self.exit_predicate_descs
+    elif prev_state.action_outcome
+
+
+
 
   def partition_user_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     return {
