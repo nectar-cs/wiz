@@ -17,7 +17,7 @@ def default_exit_preds(charge) -> List[Predicate]:
     else:
       default_cond_names = default_res_exit_cond_ids[charge]
       return list(map(Predicate.inflate, default_cond_names))
-  elif self.step.has_action():
+  elif self.step.runs_action():
     default_cond_names = default_job_exit_conds[charge]
     return list(map(Predicate.inflate, default_cond_names))
   else:

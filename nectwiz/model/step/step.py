@@ -1,14 +1,11 @@
 from typing import List, Dict, Optional
 
 from nectwiz.core.core import config_man, utils
-from nectwiz.core.core.types import CommitOutcome, StepActionKwargs
+from nectwiz.core.core.types import CommitOutcome
 from nectwiz.core.job.job_client import enqueue_action, find_job
-from nectwiz.model.action.action import Action
-from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operations.operation_state import OperationState
-from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
 from nectwiz.model.step import step_exprs, status_computer
 from nectwiz.model.step.step_state import StepState
 
@@ -27,28 +24,13 @@ class Step(WizModel):
     self.state_recall_descs = config.get('state_recalls', [])
     self.exit_predicate_descs = self.config.get('exit', {})
     self.expl_applies_manifest = config.get('applies_manifest')
-    self.expl_action_kod = config.get('action')
+    self.action_kod = config.get('action')
 
   def sig(self):
     return f"{self.parent.id()}::{self.id()}"
 
-  def applies_manifest(self) -> bool:
-    if self.expl_applies_manifest:
-      return self.expl_applies_manifest
-    else:
-      return len(self.res_selectors()) > 0
-
-  def has_action(self) -> bool:
-    return bool(self.action())
-
-  def action_kod(self):
-    explicit_action = self.load_child(Action, 'action')
-    if explicit_action:
-      return explicit_action
-    elif self.applies_manifest():
-      return StepApplyResAction
-    else:
-      return self.load_child(Action, 'a')
+  def runs_action(self) -> bool:
+    return self.action_kod is not None
 
   def next_step_id(self, values: Dict[str, str]) -> str:
     root = self.next_step_desc
@@ -68,9 +50,6 @@ class Step(WizModel):
       field = self.field(k)
       field.sanitize_value(values[k]) if field else values[k]
     return {key: transform(key) for key, value in values.items()}
-
-  def res_selectors(self) -> List[ResMatchRule]:
-    return list(map(ResMatchRule, self.res_selector_descs))
 
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', 'chart') == target
@@ -103,21 +82,19 @@ class Step(WizModel):
       keyed_tuples = list(buckets[TARGET_CHART].items())
       config_man.commit_keyed_tam_assigns(keyed_tuples)
 
-    if self.has_action():
-      action_kwargs = self.g_action_kwargs(buckets)
-      job_id = enqueue_action(self.action_kod(), **action_kwargs)
+    if self.runs_action():
+      job_id = enqueue_action(self.action_kod, **buckets)
       prev_state.notify_action_started(job_id)
     else:
       prev_state.notify_succeeded()
 
   def compute_status(self, prev_state: TSS = None) -> bool:
     if prev_state.was_running():
-      parallel_job = find_job(prev_state.job_id)
-      if parallel_job.is_finished:
+      action_job = find_job(prev_state.job_id)
+      if action_job.is_finished:
         prev_state.notify_is_settling()
         return self.compute_settling_status(prev_state)
       else:
-        print("Job still running")
         return False
     elif prev_state.is_awaiting_settlement():
       return self.compute_settling_status(prev_state)
@@ -125,11 +102,6 @@ class Step(WizModel):
   def compute_settling_status(self, prev_state):
     status_computer.compute(self.exit_predicates(), prev_state)
     return True
-
-  def g_action_kwargs(self, buckets) -> StepActionKwargs:
-    return StepActionKwargs(
-      **buckets,
-    )
 
   def exit_predicates(self):
     descs = self.exit_predicate_descs

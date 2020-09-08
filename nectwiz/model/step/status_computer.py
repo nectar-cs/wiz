@@ -19,7 +19,7 @@ def eval_pred(predicate: Predicate) -> PredEval:
   )
 
 
-def re_eval_preds(predicates: List[TPD], charge: str, prev_state: StepState):
+def eval_preds(predicates: List[TPD], charge: str, prev_state: StepState):
   for predicate in predicates:
     prev_eval = find_prev_cs(prev_state, charge, predicate.id())
     if not prev_eval or needs_recomputing(prev_eval, charge):
@@ -37,17 +37,17 @@ def needs_recomputing(pred_eval: PredEval, charge: str) -> bool:
   return charge == NEG or not pred_eval['met']
 
 
-def compute(predicates_root, prev_state: StepState):
+def compute(predicates_root, step_state: StepState):
   pos_preds = predicates_root.get(POS)
   neg_preds = predicates_root.get(NEG)
 
-  re_eval_preds(pos_preds, POS, prev_state)
-  if all_conditions_met(prev_state.exit_statuses[POS]):
-    prev_state.notify_succeeded()
+  eval_preds(pos_preds, POS, step_state)
+  if all_conditions_met(step_state.exit_statuses[POS]):
+    step_state.notify_succeeded()
 
-  re_eval_preds(neg_preds, NEG, prev_state)
-  if any_condition_met(prev_state.exit_statuses[POS]):
-    prev_state.notify_failed()
+  eval_preds(neg_preds, NEG, step_state)
+  if any_condition_met(step_state.exit_statuses[POS]):
+    step_state.notify_failed()
 
 
 def all_conditions_met(conditions: List[TEXS]) -> bool:
