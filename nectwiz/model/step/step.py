@@ -2,16 +2,15 @@ from typing import List, Dict, Optional
 
 from nectwiz.core.core import config_man, utils
 from nectwiz.core.core.types import CommitOutcome, StepActionKwargs
-from nectwiz.core.job import job_client
+from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.action.action import Action
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN, TARGET_TYPES
+from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
 from nectwiz.model.step import step_exprs, status_computer
 from nectwiz.model.step.step_state import StepState
-
 
 TOS = OperationState
 TSS = StepState
@@ -106,14 +105,14 @@ class Step(WizModel):
 
     if self.has_action():
       action_kwargs = self.g_action_kwargs(buckets)
-      job_id = job_client.enqueue_action(**action_kwargs)
+      job_id = enqueue_action(self.action_kod(), **action_kwargs)
       prev_state.notify_action_started(job_id)
     else:
       prev_state.notify_succeeded()
 
   def compute_status(self, prev_state: TSS = None) -> bool:
     if prev_state.was_running():
-      parallel_job = job_client.find_job(prev_state.job_id)
+      parallel_job = find_job(prev_state.job_id)
       if parallel_job.is_finished:
         prev_state.notify_is_settling()
         return self.compute_settling_status(prev_state)
@@ -130,9 +129,7 @@ class Step(WizModel):
   def g_action_kwargs(self, buckets) -> StepActionKwargs:
     return StepActionKwargs(
       **buckets,
-      **self.action_kod()
     )
-
 
   def exit_predicates(self):
     descs = self.exit_predicate_descs
