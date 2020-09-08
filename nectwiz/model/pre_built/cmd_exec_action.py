@@ -19,6 +19,7 @@ class CmdExecAction(Action):
     logs = out.split("\n") if out else []
 
     return ActionOutcome(
+      **self.outcome_template(),
       charge=result is not None,
       summary=f"{final_cmd} returned code ?",
       data=dict(output=out, logs=logs)

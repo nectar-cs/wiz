@@ -1,9 +1,9 @@
 kind: Stage
-key: nectar.auditing
+key: nectar.stage.auditing
 title: Auditing
 steps:
   - kind: Step
-    key: nectar.auditing.strategy
+    key: nectar.step.auditing.strategy
     title: Persistence
     info: Decide how auditable are persisted
     fields:

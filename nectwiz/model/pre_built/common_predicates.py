@@ -4,7 +4,6 @@ from nectwiz.model.predicate.predicate import Predicate, getattr_deep
 
 
 class ChartVarComparePredicate(Predicate):
-
   def __init__(self, config):
     super().__init__(config)
     self.variable_name = config.get('variable')
@@ -15,7 +14,6 @@ class ChartVarComparePredicate(Predicate):
 
 
 class ResCountComparePredicate(Predicate):
-
   def __init__(self, config):
     super().__init__(config)
     self.selector_config = config.get('selector', '*:*')
@@ -26,7 +24,6 @@ class ResCountComparePredicate(Predicate):
 
 
 class ResPropComparePredicate(Predicate):
-
   def __init__(self, config):
     super().__init__(config)
     self.selector_config = config.get('selector', '*:*')

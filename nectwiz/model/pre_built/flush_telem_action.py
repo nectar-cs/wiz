@@ -7,6 +7,7 @@ class FlushTelemAction(Action):
   def perform(self) -> ActionOutcome:
     metric = telem_sync.upload_operation_outcomes()
     return ActionOutcome(
+      **self.outcome_template(),
       charge='positive',
       summary=f'Uploaded {metric} unsynced telemetry data',
       data={}

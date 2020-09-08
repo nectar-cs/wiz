@@ -10,7 +10,7 @@ class WizModel:
 
   def __init__(self, config: Dict):
     self.config: Dict = config
-    self.key: str = config.get('key')
+    self.key: str = config.get('id')
     self.parent = None
 
   def id(self):
@@ -101,28 +101,6 @@ class WizModel:
     return cls.inflate_with_config(config)
 
   @classmethod
-  def inflate_with_config(cls, config: Dict) -> T:
-    """
-    Inflates (instantiates) the passed config into an instance of the caller
-    class, eg Operation or Stage. Takes into account any
-    vendor-defined subclasses.
-    :param config: vendor-provided app configuration, parsed from YAML to a dict.
-    :return: instance of the caller class.
-    """
-    host_class = cls
-    type_key = cls.type_key()
-    key, benefactor_key = config.get('key'), config.get('inherit')
-
-    if key:
-      host_class = key and wiz_app.find_subclass(type_key, key)
-
-    if benefactor_key:
-      other_config = wiz_app.find_config(type_key, benefactor_key)
-      config = {**other_config, **config}
-
-    return host_class(config)
-
-  @classmethod
   def inflate(cls: T, key_or_dict: Union[str, Dict]) -> Optional[Type[T]]:
     """
     Inflates (instantiates) the passed key or config into an instance of the
@@ -137,37 +115,43 @@ class WizModel:
     raise RuntimeError(f"Bad input {key_or_dict}")
 
   @classmethod
-  def type_key(cls):
+  def inflate_with_config(cls, config: Dict) -> T:
     """
-    Returns the type_key which is also the class's name.
-    :return: string with the class's name.
+    Inflates (instantiates) the passed config into an instance of the caller
+    class, eg Operation or Stage. Takes into account any
+    vendor-defined subclasses.
+    :param config: vendor-provided app configuration, parsed from YAML to a dict.
+    :return: instance of the caller class.
     """
-    return f"{cls.__name__}"
+    host_class = cls
+
+    subclasses =
+    explicit_kind = config.get('kind')
+    lteq_classes()
+
+
+    key, benefactor_key = config.get('key'), config.get('inherit')
+
+    if key:
+      closer_host_class = wiz_app.find_subclass(type_key, key)
+      host_class = closer_host_class or host_class
+
+    if benefactor_key:
+      other_config = wiz_app.find_config(type_key, benefactor_key)
+      config = {**other_config, **config}
+
+    return host_class(config)
 
   @classmethod
-  def expected_key(cls):
-    """
-    Used during vendor overrides to specify which keys the subclass applies to.
-    :return: string containing desired keys.
-    """
+  def expected_id(cls):
     return None
 
   @classmethod
   def covers_key(cls, key: str) -> bool:
-    """
-    Compares passed key with the expected key of the vendor-defined subclass.
-    :param key: key to compare with subclass's expected key.
-    :return: True if keys match, False otherwise.
-    """
-    return cls.expected_key() == key
+    return cls.expected_id() == key
 
 
 def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
-  """
-  Extracts the object's key.
-  :param key_or_dict: the key directly or the config containing the key.
-  :return: the object's key.
-  """
   if isinstance(key_or_dict, str):
     return key_or_dict
 
@@ -178,25 +162,21 @@ def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
 
 
 def key_or_dict_matches(key_or_dict: Union[str, dict], target_key: str) -> bool:
-  """
-  Checks if the passed key/dict matches the target key.
-  :param key_or_dict: the key directly or the config containing the key.
-  :param target_key: the key to be checked against.
-  :return: True if matches, else False.
-  """
   return key_or_dict_to_key(key_or_dict) == target_key
 
 
 def key_or_dict_to_child(key_or_dict: Union[str, dict], child_cls: Type[T],
                          parent: T = None) -> T:
-  """
-  Inflates (instantiates) the passed key or config into an instance of the
-  child class. Sets the passed parent.
-  :param key_or_dict: dict to be inflated, or the key to find it first.
-  :param child_cls: target class to be instantiated, eg Operation or Stage.
-  :param parent: parent class to be set as child's parent.
-  :return: instance of the child class.
-  """
   inflated = child_cls.inflate(key_or_dict)
   inflated.parent = parent
   return inflated
+
+
+def lteq_classes(upper_cls: Type[T], classes: List[Type]) -> List[Type[T]]:
+  return [klass for klass in classes if issubclass(klass, upper_cls)]
+
+
+def class_by_name(name: str, classes) -> Type:
+  matcher = lambda klass: klass.__name__ == name
+  return next(filter(matcher, classes), None)
+

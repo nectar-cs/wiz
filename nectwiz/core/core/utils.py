@@ -110,7 +110,8 @@ def yamls_in_dir(dirpath) -> [Dict]:
   :param dirpath: path where YAMLs are located.
   :return: list of dicts.
   """
-  fnames = [f for f in listdir(dirpath) if isfile(join(dirpath, f))]
+  is_yaml = lambda path: isfile(path) and path.endswith(".yaml")
+  fnames = [f for f in listdir(dirpath) if is_yaml(join(dirpath, f))]
   yaml_arrays = [yamls_in_file(f"{dirpath}/{fname}") for fname in fnames]
   return [item for sublist in yaml_arrays for item in sublist]
 

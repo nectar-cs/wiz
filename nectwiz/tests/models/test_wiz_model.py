@@ -30,11 +30,11 @@ class Base:
       wiz_app.add_configs([a, b])
       inflated = self.model_class().inflate('a')
       self.assertEqual(type(inflated), self.model_class())
-      self.assertEqual(inflated.key, 'a')
+      self.assertEqual(inflated.id(), 'a')
       self.assertEqual(inflated.title, 'a.title')
 
     def test_inflate_with_dict(self):
-      config = g_conf(k='a', i=self.kind, t='foo', d='bar')
+      config = g_conf(i=self.kind, t='foo', d='bar')
       inflated = self.model_class().inflate(config)
       self.assertEqual('foo', inflated.title)
       self.assertEqual('bar', inflated.info)
@@ -51,17 +51,14 @@ class Base:
       actual = [c.key for c in self.model_class().inflate_all()]
       self.assertEqual(actual, ['a', 'b', 'c'])
 
-    def test_inflate_when_subclassed(self):
-      model_type_key = self.model_class().type_key()
+    def test_inflate_when_inherited(self):
+      pass
 
+    def test_inflate_when_subclassed(self):
       class Sub(self.model_class()):
         @property
         def title(self):
           return "bar"
-
-        @classmethod
-        def type_key(cls):
-          return model_type_key
 
         @classmethod
         def expected_key(cls):
@@ -69,5 +66,6 @@ class Base:
 
       config = g_conf(k='k', i=self.kind, t='foo')
       wiz_app.add_overrides([Sub])
+
       inflated = self.model_class().inflate(config)
       self.assertEqual('bar', inflated.title)

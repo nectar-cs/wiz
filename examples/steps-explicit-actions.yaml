@@ -7,7 +7,7 @@ action: nectar.action.apply-resources
 ---
 
 kind: Step
-info: "Customize apply-resources s.t only Ingresses get applied"
+info: "Customize apply-resources technique #1"
 fields:
   - id: ingress.domain
 action:
@@ -17,7 +17,17 @@ action:
 ---
 
 kind: Step
-info: "Annotate the wiz the user's nickname"
+info: "Customize apply-resources technique #2"
+fields:
+  - id: ingress.domain
+action:
+  kind: StepApplyResAction
+  filter: 'Ingress:*'
+
+---
+
+kind: Step
+info: "Store user input, retrieve it, use it in a command"
 fields:
   - id: nickname
     target: state

@@ -8,29 +8,29 @@ tami_pod_name = 'tami'
 cache_root = '/tmp'
 
 
-def is_config_match(config: Dict, kind: str, key: str):
+def is_config_match(config: Dict, kind: str, _id: str):
   """
   Finds the WizModel object definition inside of the passed config that matches
   the passed kind and key.
   :param config: vendor-provided app configuration, parsed from YAML to a dict.
   :param kind: desired kind to be matched with, eg Operation or Stage.
-  :param key: desired key to be matched with, eg hub.backend.secrets.key_base.
+  :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
   :return:
   """
-  return config['kind'] == kind and config['key'] == key
+  return config['kind'] == kind and config['id'] == _id
 
 
-def is_subclass_match(subclass, kind: str, key: str):
+def is_subclass_match(subclass, kind: str, _id: str):
   """
   Checks if the passed subclass instance matches the passed kind and key.
   :param subclass: instance of a vendor defined subclass.
   :param kind: desired kind to be matched with, eg Operation or Stage.
-  :param key: desired key to be matched with, eg hub.backend.secrets.key_base.
+  :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
   :return: True if both kind and key match, else False.
   """
   from nectwiz.model.base.wiz_model import WizModel
   actual: Type[WizModel] = subclass
-  return actual.type_key() == kind and actual.covers_key(key)
+  return actual.type_key() == kind and actual.covers_key(_id)
 
 
 def default_configs() -> List[Dict]:
@@ -39,7 +39,7 @@ def default_configs() -> List[Dict]:
   :return: dictionary containing pre-built configs.
   """
   pwd = os.path.join(os.path.dirname(__file__))
-  return utils.yamls_in_dir(f"{pwd}/../model/pre_built")
+  return utils.yamls_in_dir(f"{pwd}/../../model/pre_built")
 
 
 class WizApp:
@@ -142,14 +142,14 @@ class WizApp:
     backup = superclass if else_super else None
     return matches[0] if len(matches) > 0 else backup
 
-  def find_config(self, kind: str, key: str):
+  def find_config(self, kind: str, _id: str):
     """
     Finds the default config that matches the passed kind and key.
     :param kind: desired kind to be matched with, eg Operation or Stage.
-    :param key: desired key to be matched with, eg hub.backend.secrets.key_base.
+    :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
     :return: config dict if found, else None.
     """
-    matches = [c for c in self.configs if is_config_match(c, kind, key)]
+    matches = [c for c in self.configs if is_config_match(c, kind, _id)]
     return matches[0] if len(matches) else None
 
   def configs_of_kind(self, kind: str):
@@ -160,14 +160,14 @@ class WizApp:
     """
     return [c for c in self.configs if c['kind'] == kind]
 
-  def find_subclass(self, kind: str, key: str) -> Optional[Type]:
+  def find_subclass(self, kind: str, _id: str) -> Optional[Type]:
     """
     Finds the subclass instance that matches the passed kind and key, if such exists.
     :param kind: desired kind to be matched with, eg Operation or Stage.
-    :param key: desired key to be matched with, eg hub.backend.secrets.key_base.
+    :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
     :return: subclass instance if found, else None.
     """
-    predicate = lambda klass: is_subclass_match(klass, kind, key)
+    predicate = lambda klass: is_subclass_match(klass, kind, _id)
     return next((c for c in self.subclasses if predicate(c)), None)
 
   def clear(self):
@@ -176,10 +176,6 @@ class WizApp:
     """
     self.configs = default_configs()
     self.subclasses = []
-
-
-  def jobs_backend(self):
-    return "rq"
 
 
 wiz_app = WizApp()

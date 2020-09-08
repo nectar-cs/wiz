@@ -7,6 +7,8 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 from nectwiz.core.core import config_man
 from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate, ResCountComparePredicate, \
+  ResPropComparePredicate
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import create_base_master_map
@@ -67,10 +69,8 @@ class TestPredicate(Base.TestWizModel):
 
 
 def mk_pred1(sel, match, prop, against, op='eq'):
-  return Predicate(dict(
-    key='ec',
+  return ResPropComparePredicate(dict(
     selector=f'ConfigMap:{sel}',
-    type='resource-property-compare',
     op=op,
     match=match,
     property=prop,
@@ -79,19 +79,16 @@ def mk_pred1(sel, match, prop, against, op='eq'):
 
 
 def mk_pred2(sel, against, op='eq'):
-  return Predicate(dict(
+  return ResCountComparePredicate(dict(
     key='ec',
     selector=f'ConfigMap:{sel}',
-    type='resource-count-compare',
     op=op,
     check_against=against
   )).evaluate()
 
 
 def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
-  return Predicate(dict(
-    key='ec',
-    type='chart-value-compare',
+  return ChartVarComparePredicate(dict(
     op=op,
     variable=variable_name,
     check_against=against

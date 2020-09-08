@@ -4,7 +4,6 @@ from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core import config_man
-from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.core.core.wiz_app import wiz_app
 
 
@@ -13,8 +12,8 @@ def ci_tami_name():
 
 
 def one_step_op_state(**kwargs):
-  return OperationState(step_states=[
-    StepState(
+  return dict(step_states=[
+    dict(
       **kwargs,
       commit_outcome=dict(
         chart_assigns=kwargs.get('cass', {}),
