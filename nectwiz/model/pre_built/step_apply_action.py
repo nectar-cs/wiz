@@ -5,6 +5,11 @@ from nectwiz.model.base.res_match_rule import ResMatchRule
 
 
 class StepApplyResAction(Action):
+
+  @classmethod
+  def expected_key(cls):
+    return "nectwiz.apply-resources"
+
   def perform(self, **kwargs: StepActionKwargs) -> ActionOutcome:
     inline_assigns = kwargs.get('inline_assigns')
     res_selector_descs = kwargs.get('res_selector_descs')

@@ -3,16 +3,18 @@ from typing import Dict, List
 
 from nectwiz.core.core.types import PredEval, ExitStatuses
 
-POS = 'positive'
-NEG = 'negative'
+IDLE = 'idle'
+RUNNING = 'running'
 SETTLING = 'settling'
+SETTLED_POS = 'settled'
+SETTLED_NEG = 'settled'
 
 
 class StepState:
   def __init__(self, step_sig: str, parent_op):
     self.step_sig: str = step_sig
     self.parent_op = parent_op
-    self.status: str = 'pending'
+    self.status: str = IDLE
     self.started_at = datetime.now()
     self.chart_assigns: Dict = {}
     self.state_assigns: Dict = {}
@@ -23,20 +25,23 @@ class StepState:
     self.job_logs = []
 
   def was_running(self):
-    return self.status == 'running'
+    return self.status == RUNNING
 
-  def was_verifying(self):
-    return self.status == 'exit'
+  def has_settled(self):
+    return self.status in [SETTLED_POS, SETTLED_NEG]
+
+  def is_awaiting_settlement(self):
+    return self.status == SETTLING
 
   def notify_action_started(self, job_id):
     self.status = 'running'
     self.job_id = job_id
 
   def notify_succeeded(self):
-    self.status = POS
+    self.status = SETTLED_POS
 
   def notify_failed(self):
-    self.status = NEG
+    self.status = SETTLED_NEG
 
   def notify_is_settling(self):
     self.status = SETTLING

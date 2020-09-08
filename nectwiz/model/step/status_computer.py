@@ -37,7 +37,7 @@ def needs_recomputing(pred_eval: PredEval, charge: str) -> bool:
   return charge == NEG or not pred_eval['met']
 
 
-def compute_status(predicates_root, prev_state: StepState):
+def compute(predicates_root, prev_state: StepState):
   pos_preds = predicates_root.get(POS)
   neg_preds = predicates_root.get(NEG)
 

@@ -23,11 +23,12 @@ class Step(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.expl_applies_manifest = config.get('applies_manifest')
     self.field_keys = config.get('fields', [])
     self.next_step_desc = self.config.get('next')
     self.state_recall_descs = config.get('state_recalls', [])
     self.exit_predicate_descs = self.config.get('exit', {})
+    self.expl_applies_manifest = config.get('applies_manifest')
+    self.expl_action_kod = config.get('action')
 
   def sig(self):
     return f"{self.parent.id()}::{self.id()}"
@@ -41,36 +42,23 @@ class Step(WizModel):
   def has_action(self) -> bool:
     return bool(self.action())
 
-  def action(self) -> Action:
+  def action_kod(self):
     explicit_action = self.load_child(Action, 'action')
     if explicit_action:
       return explicit_action
     elif self.applies_manifest():
-      return StepApplyResAction({})
+      return StepApplyResAction
     else:
       return self.load_child(Action, 'a')
 
   def next_step_id(self, values: Dict[str, str]) -> str:
-    """
-    Returns the id of the next step, be it explicit or an if-then-else type step.
-    :param values: if-then-else values, if necessary.
-    :return: string containing next step.
-    """
     root = self.next_step_desc
     return step_exprs.eval_next_expr(root, values)
 
   def has_explicit_next(self) -> bool:
-    """
-    Checks if the current step has an explicit next step.
-    :return: True if it does, otherwise False.
-    """
     return not step_exprs.is_default_next(self.next_step_desc)
 
   def fields(self) -> List[Field]:
-    """
-    Loads the Fields associated with the Step.
-    :return: List of Field instances.
-    """
     return self.load_children('fields', Field)
 
   def field(self, key) -> Field:
@@ -109,9 +97,6 @@ class Step(WizModel):
   def finalize_state_asgs(self, assigns: Dict, op_state: TSS) -> Dict:
     return self.sanitize_field_assigns(assigns)
 
-  def find_commit_status(self, op_state):
-    pass
-
   def run(self, assigns: Dict, prev_state: StepState):
     buckets = self.partition_user_asgs(assigns, prev_state)
 
@@ -120,9 +105,8 @@ class Step(WizModel):
       config_man.commit_keyed_tam_assigns(keyed_tuples)
 
     if self.has_action():
-      action_kwargs = g_action_kwargs(buckets)
-      action_cls = self.action().__class__
-      job_id = job_client.enqueue_action(action_cls, **action_kwargs)
+      action_kwargs = self.g_action_kwargs(buckets)
+      job_id = job_client.enqueue_action(**action_kwargs)
       prev_state.notify_action_started(job_id)
     else:
       prev_state.notify_succeeded()
@@ -132,38 +116,30 @@ class Step(WizModel):
       parallel_job = job_client.find_job(prev_state.job_id)
       if parallel_job.is_finished:
         prev_state.notify_is_settling()
-        return self.compute_status_verifying(prev_state)
+        return self.compute_settling_status(prev_state)
       else:
         print("Job still running")
         return False
+    elif prev_state.is_awaiting_settlement():
+      return self.compute_settling_status(prev_state)
 
-    elif prev_state.was_verifying():
-      status_computer.compute_status(self.config.get('exit'), prev_state)
-      return self.compute_status_verifying(prev_state)
-
-  def compute_status_verifying(self, prev_state):
-    status_computer.compute_status(self.config.get('exit'), prev_state)
+  def compute_settling_status(self, prev_state):
+    status_computer.compute(self.exit_predicates(), prev_state)
     return True
 
+  def g_action_kwargs(self, buckets) -> StepActionKwargs:
+    return StepActionKwargs(
+      **buckets,
+      **self.action_kod()
+    )
+
+
+  def exit_predicates(self):
+    descs = self.exit_predicate_descs
+
   def partition_user_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
-    buckets = {target_type: {} for target_type in TARGET_TYPES}
-
-    for key, value in assigns.items():
-      matcher = lambda f: f.id() == key
-      field = next(filter(matcher, self.fields()), None)
-      if field:
-        buckets[field.target][key] = value
-
-    buckets[TARGET_CHART] = self.finalize_chart_asgs(assigns, prev_state)
-    buckets[TARGET_STATE] = self.finalize_state_asgs(assigns, prev_state)
-    buckets[TARGET_INLIN] = self.finalize_inline_asgs(assigns, prev_state)
-
-    return buckets
-
-
-def g_action_kwargs(buckets) -> StepActionKwargs:
-  return StepActionKwargs(
-    chart_assigns=buckets[TARGET_CHART],
-    inline_assigns=buckets[TARGET_INLIN],
-    state_assigns=buckets[TARGET_STATE]
-  )
+    return {
+      TARGET_CHART: self.finalize_chart_asgs(assigns, prev_state),
+      TARGET_INLIN: self.finalize_inline_asgs(assigns, prev_state),
+      TARGET_STATE: self.finalize_state_asgs(assigns, prev_state),
+    }
