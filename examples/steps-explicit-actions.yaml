@@ -1,0 +1,20 @@
+kind: Step
+info: "Customize the default action s.t only Ingresses are applied"
+fields:
+  - id: nickname
+    target: state
+action:
+  inherit: apply-resources
+  only: ['Ingress:*']
+
+---
+
+kind: Step
+info: "Annotate the wiz the user's nickname"
+id: demo
+fields:
+  - id: nickname
+    target: state
+action:
+  type: cmd
+  data: kubectl annotate deploy nectar-wiz developer=$vars::nickname -n $app

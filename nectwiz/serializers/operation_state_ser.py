@@ -1,12 +1,12 @@
 from nectwiz.core.telem.ost import OperationState, StepState
-from nectwiz.core.core.types import CommitOutcome, ExitStatus, ExitStatuses
+from nectwiz.core.core.types import CommitOutcome, PredEval, ExitStatuses
 
 
 def ser_commit_outcome(commit_outcome: CommitOutcome):
   return commit_outcome
 
 
-def ser_exit_cond_outcome(outcome: ExitStatus, polarity: str):
+def ser_exit_cond_outcome(outcome: PredEval, polarity: str):
   return dict(
     key=outcome.get('key'),
     condition_met=outcome.get('met'),

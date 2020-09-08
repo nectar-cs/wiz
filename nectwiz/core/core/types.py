@@ -29,7 +29,7 @@ class JobStatus(TypedDict):
   logs: List[str]
 
 
-class ExitStatus(TypedDict, total=False):
+class PredEval(TypedDict, total=False):
   key: str
   name: str
   met: bool
@@ -37,8 +37,8 @@ class ExitStatus(TypedDict, total=False):
 
 
 class ExitStatuses(TypedDict, total=False):
-  positive: List[ExitStatus]
-  negative: List[ExitStatus]
+  positive: List[PredEval]
+  negative: List[PredEval]
 
 
 class CommitOutcome(TypedDict, total=False):
@@ -70,8 +70,7 @@ class ActionOutcome(TypedDict):
   data: Dict
 
 
-class StepCommitActionKwargs(TypedDict):
+class StepActionKwargs(TypedDict):
   inline_assigns: Dict
   chart_assigns: Dict
   state_assigns: Dict
-  res_selector_descs: List[Union[str, dict]]

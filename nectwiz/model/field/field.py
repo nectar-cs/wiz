@@ -8,9 +8,9 @@ from nectwiz.model.base.wiz_model import WizModel
 
 
 TARGET_CHART = 'chart'
-TARGET_INLINE = 'inline'
+TARGET_INLIN = 'inline'
 TARGET_STATE = 'state'
-TARGET_TYPES = [TARGET_CHART, TARGET_INLINE, TARGET_STATE]
+TARGET_TYPES = [TARGET_CHART, TARGET_INLIN, TARGET_STATE]
 
 
 class Field(WizModel):
@@ -87,7 +87,7 @@ class Field(WizModel):
     Checks if the Field is an inline variable.
     :return: True if it is, False otherwise.
     """
-    return self.target == TARGET_INLINE
+    return self.target == TARGET_INLIN
 
   def is_chart_var(self) -> bool:
     """

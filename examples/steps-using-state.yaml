@@ -1,0 +1,18 @@
+kind: Stage
+id: demo
+name: "Store and retrieve from state Demo"
+steps:
+  - id: store
+    fields:
+      - id: username
+        target: state
+      - id: password
+        target: state
+  - id: retrieve_and_apply
+    fields:
+      - id: domain
+    state_recall:
+      - target: chart
+        keys: ['username']
+      - target: inline
+        keys: ['password']

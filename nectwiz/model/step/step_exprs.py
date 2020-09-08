@@ -22,17 +22,6 @@ def parse_key_list(root: Union[List, str], all_keys: List) -> List:
     print(f"DANGER bad state_recall target {root}")
     return []
 
-def parse_recalled_state(root: Dict, all_keys) -> List:
-  """
-  Subtracts excluded keys from included keys and returns a single list.
-  :param root: dictionary containing included_keys and excluded_keys.
-  :param all_keys: list of all possible keys as a backup.
-  :return: list of keys.
-  """
-  included = parse_key_list(root.get('included_keys', []), all_keys)
-  excluded = parse_key_list(root.get('excluded_keys', []), all_keys)
-  return list(set(included) - set(excluded))
-
 def eval_next_expr(root: StrOrDict, values: Dict[str, str]) -> str:
   """
   Evaluates the next step. If the step is provided as a string, it's an explicit

@@ -75,8 +75,8 @@ class TestStep(Base.TestWizModel):
     recall_two = mk_recall('inline', ['a', 'b'], ['b'])
     step = Step(dict(key='s', state_recalls=[recall_one, recall_two]))
 
-    chart_actual = step.compute_recalled_assigns('chart', op_state)
-    inline_actual = step.compute_recalled_assigns('inline', op_state)
+    chart_actual = step.comp_recalled_asgs('chart', op_state)
+    inline_actual = step.comp_recalled_asgs('inline', op_state)
 
     self.assertEqual(dict(a='a', c='c'), chart_actual)
     self.assertEqual(dict(a='a'), inline_actual)

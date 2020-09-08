@@ -109,9 +109,17 @@ class WizModel:
     :param config: vendor-provided app configuration, parsed from YAML to a dict.
     :return: instance of the caller class.
     """
-    key = config.get('key')
-    subclass = key and wiz_app.find_subclass(cls.type_key(), key)
-    host_class = subclass or cls
+    host_class = cls
+    type_key = cls.type_key()
+    key, benefactor_key = config.get('key'), config.get('inherit')
+
+    if key:
+      host_class = key and wiz_app.find_subclass(type_key, key)
+
+    if benefactor_key:
+      other_config = wiz_app.find_config(type_key, benefactor_key)
+      config = {**other_config, **config}
+
     return host_class(config)
 
   @classmethod

@@ -1,12 +1,6 @@
-from copy import deepcopy
-from datetime import datetime
-from functools import reduce
-from typing import List, Dict, Optional
-
-from k8kat.utils.main.utils import deep_merge
+from typing import List, Optional, Dict
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import CommitOutcome
 from nectwiz.model.step.step_state import StepState
 
 
@@ -18,7 +12,7 @@ class OperationState:
     self.status = 'running'
 
   def find_step_state(self, step) -> StepState:
-    matcher = lambda ss: ss.sig == step.sig()
+    matcher = lambda ss: ss.step_sig == step.sig()
     return next(filter(matcher, self.step_states), None)
 
   def gen_step_state(self, step) -> StepState:
@@ -28,6 +22,12 @@ class OperationState:
       return new_ss
     else:
       raise RuntimeError("Step with same signature exists!")
+
+  def all_assigns(self) -> Dict:
+    merged = {}
+    for step_state in self.step_states:
+      merged = {**merged, **step_state.all_assigns()}
+    return merged
 
   @classmethod
   def find(cls, ost_id: Optional[str]) -> 'OperationState':
@@ -68,18 +68,6 @@ class OperationState:
   def prune(cls):
     while cls.find(None):
       cls.delete_if_exists(None)
-
-  def is_tracked(self):
-    """
-    Checks if a given OperationState has an osr id associated with it.
-    :return: True if it does, False otherwise.
-    """
-    return self.ost_id is not None
-
-
-  def find_step_state(self, step_uid):
-    f = lambda ss: ss.get('step_uid') == step_uid
-    return next(filter(f, self.step_states))
 
 
 operation_states: List[OperationState] = []

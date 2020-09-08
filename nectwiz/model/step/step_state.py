@@ -1,7 +1,11 @@
 from datetime import datetime
 from typing import Dict, List
 
-from nectwiz.core.core.types import ExitStatus, ExitStatuses
+from nectwiz.core.core.types import PredEval, ExitStatuses
+
+POS = 'positive'
+NEG = 'negative'
+SETTLING = 'settling'
 
 
 class StepState:
@@ -12,7 +16,7 @@ class StepState:
     self.started_at = datetime.now()
     self.chart_assigns: Dict = {}
     self.state_assigns: Dict = {}
-    self.exit_statuses: ExitStatuses = {}
+    self.exit_statuses: ExitStatuses = default_exit_statuses()
     self.committed_at = None
     self.terminated_at = None
     self.job_id = None
@@ -29,15 +33,35 @@ class StepState:
     self.job_id = job_id
 
   def notify_succeeded(self):
-    self.status = 'positive'
+    self.status = POS
 
-  def notify_is_verifying(self):
-    self.status = 'verifying'
+  def notify_failed(self):
+    self.status = NEG
 
-  @property
+  def notify_is_settling(self):
+    self.status = SETTLING
+
+  def notify_exit_status_computed(self, charge, pred_eval: PredEval):
+    # noinspection PyTypedDict
+    existing: List[PredEval] = self.exit_statuses[charge]
+    matcher = lambda es: es['key'] == pred_eval['key']
+    entry = next(filter(matcher, existing), None)
+    if entry:
+      entry['met'] = pred_eval['met']
+      entry['reason'] = pred_eval['reason']
+    else:
+      existing.append(pred_eval)
+
+  def all_exit_statuses(self) -> List[PredEval]:
+    return self.exit_statuses['positive'] + self.exit_statuses['negative']
+
   def all_assigns(self):
     """
     Merges chart assigns and state assigns extracted from the commit outcome.
     :return:
     """
     return dict(**self.chart_assigns, **self.state_assigns)
+
+
+def default_exit_statuses() -> ExitStatuses:
+  return ExitStatuses(positive=[], negative=[])
