@@ -20,14 +20,26 @@ class TestPredicate(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Predicate
 
+  def test_inflate_with_config_simple(self):
+    super().test_inflate_with_config_simple()
+
+  def test_inflate_with_config_inherit_easy(self):
+    super().test_inflate_with_config_inherit_easy()
+
+  def test_inflate_with_config_inherit_hard(self):
+    super().test_inflate_with_config_inherit_hard()
+
+  def test_inflate_with_config_expl_cls(self):
+    super().test_inflate_with_config_expl_cls()
+
+  def test_test_inflate_all(self):
+    super().test_inflate_all()
+
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
     wiz_app._ns = ns
     create_base_master_map(ns)
-    config_man.commit_keyed_tam_assigns([
-      ('foo', 'bar'),
-      ('x', '1')
-    ])
+    config_man.commit_keyed_tam_assigns([('foo', 'bar'), ('x', '1')])
 
     self.assertTrue(mk_pred3('foo', None, 'defined'))
     self.assertTrue(mk_pred3('foo', 'bar'))

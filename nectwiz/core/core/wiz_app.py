@@ -142,24 +142,6 @@ class WizApp:
     backup = superclass if else_super else None
     return matches[0] if len(matches) > 0 else backup
 
-  def find_config(self, kind: str, _id: str):
-    """
-    Finds the default config that matches the passed kind and key.
-    :param kind: desired kind to be matched with, eg Operation or Stage.
-    :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
-    :return: config dict if found, else None.
-    """
-    matches = [c for c in self.configs if is_config_match(c, kind, _id)]
-    return matches[0] if len(matches) else None
-
-  def configs_of_kind(self, kind: str):
-    """
-    Selects parts of config that match the provided kind.
-    :param kind: desired kind, eg Operation, Stage, Step, Predicate.
-    :return: List of operations of desired kind.
-    """
-    return [c for c in self.configs if c['kind'] == kind]
-
   def find_subclass(self, kind: str, _id: str) -> Optional[Type]:
     """
     Finds the subclass instance that matches the passed kind and key, if such exists.
@@ -170,11 +152,11 @@ class WizApp:
     predicate = lambda klass: is_subclass_match(klass, kind, _id)
     return next((c for c in self.subclasses if predicate(c)), None)
 
-  def clear(self):
+  def clear(self, restore_defaults=True):
     """
     Resets configs and clears out subclasses.
     """
-    self.configs = default_configs()
+    self.configs = default_configs() if restore_defaults else []
     self.subclasses = []
 
 

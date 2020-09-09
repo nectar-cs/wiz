@@ -15,15 +15,15 @@ class Base:
   class TestWizModel(ClusterTest):
 
     def setUp(self) -> None:
-      wiz_app.clear()
+      wiz_app.clear(restore_defaults=False)
 
     @classmethod
     def model_class(cls) -> Type[WizModel]:
       raise NotImplementedError
 
     @property
-    def kind(self):
-      return self.model_class().type_key()
+    def kind(self) -> str:
+      return self.model_class().__name__
 
     def test_inflate_with_key(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
@@ -33,39 +33,83 @@ class Base:
       self.assertEqual(inflated.id(), 'a')
       self.assertEqual(inflated.title, 'a.title')
 
-    def test_inflate_with_dict(self):
-      config = g_conf(i=self.kind, t='foo', d='bar')
-      inflated = self.model_class().inflate(config)
+    def test_inflate_with_config_simple(self):
+      config = {'title': 'foo'}
+      inflated = self.model_class().inflate_with_config(config)
       self.assertEqual('foo', inflated.title)
-      self.assertEqual('bar', inflated.info)
+      self.assertEqual(self.model_class(), inflated.__class__)
+
+    def test_inflate_with_config_inherit_easy(self):
+      wiz_app.add_configs([{
+        'kind': self.model_class().__name__,
+        'id': 'parent',
+        'title': 'yours'
+      }])
+
+      inheritor_config = {'id': 'mine', 'inherit': 'parent'}
+      actual = self.model_class().inflate_with_config(inheritor_config)
+      self.assertEqual(self.model_class(), actual.__class__)
+      self.assertEqual('mine', actual.id())
+      self.assertEqual('yours', actual.title)
+
+    def test_inflate_with_config_inherit_hard(self):
+      class SubModel(self.model_class()):
+        @property
+        def info(self):
+          return 'grandpas'
+
+      wiz_app.add_overrides([SubModel])
+      wiz_app.add_configs([{
+        'kind': SubModel.__name__,
+        'id': 'parent',
+        'title': 'yours',
+        'info': 'yours'
+      }])
+
+      inheritor_config = {'id': 'mine', 'inherit': 'parent'}
+
+      actual = self.model_class().inflate_with_config(inheritor_config)
+      self.assertEqual(SubModel, actual.__class__)
+      self.assertEqual('mine', actual.id())
+      self.assertEqual('yours', actual.title)
+      self.assertEqual('grandpas', actual.info)
+
+    def test_inflate_with_config_expl_cls(self):
+      class SubModel(self.model_class()):
+        pass
+
+      wiz_app.add_overrides([SubModel])
+      inheritor_config = {'id': 'mine', 'kind': SubModel.__name__}
+      actual = self.model_class().inflate_with_config(inheritor_config)
+      self.assertEqual(SubModel, actual.__class__)
 
     def test_inflate_all(self):
-      wiz_app.configs = []
-      wiz_app.add_configs([
-        g_conf(k='a', i=self.kind),
-        g_conf(k='b', i=self.kind),
-        g_conf(k='c', i=self.kind),
-        g_conf(k='c', i=f"not-{self.kind}")
-      ])
+      klass = self.model_class()
 
-      actual = [c.key for c in self.model_class().inflate_all()]
-      self.assertEqual(actual, ['a', 'b', 'c'])
+      class L1(klass):
+        pass
 
-    def test_inflate_when_inherited(self):
-      pass
+      class L2(L1):
+        pass
 
-    def test_inflate_when_subclassed(self):
-      class Sub(self.model_class()):
-        @property
-        def title(self):
-          return "bar"
+      wiz_app.add_configs([{
+        'kind': klass.__name__,
+        'id': 'lv0',
+      }])
 
-        @classmethod
-        def expected_key(cls):
-          return 'k'
+      wiz_app.add_configs([{
+        'kind': f"not-{klass.__name__}",
+        'id': 'should-not-appear',
+      }])
 
-      config = g_conf(k='k', i=self.kind, t='foo')
-      wiz_app.add_overrides([Sub])
+      wiz_app.add_configs([{
+        'kind': L2.__name__,
+        'id': 'lv2',
+      }])
 
-      inflated = self.model_class().inflate(config)
-      self.assertEqual('bar', inflated.title)
+      wiz_app.add_overrides([L1, L2])
+
+      sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
+      from_lv0 = list(map(sig, klass.inflate_all()))
+      exp = [{'id': 'lv0', 'cls': klass}, {'id': 'lv2', 'cls': L2}]
+      self.assertEqual(exp, from_lv0)
