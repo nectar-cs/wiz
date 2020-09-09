@@ -15,8 +15,3 @@ class Action(WizModel):
       cls_name=self.__class__.__name__,
       id=self.id(),
     )
-
-
-def load_and_perform(key_or_dict, **kwargs):
-  model: Action = Action.inflate(key_or_dict)
-  model.perform(**kwargs)

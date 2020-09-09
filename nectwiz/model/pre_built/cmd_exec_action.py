@@ -2,7 +2,6 @@ import subprocess
 from typing import List
 
 from nectwiz.core.core.types import ActionOutcome
-from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.action.action import Action
 
 
@@ -14,6 +13,10 @@ class CmdExecAction(Action):
 
   def perform(self, **kwargs) -> ActionOutcome:
     final_cmd = interpolate_cmd(self.cmd, kwargs)
+    print("FINAL OUT")
+    print(self.config)
+    print(self.cmd)
+    print(final_cmd)
     result = subprocess.check_output(final_cmd.split(" "))
     out = result.decode('utf-8') if result else None
     logs = out.split("\n") if out else []
@@ -27,11 +30,13 @@ class CmdExecAction(Action):
 
 
 def interpolate_cmd(cmd: str, buckets):
-  words: List[str] = cmd.split(' ')
-  return " ".join(list(map(interpolate_token, *[words, buckets])))
+  # words: List[str] = cmd.split(' ')
+  # return " ".join(list(map(interpolate_token, *[words, buckets])))
+  return cmd
 
 
 def interpolate_token(token: str, buckets) -> str:
+  from nectwiz.core.core.wiz_app import wiz_app
   if token == '$app':
     return wiz_app.ns()
   elif token.startswith("$vars"):

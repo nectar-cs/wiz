@@ -1,7 +1,5 @@
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
-from nectwiz.core.core.wiz_app import wiz_app
-
 
 T = TypeVar('T', bound='WizModel')
 
@@ -45,8 +43,8 @@ class WizModel:
 
   @classmethod
   def inflate_all(cls) -> List[Type[T]]:
-    cls_pool = cls.lteq_classes(wiz_app.subclasses)
-    configs = configs_for_kinds(wiz_app.configs, cls_pool)
+    cls_pool = cls.lteq_classes(global_subclasses())
+    configs = configs_for_kinds(global_configs(), cls_pool)
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
@@ -59,13 +57,13 @@ class WizModel:
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> Type[T]:
-    config = find_config_by_id(_id, wiz_app.configs)
+    config = find_config_by_id(_id, global_configs())
     return cls.inflate_with_config(config)
 
   @classmethod
   def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
     host_class = cls or def_cls
-    subclasses = cls.lteq_classes(wiz_app.subclasses)
+    subclasses = cls.lteq_classes(global_subclasses())
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
 
@@ -118,3 +116,13 @@ def find_config_by_id(_id: str, configs: List[Dict]) -> Dict:
 def configs_for_kinds(configs: List[Dict], cls_pool) -> List[Dict]:
   kinds_pool = [cls.__name__ for cls in cls_pool]
   return [c for c in configs if c.get('kind') in kinds_pool]
+
+
+def global_configs():
+  from nectwiz.core.core.wiz_app import wiz_app
+  return wiz_app.configs
+
+
+def global_subclasses():
+  from nectwiz.core.core.wiz_app import wiz_app
+  return wiz_app.subclasses

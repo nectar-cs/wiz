@@ -17,10 +17,12 @@ def default_configs() -> List[Dict]:
   return utils.yamls_in_dir(f"{pwd}/../../model/pre_built")
 
 
+
+
 class WizApp:
 
   def __init__(self):
-    self.configs: List[Dict] = default_configs()
+    self.configs: List[Dict] = []
     self.subclasses: List[Type] = []
     self.tam_client_override = None
     self.providers = []
@@ -31,6 +33,8 @@ class WizApp:
     self._install_uuid: Optional[str] = None
     self._tam_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
+
+    self.clear()
     
   def ns(self, force_reload=False):
     if force_reload or not self._ns:
@@ -121,8 +125,9 @@ class WizApp:
     """
     Resets configs and clears out subclasses.
     """
+    from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
     self.configs = default_configs() if restore_defaults else []
-    self.subclasses = []
+    self.subclasses = [CmdExecAction]
 
 
 wiz_app = WizApp()
