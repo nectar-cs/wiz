@@ -8,7 +8,7 @@ def standard(stage: Stage):
   :return: serialized Stage dict.
   """
   return dict(
-    id=stage.key,
+    id=stage.id(),
     title=stage.title,
     description=stage.info,
     first_step_id=stage.first_step_key()

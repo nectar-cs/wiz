@@ -22,14 +22,14 @@ class TestOperationsController(ClusterTest):
     self.assertEqual('foo', body[0].get('id'))
     self.assertEqual('Foo', body[0].get('title'))
 
-  def test_steps_show(self):
-    wg.add_configs(basic_operation())
-
-    response = app.test_client().get('/api/operations/o1/stages/g1/steps/s1')
-    body = json.loads(response.data)['data']
-    self.assertEqual(body['id'], 's1')
-    self.assertEqual(len(body['fields']), 1)
-    self.assertEqual(body['fields'][0]['id'], 'f1')
+  # def test_steps_show(self):
+  #   wg.add_configs(basic_operation())
+  #
+  #   response = app.test_client().get('/api/operations/o1/stages/g1/steps/s1')
+  #   body = json.loads(response.data)['data']
+  #   self.assertEqual(body['id'], 's1')
+  #   self.assertEqual(len(body['fields']), 1)
+  #   self.assertEqual(body['fields'][0]['id'], 'f1')
 
   def test_fields_validate(self):
     wg.add_configs(basic_operation())

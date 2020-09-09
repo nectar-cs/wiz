@@ -6,11 +6,10 @@ def standard(cv: ChartVariable):
   """
   Standard serializer for the ChartVariable instance.
   :param cv: ChartVariable class instance.
-  :param cache: cache to extract the chart value.
   :return: serialized ChartVariable object (dict).
   """
   return dict(
-    id=cv.key,
+    id=cv.id(),
     mode=cv.mode,
     description=cv.info,
     data_type=cv.data_type,

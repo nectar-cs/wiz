@@ -27,6 +27,7 @@ class WizApp:
     self.tam_client_override = None
     self.providers = []
     self.adapters = []
+    self.jobs_backend = 'rq'
 
     self._ns: Optional[str] = None
     self._tam: Optional[TamDict] = None
@@ -71,6 +72,12 @@ class WizApp:
       from nectwiz.core.core import config_man
       self._install_uuid = config_man.read_install_uuid(self.ns())
     return self._install_uuid
+
+  def uses_rq(self):
+    return self.jobs_backend == 'rq'
+
+  def uses_sync(self):
+    return self.jobs_backend == 'sync'
 
   def add_configs(self, new_configs: List[Dict]):
     """

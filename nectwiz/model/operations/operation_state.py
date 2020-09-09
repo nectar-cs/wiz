@@ -11,6 +11,9 @@ class OperationState:
     self.step_states: List[StepState] = []
     self.status = 'running'
 
+  def notify_succeeded(self):
+    self.status = 'positive'
+
   def find_step_state(self, step) -> StepState:
     matcher = lambda ss: ss.step_sig == step.sig()
     return next(filter(matcher, self.step_states), None)
@@ -45,14 +48,6 @@ class OperationState:
     uuid = utils.rand_str(string_len=10)
     operation_states.append(OperationState(uuid, operation_id))
     return uuid
-
-  @classmethod
-  def mark_status_if_exists(cls, ost_id, status: str) -> bool:
-    op_state = cls.find(ost_id)
-    if op_state:
-      op_state.status = status
-      return True
-    return False
 
   @classmethod
   def delete_if_exists(cls, ost_id: Optional[str]) -> Optional['OperationState']:

@@ -16,5 +16,5 @@ class Hook(WizModel):
     outcomes = {}
     for action in self.actions():
       outcome = action.perform()
-      outcomes[action.key] = outcome
+      outcomes[action.id()] = outcome
     return outcomes

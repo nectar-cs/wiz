@@ -30,9 +30,11 @@ class TestChartVariablesController(ClusterTest):
   #   self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
 
   def test_validate(self):
-    field_dict = g_conf(k='f')
-    configs = [g_conf(i='ChartVariable', k='foo', field=field_dict)]
-    wiz_app.add_configs(configs)
+    wiz_app.add_configs([dict(
+      kind='ChartVariable',
+      id='foo',
+      field=dict(id='f')
+    )])
 
     endpoint = '/api/chart-variables/foo/validate'
     response = app.test_client().post(endpoint, json=dict(value=''))
@@ -46,9 +48,10 @@ class TestChartVariablesController(ClusterTest):
 
   def test_index(self):
     helper.foo_bar_setup(self.ns)
+    
     wiz_app.add_configs([
-      g_conf(i='ChartVariable', k='foo'),
-      g_conf(i='ChartVariable', k='bar.foo')
+      dict(kind='ChartVariable', id='foo'), 
+      dict(kind='ChartVariable', id='bar.foo')
     ])
 
     response = app.test_client().get('/api/chart-variables')
@@ -71,9 +74,17 @@ class TestChartVariablesController(ClusterTest):
 
   def test_show_with_field(self):
     helper.foo_bar_setup(self.ns)
-    field_options = [dict(key='key', value='value')]
-    field_dict = dict(key='f1', type='select', options=field_options)
-    wiz_app.add_configs([g_conf(i='ChartVariable', k='bar.foo', field=field_dict)])
+    field_options = [dict(id='key', value='value')]
+
+    wiz_app.add_configs([dict(
+      kind='ChartVariable',
+      id='bar.foo',
+      field=dict(
+        id='f1',
+        type='select',
+        options=field_options
+      )
+    )])
 
     response = app.test_client().get('/api/chart-variables/bar.foo')
     cv = json.loads(response.data).get('data')

@@ -10,9 +10,9 @@ def embedded(field: Field):
   :return: serialized Field dict.
   """
   return dict(
-    id=field.key,
+    id=field.id(),
     title=field.title,
-    type=field.type,
+    type=field.input_type,
     options=field.options(),
     info=field.info,
     is_inline=field.target == 'inline',
@@ -27,7 +27,7 @@ def without_meta(field: Field):
   :return: serialized Field dict.
   """
   return dict(
-    type=field.type,
+    type=field.input_type,
     options=field.options(),
     default=field.default_value()
   )

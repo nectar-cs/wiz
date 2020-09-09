@@ -8,11 +8,11 @@ class WizModel:
 
   def __init__(self, config: Dict):
     self.config: Dict = config
-    self.key: str = config.get('id')
+    self._id: str = config.get('id')
     self.parent = None
 
   def id(self):
-    return self.key
+    return self._id
 
   @property
   def title(self):

@@ -1,4 +1,3 @@
-from nectwiz.core.telem.ost import OperationState
 from nectwiz.model.operations.operation import Operation
 from nectwiz.model.stage import serial as stage_serial
 
@@ -10,7 +9,7 @@ def ser_standard(operation: Operation):
   :return: serialized Operation dict.
   """
   return dict(
-    id=operation.key,
+    id=operation.id(),
     title=operation.title,
     description=operation.info,
     synopsis=operation.synopsis,
@@ -19,17 +18,6 @@ def ser_standard(operation: Operation):
   )
 
 
-def ser_state(operation_state: OperationState):
-  """
-  Serializer for an Operation State.
-  :param operation_state: Operation State instance.
-  :return: serialized Operation State dict.
-  """
-  return dict(
-    id=operation_state.ost_id,
-    operation=operation_state.op_id
-  )
-
 def ser_embedded_prereq(prereq):
   """
   Serializer for an Embedded Prerequisite.
@@ -37,7 +25,7 @@ def ser_embedded_prereq(prereq):
   :return: serialized Prerequisite dict.
   """
   return dict(
-    id=prereq.key,
+    id=prereq.id(),
     title=prereq.title,
     description=prereq.info
   )

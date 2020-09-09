@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from nectwiz.core.core import config_man, utils
 from nectwiz.core.core.types import CommitOutcome
 from nectwiz.core.job.job_client import enqueue_action, find_job
+from nectwiz.model.action.action import Action
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operations.operation_state import OperationState
@@ -45,8 +46,8 @@ class Step(WizModel):
   def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
 
-  def field(self, key) -> Field:
-    return self.load_list_child('fields', Field, key)
+  def field(self, _id) -> Field:
+    return self.load_list_child('fields', Field, _id)
 
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
@@ -81,8 +82,13 @@ class Step(WizModel):
       config_man.commit_keyed_tam_assigns(keyed_tuples)
 
     if self.runs_action():
-      job_id = enqueue_action(self.action_kod, **buckets)
-      prev_state.notify_action_started(job_id)
+      from nectwiz.core.core.wiz_app import wiz_app
+      if wiz_app.uses_rq():
+        job_id = enqueue_action(self.action_kod, **buckets)
+        prev_state.notify_action_started(job_id)
+      else:
+        outcome = Action.inflate(self.action_kod).perform(**buckets)
+        prev_state.notify_is_settling(outcome)
     else:
       prev_state.notify_succeeded()
 
@@ -95,7 +101,10 @@ class Step(WizModel):
     if prev_state.was_running():
       action_job = find_job(prev_state.job_id)
       if action_job.is_finished:
-        prev_state.notify_is_settling()
+        outcome = action_job.result.get('data')
+        print("OUTCOME")
+        print(outcome)
+        prev_state.notify_is_settling(outcome)
         return self.compute_settling_status(prev_state)
       elif action_job.is_failed:
         print("Oh crap job failed!")

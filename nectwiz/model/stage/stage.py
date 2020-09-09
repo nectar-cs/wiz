@@ -57,5 +57,5 @@ def step_index(steps: List[Step], step_id: str) -> int:
   :param step_id: id to identify the desired Step.
   :return: index of the desired Step.
   """
-  finder = (i for i, step in enumerate(steps) if step.key == step_id)
+  finder = (i for i, step in enumerate(steps) if step.id() == step_id)
   return next(finder)

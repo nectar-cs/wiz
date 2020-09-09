@@ -59,7 +59,8 @@ class StepState:
   def notify_failed(self):
     self.status = SETTLED_NEG
 
-  def notify_is_settling(self):
+  def notify_is_settling(self, action_outcome: ActionOutcome):
+    self.action_outcome = action_outcome
     self.status = SETTLING
 
   def notify_exit_status_computed(self, charge, new_eval: PredEval):

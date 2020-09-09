@@ -23,7 +23,7 @@ class Operation(WizModel):
     :param op_state: OperationState instance.
     :return: True if belongs, False otherwise.
     """
-    return op_state.op_id == self.key
+    return op_state.op_id == self.id()
 
   @classmethod
   def find_own_state(cls, op_states: List[OperationState]):
@@ -40,7 +40,7 @@ class Operation(WizModel):
     Checks if a given operation is classified as a system type.
     :return: True if successful, False otherwise.
     """
-    return self.key in ['installation', 'uninstall']
+    return self.id() in ['installation', 'uninstall']
 
   @property
   def synopsis(self) -> List[str]:

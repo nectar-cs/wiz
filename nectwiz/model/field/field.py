@@ -17,7 +17,7 @@ class Field(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self._type = config.get('type', 'text-input')
+    self.input_type = config.get('type', 'text-input')
     self.option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
     self.options_source = config.get('options_source', None)
@@ -33,7 +33,7 @@ class Field(WizModel):
         rule_descriptors = self.options_source.get('res_match_rules', [])
         rules = [ResMatchRule(rd) for rd in rule_descriptors]
         res_list = set(sum([rule.query() for rule in rules], []))
-        return [{'key': r.name, 'value': r.name} for r in res_list]
+        return [{'id': r.name, 'value': r.name} for r in res_list]
       else:
         raise RuntimeError(f"Can't process source {type}")
     else:
@@ -52,19 +52,19 @@ class Field(WizModel):
     return self.target == TARGET_STATE
 
   def needs_decorating(self) -> bool:
-    return self._type == 'slider'
+    return self.input_type == 'slider'
 
   def default_value(self) -> Optional[str]:
     if self.expl_default:
       return self.expl_default
     else:
       tam_defaults = wiz_app.tam_defaults() or {}
-      native_default = deep_get(tam_defaults, self.key.split("."))
+      native_default = deep_get(tam_defaults, self.id().split("."))
       if native_default:
         return native_default
-      elif self._type == 'select':
+      elif self.input_type == 'select':
         options = self.options()
-        return options[0]['key'] if len(options) > 0 else None
+        return options[0].get('id') if len(options) > 0 else None
       else:
         return None
 

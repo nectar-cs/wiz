@@ -21,8 +21,6 @@ def one_step_state(step, keep=True) -> StepState:
 def mock_globals(ns):
   if ns:
     wiz_app._ns = ns
-  # if tami_image:
-  #   wiz_app.tam_uri = tami_image
 
 
 def create_base_master_map(ns):

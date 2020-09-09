@@ -14,7 +14,7 @@ def standard(step: Step):
   ser_field = lambda f: field_serial.embedded(f)
 
   return dict(
-    id=step.key,
+    id=step.id(),
     title=step.title,
     info=step.info,
     flags=step.flags(),

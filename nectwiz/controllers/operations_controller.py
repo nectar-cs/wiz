@@ -2,14 +2,13 @@ from flask import Blueprint, jsonify, request
 
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
+from nectwiz.model.operations import serial as operation_serial
 from nectwiz.model.operations.operation import Operation
 from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
-from nectwiz.model.operations import serial as operation_serial
 from nectwiz.model.step import serial as step_serial
-from nectwiz.model.step.step import Step, CommitOutcome
-
+from nectwiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
@@ -143,8 +142,8 @@ def step_run(operation_id, stage_id, step_id):
   return jsonify(status=step_state.status)
 
 
-@controller.route(f"{STEP_PATH}/recompute-status", methods=['POST'])
-def step_status(operation_id, stage_id, step_id):
+@controller.route(f"{STEP_PATH}/compute-settling-status", methods=['POST'])
+def step_compute_settle_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   prev_state = find_op_state().find_step_state(step)
   step.compute_status(prev_state)
@@ -211,9 +210,8 @@ def mark_finished():
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
-  token = parse_ost_header()
-  _status = OperationState.mark_status_if_exists(token, 'positive')
-  return jsonify(data=dict(success=_status))
+  find_op_state().notify_succeeded()
+  return jsonify(data=dict(success='yeah'))
 
 
 @controller.route(f'{OPERATIONS_PATH}/flush-telem', methods=['POST'])
@@ -278,26 +276,8 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   return step.field(field_id)
 
 
-def parse_ost_header() -> str:
-  """
-  Extracts osr id from the passed header.
-  :return: osr id.
-  """
-  value = request.headers.get('Ostid')
-  if not value:
-    raise RuntimeError('OST ID not provided in headers!')
-  return value
-
-
 def find_op_state() -> OperationState:
-  """
-  If osr id supplied, finds/creates the appropriate OperationState. Else creates
-  an OperationState without an osr id.
-  :return: OperationState.
-  """
-  value = OperationState.find(parse_ost_header())
-  if not value:
-    print(f"For OST not found {parse_ost_header()}")
-    print([op.ost_id for op in operation_states])
-    # raise RuntimeError('OST ID did not resolve to an active operation!')
-  return value
+  token = request.headers.get('Ostid')
+  if not token:
+    raise RuntimeError('OST ID not provided in headers!')
+  return OperationState.find(token)

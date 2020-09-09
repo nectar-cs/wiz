@@ -113,7 +113,7 @@ class ChartVariable(WizModel):
     mode "public", then also writes (applies) the manifest.
     :param value: value to be committed (and potentially applied).
     """
-    config_man.commit_keyed_tam_assigns([(self.key, value)])
+    config_man.commit_keyed_tam_assigns([(self.id(), value)])
     if self.is_safe_to_set():
       tam_client().apply(rules=None, inlines=None)
 
@@ -135,5 +135,5 @@ class ChartVariable(WizModel):
     for committed_var in committed_vars:
       key = committed_var[0]
       if not pres(key):
-        models.append(ChartVariable(dict(key=key)))
+        models.append(ChartVariable(dict(id=key)))
     return models
