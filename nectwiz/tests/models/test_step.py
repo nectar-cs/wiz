@@ -1,5 +1,4 @@
 from typing import Type
-from unittest.mock import patch
 
 from k8kat.utils.testing import ns_factory
 
