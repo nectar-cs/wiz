@@ -14,7 +14,7 @@ class TamsClient(TamClient):
     return http_get('/values')
 
   def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
-    payload = dict(values=config_man.read_tam_vars())
+    payload = dict(values=config_man.read_man_vars())
     return http_post('/template', payload)
 
 

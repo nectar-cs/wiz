@@ -58,7 +58,7 @@ def status():
     ns=wiz_app.ns(),
     tam_config=wiz_app.tam(),
     tam_defaults=wiz_app.tam_defaults(),
-    tam_variables=config_man.read_tam_vars()
+    tam_variables=config_man.read_man_vars()
   )
 
 

@@ -43,6 +43,10 @@ class StepState:
     self.status = 'running'
     self.job_id = job_id
 
+  def notify_vars_assigned(self, chart_assigns: Dict, state_assigns: Dict):
+    self.chart_assigns = chart_assigns
+    self.state_assigns = state_assigns
+
   def notify_succeeded(self):
     self.status = SETTLED_POS
 

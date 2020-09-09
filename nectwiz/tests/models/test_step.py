@@ -1,13 +1,15 @@
-from typing import Type, Dict
+from typing import Type
 from unittest.mock import patch
 
+from k8kat.utils.testing import ns_factory
+
 from nectwiz.core.core import config_man
+from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step import Step
 from nectwiz.tests.models.test_wiz_model import Base
-from nectwiz.tests.t_helpers import helper
-from nectwiz.tests.t_helpers.helper import one_step_state
+from nectwiz.tests.t_helpers.helper import one_step_state, create_base_master_map
 
 
 class TestStep(Base.TestWizModel):
@@ -16,14 +18,22 @@ class TestStep(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Step
 
-  def test_run_committing_vars(self):
-    with patch.object(config_man, 'commit_keyed_tam_assigns') as mock:
-      outcome = Step(dict(id='s')).run({})
-      mock.assert_not_called()
-      self.assertEqual('positive', outcome['status'])
-      self.assertEqual({}, outcome['chart_assigns'])
-      self.assertEqual({}, outcome['state_assigns'])
-      self.assertEqual(None, outcome.get('job_id'))
+  def test_run_commit_man_only(self):
+    wiz_app._ns, = ns_factory.request(1)
+    create_base_master_map(wiz_app._ns)
+    step = Step({
+      'fields': [
+        {'id': 's1.f1', 'target': 'chart'},
+      ]
+    })
+
+    op_state = OperationState('123', 'abc')
+    step_state = op_state.gen_step_state(step)
+    step.run({'s1.f1': 'foo'}, step_state)
+    man_vars = config_man.read_man_vars()
+    self.assertEqual({'s1': {'f1': 'foo'}}, man_vars)
+    self.assertEqual({'s1.f1': 'foo'}, step_state.chart_assigns)
+    self.assertEqual({}, step_state.state_assigns)
 
   def test_commit_with_chart_vars(self):
     step = Step(dict(id='s', fields=[{'key': 'f1.foo'}]))

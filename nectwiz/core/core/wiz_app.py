@@ -53,7 +53,7 @@ class WizApp:
   def tam_vars(self, force_reload=False) -> Dict:
     if force_reload or not self._tam_vars:
       from nectwiz.core.core import config_man
-      self._tam_vars = config_man.read_tam_vars()
+      self._tam_vars = config_man.read_man_vars()
     return self._tam_vars
 
   def change_tam_version(self, new_tam_version: str):

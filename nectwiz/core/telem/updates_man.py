@@ -40,5 +40,5 @@ def apply_patch(patch: Update) -> UpdateOutcome:
 
 
 def _gen_injection_telem(keys: List[str]):
-  all_vars = config_man.read_tam_vars()
+  all_vars = config_man.read_man_vars()
   return {k: all_vars[k] for k in keys}

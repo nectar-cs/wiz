@@ -86,6 +86,11 @@ class Step(WizModel):
     else:
       prev_state.notify_succeeded()
 
+    prev_state.notify_vars_assigned(
+      buckets[TARGET_CHART],
+      buckets[TARGET_STATE]
+    )
+
   def compute_status(self, prev_state: TSS = None) -> bool:
     if prev_state.was_running():
       action_job = find_job(prev_state.job_id)

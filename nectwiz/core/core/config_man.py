@@ -63,7 +63,7 @@ def write_tam(new_tam: TamDict):
   patch_cmap_with_dict(tam_config_key, new_tam)
 
 
-def read_tam_vars() -> Dict:
+def read_man_vars() -> Dict:
   return read_cmap_dict(tam_vars_key)
 
 
@@ -90,7 +90,7 @@ def read_tam_var(deep_key: str) -> Optional[str]:
   refer to keys at various depths of the dict, from most shallow to deepest.
   :return: value behind deep key.
   """
-  return utils.deep_get(read_tam_vars(), deep_key.split('.'))
+  return utils.deep_get(read_man_vars(), deep_key.split('.'))
 
 
 def read_install_uuid(ns):
@@ -126,5 +126,5 @@ def commit_keyed_tam_assigns(assignments: List[Tuple[str, any]]):
 
 
 def commit_tam_assigns(assignments: Dict[str, any]):
-  merged = deep_merge(read_tam_vars(), assignments)
+  merged = deep_merge(read_man_vars(), assignments)
   patch_cmap_with_dict(tam_vars_key, merged)
