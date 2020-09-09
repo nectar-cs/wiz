@@ -8,31 +8,6 @@ tami_pod_name = 'tami'
 cache_root = '/tmp'
 
 
-def is_config_match(config: Dict, kind: str, _id: str):
-  """
-  Finds the WizModel object definition inside of the passed config that matches
-  the passed kind and key.
-  :param config: vendor-provided app configuration, parsed from YAML to a dict.
-  :param kind: desired kind to be matched with, eg Operation or Stage.
-  :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
-  :return:
-  """
-  return config['kind'] == kind and config['id'] == _id
-
-
-def is_subclass_match(subclass, kind: str, _id: str):
-  """
-  Checks if the passed subclass instance matches the passed kind and key.
-  :param subclass: instance of a vendor defined subclass.
-  :param kind: desired kind to be matched with, eg Operation or Stage.
-  :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
-  :return: True if both kind and key match, else False.
-  """
-  from nectwiz.model.base.wiz_model import WizModel
-  actual: Type[WizModel] = subclass
-  return actual.type_key() == kind and actual.covers_key(_id)
-
-
 def default_configs() -> List[Dict]:
   """
   Gets the pre-built configs, converting from YAMLs to dicts.

@@ -16,7 +16,7 @@ class Stage(WizModel):
     :return: Step key or None.
     """
     step_descriptors = self.config.get('steps', [])
-    first = step_descriptors[0] if len(step_descriptors) else 0
+    first = step_descriptors[0] if len(step_descriptors) else None
     return key_or_dict_to_key(first) if first else None
 
   def next_step_id(self, crt_step: Step, values: Dict[str, str]) -> str:
@@ -30,9 +30,9 @@ class Stage(WizModel):
       return crt_step.next_step_id(values)
     else:
       stage_steps = self.steps()
-      index = step_index(stage_steps, crt_step.key)
+      index = step_index(stage_steps, crt_step.id())
       is_not_last = index < len(stage_steps) - 1
-      return stage_steps[index + 1].key if is_not_last else 'done'
+      return stage_steps[index + 1].id() if is_not_last else 'done'
 
   def steps(self) -> List[Step]:
     """
@@ -41,13 +41,13 @@ class Stage(WizModel):
     """
     return self.load_children('steps', Step)
 
-  def step(self, key:str) -> Step:
+  def step(self, _id: str) -> Step:
     """
     Finds the Step by key and inflates (instantiates) into a Step instance.
-    :param key: identifier for desired Step.
+    :param _id: identifier for desired Step.
     :return: Step instance.
     """
-    return self.load_list_child('steps', Step, key)
+    return self.load_list_child('steps', Step, _id)
 
 
 def step_index(steps: List[Step], step_id: str) -> int:

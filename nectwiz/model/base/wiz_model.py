@@ -24,7 +24,7 @@ class WizModel:
   def info(self):
     return self.config.get('info')
 
-  def load_children(self, config_key:str , child_class:Type[T]) -> List[T]:
+  def load_children(self, config_key: str, child_class: Type[T]) -> List[T]:
     descriptor_list = self.config.get(config_key, [])
     return self.load_related(descriptor_list, child_class)
 
@@ -34,7 +34,7 @@ class WizModel:
     to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
     return list(map(to_child, descriptor_list))
 
-  def load_list_child(self, config_key:str, child_class: Type[T], child_key:str) -> T:
+  def load_list_child(self, config_key: str, child_class: Type[T], child_key: str) -> T:
     descriptor_list = self.config.get(config_key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
@@ -50,11 +50,6 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate_with_key(cls, _id: str) -> Type[T]:
-    config = find_config_by_id(_id, wiz_app.configs)
-    return cls.inflate_with_config(config)
-
-  @classmethod
   def inflate(cls: T, key_or_dict: Union[str, Dict]) -> Optional[Type[T]]:
     if isinstance(key_or_dict, str):
       return cls.inflate_with_key(key_or_dict)
@@ -63,12 +58,13 @@ class WizModel:
     raise RuntimeError(f"Bad input {key_or_dict}")
 
   @classmethod
-  def lteq_classes(cls, classes: List[Type]) -> List[Type[T]]:
-    return [klass for klass in [*classes, cls] if issubclass(klass, cls)]
+  def inflate_with_key(cls, _id: str) -> Type[T]:
+    config = find_config_by_id(_id, wiz_app.configs)
+    return cls.inflate_with_config(config)
 
   @classmethod
-  def inflate_with_config(cls, config: Dict) -> T:
-    host_class = cls
+  def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
+    host_class = cls or def_cls
     subclasses = cls.lteq_classes(wiz_app.subclasses)
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
@@ -84,12 +80,8 @@ class WizModel:
     return host_class(config)
 
   @classmethod
-  def expected_id(cls):
-    return None
-
-  @classmethod
-  def covers_key(cls, key: str) -> bool:
-    return cls.expected_id() == key
+  def lteq_classes(cls, classes: List[Type]) -> List[Type[T]]:
+    return [klass for klass in [*classes, cls] if issubclass(klass, cls)]
 
 
 def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
@@ -97,7 +89,7 @@ def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
     return key_or_dict
 
   elif isinstance(key_or_dict, dict):
-    return key_or_dict['key']
+    return key_or_dict.get('id')
 
   raise RuntimeError(f"Can't handle {key_or_dict}")
 

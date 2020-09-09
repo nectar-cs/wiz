@@ -5,22 +5,17 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core import config_man
 from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.step.step_state import StepState
 
 
 def ci_tami_name():
   return "gcr.io/nectar-bazaar/wiz-ci-tami"
 
 
-def one_step_op_state(**kwargs):
-  return dict(step_states=[
-    dict(
-      **kwargs,
-      commit_outcome=dict(
-        chart_assigns=kwargs.get('cass', {}),
-        state_assigns=kwargs.get('sass', {})
-      )
-    ),
-  ])
+def one_step_state(step, keep=True) -> StepState:
+  opstate = OperationState('123', 'abc')
+  return opstate.gen_step_state(step, keep)
 
 
 def mock_globals(ns):

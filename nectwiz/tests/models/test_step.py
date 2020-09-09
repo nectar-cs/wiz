@@ -1,14 +1,13 @@
 from typing import Type, Dict
 from unittest.mock import patch
 
-from nectwiz.core import step_job_prep
 from nectwiz.core.core import config_man
-from nectwiz.core.telem.ost import OperationState, StepState
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.stage.stage import Stage
+from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step import Step
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers import helper
+from nectwiz.tests.t_helpers.helper import one_step_state
 
 
 class TestStep(Base.TestWizModel):
@@ -17,29 +16,9 @@ class TestStep(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Step
 
-  def test_integration(self):
-    pass
-
-  def test_own_state(self):
-    op_state = OperationState(
-      step_states=[
-        mk_step_state('stage1', 'step1', {'k': 11}),
-        mk_step_state('stage1', 'step2', {'k': 12}),
-        mk_step_state('stage2', 'step1', {'k': 21}),
-        mk_step_state('stage2', 'step2', {'k': 22}),
-      ]
-    )
-
-    stage = Stage(dict(key='stage2', steps=[dict(key='step2')]))
-    step: Step = stage.step('step2')
-    step_state = step.find_own_state(op_state)
-    self.assertEqual('stage2', step_state.stage_id)
-    self.assertEqual('step2', step_state.step_id)
-    self.assertEqual({'k': 22}, step_state.chart_assigns)
-
-  def test_commit_no_work(self):
+  def test_run_committing_vars(self):
     with patch.object(config_man, 'commit_keyed_tam_assigns') as mock:
-      outcome = Step(dict(key='s')).run({})
+      outcome = Step(dict(id='s')).run({})
       mock.assert_not_called()
       self.assertEqual('positive', outcome['status'])
       self.assertEqual({}, outcome['chart_assigns'])
@@ -47,7 +26,7 @@ class TestStep(Base.TestWizModel):
       self.assertEqual(None, outcome.get('job_id'))
 
   def test_commit_with_chart_vars(self):
-    step = Step(dict(key='s', fields=[{'key': 'f1.foo'}]))
+    step = Step(dict(id='s', fields=[{'key': 'f1.foo'}]))
     with patch.object(config_man, 'commit_keyed_tam_assigns') as commit_mock:
       outcome = step.run({'f1.foo': 'v1'})
       self.assertEqual('positive', outcome['status'])
@@ -56,54 +35,51 @@ class TestStep(Base.TestWizModel):
       self.assertEqual(None, outcome.get('job_id'))
       commit_mock.assert_called_with([('f1.foo', 'v1')])
 
-  def test_commit_with_job(self):
-    job_desc = dict(image='foo', command=['bar'], args=['baz'])
-    field_desc = {'key': 'f1', 'target': 'state'}
-    step = Step(dict(key='s', job=job_desc, fields=[field_desc]))
-
-    with patch.object(step_job_prep, 'create_and_run') as run_mock:
-      run_mock.return_value = 'id'
-      outcome = step.run(dict(f1='v1'))
-      run_mock.assert_called_with('foo', ['bar'], ['baz'], {'f1': 'v1'})
-      self.assertEqual('pending', outcome['status'])
-      self.assertEqual('id', outcome['job_id'])
-
   def test_compute_recalled_assigns(self):
-    step_state = dict(a='a', b='b', c='c')
-    op_state = helper.one_step_op_state(sass=step_state)
-    recall_one = mk_recall('chart', 'all', ['b'])
-    recall_two = mk_recall('inline', ['a', 'b'], ['b'])
-    step = Step(dict(key='s', state_recalls=[recall_one, recall_two]))
+    step1 = Step({'id': 's1'})
 
-    chart_actual = step.comp_recalled_asgs('chart', op_state)
-    inline_actual = step.comp_recalled_asgs('inline', op_state)
+    step2 = Step({
+      'id': 's2',
+      'reassignments': [
+        {
+          'target': 'chart',
+          'ids': ['s1.state-var', 's2.state-var']
+        },
+        {
+          'target': 'state',
+          'ids': ['s1.chart-var', 's2.chart-var']
+        }
+      ]
+    })
 
-    self.assertEqual(dict(a='a', c='c'), chart_actual)
-    self.assertEqual(dict(a='a'), inline_actual)
+    op_state = OperationState('123', 'abc')
+    ss1 = op_state.gen_step_state(step1)
+    ss2 = op_state.gen_step_state(step2)
 
-  def test_partition_value_assigns(self):
-    chart_field = dict(key='f1', target='chart')
-    inline_field = dict(key='f2', target='inline')
-    state_field = dict(key='f3', target='state')
-    fields = [chart_field, inline_field, state_field]
+    ss1.chart_assigns = {'s1.chart-var': 'v11'}
+    ss1.state_assigns = {'s1.state-var': 'v12'}
 
-    step = Step(dict(key='s', fields=fields))
-    op_state = helper.one_step_op_state()
-    assign = dict(f1='v1', f2='v2', f3='v3')
-    actual = step.partition_user_asgs(assign, op_state)
-    self.assertEqual(({'f1': 'v1'}, {'f2': 'v2'}, {'f3': 'v3'}), actual)
+    ss2.chart_assigns = {'s2.chart-var': 'v21'}
+    ss2.state_assigns = {'s2.state-var': 'v22'}
 
-    actual = step.partition_user_asgs(dict(), op_state)
-    self.assertEqual(({}, {}, {}), actual)
+    result_chart = step2.comp_recalled_asgs('chart', ss2)
+    exp_chart = {'s1.state-var': 'v12', 's2.state-var': 'v22'}
+    self.assertEqual(exp_chart, result_chart)
 
+    result_state = step2.comp_recalled_asgs('state', ss2)
+    exp_state = {'s1.chart-var': 'v11', 's2.chart-var': 'v21'}
+    self.assertEqual(exp_state, result_state)
 
-def mk_recall(target, inc_keys, exc_keys) -> Dict:
-  return dict(target=target, included_keys=inc_keys, excluded_keys=exc_keys)
+  def test_partition_user_asgs_no_recall(self):
+    step = Step({
+      'fields': [
+        {'id': 'f1', 'target': 'chart'},
+        {'id': 'f2', 'target': 'inline'},
+        {'id': 'f3', 'target': 'state'}
+      ]
+    })
 
-
-def mk_step_state(stage_id, step_id, chart_assigns) -> StepState:
-  return StepState(
-    stage_id=stage_id,
-    step_id=step_id,
-    commit_outcome=dict(chart_assigns=chart_assigns)
-  )
+    assigns = dict(f1='v1', f2='v2', f3='v3')
+    exp = dict(chart={'f1': 'v1'}, inline={'f2': 'v2'}, state={'f3': 'v3'})
+    actual = step.partition_user_asgs(assigns, one_step_state(step))
+    self.assertEqual(exp, actual)

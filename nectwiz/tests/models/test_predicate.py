@@ -20,20 +20,11 @@ class TestPredicate(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Predicate
 
-  def test_inflate_with_config_simple(self):
-    super().test_inflate_with_config_simple()
-
-  def test_inflate_with_config_inherit_easy(self):
-    super().test_inflate_with_config_inherit_easy()
-
-  def test_inflate_with_config_inherit_hard(self):
-    super().test_inflate_with_config_inherit_hard()
-
-  def test_inflate_with_config_expl_cls(self):
-    super().test_inflate_with_config_expl_cls()
-
   def test_test_inflate_all(self):
     super().test_inflate_all()
+
+  def test_load_children(self):
+    super().test_load_children()
 
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)

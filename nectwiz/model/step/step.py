@@ -23,13 +23,14 @@ class Step(WizModel):
     super().__init__(config)
     self.field_keys = config.get('fields', [])
     self.next_step_desc = self.config.get('next')
-    self.state_recall_descs = config.get('state_recalls', [])
+    self.reassignment_descs = config.get('reassignments', [])
     self.exit_predicate_descs = self.config.get('exit', {})
     self.expl_applies_manifest = config.get('applies_manifest')
     self.action_kod = config.get('action')
 
   def sig(self):
-    return f"{self.parent.id()}::{self.id()}"
+    parent_id = self.parent.id() if self.parent else 'orphan'
+    return f"{parent_id}::{self.id()}"
 
   def runs_action(self) -> bool:
     return self.action_kod is not None
@@ -47,35 +48,30 @@ class Step(WizModel):
   def field(self, key) -> Field:
     return self.load_list_child('fields', Field, key)
 
-  def sanitize_field_assigns(self, values: Dict[str, any]) -> dict:
-    def transform(k):
-      field = self.field(k)
-      field.sanitize_value(values[k]) if field else values[k]
-    return {key: transform(key) for key, value in values.items()}
-
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
-    return filter(predicate, self.state_recall_descs)
+    return filter(predicate, self.reassignment_descs)
 
   def comp_recalled_asgs(self, target: str, prev_state: TSS) -> dict:
     descriptors = self.state_recall_descriptors2(target)
     state_assigns = prev_state.parent_op.all_assigns()
-    recalled_keys = utils.flatten(d['keys'] for d in descriptors)
+    recalled_keys = utils.flatten(d['ids'] for d in descriptors)
     return {key: state_assigns.get(key) for key in recalled_keys}
 
   # noinspection PyUnusedLocal
   def finalize_chart_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     recalled_from_state = self.comp_recalled_asgs(TARGET_CHART, prev_state)
-    return self.sanitize_field_assigns({**recalled_from_state, **assigns})
+    return {**recalled_from_state, **assigns}
 
   # noinspection PyUnusedLocal
   def finalize_inline_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     recalled_from_state = self.comp_recalled_asgs(TARGET_INLIN, prev_state)
-    return self.sanitize_field_assigns({**recalled_from_state, **assigns})
+    return {**recalled_from_state, **assigns}
 
   # noinspection PyUnusedLocal
-  def finalize_state_asgs(self, assigns: Dict, op_state: TSS) -> Dict:
-    return self.sanitize_field_assigns(assigns)
+  def finalize_state_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(TARGET_STATE, prev_state)
+    return {**recalled_from_state, **assigns}
 
   def run(self, assigns: Dict, prev_state: StepState):
     buckets = self.partition_user_asgs(assigns, prev_state)
@@ -121,9 +117,19 @@ class Step(WizModel):
       print(self.exit_predicate_descs)
       print(step_state.action_outcome)
 
-  def partition_user_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+  def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
+    fields = self.fields()
+
+    def find_field(_id):
+      return next(filter(lambda f: f.id() == _id, fields), None)
+
+    def seg(_type: str):
+      transv = lambda k, v: find_field(k) and find_field(k).sanitize_value(v)
+      gate = lambda k: find_field(k) and find_field(k).target == _type
+      return {k: transv(k, v) for (k, v) in assigns.items() if gate(k)}
+
     return {
-      TARGET_CHART: self.finalize_chart_asgs(assigns, prev_state),
-      TARGET_INLIN: self.finalize_inline_asgs(assigns, prev_state),
-      TARGET_STATE: self.finalize_state_asgs(assigns, prev_state),
-    }
+        TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),
+        TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
+        TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
+      }

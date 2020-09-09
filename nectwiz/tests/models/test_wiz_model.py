@@ -113,3 +113,37 @@ class Base:
       from_lv0 = list(map(sig, klass.inflate_all()))
       exp = [{'id': 'lv0', 'cls': klass}, {'id': 'lv2', 'cls': L2}]
       self.assertEqual(exp, from_lv0)
+
+    def test_load_children(self):
+
+      class ChildClass(WizModel):
+        pass
+
+      wiz_app.add_configs([
+        {
+          'id': 'independent-child',
+          'kind': ChildClass.__name__
+        },
+        {
+          'id': 'non-child',
+          'kind': ChildClass.__name__
+        },
+        {
+          'id': 'parent',
+          'kind': self.model_class().__name__,
+          'children': [
+            'independent-child',
+            {'kind': ChildClass.__name__, 'id': 'embedded-child'}
+          ]
+        }
+      ])
+
+      wiz_app.add_overrides([ChildClass])
+      parent_inst = self.model_class().inflate('parent')
+      sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
+      result = parent_inst.load_children('children', ChildClass)
+      exp = [
+        {'id': 'independent-child', 'cls': ChildClass},
+        {'id': 'embedded-child', 'cls': ChildClass}
+      ]
+      self.assertEqual(exp, list(map(sig, result)))
