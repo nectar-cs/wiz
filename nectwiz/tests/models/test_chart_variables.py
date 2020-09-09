@@ -21,18 +21,18 @@ class TestChartVariables(Base.TestWizModel):
 
   def test_read_crt_value(self):
     helper.foo_bar_setup(self.ns)
-    cv1 = ChartVariable(dict(key='foo'))
+    cv1 = ChartVariable(dict(id='foo'))
     self.assertEqual('bar', cv1.read_crt_value(True))
 
-    cv2 = ChartVariable(dict(key='bar.foo'))
+    cv2 = ChartVariable(dict(id='bar.foo'))
     self.assertEqual('baz', cv2.read_crt_value(True))
 
-    cv3 = ChartVariable(dict(key='missing'))
+    cv3 = ChartVariable(dict(id='missing'))
     self.assertIsNone(cv3.read_crt_value(True))
 
   def test_commit(self):
     helper.foo_bar_setup(self.ns)
-    cv1 = ChartVariable(dict(key='foo'))
+    cv1 = ChartVariable(dict(id='foo'))
     self.assertEqual('bar', cv1.read_crt_value(True))
 
     cv1.commit('baz')

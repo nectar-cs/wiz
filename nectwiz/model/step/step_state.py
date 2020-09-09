@@ -36,6 +36,12 @@ class StepState:
     else:
       return False
 
+  def succeeded(self):
+    return self.status == SETTLED_POS
+
+  def failed(self):
+    return self.status == SETTLED_NEG
+
   def is_awaiting_settlement(self):
     return self.status == SETTLING
 
@@ -56,16 +62,18 @@ class StepState:
   def notify_is_settling(self):
     self.status = SETTLING
 
-  def notify_exit_status_computed(self, charge, pred_eval: PredEval):
+  def notify_exit_status_computed(self, charge, new_eval: PredEval):
     # noinspection PyTypedDict
     existing: List[PredEval] = self.exit_statuses[charge]
-    matcher = lambda es: es['key'] == pred_eval['key']
+    key = 'predicate_id'
+    matcher = lambda old_eval: old_eval[key] == new_eval[key]
     entry = next(filter(matcher, existing), None)
     if entry:
-      entry['met'] = pred_eval['met']
-      entry['reason'] = pred_eval['reason']
+      entry['met'] = new_eval['met']
+      entry['name'] = new_eval.get('name')
+      entry['reason'] = new_eval.get('reason')
     else:
-      existing.append(pred_eval)
+      existing.append(new_eval)
 
   def all_exit_statuses(self) -> List[PredEval]:
     return self.exit_statuses['positive'] + self.exit_statuses['negative']

@@ -35,16 +35,6 @@ class TestStep(Base.TestWizModel):
     self.assertEqual({'s1.f1': 'foo'}, step_state.chart_assigns)
     self.assertEqual({}, step_state.state_assigns)
 
-  def test_commit_with_chart_vars(self):
-    step = Step(dict(id='s', fields=[{'key': 'f1.foo'}]))
-    with patch.object(config_man, 'commit_keyed_tam_assigns') as commit_mock:
-      outcome = step.run({'f1.foo': 'v1'})
-      self.assertEqual('positive', outcome['status'])
-      self.assertEqual({'f1.foo': 'v1'}, outcome['chart_assigns'])
-      self.assertEqual({}, outcome['state_assigns'])
-      self.assertEqual(None, outcome.get('job_id'))
-      commit_mock.assert_called_with([('f1.foo', 'v1')])
-
   def test_compute_recalled_assigns(self):
     step1 = Step({'id': 's1'})
 

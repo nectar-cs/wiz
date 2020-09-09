@@ -13,9 +13,10 @@ TEXS = PredEval
 def eval_pred(predicate: Predicate) -> PredEval:
   eval_result = predicate.evaluate()
   return PredEval(
-    key=predicate.key,
+    predicate_id=predicate.id(),
     met=eval_result,
     name=predicate.title,
+    reason=predicate.reason
   )
 
 

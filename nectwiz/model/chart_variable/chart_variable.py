@@ -34,7 +34,7 @@ class ChartVariable(WizModel):
     explicit_default = self.config.get('default')
     if explicit_default:
       return explicit_default
-    return wiz_app.tam_defaults().get(self.key)
+    return wiz_app.tam_defaults().get(self.id())
 
   @property
   def linked_res_name(self) -> str:
@@ -105,7 +105,7 @@ class ChartVariable(WizModel):
     :return: string containing the current value of the field.
     """
     root = wiz_app.tam_vars(force_reload)
-    return utils.deep_get(root, self.key.split('.'))
+    return utils.deep_get(root, self.id().split('.'))
 
   def commit(self, value:str):
     """
@@ -130,10 +130,10 @@ class ChartVariable(WizModel):
   def all_vars(cls):
     raw = wiz_app.tam_vars(force_reload=True)
     committed_vars = dict2keyed(raw)
-    descriptors = cls.inflate_all()
-    pres = lambda k: len([cv for cv in descriptors if cv.key == k]) > 0
+    models = cls.inflate_all()
+    pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0
     for committed_var in committed_vars:
       key = committed_var[0]
       if not pres(key):
-        descriptors.append(ChartVariable(dict(key=key)))
-    return descriptors
+        models.append(ChartVariable(dict(key=key)))
+    return models

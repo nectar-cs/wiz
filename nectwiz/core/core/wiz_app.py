@@ -117,16 +117,6 @@ class WizApp:
     backup = superclass if else_super else None
     return matches[0] if len(matches) > 0 else backup
 
-  def find_subclass(self, kind: str, _id: str) -> Optional[Type]:
-    """
-    Finds the subclass instance that matches the passed kind and key, if such exists.
-    :param kind: desired kind to be matched with, eg Operation or Stage.
-    :param _id: desired key to be matched with, eg hub.backend.secrets.key_base.
-    :return: subclass instance if found, else None.
-    """
-    predicate = lambda klass: is_subclass_match(klass, kind, _id)
-    return next((c for c in self.subclasses if predicate(c)), None)
-
   def clear(self, restore_defaults=True):
     """
     Resets configs and clears out subclasses.

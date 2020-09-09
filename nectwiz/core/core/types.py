@@ -30,7 +30,7 @@ class JobStatus(TypedDict):
 
 
 class PredEval(TypedDict, total=False):
-  key: str
+  predicate_id: str
   name: str
   met: bool
   reason: Optional[str]

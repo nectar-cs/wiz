@@ -1,85 +1,56 @@
-from k8kat.res.pod.kat_pod import KatPod
+from unittest.mock import patch
 
-from k8kat.utils.testing import simple_pod, ns_factory
-from nectwiz.core.core import utils
-
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.predicate.predicate import Predicate
+from nectwiz.model.step.status_computer import eval_preds, compute
 from nectwiz.model.step.step import Step
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 
 class TestStatusComputer(ClusterTest):
 
-  def test_compute_conditions_status_no_res(self):
-    wiz_app._ns, = ns_factory.request(1)
-    actual = mk_step(raf='Pod:wont-be-there').compute_status()
-    actual_pos = actual['condition_statuses']['positive']
-    expected_pos_key = 'nectar.exit_conditions.select_resources_positive'
+  def test_eval_preds_halting_logic(self):
+    step_state = OperationState('', '').gen_step_state(Step({}))
+    predicates = [TrivPred({'id': 'x', 'o': True}), TrivPred({})]
+    eval_preds(predicates, 'negative', step_state)
+    exp_eval = {'met': True, 'name': 'x', 'predicate_id': 'x', 'reason': 'r'}
+    exp = {'positive': [], 'negative': [exp_eval]}
+    self.assertEqual(exp, step_state.exit_statuses)
 
-    self.assertEqual('pending', actual['status'])
-    self.assertFalse(actual_pos[0]['met'])
-    self.assertEqual(expected_pos_key, actual_pos[0]['key'])
+  def test_eval_preds_recycle_logic(self):
+    step_state = OperationState('', '').gen_step_state(Step({}))
+    cached_result = {'predicate_id': 'x', 'met': True}
+    step_state.exit_statuses = {'positive': [cached_result], 'negative': []}
 
-  def test_compute_conditions_neg(self):
-    wiz_app._ns, = ns_factory.request(1)
-    step = mk_step(raf='Pod:*')
+    with patch('nectwiz.model.step.status_computer.eval_pred') as mock:
+      eval_preds([TrivPred({'id': 'x'})], 'positive', step_state)
+      self.assertTrue(mock.called)
 
-    crasher = mk_sleeper('not-an-int')
-    crasher.wait_until(crasher.has_failed)
+  def test_eval_preds_recomputing_logic(self):
+    step_state = OperationState('', '').gen_step_state(Step({}))
+    cached_result = {'predicate_id': 'x', 'met': False}
+    step_state.exit_statuses = {'positive': [cached_result], 'negative': []}
+    predicate = TrivPred({'id': 'x', 'o': True})
+    eval_preds([predicate], 'positive', step_state)
+    exp_eval = {'predicate_id': 'x', 'met': True, 'name': 'x', 'reason': 'r'}
+    exp = {'positive': [exp_eval], 'negative': []}
+    self.assertEqual(exp, step_state.exit_statuses)
 
-    actual = step.compute_status()
-    actual_pos = actual['condition_statuses']['negative']
-    self.assertTrue(actual_pos[0]['met'])
-    self.assertEqual('negative', actual['status'])
-
-  def test_compute_conditions_status_with_res(self):
-    wiz_app._ns, = ns_factory.request(1)
-    cond = mk_cond('Pod:*', 'all', 'has_succeeded', 'True')
-    step = mk_step(raf='Pod:*', exit=dict(positive=[cond]))
-
-    fast_pod, slow_pod = mk_sleeper(1), mk_sleeper(19)
-
-    fast_pod.wait_until(fast_pod.has_run)
-    slow_pod.wait_until(slow_pod.is_running_normally)
-
-    actual = step.compute_status()
-    actual_pos = actual['condition_statuses']['positive']
-    self.assertFalse(actual_pos[0]['met'])
-    self.assertEqual('pending', actual['status'])
-
-    slow_pod.wait_until(slow_pod.has_run)
-
-    actual = step.compute_status()
-    actual_pos = actual['condition_statuses']['positive']
-    self.assertTrue(actual_pos[0]['met'])
-    self.assertEqual('positive', actual['status'])
+  def test_compute_empty(self):
+    step_state = OperationState('', '').gen_step_state(Step({}))
+    compute({}, step_state)
+    self.assertTrue(step_state.succeeded())
+    compute({'positive': [], 'negative': []}, step_state)
+    self.assertTrue(step_state.failed())
 
 
-def mk_sleeper(seconds):
-  return KatPod(simple_pod.create(
-    name=utils.rand_str(),
-    restart='Never',
-    ns=wiz_app.ns(),
-    image='ruby:2.6.6-alpine3.12',
-    command=["ruby", "-e"],
-    args=[f"sleep({seconds}); puts :done; exit 0"],
-  ))
+class TrivPred(Predicate):
+  def __init__(self, config=None):
+    config['title'] = config.get('id')
+    super().__init__(config or {})
+    self.outcome = (config or {}).get('o', False)
+    self.reason = 'r'
 
+  def evaluate(self):
+    return self.outcome
 
-def mk_cond(sel, match, prop, against):
-  return dict(
-    key=utils.rand_str(4),
-    selector=sel,
-    match=match,
-    property=prop,
-    check_against=against
-  )
-
-
-def mk_step(**kwargs) -> Step:
-  defaults = dict(
-    key='s',
-    resource_apply_filter=kwargs.get('raf'),
-    applies_manifest=True
-  )
-  return Step({**defaults, **kwargs})
