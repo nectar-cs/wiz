@@ -1,5 +1,3 @@
-from typing import Dict
-
 from nectwiz.model.field.field import Field
 
 
@@ -19,6 +17,7 @@ def embedded(field: Field):
     needs_decorating=field.needs_decorating(),
     default=field.default_value()
   )
+
 
 def without_meta(field: Field):
   """

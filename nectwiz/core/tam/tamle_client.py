@@ -10,7 +10,6 @@ from nectwiz.core.tam.tam_client import TamClient, fmt_inline_assigns
 
 
 class TamleClient(TamClient):
-
   def load_manifest_defaults(self) -> Dict[str, str]:
     raw = exec_cmd('values')
     return yaml.load(raw, Loader=yaml.FullLoader)
@@ -23,6 +22,7 @@ class TamleClient(TamClient):
 
 def flags():
   return f"--set namespace={wiz_app.ns()}"
+
 
 def exec_cmd(cmd):
   full_cmd = f"{wiz_app.tam()['uri']} {cmd}".split(" ")

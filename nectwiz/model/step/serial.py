@@ -17,6 +17,6 @@ def standard(step: Step):
     id=step.id(),
     title=step.title,
     info=step.info,
-    flags=step.flags(),
+    flags=[],
     fields=[ser_field(f) for f in step.fields()]
   )

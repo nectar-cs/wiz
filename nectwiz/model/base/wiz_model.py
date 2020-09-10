@@ -57,7 +57,10 @@ class WizModel:
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> Type[T]:
-    config = find_config_by_id(_id, global_configs())
+    if _id and _id[0].isupper():
+      config = dict(kind=_id)
+    else:
+      config = find_config_by_id(_id, global_configs())
     return cls.inflate_with_config(config)
 
   @classmethod

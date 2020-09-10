@@ -9,10 +9,6 @@ class StepApplyResAction(Action):
     super().__init__(config)
     self.res_selectors = config.get('cmd')
 
-  @classmethod
-  def expected_id(cls):
-    return "nectar.action.apply-resources"
-
   def perform(self, **kwargs: StepActionKwargs) -> ActionOutcome:
     print("MY ARGS ARE")
     print(kwargs)

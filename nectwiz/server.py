@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from k8kat.auth.kube_broker import BrokerConnException, broker
+from k8kat.auth.kube_broker import BrokerConnException
 
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller, resources_controller
@@ -45,7 +45,5 @@ def read_dev_ns():
 
 
 def start():
-  broker.connect()
   app.config["cmd"] = ["bash"]
-  port = 5000
-  app.run(host='0.0.0.0', port=port)
+  app.run(host='0.0.0.0', port=5000)

@@ -6,8 +6,8 @@ from nectwiz.core.core.types import PredEval, ExitStatuses, ActionOutcome
 IDLE = 'idle'
 RUNNING = 'running'
 SETTLING = 'settling'
-SETTLED_POS = 'settled'
-SETTLED_NEG = 'settled'
+SETTLED_POS = 'positive'
+SETTLED_NEG = 'negative'
 
 
 class StepState:
@@ -36,10 +36,10 @@ class StepState:
     else:
       return False
 
-  def succeeded(self):
+  def did_succeed(self):
     return self.status == SETTLED_POS
 
-  def failed(self):
+  def did_fail(self):
     return self.status == SETTLED_NEG
 
   def is_awaiting_settlement(self):

@@ -39,9 +39,9 @@ class TestStatusComputer(ClusterTest):
   def test_compute_empty(self):
     step_state = OperationState('', '').gen_step_state(Step({}))
     compute({}, step_state)
-    self.assertTrue(step_state.succeeded())
+    self.assertTrue(step_state.did_succeed())
     compute({'positive': [], 'negative': []}, step_state)
-    self.assertTrue(step_state.failed())
+    self.assertTrue(step_state.did_succeed())
 
 
 class TrivPred(Predicate):

@@ -12,7 +12,3 @@ def start():
   with Connection(conn):
     worker = Worker(list(map(Queue, ['default'])))
     worker.work()
-
-
-if __name__ == '__main__':
-  start()
