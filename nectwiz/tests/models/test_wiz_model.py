@@ -1,10 +1,9 @@
 from typing import Type
 
-from nectwiz.core.core.config_man import config_man
-from nectwiz.model.operations.operation import Operation
+from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.field.field import Field
+from nectwiz.model.operations.operation import Operation
 from nectwiz.model.step.step import Step
-from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
@@ -15,7 +14,7 @@ class Base:
   class TestWizModel(ClusterTest):
 
     def setUp(self) -> None:
-      wiz_app.clear(restore_defaults=False)
+      models_man.clear(restore_defaults=False)
 
     @classmethod
     def model_class(cls) -> Type[WizModel]:
@@ -27,7 +26,7 @@ class Base:
 
     def test_inflate_with_key(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
-      wiz_app.add_configs([a, b])
+      models_man.add_descriptors([a, b])
       inflated = self.model_class().inflate('a')
       self.assertEqual(type(inflated), self.model_class())
       self.assertEqual(inflated.id(), 'a')
@@ -40,7 +39,7 @@ class Base:
       self.assertEqual(self.model_class(), inflated.__class__)
 
     def test_inflate_with_config_inherit_easy(self):
-      wiz_app.add_configs([{
+      models_man.add_descriptors([{
         'kind': self.model_class().__name__,
         'id': 'parent',
         'title': 'yours'
@@ -58,8 +57,8 @@ class Base:
         def info(self):
           return 'grandpas'
 
-      wiz_app.add_overrides([SubModel])
-      wiz_app.add_configs([{
+      models_man.add_classes([SubModel])
+      models_man.add_descriptors([{
         'kind': SubModel.__name__,
         'id': 'parent',
         'title': 'yours',
@@ -78,7 +77,7 @@ class Base:
       class SubModel(self.model_class()):
         pass
 
-      wiz_app.add_overrides([SubModel])
+      models_man.add_classes([SubModel])
       inheritor_config = {'id': 'mine', 'kind': SubModel.__name__}
       actual = self.model_class().inflate_with_config(inheritor_config)
       self.assertEqual(SubModel, actual.__class__)
@@ -92,22 +91,22 @@ class Base:
       class L2(L1):
         pass
 
-      wiz_app.add_configs([{
+      models_man.add_descriptors([{
         'kind': klass.__name__,
         'id': 'lv0',
       }])
 
-      wiz_app.add_configs([{
+      models_man.add_descriptors([{
         'kind': f"not-{klass.__name__}",
         'id': 'should-not-appear',
       }])
 
-      wiz_app.add_configs([{
+      models_man.add_descriptors([{
         'kind': L2.__name__,
         'id': 'lv2',
       }])
 
-      wiz_app.add_overrides([L1, L2])
+      models_man.add_classes([L1, L2])
 
       sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
       from_lv0 = list(map(sig, klass.inflate_all()))
@@ -119,7 +118,7 @@ class Base:
       class ChildClass(WizModel):
         pass
 
-      wiz_app.add_configs([
+      models_man.add_descriptors([
         {
           'id': 'independent-child',
           'kind': ChildClass.__name__
@@ -138,7 +137,7 @@ class Base:
         }
       ])
 
-      wiz_app.add_overrides([ChildClass])
+      models_man.add_classes([ChildClass])
       parent_inst = self.model_class().inflate('parent')
       sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
       result = parent_inst.load_children('children', ChildClass)

@@ -6,6 +6,7 @@ from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
+from nectwiz.model.base.wiz_model import models_man
 
 
 class ClusterTest(unittest.TestCase):
@@ -26,12 +27,12 @@ class ClusterTest(unittest.TestCase):
   def setUp(self) -> None:
     super().setUp()
     config_man._ns = None
-    wiz_app.clear()
+    models_man.clear()
 
   def tearDown(self) -> None:
     super().setUp()
     config_man._ns = None
-    wiz_app.clear()
+    models_man.clear()
 
 
 test_ready_obj = dict(ready=False)

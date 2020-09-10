@@ -1,6 +1,6 @@
 import unittest
 
-from nectwiz.model.base.wiz_model import configs_for_kinds, find_config_by_id, find_class_by_name
+from nectwiz.model.base.wiz_model import configs_for_kinds, find_class_by_name
 
 
 class TestWizModelSuper(unittest.TestCase):

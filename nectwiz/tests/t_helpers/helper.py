@@ -3,7 +3,7 @@ import json
 from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from nectwiz.core.core import config_man
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step_state import StepState
 

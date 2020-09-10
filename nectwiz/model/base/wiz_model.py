@@ -1,7 +1,37 @@
+import os
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
+from nectwiz.core.core import utils
 
 T = TypeVar('T', bound='WizModel')
+
+class ModelsMan:
+  def __init__(self):
+    self._descriptors: List[Dict] = []
+    self._classes: List[Type[T]] = []
+
+  def add_descriptors(self, descriptors: List[Dict]):
+    self._descriptors = self._descriptors + descriptors
+
+  def add_classes(self, model_classes: List[Type[T]]):
+    self._classes = self._classes + model_classes
+
+  def clear(self, restore_defaults=True):
+    if restore_defaults:
+      self._descriptors = default_descriptors()
+      self._classes = default_model_classes()
+    else:
+      self._descriptors = []
+      self._classes = []
+
+  def descriptors(self) -> List[Dict]:
+    return self._descriptors
+
+  def classes(self) -> List[Type[T]]:
+    return self._classes
+
+
+models_man = ModelsMan()
 
 
 class WizModel:
@@ -43,8 +73,8 @@ class WizModel:
 
   @classmethod
   def inflate_all(cls) -> List[Type[T]]:
-    cls_pool = cls.lteq_classes(global_subclasses())
-    configs = configs_for_kinds(global_configs(), cls_pool)
+    cls_pool = cls.lteq_classes(models_man.classes())
+    configs = configs_for_kinds(models_man.descriptors(), cls_pool)
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
@@ -60,13 +90,13 @@ class WizModel:
     if _id and _id[0].isupper():
       config = dict(kind=_id)
     else:
-      config = find_config_by_id(_id, global_configs())
+      config = find_config_by_id(_id, models_man.descriptors())
     return cls.inflate_with_config(config)
 
   @classmethod
   def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
     host_class = cls or def_cls
-    subclasses = cls.lteq_classes(global_subclasses())
+    subclasses = cls.lteq_classes(models_man.classes())
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
 
@@ -121,11 +151,12 @@ def configs_for_kinds(configs: List[Dict], cls_pool) -> List[Dict]:
   return [c for c in configs if c.get('kind') in kinds_pool]
 
 
-def global_configs():
-  from nectwiz.core.core.config_man import config_man
-  return wiz_app.configs
+def default_descriptors() -> List[Dict]:
+  pwd = os.path.join(os.path.dirname(__file__))
+  return utils.yamls_in_dir(f"{pwd}/../../model/pre_built")
 
 
-def global_subclasses():
-  from nectwiz.core.core.config_man import config_man
-  return wiz_app.subclasses
+def default_model_classes() -> List[Type[T]]:
+  from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
+  from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
+  return [CmdExecAction, StepApplyResAction]

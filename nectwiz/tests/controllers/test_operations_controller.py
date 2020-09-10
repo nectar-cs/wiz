@@ -1,6 +1,6 @@
 import json
 
-from nectwiz.core.core.config_man import config_man as wg
+from nectwiz.model.base.wiz_model import models_man
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -9,11 +9,11 @@ from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 class TestOperationsController(ClusterTest):
 
   def setUp(self) -> None:
-    wg.clear()
+    models_man.clear()
 
   def test_operations_index(self):
     config = g_conf(k='foo', t='Foo', i='Operation')
-    wg.add_configs([config])
+    models_man.add_descriptors([config])
 
     response = app.test_client().get('/api/operations')
     body = json.loads(response.data).get('data')
@@ -32,7 +32,7 @@ class TestOperationsController(ClusterTest):
   #   self.assertEqual(body['fields'][0]['id'], 'f1')
 
   def test_fields_validate(self):
-    wg.add_configs(basic_operation())
+    models_man.add_descriptors(basic_operation())
 
     endpoint = '/api/operations/o1/stages/g1/steps/s1/fields/f1/validate'
     response = app.test_client().post(endpoint, json=dict(value='bar'))
@@ -41,7 +41,7 @@ class TestOperationsController(ClusterTest):
 
   def test_step_next_simple(self):
     endpoint = '/api/operations/o1/stages/g1/steps/s1/next'
-    wg.add_configs([
+    models_man.add_descriptors([
       g_conf(k='o1', stages=['g1'], i='Operation'),
       g_conf(k='g1', steps=['s1', 's2'], i='Stage'),
       g_conf(k='s1', fields=['f1'], i='Step', next='bar'),

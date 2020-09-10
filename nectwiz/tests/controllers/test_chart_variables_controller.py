@@ -3,6 +3,7 @@ import json
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core.config_man import config_man
+from nectwiz.model.base.wiz_model import models_man
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers import helper
@@ -13,13 +14,13 @@ class TestChartVariablesController(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app.clear()
+    models_man.clear()
     self.ns, = ns_factory.request(1)
     helper.mock_globals(self.ns)
 
   # def test_submit(self):
   #   helper.foo_bar_setup(self.ns)
-  #   wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
+  #   models_man.add_descriptors([g_conf(i='ChartVariable', k='foo')])
   #   self.assertEqual('bar', ChartVariable.inflate('foo').read_crt_value())
   #
   #   endpoint = '/api/chart-variables/foo/submit'
@@ -30,7 +31,7 @@ class TestChartVariablesController(ClusterTest):
   #   self.assertEqual('baz', ChartVariable.inflate('foo').read_crt_value())
 
   def test_validate(self):
-    wiz_app.add_configs([dict(
+    models_man.add_descriptors([dict(
       kind='ChartVariable',
       id='foo',
       field=dict(id='f')
@@ -49,7 +50,7 @@ class TestChartVariablesController(ClusterTest):
   def test_index(self):
     helper.foo_bar_setup(self.ns)
     
-    wiz_app.add_configs([
+    models_man.add_descriptors([
       dict(kind='ChartVariable', id='foo'), 
       dict(kind='ChartVariable', id='bar.foo')
     ])
@@ -64,7 +65,7 @@ class TestChartVariablesController(ClusterTest):
 
   # def test_show_no_field(self):
   #   helper.foo_bar_setup(self.ns)
-  #   wiz_app.add_configs([g_conf(i='ChartVariable', k='foo')])
+  #   models_man.add_descriptors([g_conf(i='ChartVariable', k='foo')])
   #
   #   response1 = app.test_client().get('/api/chart-variables/foo')
   #   cv1 = json.loads(response1.data).get('data')
@@ -76,7 +77,7 @@ class TestChartVariablesController(ClusterTest):
     helper.foo_bar_setup(self.ns)
     field_options = [dict(id='key', value='value')]
 
-    wiz_app.add_configs([dict(
+    models_man.add_descriptors([dict(
       kind='ChartVariable',
       id='bar.foo',
       field=dict(
