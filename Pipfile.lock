@@ -102,10 +102,10 @@
         },
         "k8kat": {
             "hashes": [
-                "sha256:bdc0a44f3d49ae32a03f642946c8974dbb8961c0e0da29909413aa035e59aa87",
-                "sha256:d082ac8dba8dd70cc34ca66aadc84cf585067285c361abeb9c9d35c3076ab217"
+                "sha256:a73174b1c4c7480ad6ac4bd6dc5a4985844448e25855bba5d57e7897857a8638",
+                "sha256:c6f272b145d281d9831e110e5da4b3c537f40e09d36349ef3dc2364c078226ee"
             ],
-            "version": "==0.0.201"
+            "version": "==0.0.203"
         },
         "kubernetes": {
             "hashes": [
@@ -230,10 +230,10 @@
         },
         "rq": {
             "hashes": [
-                "sha256:4d8268e0d541d8016cbb915befd30fc68f1c3a9e77a8cfc02de3e6f22a5314d9",
-                "sha256:601fc7f1600f0b069b1e145678545d1f532316b72716e44fd0295daef917679c"
+                "sha256:6e32a39d467ffc56fc18f0f0f10abd6aa258895dbac03af31e38fe0c2337aab8",
+                "sha256:fc23788eedc39cad3c10630af1694a550eba2f8519e57e396fd91b1dba0a7d99"
             ],
-            "version": "==1.5.1"
+            "version": "==1.5.2"
         },
         "rsa": {
             "hashes": [

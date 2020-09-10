@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="nectwiz",
-  version="0.0.210",
+  version="0.0.212",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
   description="App Wizard",
@@ -18,7 +18,7 @@ setuptools.setup(
   install_requires=[
     'flask>=1.1',
     'flask-cors',
-    'k8kat>=0.0.201',
+    'k8kat>=0.0.203',
     'requests',
     'cachetools>=3.1',
     'redis>=3',
