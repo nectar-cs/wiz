@@ -3,7 +3,7 @@ import json
 from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
-from nectwiz.core.core.config_man import config_man
+from nectwiz.core.core.config_man import config_man, tam_config_key, tam_vars_key
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step_state import StepState
 
@@ -31,8 +31,8 @@ def create_base_master_map(ns):
         name='master'
       ),
       data={
-        config_man.tam_config_key: json.dumps({}),
-        config_man.tam_vars_key: json.dumps({})
+        tam_config_key: json.dumps({}),
+        tam_vars_key: json.dumps({})
       }
     )
   )

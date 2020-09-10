@@ -7,6 +7,7 @@ from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1Volume, V1VolumeMount, V1ConfigMapVolumeSource, V1ResourceRequirements, V1KeyToPath
 
 from nectwiz.core.core import utils
+from nectwiz.core.core.config_man import tam_vars_key
 
 vars_mount_dir = '/values'
 vars_file_name = 'master'
@@ -21,7 +22,6 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
   :return: logs from the Tami container.
   """
   pod_name = f"tami-{utils.rand_str()}"
-  from nectwiz.core.core import config_man
   broker.coreV1.create_namespaced_pod(
     namespace=ns,
     body=V1Pod(
@@ -39,7 +39,7 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
               name='master',
               items=[
                 V1KeyToPath(
-                  key=config_man.tam_vars_key,
+                  key=tam_vars_key,
                   path=vars_file_name
                 )
               ]

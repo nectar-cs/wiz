@@ -1,4 +1,4 @@
-from nectwiz.core.core import config_man
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base import res_selector
 from nectwiz.model.predicate.predicate import Predicate, getattr_deep
 

@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from k8kat.res.config_map.kat_map import KatMap
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core import config_man
+from nectwiz.core.core.config_man import config_man
 
 cmap_field = 'sharing_prefs'
 upload_telem_key = 'upload_telem'
