@@ -4,7 +4,7 @@ from typing import Dict, List
 import yaml
 
 from nectwiz.core.core.types import K8sResDict
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 
 from nectwiz.core.tam.tam_client import TamClient, fmt_inline_assigns
 
@@ -21,9 +21,9 @@ class TamleClient(TamClient):
 
 
 def flags():
-  return f"--set namespace={wiz_app.ns()}"
+  return f"--set namespace={config_man.ns()}"
 
 
 def exec_cmd(cmd):
-  full_cmd = f"{wiz_app.tam()['uri']} {cmd}".split(" ")
+  full_cmd = f"{config_man.tam()['uri']} {cmd}".split(" ")
   return subprocess.check_output(full_cmd).decode('utf-8')

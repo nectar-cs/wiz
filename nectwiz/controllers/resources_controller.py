@@ -12,7 +12,8 @@ from k8kat.res.rbac.rbac import KatRole, KatRoleBinding
 from k8kat.res.sa.kat_service_account import KatServiceAccount
 from k8kat.res.secret.kat_secret import KatSecret
 from k8kat.res.svc.kat_svc import KatSvc
-from nectwiz.core.core.wiz_app import wiz_app
+
+from nectwiz.core.core.config_man import config_man
 from nectwiz.serializers import res_serializers
 
 controller = Blueprint('resources_controller', __name__)
@@ -30,7 +31,7 @@ def list_by_category(category_id):
   kat_res_classes: List[Type[KatRes]] = category_mapping[category_id]
   all_serialized_res = []
   for kat_class in kat_res_classes:
-    res_instances = kat_class.list_excluding_sys(ns=wiz_app.ns())
+    res_instances = kat_class.list_excluding_sys(ns=config_man.ns())
     serialized = [res_serializers.basic(res) for res in res_instances]
     all_serialized_res += serialized
   return jsonify(data=all_serialized_res)
@@ -45,7 +46,7 @@ def resource_detail(kind: str, name: str):
   :return: serialized resource KatRes instance.
   """
   kat_class = KatRes.find_res_class(kind)
-  res = kat_class.find(name, wiz_app.ns())
+  res = kat_class.find(name, config_man.ns())
   serializer = kind_serializer_mapping.get(kind)
   serialized = serializer(res) if res and serializer else None
   return jsonify(data=serialized)

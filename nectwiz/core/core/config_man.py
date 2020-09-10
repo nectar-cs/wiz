@@ -19,112 +19,120 @@ tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
 
 
-def master_cmap() -> Optional[KatMap]:
-  """
-  Returns the ConfigMap.
-  :return: ConfigMap.
-  """
-  from nectwiz.core.core.wiz_app import wiz_app
-  if wiz_app.ns():
-    return KatMap.find(cmap_name, wiz_app.ns())
-  else:
-    return None
+class ConfigMan:
+  def __init__(self):
+    self._ns: Optional[str] = None
+    self._tam: Optional[TamDict] = None
+    self._install_uuid: Optional[str] = None
+    self._tam_defaults: Optional[Dict] = None
+    self._tam_vars: Optional[Dict] = None
 
+  def ns(self, force_reload=False):
+    if force_reload or not self._ns:
+      self._ns = read_ns()
+    return self._ns
 
-def read_cmap_dict(outer_key: str) -> Dict:
-  cmap = master_cmap()
-  return cmap.jget(outer_key, {}) if cmap else {}
+  def tam(self, force_reload=False) -> TamDict:
+    if force_reload or not self._tam:
+      self._tam = self.read_tam()
+    return self._tam
 
+  def tam_defaults(self, force_reload=False) -> Dict:
+    if force_reload or not self._tam_defaults:
+      self._tam_defaults = self.read_tam_var_defaults()
+    return self._tam_defaults
 
-def read_cmap_primitive(flat_key: str):
-  cmap = master_cmap()
-  return cmap.data.get(flat_key) if cmap else None
+  def man_vars(self, force_reload=False) -> Dict:
+    if force_reload or not self._tam_vars:
+      self._tam_vars = self.read_man_vars()
+    return self._tam_vars
 
+  def install_uuid(self, force_reload=False) -> str:
+    if self.ns() and (force_reload or not self.install_uuid):
+      self._install_uuid = self.read_install_uuid()
+    return self._install_uuid
 
-def patch_cmap(outer_key: str, value: any):
-  config_map = master_cmap()
-  config_map.raw.data[outer_key] = value
-  config_map.touch(save=True)
+  def coerce_ns(self, ns):
+    print(f"[nectwiz::configman] DANGER hardcoding ns!")
+    self._ns = ns
 
+  def master_cmap(self) -> Optional[KatMap]:
+    if config_man.ns():
+      return KatMap.find(cmap_name, self.ns())
+    else:
+      return None
 
-def patch_cmap_with_dict(outer_key: str, value: Dict):
-  patch_cmap(outer_key, json.dumps(value))
+  def read_cmap_dict(self, outer_key: str) -> Dict:
+    cmap = self.master_cmap()
+    return cmap.jget(outer_key, {}) if cmap else {}
+
+  def read_cmap_primitive(self, flat_key: str):
+    cmap = self.master_cmap()
+    return cmap.data.get(flat_key) if cmap else None
+
+  def patch_cmap(self, outer_key: str, value: any):
+    config_map = self.master_cmap()
+    config_map.raw.data[outer_key] = value
+    config_map.touch(save=True)
+
+  def patch_cmap_with_dict(self, outer_key: str, value: Dict):
+    self.patch_cmap(outer_key, json.dumps(value))
+
+  def read_tam(self) -> TamDict:
+    return self.read_cmap_dict(tam_config_key)
+
+  def write_tam(self, new_tam: TamDict):
+    self.patch_cmap_with_dict(tam_config_key, new_tam)
+
+  def read_man_vars(self) -> Dict:
+    return self.read_cmap_dict(tam_vars_key)
+
+  def write_tam_var_defaults(self, assigns: Dict):
+    self.patch_cmap_with_dict(tam_defaults_key, assigns)
+
+  def read_tam_var_defaults(self) -> Dict:
+    return self.read_cmap_dict(tam_defaults_key)
+
+  def read_last_update_checked(self) -> str:
+    return self.read_cmap_primitive(update_checked_at_key)
+
+  def write_last_update_checked(self, new_value):
+    return self.patch_cmap(update_checked_at_key, new_value)
+
+  def read_tam_var(self, deep_key: str) -> Optional[str]:
+    """
+    Deep-gets the value specified as deep_key from the ConfigMap.
+    :param deep_key: key in the following format: level1.level2.level3, where levels
+    refer to keys at various depths of the dict, from most shallow to deepest.
+    :return: value behind deep key.
+    """
+    return utils.deep_get(self.read_man_vars(), deep_key.split('.'))
+
+  def read_install_uuid(self):
+    if utils.is_dev():
+      secret = KatSecret.find('master', self.ns()) if self.ns() else None
+      if secret:
+        raw_enc = secret.raw.data.get('install_uuid')
+        raw_enc_bytes = bytes(raw_enc, 'utf-8')
+        return base64.b64decode(raw_enc_bytes).decode()
+      return None
+    else:
+      try:
+        with open(install_uuid_path, 'r') as file:
+          return file.read()
+      except FileNotFoundError:
+        return None
+
+  def commit_keyed_tam_assigns(self, assignments: List[Tuple[str, any]]):
+    self.commit_tam_assigns(utils.keyed2dict(assignments))
+
+  def commit_tam_assigns(self, assignments: Dict[str, any]):
+    merged = deep_merge(self.read_man_vars(), assignments)
+    self.patch_cmap_with_dict(tam_vars_key, merged)
 
 
 def read_ns() -> Optional[str]:
   return os.environ.get('NAMESPACE')
 
 
-def read_tam() -> TamDict:
-  return read_cmap_dict(tam_config_key)
-
-
-def write_tam(new_tam: TamDict):
-  patch_cmap_with_dict(tam_config_key, new_tam)
-
-
-def read_man_vars() -> Dict:
-  return read_cmap_dict(tam_vars_key)
-
-
-def write_tam_var_defaults(assigns: Dict):
-  patch_cmap_with_dict(tam_defaults_key, assigns)
-
-
-def read_tam_var_defaults() -> Dict:
-  return read_cmap_dict(tam_defaults_key)
-
-
-def read_last_update_checked() -> str:
-  return read_cmap_primitive(update_checked_at_key)
-
-
-def write_last_update_checked(new_value):
-  return patch_cmap(update_checked_at_key, new_value)
-
-
-def read_tam_var(deep_key: str) -> Optional[str]:
-  """
-  Deep-gets the value specified as deep_key from the ConfigMap.
-  :param deep_key: key in the following format: level1.level2.level3, where levels
-  refer to keys at various depths of the dict, from most shallow to deepest.
-  :return: value behind deep key.
-  """
-  return utils.deep_get(read_man_vars(), deep_key.split('.'))
-
-
-def read_install_uuid(ns):
-  if utils.is_dev():
-    secret = KatSecret.find('master', ns) if ns else None
-    if secret:
-      raw_enc = secret.raw.data.get('install_uuid')
-      raw_enc_bytes = bytes(raw_enc, 'utf-8')
-      return base64.b64decode(raw_enc_bytes).decode()
-    return None
-  else:
-    try:
-      with open(install_uuid_path, 'r') as file:
-        return file.read()
-    except FileNotFoundError:
-      return None
-
-
-def put_worker_status():
-  pass
-
-
-def clear_worker_status():
-  pass
-
-
-def read_worker_status(job_uuid: str):
-  pass
-
-
-def commit_keyed_tam_assigns(assignments: List[Tuple[str, any]]):
-  commit_tam_assigns(utils.keyed2dict(assignments))
-
-
-def commit_tam_assigns(assignments: Dict[str, any]):
-  merged = deep_merge(read_man_vars(), assignments)
-  patch_cmap_with_dict(tam_vars_key, merged)
+config_man = ConfigMan()

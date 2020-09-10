@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify
 
-# from nectwiz.core import update_manager
-from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
 from nectwiz.model.adapters.base_consumption_adapter import BaseConsumptionAdapter
 

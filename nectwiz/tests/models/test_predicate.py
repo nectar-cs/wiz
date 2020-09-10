@@ -5,7 +5,7 @@ from k8kat.utils.testing import ns_factory
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core import config_man
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate, ResCountComparePredicate, \
   ResPropComparePredicate
@@ -28,7 +28,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app._ns = ns
+    config_man._ns = ns
     create_base_master_map(ns)
     config_man.commit_keyed_tam_assigns([('foo', 'bar'), ('x', '1')])
 
@@ -42,7 +42,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_eval_resource_count_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app._ns = ns
+    config_man._ns = ns
     create_cmap('r1', ns)
     create_cmap('r2', ns)
 
@@ -57,7 +57,7 @@ class TestPredicate(Base.TestWizModel):
 
   def test_eval_resource_property_compare(self):
     ns, = ns_factory.request(1)
-    wiz_app._ns = ns
+    config_man._ns = ns
     create_cmap('r1', ns)
     create_cmap('r2', ns)
 

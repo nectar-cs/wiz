@@ -8,7 +8,7 @@ from k8kat.auth.kube_broker import broker
 from k8kat.utils.testing import ns_factory
 from nectwiz.core.telem import telem_perms
 from nectwiz.core.telem.telem_perms import TelemPerms
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -16,7 +16,7 @@ class TestSharingPerms(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app._ns, = ns_factory.request(1)
+    config_man._ns, = ns_factory.request(1)
 
   def test_user_perms(self):
     self.assertEqual({}, perms_map())
@@ -42,7 +42,7 @@ class TestSharingPerms(ClusterTest):
 
 def mk_map(contents: Dict):
   return broker.coreV1.create_namespaced_config_map(
-    namespace=wiz_app.ns(),
+    namespace=config_man.ns(),
     body=V1ConfigMap(
       metadata=V1ObjectMeta(name='master'),
       data={

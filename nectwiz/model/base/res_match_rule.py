@@ -3,8 +3,8 @@ from typing import Union, Dict, Optional, List
 from k8kat.res.base.kat_res import KatRes
 from typing_extensions import TypedDict
 
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import K8sResDict
-from nectwiz.core.core.wiz_app import wiz_app
 
 
 class RuleDict(TypedDict, total=False):
@@ -69,7 +69,7 @@ class ResMatchRule:
         }
 
       return kat_class.list(
-        ns=wiz_app.ns(),
+        ns=config_man.ns(),
         labels=self.label_selectors,
         fields=field_selectors
       )

@@ -29,50 +29,8 @@ class WizApp:
     self.adapters = []
     self.jobs_backend = 'rq'
 
-    self._ns: Optional[str] = None
-    self._tam: Optional[TamDict] = None
-    self._install_uuid: Optional[str] = None
-    self._tam_defaults: Optional[Dict] = None
-    self._tam_vars: Optional[Dict] = None
-
     self.clear()
     
-  def ns(self, force_reload=False):
-    if force_reload or not self._ns:
-      from nectwiz.core.core import config_man
-      self._ns = config_man.read_ns()
-    return self._ns
-
-  def tam(self, force_reload=False) -> TamDict:
-    if force_reload or not self._tam:
-      from nectwiz.core.core import config_man
-      self._tam = config_man.read_tam()
-    return self._tam
-
-  def tam_defaults(self, force_reload=False) -> Dict:
-    if force_reload or not self._tam_defaults:
-      from nectwiz.core.core import config_man
-      self._tam_defaults = config_man.read_tam_var_defaults()
-    return self._tam_defaults
-
-  def tam_vars(self, force_reload=False) -> Dict:
-    if force_reload or not self._tam_vars:
-      from nectwiz.core.core import config_man
-      self._tam_vars = config_man.read_man_vars()
-    return self._tam_vars
-
-  def change_tam_version(self, new_tam_version: str):
-    from nectwiz.core.core import config_man
-    updated_tam = { **wiz_app.tam(), 'ver': new_tam_version }
-    config_man.write_tam(updated_tam)
-    self._tam = config_man.read_tam()
-
-  def install_uuid(self, force_reload=False) -> str:
-    if self.ns() and (force_reload or not self.install_uuid):
-      from nectwiz.core.core import config_man
-      self._install_uuid = config_man.read_install_uuid(self.ns())
-    return self._install_uuid
-
   def uses_rq(self):
     return self.jobs_backend == 'rq'
 

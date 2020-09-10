@@ -2,8 +2,7 @@ from typing import Type
 
 from k8kat.utils.testing import ns_factory
 
-from nectwiz.core.core import config_man
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step import Step
@@ -18,8 +17,8 @@ class TestStep(Base.TestWizModel):
     return Step
 
   def test_run_commit_man_only(self):
-    wiz_app._ns, = ns_factory.request(1)
-    create_base_master_map(wiz_app._ns)
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man.ns())
     step = Step({
       'fields': [
         {'id': 's1.f1', 'target': 'chart'},

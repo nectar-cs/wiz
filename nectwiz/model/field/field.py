@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from nectwiz.core.core.utils import deep_get
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel
@@ -58,7 +58,7 @@ class Field(WizModel):
     if self.expl_default:
       return self.expl_default
     else:
-      tam_defaults = wiz_app.tam_defaults() or {}
+      tam_defaults = config_man.tam_defaults() or {}
       native_default = deep_get(tam_defaults, self.id().split("."))
       if native_default:
         return native_default

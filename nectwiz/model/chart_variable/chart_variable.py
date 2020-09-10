@@ -3,7 +3,7 @@ from typing import Optional, List
 from nectwiz.core.core import config_man, utils
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.core.utils import dict2keyed
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -34,7 +34,7 @@ class ChartVariable(WizModel):
     explicit_default = self.config.get('default')
     if explicit_default:
       return explicit_default
-    return wiz_app.tam_defaults().get(self.id())
+    return config_man.tam_defaults().get(self.id())
 
   @property
   def linked_res_name(self) -> str:
@@ -104,7 +104,7 @@ class ChartVariable(WizModel):
     first, else dumps the ConfigMap and gets the value from there.
     :return: string containing the current value of the field.
     """
-    root = wiz_app.tam_vars(force_reload)
+    root = config_man.man_vars(force_reload)
     return utils.deep_get(root, self.id().split('.'))
 
   def commit(self, value:str):
@@ -128,7 +128,7 @@ class ChartVariable(WizModel):
 
   @classmethod
   def all_vars(cls):
-    raw = wiz_app.tam_vars(force_reload=True)
+    raw = config_man.man_vars(force_reload=True)
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
     pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0

@@ -7,7 +7,7 @@ from k8kat.auth.kube_broker import BrokerConnException
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller, resources_controller
 from nectwiz.core.core import utils
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
@@ -39,7 +39,7 @@ def all_exception_handler(error):
 def read_dev_ns():
   if request.headers.get('Wizns'):
     if utils.is_dev():
-      wiz_app._ns = request.headers.get('Wizns')
+      config_man._ns = request.headers.get('Wizns')
     else:
       print("[nectwiz::server] danger client tried setting Wizns!")
 

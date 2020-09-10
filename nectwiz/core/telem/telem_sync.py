@@ -1,7 +1,7 @@
 from typing import List
 
 from nectwiz.core.core import hub_client, config_man
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.serializers import operation_state_ser
 
@@ -16,7 +16,7 @@ def upload_meta():
     'last_update_check': last_updated_checked
   }
 
-  endpoint = f'/installs/{wiz_app.install_uuid()}'
+  endpoint = f'/installs/{config_man.install_uuid()}'
   hub_client.patch(endpoint, payload)
 
 
@@ -34,7 +34,7 @@ def upload_operation_outcomes() -> int:
 
 
 def upload_operation_outcome(op_state: OperationState) -> bool:
-  install_uuid = wiz_app.install_uuid(True)
+  install_uuid = config_man.install_uuid(True)
   if install_uuid:
     serialized_outcome = operation_state_ser.serialize(op_state)
     ep = f'/installs/{install_uuid}/operation_outcomes'

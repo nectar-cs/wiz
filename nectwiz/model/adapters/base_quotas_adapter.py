@@ -1,6 +1,6 @@
 from k8kat.res.quotas.kat_quota import KatQuota
 
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.adapters.adapter import Adapter
 
 
@@ -11,7 +11,7 @@ class BaseQuotasAdapter(Adapter):
     self.kat_quota = self.find_kat_quota_resource()
 
   def find_kat_quota_resource(self) -> KatQuota:
-    matches = KatQuota.list(wiz_app.ns())
+    matches = KatQuota.list(config_man.ns())
     return matches[len(matches) - 1] if len(matches) > 0 else None
 
   def cpu_limit(self):

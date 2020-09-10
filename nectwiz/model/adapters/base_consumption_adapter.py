@@ -5,7 +5,8 @@ from werkzeug.utils import cached_property
 
 
 from k8kat.res.cluster.kat_cluster import KatCluster
-from nectwiz.core.core.wiz_app import wiz_app
+
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.adapters.adapter import Adapter
 
 
@@ -13,7 +14,7 @@ class BaseConsumptionAdapter(Adapter):
 
   @cached_property
   def kat_ns(self) -> KatNs:
-    return KatNs.find(wiz_app.ns)
+    return KatNs.find(config_man.ns())
 
   @cached_property
   def resources_capacity(self):
@@ -21,7 +22,7 @@ class BaseConsumptionAdapter(Adapter):
 
   @cached_property
   def kat_quota(self) -> KatQuota:
-    matches = KatQuota.list(ns=wiz_app.ns())
+    matches = KatQuota.list(ns=config_man.ns())
     return matches[len(matches) - 1] if len(matches) > 0 else None
 
   def cpu_request_sum_allowed(self):

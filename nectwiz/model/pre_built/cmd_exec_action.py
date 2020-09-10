@@ -36,9 +36,9 @@ def interpolate_cmd(cmd: str, buckets):
 
 
 def interpolate_token(token: str, buckets) -> str:
-  from nectwiz.core.core.wiz_app import wiz_app
+  from nectwiz.core.core.config_man import config_man
   if token == '$app':
-    return wiz_app.ns()
+    return config_man.ns()
   elif token.startswith("$vars"):
     _, bucket_name, var_name = token.split("::")
     return buckets[bucket_name][var_name]

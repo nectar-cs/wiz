@@ -1,6 +1,6 @@
 import json
 
-from nectwiz.core.core.wiz_app import wiz_app as wg
+from nectwiz.core.core.config_man import config_man as wg
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest

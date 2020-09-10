@@ -122,10 +122,10 @@ def configs_for_kinds(configs: List[Dict], cls_pool) -> List[Dict]:
 
 
 def global_configs():
-  from nectwiz.core.core.wiz_app import wiz_app
+  from nectwiz.core.core.config_man import config_man
   return wiz_app.configs
 
 
 def global_subclasses():
-  from nectwiz.core.core.wiz_app import wiz_app
+  from nectwiz.core.core.config_man import config_man
   return wiz_app.subclasses

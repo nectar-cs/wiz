@@ -4,10 +4,10 @@ from flask import Blueprint, jsonify, request
 
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core.core import config_man
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.telem_perms import TelemPerms
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.model.hook.hook import Hook
 
 controller = Blueprint('status_controller', __name__)
@@ -64,9 +64,9 @@ def status():
       is_k8kat_connected=broker.is_connected,
       connect_config=broker.connect_config
     ),
-    ns=wiz_app.ns(),
-    tam_config=wiz_app.tam(),
-    tam_defaults=wiz_app.tam_defaults(),
+    ns=config_man.ns(),
+    tam_config=config_man.tam(),
+    tam_defaults=config_man.tam_defaults(),
     tam_variables=config_man.read_man_vars()
   )
 

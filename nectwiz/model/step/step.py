@@ -1,6 +1,7 @@
 from typing import List, Dict, Optional
 
-from nectwiz.core.core import config_man, utils
+from nectwiz.core.core import utils
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import CommitOutcome
 from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.action.action import Action
@@ -82,7 +83,6 @@ class Step(WizModel):
       config_man.commit_keyed_tam_assigns(keyed_tuples)
 
     if self.runs_action():
-      from nectwiz.core.core.wiz_app import wiz_app
       if wiz_app.uses_rq():
         job_id = enqueue_action(self.action_kod, **buckets)
         prev_state.notify_action_started(job_id)

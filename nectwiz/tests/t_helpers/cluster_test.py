@@ -5,7 +5,7 @@ from k8kat.auth.kube_broker import broker
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 
 
 class ClusterTest(unittest.TestCase):
@@ -25,12 +25,12 @@ class ClusterTest(unittest.TestCase):
 
   def setUp(self) -> None:
     super().setUp()
-    wiz_app._ns = None
+    config_man._ns = None
     wiz_app.clear()
 
   def tearDown(self) -> None:
     super().setUp()
-    wiz_app._ns = None
+    config_man._ns = None
     wiz_app.clear()
 
 

@@ -4,7 +4,6 @@ from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core import config_man
-from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.operations.operation_state import OperationState
 from nectwiz.model.step.step_state import StepState
 
@@ -20,7 +19,7 @@ def one_step_state(step, keep=True) -> StepState:
 
 def mock_globals(ns):
   if ns:
-    wiz_app._ns = ns
+    config_man._ns = ns
 
 
 def create_base_master_map(ns):

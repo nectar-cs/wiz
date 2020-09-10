@@ -1,6 +1,6 @@
 from k8kat.utils.testing import ns_factory, simple_pod, simple_svc
 from nectwiz.model.base.res_match_rule import ResMatchRule, component_matches
-from nectwiz.core.core.wiz_app import wiz_app
+from nectwiz.core.core.config_man import config_man
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 
@@ -40,7 +40,7 @@ class TestResMatchRules(ClusterTest):
 
   def test_query(self):
     ns, = ns_factory.request(1)
-    wiz_app._ns = ns
+    config_man._ns = ns
     simple_svc.create(name='s1', ns=ns)
     simple_svc.create(name='s2', ns=ns)
 

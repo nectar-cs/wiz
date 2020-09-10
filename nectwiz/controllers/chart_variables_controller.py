@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 
-from nectwiz.core.core import hub_client, config_man
+from nectwiz.core.core import hub_client
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.core.wiz_app import wiz_app
 from nectwiz.model.chart_variable import serial
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 
@@ -23,7 +23,7 @@ def chart_variables_index():
 
 @controller.route('/api/chart-variables/commit-injections', methods=['POST'])
 def chart_vars_commit_injections():
-  install_uuid = wiz_app.install_uuid(force_reload=True)
+  install_uuid = config_man.install_uuid(force_reload=True)
   if install_uuid:
     route = f'/installs/{install_uuid}/injections'
     resp = hub_client.get(route)
