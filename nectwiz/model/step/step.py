@@ -4,7 +4,6 @@ from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import CommitOutcome
 from nectwiz.core.job.job_client import enqueue_action, find_job
-from nectwiz.model.action.action import Action
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operations.operation_state import OperationState
@@ -83,12 +82,8 @@ class Step(WizModel):
       config_man.commit_keyed_tam_assigns(keyed_tuples)
 
     if self.runs_action():
-      if wiz_app.uses_rq():
-        job_id = enqueue_action(self.action_kod, **buckets)
-        prev_state.notify_action_started(job_id)
-      else:
-        outcome = Action.inflate(self.action_kod).perform(**buckets)
-        prev_state.notify_is_settling(outcome)
+      job_id = enqueue_action(self.action_kod, **buckets)
+      prev_state.notify_action_started(job_id)
     else:
       prev_state.notify_succeeded()
 

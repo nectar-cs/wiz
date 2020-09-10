@@ -16,13 +16,15 @@ class ModelsMan:
   def add_classes(self, model_classes: List[Type[T]]):
     self._classes = self._classes + model_classes
 
+  def add_defaults(self):
+    self.add_descriptors(default_descriptors())
+    self.add_classes(default_model_classes())
+
   def clear(self, restore_defaults=True):
+    self._descriptors = []
+    self._classes = []
     if restore_defaults:
-      self._descriptors = default_descriptors()
-      self._classes = default_model_classes()
-    else:
-      self._descriptors = []
-      self._classes = []
+      self.add_defaults()
 
   def descriptors(self) -> List[Dict]:
     return self._descriptors

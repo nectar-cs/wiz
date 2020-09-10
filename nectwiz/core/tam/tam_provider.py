@@ -6,6 +6,11 @@ from nectwiz.core.tam.tams_client import TamsClient
 
 
 def tam_client() -> TamClient:
+  
+  print("AT THIS POINT THE NS IS")
+  print(config_man.ns())
+  print(config_man.tam())
+  
   tam_type = config_man.tam()['type']
 
   if tam_type == 'image':

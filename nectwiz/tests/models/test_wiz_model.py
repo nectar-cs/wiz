@@ -24,13 +24,24 @@ class Base:
     def kind(self) -> str:
       return self.model_class().__name__
 
-    def test_inflate_with_key(self):
+    def test_inflate_with_id_key(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
       models_man.add_descriptors([a, b])
       inflated = self.model_class().inflate('a')
       self.assertEqual(type(inflated), self.model_class())
       self.assertEqual(inflated.id(), 'a')
       self.assertEqual(inflated.title, 'a.title')
+
+    def test_inflate_with_type_key(self):
+      class Custom(self.model_class()):
+        @property
+        def info(self):
+          return 'baz'
+
+      models_man.add_classes([Custom])
+      result = self.model_class().inflate_with_key(Custom.__name__)
+      self.assertEqual(Custom, result.__class__)
+      self.assertEqual('baz', result.info)
 
     def test_inflate_with_config_simple(self):
       config = {'title': 'foo'}

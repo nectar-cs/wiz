@@ -28,33 +28,29 @@ class ConfigMan:
     self._tam_vars: Optional[Dict] = None
 
   def ns(self, force_reload=False):
-    if force_reload or not self._ns:
+    if force_reload or utils.is_worker() or not self._ns:
       self._ns = read_ns()
     return self._ns
 
   def tam(self, force_reload=False) -> TamDict:
-    if force_reload or not self._tam:
+    if force_reload or utils.is_worker() or not self._tam:
       self._tam = self.read_tam()
     return self._tam
 
   def tam_defaults(self, force_reload=False) -> Dict:
-    if force_reload or not self._tam_defaults:
+    if force_reload or utils.is_worker() or not self._tam_defaults:
       self._tam_defaults = self.read_tam_var_defaults()
     return self._tam_defaults
 
   def man_vars(self, force_reload=False) -> Dict:
-    if force_reload or not self._tam_vars:
+    if force_reload or utils.is_worker() or not self._tam_vars:
       self._tam_vars = self.read_man_vars()
     return self._tam_vars
 
   def install_uuid(self, force_reload=False) -> str:
-    if self.ns() and (force_reload or not self.install_uuid):
+    if self.ns() and (utils.is_worker() or force_reload or not self.install_uuid):
       self._install_uuid = self.read_install_uuid()
     return self._install_uuid
-
-  def coerce_ns(self, ns):
-    print(f"[nectwiz::configman] DANGER hardcoding ns!")
-    self._ns = ns
 
   def master_cmap(self) -> Optional[KatMap]:
     if config_man.ns():
@@ -131,8 +127,27 @@ class ConfigMan:
     self.patch_cmap_with_dict(tam_vars_key, merged)
 
 
-def read_ns() -> Optional[str]:
-  return os.environ.get('NAMESPACE')
-
-
 config_man = ConfigMan()
+
+
+def read_ns() -> Optional[str]:
+  from_env = os.environ.get('NAMESPACE')
+  if from_env:
+    return from_env
+
+  if utils.is_dev():
+    with open('/tmp/nectwiz-dev-ns') as file:
+      return file.read()
+
+  return None
+
+
+def coerce_ns(new_ns):
+  config_man._ns = new_ns
+  config_man._tam = None
+  config_man._install_uuid = None
+  config_man._tam_defaults = None
+  config_man._tam_vars = None
+  if utils.is_dev():
+    with open('/tmp/nectwiz-dev-ns', 'w') as file:
+      file.write(new_ns)

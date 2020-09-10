@@ -7,12 +7,12 @@ class StepApplyResAction(Action):
 
   def __init__(self, config):
     super().__init__(config)
-    self.res_selectors = config.get('cmd')
+    self.res_selectors = config.get('cmd', [])
 
   def perform(self, **kwargs: StepActionKwargs) -> ActionOutcome:
     print("MY ARGS ARE")
     print(kwargs)
-    inline_assigns = kwargs.get('inline_assigns')
+    inline_assigns = kwargs.get('inline', {})
 
     out = tam_client().apply(self.res_selectors, inline_assigns.items())
     logs = out.split("\n") if out else []

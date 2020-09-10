@@ -31,6 +31,10 @@ def is_worker() -> bool:
   return exec_mode() == 'worker'
 
 
+def is_shell() -> bool:
+  return exec_mode() == 'shell'
+
+
 def worker_uuid() -> Optional[str]:
   return os.environ.get('WIZ_WORKER_UUID')
 
