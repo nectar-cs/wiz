@@ -21,5 +21,5 @@ class StepApplyResAction(Action):
       **self.outcome_template(),
       charge='positive',
       summary=f'Applied {len(logs)} resources',
-      data=dict(logs=logs)
+      data=dict(logs=[l for l in logs if l])
     )

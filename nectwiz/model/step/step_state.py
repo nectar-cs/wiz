@@ -32,7 +32,7 @@ class StepState:
 
   def action_was(self, cls_name) -> bool:
     if self.action_outcome:
-      return self.action_outcome['charge'] == cls_name
+      return self.action_outcome['cls_name'] == cls_name
     else:
       return False
 

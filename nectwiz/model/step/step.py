@@ -96,8 +96,8 @@ class Step(WizModel):
     if prev_state.was_running():
       action_job = find_job(prev_state.job_id)
       if action_job.is_finished:
-        outcome = action_job.result.get('data')
-        print("OUTCOME")
+        outcome = action_job.result
+        print("[nectwiz::step::run] OUTCOME")
         print(outcome)
         prev_state.notify_is_settling(outcome)
         return self.compute_settling_status(prev_state)
@@ -125,6 +125,7 @@ class Step(WizModel):
       print("DANGER I SHOULD HAVE PREDS BUT DONT")
       print(self.exit_predicate_descs)
       print(step_state.action_outcome)
+      return {}
 
   def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
     fields = self.fields()

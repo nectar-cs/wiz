@@ -39,6 +39,8 @@ def needs_recomputing(pred_eval: PredEval, charge: str) -> bool:
 
 
 def compute(root: Dict[str, List[Predicate]], step_state: StepState):
+  print("[statuscomputer]GOT MA PREDS")
+  print(root)
   pos_predicates = root.get(POS, [])
   neg_predicates = root.get(NEG, [])
 

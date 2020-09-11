@@ -147,7 +147,10 @@ def step_compute_settle_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   prev_state = find_op_state().find_step_state(step)
   step.compute_status(prev_state)
-  return jsonify(data=prev_state.status)
+  return jsonify(
+    status=prev_state.status,
+    condition_statuses=prev_state.exit_statuses
+  )
 
 
 @controller.route(f'{STEP_PATH}/next', methods=['POST'])

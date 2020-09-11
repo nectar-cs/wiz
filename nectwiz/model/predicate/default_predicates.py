@@ -10,7 +10,7 @@ def from_apply_outcome(apply_logs: List[str]) -> Dict[str, List[Predicate]]:
 
   for log in apply_logs:
     ktl_outcome = utils.log2ktlapplyoutcome(log)
-    if not ktl_outcome['verb'] == 'unchanged':
+    if ktl_outcome and not ktl_outcome['verb'] == 'unchanged':
       for charge in ['positive', 'negative']:
         predicate = res_comp_predicate(ktl_outcome, charge)
         predicates[charge].append(predicate)

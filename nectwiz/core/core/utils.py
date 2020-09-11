@@ -251,10 +251,13 @@ def coerce_cmd_format(cmd):
     return cmd
 
 
-def log2ktlapplyoutcome(log: str) -> KtlApplyOutcome:
-  kind_and_name, verb = log.split(" ")
-  kind, name = kind_and_name.split("/")
-  return KtlApplyOutcome(kind=kind, name=name, verb=verb)
+def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
+  try:
+    kind_and_name, verb = log.split(" ")
+    kind, name = kind_and_name.split("/")
+    return KtlApplyOutcome(kind=kind, name=name, verb=verb)
+  except:
+    return None
 
 
 def flatten(nested_list):

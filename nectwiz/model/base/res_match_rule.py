@@ -74,7 +74,7 @@ class ResMatchRule:
         fields=field_selectors
       )
     else:
-      print(f"Warn: {self.kind} unsupported by K8Kat, returning []!")
+      print(f"[nextwiz::res_match_rule] No kat for {self.kind}; kubectl fallback")
       return []
 
 
