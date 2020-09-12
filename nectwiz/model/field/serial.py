@@ -15,7 +15,7 @@ def embedded(field: Field):
     info=field.info,
     is_inline=field.target == 'inline',
     needs_decorating=field.needs_decorating(),
-    default=field.default_value()
+    default=field.current_or_default()
   )
 
 

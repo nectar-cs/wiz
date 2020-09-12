@@ -7,7 +7,7 @@ from nectwiz.model.operations.operation import Operation
 from nectwiz.model.operations.operation_state import OperationState, operation_states
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
-from nectwiz.model.step import serial as step_serial
+from nectwiz.model.step import step_serial
 from nectwiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'

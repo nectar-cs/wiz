@@ -13,14 +13,6 @@ from nectwiz.model.hook.hook import Hook
 controller = Blueprint('status_controller', __name__)
 
 
-@controller.route('/api/status/on-uninstall', methods=['POST'])
-def trigger_uninstall():
-  uninstall_hooks = Hook.list_for_trigger("before", "uninstall")
-  for hook in uninstall_hooks:
-    pass
-
-
-
 @controller.route('/api/ping')
 def ping():
   return jsonify(ping='pong')

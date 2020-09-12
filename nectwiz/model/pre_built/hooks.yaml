@@ -1,4 +1,23 @@
+id: nectar.hooks.uninstall.sync-telem
 kind: Hook
-trigger: before::uninstall
-actions:
-  - FlushTelemAction
+title: Upload unsynced Telemetry
+info: Uploads unsynced operation and update outcomes to Nectar cloud
+matchLabels:
+  event: uninstall
+action: FlushTelemAction
+
+---
+
+id: nectar.deletion-spec
+kind: DeletionSpec
+victim_groups:
+  - title: Workloads and services we created elsewhere
+    matchers:
+      - kind: pods
+        namespace: "$app"
+        label_selectors:
+          app: $app
+      - kind: services
+        namespace: "$app"
+        label_selectors:
+          app: $app

@@ -19,6 +19,21 @@ def find_job(job_id: str) -> Job:
   return Job.fetch(job_id, connection=conn)
 
 
+def ternary_job_status(job_id):
+  job = find_job(job_id)
+  if job:
+    if job.is_failed:
+      return 'negative'
+    elif job.is_finished:
+      return 'positive'
+    elif job.is_started or job.is_queued:
+      return 'running'
+    else:
+      print(f"[nectwiz::jobclient] Danger job status {job.get_status()}")
+  return None
+
+
+
 def load_and_perform_action(key_or_dict, **kwargs):
   from nectwiz.model.action.action import Action
   print("COMING IN HOT")

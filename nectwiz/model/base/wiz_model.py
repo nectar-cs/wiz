@@ -54,6 +54,9 @@ class WizModel:
   def info(self):
     return self.config.get('info')
 
+  def kind(self):
+    return self.__class__.__name__
+
   def load_children(self, config_key: str, child_class: Type[T]) -> List[T]:
     descriptor_list = self.config.get(config_key, [])
     return self.load_related(descriptor_list, child_class)
@@ -161,4 +164,11 @@ def default_descriptors() -> List[Dict]:
 def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
   from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
-  return [CmdExecAction, StepApplyResAction]
+  from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
+  from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
+  return [
+    CmdExecAction,
+    StepApplyResAction,
+    FlushTelemAction,
+    DeletionSpec
+  ]

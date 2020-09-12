@@ -1,4 +1,4 @@
-from typing import List, TypeVar
+from typing import List, TypeVar, Dict
 
 from nectwiz.model.action.action import Action
 from nectwiz.model.base.wiz_model import WizModel
@@ -10,34 +10,17 @@ class Hook(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.trigger: str = config.get('trigger')
+    self.action_desc = config.get('action')
+    self.trigger_labels: Dict = config.get('triggerLabels', {})
 
-  @property
-  def event(self):
-    return self.trigger.split('::')[1]
+  def subscribes_to(self, **labels) -> bool:
+    return self.trigger_labels.items() <= labels.items()
 
-  @property
-  def timing(self):
-    return self.trigger.split('::')[0]
-
-  def subscribes_to(self, event: str, timing: str) -> bool:
-    return self.event == event and self.timing == timing
-
-  def actions(self) -> List[Action]:
-    return super().load_children('actions', Action)
-
-  def execute_async(self):
-    func = self.__class__.execute_sync
-
-  def execute_sync(self):
-    outcomes = {}
-    for action in self.actions():
-      outcome = action.perform()
-      outcomes[action.id()] = outcome
-    return outcomes
+  def action(self) -> Action:
+    return super().load_child(Action, self.action_desc)
 
   @classmethod
-  def list_for_trigger(cls, what: str, when: str) -> List[T]:
+  def by_trigger(cls, **labels) -> List[T]:
     all_hooks = cls.inflate_all()
-    filterer = lambda hook: hook.subscribes_to(what, when)
+    filterer = lambda hook: hook.subscribes_to(**labels)
     return list(filter(filterer, all_hooks))

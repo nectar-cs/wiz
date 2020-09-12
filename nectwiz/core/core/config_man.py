@@ -131,6 +131,7 @@ config_man = ConfigMan()
 
 
 def read_ns() -> Optional[str]:
+  #/var/run/secrets/kubernetes.io/serviceaccount/namespace todo
   from_env = os.environ.get('NAMESPACE')
   if from_env:
     return from_env

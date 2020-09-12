@@ -54,6 +54,10 @@ class Field(WizModel):
   def needs_decorating(self) -> bool:
     return self.input_type == 'slider'
 
+  def current_or_default(self) -> Optional[str]:
+    current = config_man.man_vars(False).get(self.id())
+    return current or self.default_value()
+
   def default_value(self) -> Optional[str]:
     if self.expl_default:
       return self.expl_default
