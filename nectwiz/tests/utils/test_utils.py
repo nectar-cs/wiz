@@ -33,3 +33,12 @@ class TestUtils(unittest.TestCase):
     ))
     expected = [('bar', 'foo'), ('foo.bar', 'baz'), ('foo.foo.bar', 'baz')]
     self.assertEqual(expected, actual)
+
+  def test_hybrid_dict_to_keyed(self):
+    actual = utils.dict2keyed({
+      'foo.bar': 'baz',
+      'bar.foo': 'zab'
+    })
+
+    expected = [('foo.bar', 'baz'), ('bar.foo', 'zab')]
+    self.assertEqual(expected, actual)

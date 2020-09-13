@@ -48,15 +48,18 @@ class TestUpdatesMan(ClusterTest):
       injections={}
     )
 
-    updates_man.apply_release_update(update_package)
+    updates_man.apply_release(update_package)
     time.sleep(4)
 
-    ns = config_man.ns()
+    ns, defs = config_man.ns(), config_man.tam_defaults()
     tam, mfst_vars = config_man.tam(), config_man.mfst_vars()
     self.assertEqual("2.0.0", tam.get('ver'))
     self.assertEqual(ci_tami_name(), tam.get('uri'))
 
     self.assertEqual('nginx:1.19.2', mfst_vars['pod']['image'])
     self.assertEqual('legally-custom', mfst_vars['pod']['name'])
+
+    self.assertEqual('nginx:1.19.2', defs['pod']['image'])
+    self.assertEqual('pod', defs['pod']['name'])
 
     self.assertIsNotNone(KatPod.find('legally-custom', ns))

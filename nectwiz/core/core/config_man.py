@@ -39,7 +39,7 @@ class ConfigMan:
 
   def tam_defaults(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_defaults:
-      self._tam_defaults = self.read_tam_var_defaults()
+      self._tam_defaults = self.read_mfst_defaults()
     return self._tam_defaults
 
   def mfst_vars(self, force_reload=False) -> Dict:
@@ -88,11 +88,15 @@ class ConfigMan:
   def read_mfst_vars(self) -> Dict:
     return self.read_cmap_dict(tam_vars_key)
 
-  def write_tam_var_defaults(self, assigns: Dict):
+  def patch_mfst_defaults(self, assigns: Dict):
+    new_defaults = {**self.read_mfst_defaults(), **assigns}
+    self.write_mfst_defaults(new_defaults)
+
+  def write_mfst_defaults(self, assigns: Dict):
     self.patch_cmap_with_dict(tam_defaults_key, assigns)
     self._tam_defaults = None
 
-  def read_tam_var_defaults(self) -> Dict:
+  def read_mfst_defaults(self) -> Dict:
     return self.read_cmap_dict(tam_defaults_key)
 
   def read_last_update_checked(self) -> str:

@@ -41,7 +41,7 @@ def chart_vars_commit_injections():
 @controller.route('/api/chart-variables/populate-defaults')
 def chart_vars_populate_defaults():
   defaults = tam_client().load_manifest_defaults()
-  config_man.write_tam_var_defaults(defaults)
+  config_man.write_mfst_defaults(defaults)
   return jsonify(data=defaults)
 
 
