@@ -15,7 +15,6 @@ def standard(cv: ChartVariable):
     data_type=cv.data_type,
     default_value=cv.default_value,
     resource=cv.linked_res_name,
-    category=cv.category,
     value=cv.read_crt_value(force_reload=False),
   )
 

@@ -40,7 +40,7 @@ def create_base_master_map(ns):
 
 def foo_bar_setup(ns):
   create_base_master_map(ns)
-  config_man.commit_keyed_tam_assigns([
+  config_man.commit_keyed_mfst_vars([
     ('foo', 'bar'),
     ('bar.foo', 'baz')
   ])

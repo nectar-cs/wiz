@@ -59,7 +59,7 @@ def status():
     ns=config_man.ns(),
     tam_config=config_man.tam(),
     tam_defaults=config_man.tam_defaults(),
-    tam_variables=config_man.read_man_vars()
+    tam_variables=config_man.read_mfst_vars()
   )
 
 

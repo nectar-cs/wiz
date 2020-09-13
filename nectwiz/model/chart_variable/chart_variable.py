@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, TypeVar
 
 from nectwiz.core.core import config_man, utils
 from nectwiz.core.tam.tam_provider import tam_client
@@ -6,24 +6,15 @@ from nectwiz.core.core.utils import dict2keyed
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 
+T = TypeVar('T', bound='ChartVariable')
 
 class ChartVariable(WizModel):
-
-  @property
-  def data_type(self) -> str:
-    """
-    Getter for chart variable's data type. Defaults to string.
-    :return: chart variable's data type.
-    """
-    return self.config.get('type', 'string')
-
-  @property
-  def is_ephemeral(self) -> bool:
-    """
-    Getter for the ephemeral option of chart variable. Defaults to false.
-    :return: True if ephemeral, False otherwise.
-    """
-    return self.config.get('ephemeral', False)
+  def __init__(self, config):
+    super().__init__(config)
+    self.data_type: str = config.get('type', 'string')
+    self.explicit_default: str = config.get('default')
+    self.mode: str = config.get('mode', 'internal')
+    self.release_overridable: str = config.get('release_overridable', False)
 
   @property
   def default_value(self) -> str:
@@ -31,9 +22,8 @@ class ChartVariable(WizModel):
     Getter for the default value of the chart variable.
     :return: the default value.
     """
-    explicit_default = self.config.get('default')
-    if explicit_default:
-      return explicit_default
+    if self.explicit_default:
+      return self.explicit_default
     return config_man.tam_defaults().get(self.id())
 
   @property
@@ -43,27 +33,6 @@ class ChartVariable(WizModel):
     :return: linked resource name.
     """
     return self.config.get('resource')
-
-  @property
-  def mode(self) -> str:
-    """
-    Getter for the mode of the chart variable. Options include
-      - public - least constraining type, variable is easily visible / editable
-      - internal - variable is an internal setting and should be adjusted with care
-      - secret - variable is encrypted and should not be interpreted directly
-      - coupled - variable should be set together with another variable
-    :return: variable's mode
-    """
-    return self.config.get('mode', 'internal')
-
-  @property
-  def category(self) -> str:
-    """
-    Getter for the category of a chart variable. Examples include "storage",
-    "application", "networking", "performance".
-    :return: variable's category.
-    """
-    return self.config.get('category')
 
   def is_safe_to_set(self) -> bool:
     """
@@ -127,7 +96,7 @@ class ChartVariable(WizModel):
     return self.load_children('operations', Operation)
 
   @classmethod
-  def all_vars(cls):
+  def all_vars(cls) -> List[T]:
     raw = config_man.man_vars(force_reload=True)
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
@@ -137,3 +106,8 @@ class ChartVariable(WizModel):
       if not pres(key):
         models.append(ChartVariable(dict(id=key)))
     return models
+
+  @classmethod
+  def release_dependent_vars(cls) -> List[T]:
+    matcher = lambda cv: cv.release_overridable == True
+    return list(filter(matcher, ChartVariable.inflate_all()))

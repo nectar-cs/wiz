@@ -42,9 +42,9 @@ class ConfigMan:
       self._tam_defaults = self.read_tam_var_defaults()
     return self._tam_defaults
 
-  def man_vars(self, force_reload=False) -> Dict:
+  def mfst_vars(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_vars:
-      self._tam_vars = self.read_man_vars()
+      self._tam_vars = self.read_mfst_vars()
     return self._tam_vars
 
   def install_uuid(self, force_reload=False) -> str:
@@ -79,12 +79,18 @@ class ConfigMan:
 
   def write_tam(self, new_tam: TamDict):
     self.patch_cmap_with_dict(tam_config_key, new_tam)
+    self._tam = None
 
-  def read_man_vars(self) -> Dict:
+  def patch_tam(self, partial_tam: TamDict):
+    new_tam = {**self.tam(True), **partial_tam}
+    self.write_tam(new_tam)
+
+  def read_mfst_vars(self) -> Dict:
     return self.read_cmap_dict(tam_vars_key)
 
   def write_tam_var_defaults(self, assigns: Dict):
     self.patch_cmap_with_dict(tam_defaults_key, assigns)
+    self._tam_defaults = None
 
   def read_tam_var_defaults(self) -> Dict:
     return self.read_cmap_dict(tam_defaults_key)
@@ -102,7 +108,7 @@ class ConfigMan:
     refer to keys at various depths of the dict, from most shallow to deepest.
     :return: value behind deep key.
     """
-    return utils.deep_get(self.read_man_vars(), deep_key.split('.'))
+    return utils.deep_get(self.read_mfst_vars(), deep_key.split('.'))
 
   def read_install_uuid(self):
     if utils.is_dev():
@@ -119,11 +125,11 @@ class ConfigMan:
       except FileNotFoundError:
         return None
 
-  def commit_keyed_tam_assigns(self, assignments: List[Tuple[str, any]]):
-    self.commit_tam_assigns(utils.keyed2dict(assignments))
+  def commit_keyed_mfst_vars(self, assignments: List[Tuple[str, any]]):
+    self.commit_mfst_vars(utils.keyed2dict(assignments))
 
-  def commit_tam_assigns(self, assignments: Dict[str, any]):
-    merged = deep_merge(self.read_man_vars(), assignments)
+  def commit_mfst_vars(self, assignments: Dict[str, any]):
+    merged = deep_merge(self.read_mfst_vars(), assignments)
     self.patch_cmap_with_dict(tam_vars_key, merged)
 
 

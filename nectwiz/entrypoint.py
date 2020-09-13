@@ -1,5 +1,3 @@
-import sys
-
 from k8kat.auth.kube_broker import broker
 
 from nectwiz import server, worker

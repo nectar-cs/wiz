@@ -250,7 +250,6 @@ def coerce_cmd_format(cmd):
   else:
     return cmd
 
-
 def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
   try:
     kind_and_name, verb = log.split(" ")

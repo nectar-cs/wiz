@@ -19,26 +19,26 @@ class TestVariablesMan(ClusterTest):
 
   def test_commit_tam_assigns(self):
     assignments = dict(foo=dict(bar='baz'))
-    config_man.commit_tam_assigns(assignments)
-    self.assertEqual(assignments, config_man.read_man_vars())
+    config_man.commit_mfst_vars(assignments)
+    self.assertEqual(assignments, config_man.read_mfst_vars())
 
-    config_man.commit_tam_assigns(dict(bar='baz'))
+    config_man.commit_mfst_vars(dict(bar='baz'))
     expectation = dict(bar='baz', foo=dict(bar='baz'))
-    self.assertEqual(expectation, config_man.read_man_vars())
+    self.assertEqual(expectation, config_man.read_mfst_vars())
 
-    config_man.commit_tam_assigns(dict(foo=dict(baz='bar')))
+    config_man.commit_mfst_vars(dict(foo=dict(baz='bar')))
     expectation = dict(bar='baz', foo=dict(bar='baz', baz='bar'))
-    self.assertEqual(expectation, config_man.read_man_vars())
+    self.assertEqual(expectation, config_man.read_mfst_vars())
 
   def test_commit_keyed_tam_assigns(self):
     expectation = dict(foo=dict(bar='baz'))
-    config_man.commit_keyed_tam_assigns([('foo.bar', 'baz')])
-    self.assertEqual(expectation, config_man.read_man_vars())
+    config_man.commit_keyed_mfst_vars([('foo.bar', 'baz')])
+    self.assertEqual(expectation, config_man.read_mfst_vars())
 
-    config_man.commit_keyed_tam_assigns([('bar', 'baz')])
+    config_man.commit_keyed_mfst_vars([('bar', 'baz')])
     expectation = dict(bar='baz', foo=dict(bar='baz'))
-    self.assertEqual(expectation, config_man.read_man_vars())
+    self.assertEqual(expectation, config_man.read_mfst_vars())
 
-    config_man.commit_keyed_tam_assigns([('foo.baz', 'bar')])
+    config_man.commit_keyed_mfst_vars([('foo.baz', 'bar')])
     expectation = dict(bar='baz', foo=dict(bar='baz', baz='bar'))
-    self.assertEqual(expectation, config_man.read_man_vars())
+    self.assertEqual(expectation, config_man.read_mfst_vars())

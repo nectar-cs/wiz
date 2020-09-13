@@ -55,7 +55,7 @@ class Field(WizModel):
     return self.input_type == 'slider'
 
   def current_or_default(self) -> Optional[str]:
-    current = config_man.man_vars(False).get(self.id())
+    current = config_man.mfst_vars(False).get(self.id())
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:

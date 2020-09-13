@@ -3,18 +3,17 @@ from typing import Optional, Dict, List, Union
 from typing_extensions import TypedDict
 
 
-class UpdateOutcome(TypedDict, total=False):
-  update_key: str
-  pre_inject: Dict
-  post_inject: Dict
-  release_logs: Optional[List[str]]
+class UpdateOutcome(TypedDict):
+  update_id: str
+  pre_man_vars: Dict
+  post_man_vars: Dict
   apply_logs: List[str]
 
 
-class Update(TypedDict):
+class UpdateDict(TypedDict):
   id: str
   type: str
-  tam_version: str
+  version: str
   injections: Dict[str, str]
 
 

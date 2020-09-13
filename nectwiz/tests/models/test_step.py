@@ -28,7 +28,7 @@ class TestStep(Base.TestWizModel):
     op_state = OperationState('123', 'abc')
     step_state = op_state.gen_step_state(step)
     step.run({'s1.f1': 'foo'}, step_state)
-    man_vars = config_man.read_man_vars()
+    man_vars = config_man.read_mfst_vars()
     self.assertEqual({'s1': {'f1': 'foo'}}, man_vars)
     self.assertEqual({'s1.f1': 'foo'}, step_state.chart_assigns)
     self.assertEqual({}, step_state.state_assigns)

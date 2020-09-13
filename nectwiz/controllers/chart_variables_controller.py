@@ -31,7 +31,7 @@ def chart_vars_commit_injections():
     if resp.status_code < 300:
       injections = resp.json().get('data')
       if injections:
-        config_man.commit_tam_assigns(injections)
+        config_man.commit_mfst_vars(injections)
     return jsonify(data=injections)
   else:
     print("Install UUID not found!")
@@ -76,7 +76,7 @@ def chart_variables_commit_apply():
   :return: status of the update.
   """
   assignments = list(request.json['assignments'].items())
-  config_man.commit_keyed_tam_assigns(assignments)
+  config_man.commit_keyed_mfst_vars(assignments)
   logs = tam_client().apply([])
   print(logs)
   return jsonify(status='success')

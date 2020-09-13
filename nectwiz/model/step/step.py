@@ -79,7 +79,7 @@ class Step(WizModel):
 
     if len(buckets[TARGET_CHART]):
       keyed_tuples = list(buckets[TARGET_CHART].items())
-      config_man.commit_keyed_tam_assigns(keyed_tuples)
+      config_man.commit_keyed_mfst_vars(keyed_tuples)
 
     if self.runs_action():
       job_id = enqueue_action(self.action_kod, **buckets)
