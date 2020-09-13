@@ -30,7 +30,7 @@ class TestPredicate(Base.TestWizModel):
     ns, = ns_factory.request(1)
     config_man._ns = ns
     create_base_master_map(ns)
-    config_man.commit_keyed_tam_assigns([('foo', 'bar'), ('x', '1')])
+    config_man.commit_keyed_mfst_vars([('foo', 'bar'), ('x', '1')])
 
     self.assertTrue(mk_pred3('foo', None, 'defined'))
     self.assertTrue(mk_pred3('foo', 'bar'))

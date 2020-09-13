@@ -51,8 +51,8 @@ class TestUpdatesMan(ClusterTest):
     updates_man.apply_release(update_package)
     time.sleep(4)
 
-    ns, defs = config_man.ns(), config_man.tam_defaults()
-    tam, mfst_vars = config_man.tam(), config_man.mfst_vars()
+    ns, defs = config_man.ns(), config_man.tam_defaults(True)
+    tam, mfst_vars = config_man.tam(True), config_man.mfst_vars(True)
     self.assertEqual("2.0.0", tam.get('ver'))
     self.assertEqual(ci_tami_name(), tam.get('uri'))
 

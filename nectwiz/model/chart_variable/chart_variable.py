@@ -73,7 +73,7 @@ class ChartVariable(WizModel):
     first, else dumps the ConfigMap and gets the value from there.
     :return: string containing the current value of the field.
     """
-    root = config_man.man_vars(force_reload)
+    root = config_man.mfst_vars(force_reload)
     return utils.deep_get(root, self.id().split('.'))
 
   def commit(self, value:str):
@@ -82,7 +82,7 @@ class ChartVariable(WizModel):
     mode "public", then also writes (applies) the manifest.
     :param value: value to be committed (and potentially applied).
     """
-    config_man.commit_keyed_tam_assigns([(self.id(), value)])
+    config_man.commit_keyed_mfst_vars([(self.id(), value)])
     if self.is_safe_to_set():
       tam_client().apply(rules=None, inlines=None)
 
@@ -97,7 +97,7 @@ class ChartVariable(WizModel):
 
   @classmethod
   def all_vars(cls) -> List[T]:
-    raw = config_man.man_vars(force_reload=True)
+    raw = config_man.mfst_vars(force_reload=True)
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
     pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0
