@@ -13,20 +13,11 @@ class CmdExecAction(Action):
 
   def perform(self, **kwargs) -> ActionOutcome:
     final_cmd = interpolate_cmd(self.cmd, kwargs)
-    print("FINAL OUT")
-    print(self.config)
-    print(self.cmd)
-    print(final_cmd)
     result = subprocess.check_output(final_cmd.split(" "))
     out = result.decode('utf-8') if result else None
     logs = out.split("\n") if out else []
 
-    return ActionOutcome(
-      **self.outcome_template(),
-      charge=result is not None,
-      summary=f"{final_cmd} returned code ?",
-      data=dict(output=out, logs=logs)
-    )
+    return dict(output=out, logs=logs)
 
 
 def interpolate_cmd(cmd: str, buckets):

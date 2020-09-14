@@ -21,3 +21,13 @@ victim_groups:
         namespace: "$app"
         label_selectors:
           app: $app
+
+---
+
+id: post-update
+kind: Hook
+trigger:
+  what: wiz_upgrade
+  from: 1.02
+  to: 2.01
+action: DoSomething

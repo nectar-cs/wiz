@@ -3,13 +3,6 @@ from typing import Optional, Dict, List, Union
 from typing_extensions import TypedDict
 
 
-class UpdateOutcome(TypedDict):
-  update_id: str
-  pre_man_vars: Dict
-  post_man_vars: Dict
-  apply_logs: List[str]
-
-
 class UpdateDict(TypedDict):
   id: str
   type: str
@@ -67,7 +60,6 @@ class ActionOutcome(TypedDict):
   cls_name: str
   id: str
   charge: str
-  summary: str
   data: Dict
 
 
@@ -81,3 +73,13 @@ class KtlApplyOutcome(TypedDict):
   kind: str
   name: str
   verb: str
+
+
+class UpdateOutcome(TypedDict):
+  update_id: str
+  type: str
+  version: str
+  pre_man_vars: Dict
+  post_man_vars: Dict
+  apply_logs: List[str]
+  hook_outcomes: List[ActionOutcome]

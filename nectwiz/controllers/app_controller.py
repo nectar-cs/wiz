@@ -14,8 +14,15 @@ controller = Blueprint('app_controller', __name__)
 BASE_PATH = '/api/app'
 
 
+@controller.route(f'{BASE_PATH}/install-hooks')
+def app_list_install_hooks():
+  install_hooks = Hook.by_trigger(event='install')
+  serialized_list = list(map(hook_serial.standard, install_hooks))
+  return jsonify(data=serialized_list)
+
+
 @controller.route(f'{BASE_PATH}/uninstall-hooks')
-def trigger_uninstall():
+def app_list_uninstall_hooks():
   uninstall_hooks = Hook.by_trigger(event='uninstall')
   serialized_list = list(map(hook_serial.standard, uninstall_hooks))
   return jsonify(data=serialized_list)
