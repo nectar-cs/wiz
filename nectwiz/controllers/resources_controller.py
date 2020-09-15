@@ -21,7 +21,7 @@ controller = Blueprint('resources_controller', __name__)
 BASE_PATH = '/api/resources'
 
 
-@controller.route(f'{BASE_PATH}/category/<category_id>', methods=['GET'])
+@controller.route(f'{BASE_PATH}/category/<category_id>')
 def list_by_category(category_id):
   """
   Lists KatRes resources by category.
@@ -37,7 +37,7 @@ def list_by_category(category_id):
   return jsonify(data=all_serialized_res)
 
 
-@controller.route(f'{BASE_PATH}/<kind>/<name>', methods=['GET'])
+@controller.route(f'{BASE_PATH}/<kind>/<name>')
 def resource_detail(kind: str, name: str):
   """
   Finds a particular KatRes resource instance.

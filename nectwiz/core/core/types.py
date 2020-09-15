@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, Union
+from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 

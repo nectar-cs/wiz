@@ -11,10 +11,10 @@ class Hook(WizModel):
   def __init__(self, config):
     super().__init__(config)
     self.action_desc = config.get('action')
-    self.trigger_labels: Dict = config.get('triggerLabels', {})
+    self.trigger_selector: Dict = config.get('triggerSelector', {})
 
   def subscribes_to(self, **labels) -> bool:
-    return self.trigger_labels.items() <= labels.items()
+    return self.trigger_selector.items() <= labels.items()
 
   def action(self) -> Action:
     return super().load_child(Action, self.action_desc)

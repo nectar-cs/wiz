@@ -8,3 +8,5 @@ from nectwiz.model.action.action import Action
 class AppUpdateAction(Action):
   def perform(self, **update: UpdateDict) -> Dict:
     return updates_man.perform_update(update)
+
+

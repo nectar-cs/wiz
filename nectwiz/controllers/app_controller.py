@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core.types import UpdateDict
 from nectwiz.core.job.job_client import enqueue_action, ternary_job_status
 from nectwiz.model.adapters.app_endpoint_adapter import AppEndpointAdapter
@@ -55,7 +56,7 @@ def job_status(job_id):
 
 @controller.route(f'{BASE_PATH}/apply-update', methods=['POST'])
 def app_apply_update():
-  bundle: UpdateDict = request.json['bundle']
+  bundle: UpdateDict = jparse()['bundle']
   job_id = enqueue_action(AppUpdateAction.__name__, **bundle)
   return jsonify(data=dict(status='running', job_id=job_id))
 

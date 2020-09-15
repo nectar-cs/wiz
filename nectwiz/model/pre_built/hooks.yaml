@@ -2,7 +2,7 @@ id: nectar.hooks.uninstall.sync-telem
 kind: Hook
 title: Upload unsynced Telemetry
 info: Uploads unsynced operation and update outcomes to Nectar cloud
-matchLabels:
+triggerSelector:
   event: uninstall
 action: FlushTelemAction
 
@@ -27,7 +27,7 @@ victim_groups:
 id: post-update
 kind: Hook
 trigger:
-  what: wiz_upgrade
-  from: 1.02
-  to: 2.01
+  event: wiz_upgrade
+  from_version: 1.02
+  to_version: 2.01
 action: DoSomething

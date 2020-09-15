@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
 from nectwiz.model.operations import serial as operation_serial
@@ -115,7 +116,7 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   :param step_id: step id used to locate the right step
   :return: dictionary with chart assigns.
   """
-  values = request.json['values']
+  values = jparse()['values']
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
   asgs = step.partition_user_asgs(values, synth_step_state)
@@ -135,7 +136,7 @@ def step_run(operation_id, stage_id, step_id):
   :param step_id: step id to search by.
   :return: dict containing submit status, message and logs.
   """
-  values = request.json['values']
+  values = jparse()['values']
   step = find_step(operation_id, stage_id, step_id)
   step_state = find_op_state().gen_step_state(step)
   step.run(values, step_state)
@@ -162,7 +163,7 @@ def steps_next_id(operation_id, stage_id, step_id):
   :param step_id: step id to locate the right step.
   :return: computed id of next step or "done" if no more steps left.
   """
-  values = request.json['values']
+  values = jparse()['values']
   stage = find_stage(operation_id, stage_id)
   step = find_step(operation_id, stage_id, step_id)
   next_step_id = stage.next_step_id(step, values)
@@ -180,8 +181,12 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
   :return: dict with tone and status if at least one Validator is unsuccessful,
   dict with "valid" otherwise.
   """
+  print("THIS IS EVERYTHING")
+  print(request.data)
+  print(request.headers)
+  print(jparse())
   field = find_field(operation_id, stage_id, step_id, field_id)
-  value = request.json['value']
+  value = jparse()['value']
   tone, message = field.validate(value)
   if tone and message:
     return jsonify(data=dict(status=tone, message=message))
@@ -201,7 +206,7 @@ def fields_decorate(operation_id, stage_id, step_id, field_id):
   :return: dict with decorations.
   """
   field = find_field(operation_id, stage_id, step_id, field_id)
-  value = request.json['value']
+  value = jparse()['value']
   return jsonify(data=field.decorate_value(value))
 
 

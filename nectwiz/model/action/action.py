@@ -9,9 +9,9 @@ class Action(WizModel):
   def final_status(self):
     pass
 
-  def run(self, *args, **kwargs) -> ActionOutcome:
+  def run(self, **kwargs) -> ActionOutcome:
     try:
-      outcome_bundle = self.perform(*args, **kwargs)
+      outcome_bundle = self.perform(**kwargs)
       return ActionOutcome(
         cls_name=self.__class__.__name__,
         id=self.id(),

@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from k8kat.auth.kube_broker import broker
 
+from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.telem_perms import TelemPerms
@@ -34,7 +35,7 @@ def status_patch_telem_perms():
   Patches the user perms.
   :return: patched user perms.
   """
-  patch_values: Dict = request.json['data']
+  patch_values: Dict = jparse()['data']
   TelemPerms().patch(patch_values)
   return jsonify(data=TelemPerms().user_perms())
 

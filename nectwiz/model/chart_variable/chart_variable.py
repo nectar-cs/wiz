@@ -108,6 +108,6 @@ class ChartVariable(WizModel):
     return models
 
   @classmethod
-  def release_dependent_vars(cls) -> List[T]:
+  def release_dpdt_vars(cls) -> List[T]:
     matcher = lambda cv: cv.release_overridable == True
     return list(filter(matcher, ChartVariable.inflate_all()))

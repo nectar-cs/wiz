@@ -48,7 +48,7 @@ class TestUpdatesMan(ClusterTest):
       injections={}
     )
 
-    updates_man.apply_release(update_package)
+    updates_man.apply_upgrade(update_package)
     time.sleep(4)
 
     ns, defs = config_man.ns(), config_man.tam_defaults(True)
