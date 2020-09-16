@@ -11,10 +11,11 @@ class Predicate(WizModel):
     self.reason = None
     self.tone = config.get('tone', 'error')
     self.operator = config.get('op', 'equals')
+    self.challenge = config.get('challenge')
     self.check_against = config.get('check_against')
 
   def evaluate(self) -> Optional[bool]:
-    raise NotImplemented
+    return self._common_compare(self.challenge)
 
   def _common_compare(self, value):
     return comparator(self.operator)(value, self.check_against)

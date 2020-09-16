@@ -5,6 +5,7 @@ from typing_extensions import TypedDict
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import K8sResDict
+from nectwiz.model.base.wiz_model import WizModel
 
 
 class RuleDict(TypedDict, total=False):
@@ -14,16 +15,8 @@ class RuleDict(TypedDict, total=False):
   field_selectors: Optional[Dict[str, str]]
 
 
-class ResMatchRule:
-  """Class that holds Resource Match Rules used to filter resources.
-  Such rules include:
-    1. Resource kind, eg Operation
-    2. Resource name
-    3. Resource label selectors (as per k8s)
-    4. Resource field selectors (as per k8s)
-  """
-
-  def __init__(self, obj: Union[str, RuleDict]):
+class ResMatchRule(WizModel):
+  def __init__(self, config):
     rule_dict: RuleDict = obj
     if type(obj) == str:
       rule_dict = coerce_rule_expr_to_dict(obj)
@@ -32,6 +25,15 @@ class ResMatchRule:
     self.name = rule_dict.get('name')
     self.label_selectors = rule_dict.get('label_selectors')
     self.field_selectors = rule_dict.get('field_selectors')
+
+  @classmethod
+  def from_expr(cls, expr: str):
+    parts = expr.split(':')
+    return cls(config=RuleDict(
+      kind=parts[len(parts) - 2],
+      name=parts[len(parts) - 1],
+    ))
+
 
   def evaluate(self, res: K8sResDict) -> bool:
     """

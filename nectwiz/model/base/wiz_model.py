@@ -91,11 +91,18 @@ class WizModel:
     raise RuntimeError(f"Bad input {key_or_dict}")
 
   @classmethod
+  def id_exists(cls, _id: str):
+    pass
+
+  @classmethod
   def inflate_with_key(cls, _id: str) -> Type[T]:
     if _id and _id[0].isupper():
       config = dict(kind=_id)
     else:
-      config = find_config_by_id(_id, models_man.descriptors())
+      candidate_subclasses = cls.lteq_classes(models_man.classes())
+      candidate_kinds = [klass.kind() for klass in candidate_subclasses]
+      all_configs = models_man.descriptors()
+      config = find_config_by_id(_id, all_configs, candidate_kinds)
     return cls.inflate_with_config(config)
 
   @classmethod
@@ -146,8 +153,8 @@ def find_class_by_name(name: str, classes) -> Type:
   return next(filter(matcher, classes), None)
 
 
-def find_config_by_id(_id: str, configs: List[Dict]) -> Dict:
-  matcher = lambda c: c.get('id') == _id
+def find_config_by_id(_id: str, configs: List[Dict], kinds: List[str]) -> Dict:
+  matcher = lambda c: c.get('id') == _id and c.get('kind') in kinds
   return next(filter(matcher, configs), None)
 
 

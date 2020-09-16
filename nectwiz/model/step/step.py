@@ -36,7 +36,7 @@ class Step(WizModel):
   def runs_action(self) -> bool:
     return self.action_kod is not None
 
-  def next_step_id(self, values: Dict[str, str]) -> str:
+  def next_step_id(self, step_state: StepState) -> str:
     root = self.next_step_desc
     return step_exprs.eval_next_expr(root, values)
 
@@ -47,7 +47,25 @@ class Step(WizModel):
     return self.load_children('fields', Field)
 
   def field(self, _id) -> Field:
-    return self.load_list_child('fields', Field, _id)
+    finder = lambda field: field.id() == _id
+    return next(filter(finder, self.fields()), None)
+
+  def fields2(self):
+    descs = self.config.get('fields')
+    normalized = []
+    for descriptor in descs:
+      normalized_desc = descriptor
+      is_kind = len(descriptor) > 0 and descriptor[0].isupper()
+      if type(descriptor) == str and not is_kind:
+        if not Field.id_exists(descriptor):
+          normalized_desc = dict(
+            kind='Field',
+            id=descriptor,
+            chart_variable=descriptor
+          )
+      normalized.append(normalized_desc)
+
+
 
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
