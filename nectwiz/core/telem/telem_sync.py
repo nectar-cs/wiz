@@ -12,7 +12,7 @@ def upload_meta():
   payload = {
     'tam_type': tam['type'],
     'tam_uri': tam['uri'],
-    'tam_ver': tam['ver'],
+    'tam_ver': tam['version'],
     'last_update_check': last_updated_checked
   }
 

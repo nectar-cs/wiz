@@ -16,23 +16,23 @@ class TestTamiClient(Base.TestTamSuper):
       type='image',
       uri=ci_tami_name(),
       args=None,
-      ver='latest'
+      version='latest'
     )
 
   def test_image_name(self):
-    actual = image_name(dict(uri='foo/bar', ver=None))
+    actual = image_name(dict(uri='foo/bar', version=None))
     self.assertEqual('foo/bar:latest', actual)
 
     actual = image_name(dict(uri='foo/bar'))
     self.assertEqual('foo/bar:latest', actual)
 
-    actual = image_name(dict(uri='foo/bar', ver='1.0'))
+    actual = image_name(dict(uri='foo/bar', version='1.0'))
     self.assertEqual('foo/bar:1.0', actual)
 
-    actual = image_name(dict(uri='foo/bar:1.0', ver='2.0'))
+    actual = image_name(dict(uri='foo/bar:1.0', version='2.0'))
     self.assertEqual('foo/bar:2.0', actual)
 
-    actual = image_name(dict(uri='foo/bar:3.0', ver=None))
+    actual = image_name(dict(uri='foo/bar:3.0', version=None))
     self.assertEqual('foo/bar:3.0', actual)
 
     actual = image_name(dict(uri='foo/bar:3.0'))

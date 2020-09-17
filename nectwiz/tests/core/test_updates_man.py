@@ -18,7 +18,7 @@ class TestUpdatesMan(ClusterTest):
     create_base_master_map(config_man.ns())
 
     config_man.write_tam(TamDict(
-      ver='1.0.0',
+      version='1.0.0',
       type='image',
       uri=ci_tami_name(),
       args=None
@@ -53,7 +53,7 @@ class TestUpdatesMan(ClusterTest):
 
     ns, defs = config_man.ns(), config_man.tam_defaults(True)
     tam, mfst_vars = config_man.tam(True), config_man.mfst_vars(True)
-    self.assertEqual("2.0.0", tam.get('ver'))
+    self.assertEqual("2.0.0", tam.get('version'))
     self.assertEqual(ci_tami_name(), tam.get('uri'))
 
     self.assertEqual('nginx:1.19.2', mfst_vars['pod']['image'])

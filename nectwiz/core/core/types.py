@@ -8,6 +8,7 @@ class UpdateDict(TypedDict):
   type: str
   version: str
   injections: Dict[str, str]
+  manual: bool
 
 
 class JobStatusPart(TypedDict):
@@ -53,7 +54,7 @@ class TamDict(TypedDict):
   type: str
   uri: str
   args: Optional[List[str]]
-  ver: str
+  version: str
 
 
 class ActionOutcome(TypedDict):
@@ -82,4 +83,3 @@ class UpdateOutcome(TypedDict):
   pre_man_vars: Dict
   post_man_vars: Dict
   apply_logs: List[str]
-  hook_outcomes: List[ActionOutcome]

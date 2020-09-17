@@ -35,7 +35,7 @@ def notify_checked() -> bool:
   resp = hub_client.post(url, dict(data=dict(
     tam_type=config_man.tam().get('type'),
     tam_uri=config_man.tam().get('uri'),
-    tam_version=config_man.tam().get('ver'),
+    tam_version=config_man.tam().get('version'),
   )))
   print(f"[nw::updates_man] notif checked: {resp}")
   return resp.status_code < 205
@@ -52,13 +52,9 @@ def perform_update(update: UpdateDict) -> UpdateOutcome:
   else:
     raise RuntimeError(f"[nectwiz::updates_man] illegal update type '{_type}'")
 
-  hook_outcomes = []
-  if log_chunk is not None:
-    from_ver = pre_op_tam.get('ver')
-    hook_outcomes = run_hooks(from_ver, update)
-
   post_op_tam = config_man.mfst_vars(True)
   log_lines = log_chunk.split("\n") if log_chunk else []
+  res_effects = list(map(utils.log2ktlapplyoutcome, log_lines))
 
   return UpdateOutcome(
     update_id=update.get('id'),
@@ -66,13 +62,24 @@ def perform_update(update: UpdateDict) -> UpdateOutcome:
     version=update.get('version'),
     apply_logs=log_lines,
     pre_man_vars=pre_op_tam,
-    post_man_vars=post_op_tam,
-    hook_outcomes=hook_outcomes
+    post_man_vars=post_op_tam
   )
 
 
+def run_pre_hooks(update: UpdateDict):
+  hooks = Hook.by_trigger(
+    event='software-update',
+    update_type=update['type'],
+    timing='before',
+  )
+
+
+def run_post_hooks(update: UpdateDict):
+  pass
+
+
 def apply_upgrade(release: UpdateDict) -> str:
-  config_man.patch_tam(dict(ver=release['version']))
+  config_man.patch_tam(dict(version=release['version']))
   target_var_ids = [cv.id() for cv in ChartVariable.release_dpdt_vars()]
   new_mfst_defaults = tam_client().load_manifest_defaults()
   new_keyed_defaults = dict2keyed(new_mfst_defaults)

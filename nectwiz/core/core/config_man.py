@@ -12,7 +12,7 @@ from nectwiz.core.core import utils
 from nectwiz.core.core.types import TamDict
 
 cmap_name = 'master'
-install_uuid_path = '/var/install_uuid'
+install_uuid_path = '/etc/sec/install_uuid'
 tam_config_key = 'tam'
 tam_vars_key = 'manifest_variables'
 tam_defaults_key = 'manifest_defaults'

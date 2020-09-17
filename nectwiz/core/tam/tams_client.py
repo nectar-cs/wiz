@@ -18,7 +18,7 @@ class TamsClient(TamClient):
 
 
 def base_url():
-  return f"{config_man.tam()['uri']}/{config_man.tam()['ver']}"
+  return f"{config_man.tam()['uri']}/{config_man.tam()['version']}"
 
 
 def http_post(endpoint, payload):

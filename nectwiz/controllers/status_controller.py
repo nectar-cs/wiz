@@ -1,15 +1,12 @@
 from typing import Dict
 
-from flask import Blueprint, jsonify, request
-
+from flask import Blueprint, jsonify
 from k8kat.auth.kube_broker import broker
 
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.telem_perms import TelemPerms
-from nectwiz.core.core.config_man import config_man
-from nectwiz.model.hook.hook import Hook
 
 controller = Blueprint('status_controller', __name__)
 
@@ -53,6 +50,7 @@ def status():
   return jsonify(
     sanity='1',
     is_healthy=is_healthy(),
+    uuid=config_man.install_uuid(),
     cluster_connection=dict(
       is_k8kat_connected=broker.is_connected,
       connect_config=broker.connect_config

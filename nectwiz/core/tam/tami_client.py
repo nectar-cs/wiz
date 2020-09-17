@@ -52,11 +52,11 @@ def gen_tami_args(inline_assigns) -> List[str]:
 
 def image_name(tam: TamDict):
   given_name = tam['uri']
-  version = tam.get('ver') or 'latest'
+  version = tam.get('version') or 'latest'
   if ":" in given_name:
     clean_name = given_name.split(':')[0]
     hardcoded_ver = given_name.split(':')[1]
-    version = tam.get('ver') or  hardcoded_ver or 'latest'
+    version = tam.get('version') or  hardcoded_ver or 'latest'
   else:
     clean_name = given_name
   return f"{clean_name}:{version}"
