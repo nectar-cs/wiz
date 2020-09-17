@@ -38,7 +38,7 @@ class Step(WizModel):
 
   def next_step_id(self, step_state: StepState) -> str:
     root = self.next_step_desc
-    return step_exprs.eval_next_expr(root, values)
+    return step_exprs.eval_next_expr(root, )
 
   def has_explicit_next(self) -> bool:
     return not step_exprs.is_default_next(self.next_step_desc)

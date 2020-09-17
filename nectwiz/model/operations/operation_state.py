@@ -33,6 +33,11 @@ class OperationState:
       merged = {**merged, **step_state.all_assigns()}
     return merged
 
+  def gen_sub_map(self):
+    assigns = self.all_assigns()
+    keyed = utils.dict2keyed(assigns)
+    return {f"$var/{k}": v for k, v in keyed}
+
   @classmethod
   def find(cls, ost_id: Optional[str]) -> 'OperationState':
     """

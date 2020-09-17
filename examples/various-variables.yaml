@@ -25,17 +25,6 @@ validation:
 ---
 
 kind: ManifestVariable
-id: daemon.monitor-target
-input:
-  kind: SelectInput
-  option_source:
-    kind: ResourceSelector
-    k8s_kind: Deployment
-    namespace: $all
-
----
-
-kind: ManifestVariable
 id: deployment.replicas
 input:
   kind: SliderInput

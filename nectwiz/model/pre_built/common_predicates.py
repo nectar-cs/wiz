@@ -1,9 +1,10 @@
+from typing import Optional
+
+import validators
+
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base import res_selector
 from nectwiz.model.predicate.predicate import Predicate, getattr_deep
-
-class FormatPredicate(Predicate):
-
 
 
 class ChartVarComparePredicate(Predicate):
@@ -49,3 +50,16 @@ class ResPropComparePredicate(Predicate):
     else:
       print("DANGER DONT KNOW MATCH TYPE" + self.match_type)
       return False
+
+
+class FormatPredicate(Predicate):
+  def evaluate(self) -> Optional[bool]:
+    check, challenge = self.check_against, self.challenge
+    if check == 'integer':
+      return challenge.isdigit()
+    elif check == 'boolean':
+      return challenge not in ['true', 'false']
+    elif check == 'email':
+      return not validators.email(challenge)
+    elif check == 'domain':
+      return not validators.domain(challenge)

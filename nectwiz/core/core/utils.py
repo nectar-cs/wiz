@@ -65,8 +65,6 @@ def _dict2keyed(parents, assigns: Dict) -> List[Tuple[List[str], any]]:
   return result
 
 
-
-
 def deep_set(dict_root: Dict, names: List[str], value: any):
   """
   Iterates over items in names list, using them as keys to go deeper into the

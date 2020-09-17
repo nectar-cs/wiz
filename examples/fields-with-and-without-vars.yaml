@@ -1,0 +1,8 @@
+kind: Field
+id: daemon.monitor-target
+input:
+  kind: CheckboxesInput
+  option_source:
+    kind: ResourceSelector
+    k8s_kind: Deployment
+    namespace: $vars/monitoring.namespace
