@@ -1,0 +1,43 @@
+kind: ManifestVariable
+id: general.whitelabel_strategy
+title: Whitelabelling Strategy
+info: "Product-wide logo strategy"
+input:
+  type: select
+  options:
+    no_whitelabel: No whitelabelling, always display the vendor logo
+    user_whitelabel: Whitelabel non-admin web applications
+    all_whitelabel: Whitelabel every web application in this product
+
+---
+
+kind: ManifestVariable
+id: deployment.sales_db_url
+mode: internal
+title: Sales Database URL
+info: "Fully qualified URL to the sales database hosted outside the cluster."
+validation:
+  - operator: is-defined
+  - kind: FormatPredicate
+    check_against: uri
+    tone: error
+
+---
+
+kind: ManifestVariable
+id: daemon.monitor-target
+input:
+  kind: SelectInput
+  option_source:
+    kind: ResourceSelector
+    k8s_kind: Deployment
+    namespace: $all
+
+---
+
+kind: ManifestVariable
+id: deployment.replicas
+input:
+  kind: SliderInput
+  min: 1
+  max: 3

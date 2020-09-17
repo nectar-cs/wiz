@@ -19,7 +19,7 @@ def start():
   from k8kat.res.ns.kat_ns import KatNs
 
   from nectwiz.model.base import wiz_model
-  from nectwiz.model.base.res_match_rule import ResMatchRule
+  from nectwiz.model.base.resource_selector import ResourceSelector
   from nectwiz.model.field.field import Field
   from nectwiz.model.operations.operation import Operation
   from nectwiz.model.pre_built.step_apply_action import StepApplyResAction

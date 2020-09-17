@@ -2,6 +2,9 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base import res_selector
 from nectwiz.model.predicate.predicate import Predicate, getattr_deep
 
+class FormatPredicate(Predicate):
+
+
 
 class ChartVarComparePredicate(Predicate):
   def __init__(self, config):

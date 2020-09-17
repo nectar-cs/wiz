@@ -23,12 +23,7 @@ class ManifestVariable(WizModel):
   def load_predicates(self, value):
     default = dict(challenge='$input')
 
-  @property
   def default_value(self) -> str:
-    """
-    Getter for the default value of the chart variable.
-    :return: the default value.
-    """
     if self.explicit_default:
       return self.explicit_default
     return config_man.tam_defaults().get(self.id())

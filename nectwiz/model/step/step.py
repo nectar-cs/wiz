@@ -50,7 +50,7 @@ class Step(WizModel):
     finder = lambda field: field.id() == _id
     return next(filter(finder, self.fields()), None)
 
-  def fields2(self):
+  def fields2(self) -> List[Field]:
     descs = self.config.get('fields')
     normalized = []
     for descriptor in descs:
@@ -61,11 +61,10 @@ class Step(WizModel):
           normalized_desc = dict(
             kind='Field',
             id=descriptor,
-            chart_variable=descriptor
+            chart_variable_id=descriptor
           )
       normalized.append(normalized_desc)
-
-
+    return normalized
 
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
