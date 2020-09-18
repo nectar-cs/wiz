@@ -11,14 +11,21 @@ class Hook(WizModel):
   def __init__(self, config):
     super().__init__(config)
     self.action_desc = config.get('action')
-    self.trigger_selector: Dict = config.get('triggerSelector', {})
-    self.abort_on_fail: bool = config.get('abort_on_fail', True)
+    self.trigger_selector: Dict = config.get('trigger_selector') or {}
+    self.abort_on_fail: bool = config.get('abort_on_fail', False)
 
   def subscribes_to(self, **labels) -> bool:
-    return self.trigger_selector.items() <= labels.items()
+    selector_items = self.trigger_selector.items()
+    if len(selector_items) > 0:
+      return selector_items <= labels.items()
+    else:
+      return False
 
   def action(self) -> Action:
     return super().load_child(Action, self.action_desc)
+
+  def run(self):
+    return self.action().run()
 
   @classmethod
   def by_trigger(cls, **labels) -> List[T]:

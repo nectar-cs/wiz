@@ -1,9 +1,8 @@
 import base64
-
 import json
-import os
 from typing import Optional, Dict, List, Tuple
 
+from k8kat.auth.kube_broker import broker
 from k8kat.res.config_map.kat_map import KatMap
 from k8kat.res.secret.kat_secret import KatSecret
 from k8kat.utils.main.utils import deep_merge
@@ -17,6 +16,8 @@ tam_config_key = 'tam'
 tam_vars_key = 'manifest_variables'
 tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
+ns_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
+dev_ns_path = '/tmp/nectwiz-dev-ns'
 
 
 class ConfigMan:
@@ -141,16 +142,17 @@ config_man = ConfigMan()
 
 
 def read_ns() -> Optional[str]:
-  #/var/run/secrets/kubernetes.io/serviceaccount/namespace todo
-  from_env = os.environ.get('NAMESPACE')
-  if from_env:
-    return from_env
+  path = None
+  if broker.is_in_cluster_auth():
+    path = ns_path
+  elif utils.is_dev():
+    path = dev_ns_path
 
-  if utils.is_dev():
-    with open('/tmp/nectwiz-dev-ns') as file:
+  if path:
+    with open(path, 'r') as file:
       return file.read()
-
-  return None
+  else:
+    return None
 
 
 def coerce_ns(new_ns):
@@ -160,5 +162,5 @@ def coerce_ns(new_ns):
   config_man._tam_defaults = None
   config_man._tam_vars = None
   if utils.is_dev():
-    with open('/tmp/nectwiz-dev-ns', 'w') as file:
+    with open(dev_ns_path, 'w') as file:
       file.write(new_ns)

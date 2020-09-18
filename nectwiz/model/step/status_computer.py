@@ -48,10 +48,10 @@ def compute(root: Dict[str, List[Predicate]], step_state: StepState):
     eval_preds(pos_predicates, POS, step_state)
     if all_conditions_met(step_state.exit_statuses[POS]):
       step_state.notify_succeeded()
-
-    eval_preds(neg_predicates, NEG, step_state)
-    if any_condition_met(step_state.exit_statuses[POS]):
-      step_state.notify_failed()
+    else:
+      eval_preds(neg_predicates, NEG, step_state)
+      if any_condition_met(step_state.exit_statuses[POS]):
+        step_state.notify_failed()
   else:
     print("NO PREDS SO AUTO SUC")
     step_state.notify_succeeded()

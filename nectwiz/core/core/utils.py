@@ -250,6 +250,19 @@ def coerce_cmd_format(cmd):
   else:
     return cmd
 
+
+def clean_log_lines(chunk) -> List[str]:
+  if type(chunk) == str:
+    log_lines = chunk.split("\n")
+    weeder = lambda line: not line.strip() == ''
+    return list(filter(weeder, log_lines))
+  elif type(chunk) == list:
+    return chunk
+  else:
+    return []
+
+
+
 def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
   try:
     kind_and_name, verb = log.split(" ")

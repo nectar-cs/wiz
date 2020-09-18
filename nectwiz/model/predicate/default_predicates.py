@@ -3,6 +3,7 @@ from typing import List, Dict
 from nectwiz.core.core import utils
 from nectwiz.model.pre_built.common_predicates import ResPropComparePredicate
 from nectwiz.model.predicate.predicate import Predicate
+from nectwiz.core.core.types import KtlApplyOutcome
 
 
 def from_apply_outcome(apply_logs: List[str]) -> Dict[str, List[Predicate]]:
@@ -18,11 +19,12 @@ def from_apply_outcome(apply_logs: List[str]) -> Dict[str, List[Predicate]]:
   return predicates
 
 
-def res_comp_predicate(ktl_outcome, charge):
+def res_comp_predicate(ktl_out: KtlApplyOutcome, charge):
   return ResPropComparePredicate(dict(
-    title=f"Changed resources have a {charge} status",
+    id=f"{ktl_out['kind']}/{ktl_out['name']}-{charge}",
+    title=f"{ktl_out['kind']}/{ktl_out['name']} is {charge}",
     property='ternary_status',
     check_against=charge,
     match_type='all',
-    selector=f"{ktl_outcome['kind']}:{ktl_outcome['name']}"
+    selector=f"{ktl_out['kind']}:{ktl_out['name']}"
   ))

@@ -18,7 +18,7 @@ class Action(WizModel):
         data=outcome_bundle,
         charge='positive'
       )
-    except RuntimeError as err:
+    except Exception as err:
       return ActionOutcome(
         cls_name=self.__class__.__name__,
         id=self.id(),

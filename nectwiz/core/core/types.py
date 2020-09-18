@@ -2,6 +2,13 @@ from typing import Optional, Dict, List
 
 from typing_extensions import TypedDict
 
+class ProgressItem(TypedDict):
+  id: Optional[str]
+  title: str
+  info: Optional[str]
+  status: str
+  sub_items: List['ProgressItem']
+
 
 class UpdateDict(TypedDict):
   id: str

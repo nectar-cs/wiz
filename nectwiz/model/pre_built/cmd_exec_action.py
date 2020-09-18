@@ -1,6 +1,7 @@
 import subprocess
-from typing import List
+from typing import List, Dict
 
+from nectwiz.core.core import utils
 from nectwiz.core.core.types import ActionOutcome
 from nectwiz.model.action.action import Action
 
@@ -11,13 +12,11 @@ class CmdExecAction(Action):
     super().__init__(config)
     self.cmd = config.get('cmd')
 
-  def perform(self, **kwargs) -> ActionOutcome:
+  def perform(self, **kwargs) -> Dict:
     final_cmd = interpolate_cmd(self.cmd, kwargs)
     result = subprocess.check_output(final_cmd.split(" "))
-    out = result.decode('utf-8') if result else None
-    logs = out.split("\n") if out else []
-
-    return dict(output=out, logs=logs)
+    logs = utils.clean_log_lines(result.decode('utf-8'))
+    return dict(logs=logs)
 
 
 def interpolate_cmd(cmd: str, buckets):

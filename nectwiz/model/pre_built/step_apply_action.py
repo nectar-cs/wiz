@@ -15,4 +15,5 @@ class StepApplyResAction(Action):
     inline_assigns = kwargs.get('inline', {})
     out = tam_client().apply(self.res_selectors, inline_assigns.items())
     logs = out.split("\n") if out else []
+    #todo move predicate logic to here
     return dict(logs=[l for l in logs if l])
