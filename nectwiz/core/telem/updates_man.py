@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TypedDict
 
 from nectwiz.core.core import utils, hub_client
 from nectwiz.core.core.utils import dict2keyed
@@ -8,6 +8,7 @@ from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.core.types import UpdateDict, UpdateOutcome, ActionOutcome
 from datetime import datetime
 
+from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.model.hook.hook import Hook
 
@@ -42,8 +43,26 @@ def notify_checked() -> bool:
 
 
 def perform_update(update: UpdateDict) -> UpdateOutcome:
+  observer = UpdateObserver()
   pre_op_tam = config_man.mfst_vars(True)
 
+  run_hooks('before', update, observer)
+  replace_resources(update, observer)
+  run_hooks('after', update, observer)
+  notify_checked()
+  observer.on_succeeded()
+
+  return UpdateOutcome(
+    update_id=update.get('id'),
+    type=update.get('type'),
+    version=update.get('version'),
+    apply_logs=observer.progress['perform_progress']['logs'],
+    pre_man_vars=pre_op_tam,
+    post_man_vars=config_man.mfst_vars(True)
+  )
+
+
+def replace_resources(update: UpdateDict, observer: UpdateObserver):
   _type = update.get('type')
   if _type == TYPE_RELEASE:
     log_chunk = apply_upgrade(update)
@@ -56,22 +75,29 @@ def perform_update(update: UpdateDict) -> UpdateOutcome:
   log_lines = log_chunk.split("\n") if log_chunk else []
   res_effects = list(map(utils.log2ktlapplyoutcome, log_lines))
 
-  return UpdateOutcome(
-    update_id=update.get('id'),
-    type=_type,
-    version=update.get('version'),
-    apply_logs=log_lines,
-    pre_man_vars=pre_op_tam,
-    post_man_vars=post_op_tam
-  )
 
 
-def run_pre_hooks(update: UpdateDict):
+
+def run_hooks(timing, update: UpdateDict, observer: UpdateObserver) -> bool:
   hooks = Hook.by_trigger(
     event='software-update',
     update_type=update['type'],
-    timing='before',
+    timing=timing,
   )
+
+  observer.on_hook_set_started(timing, [hook.title() for hook in hooks])
+  for hook in hooks:
+    outcome: ActionOutcome = hook.action().run()
+    charge: str = outcome['charge']
+    message: str = (outcome.get('data') or {}).get('message') or ''
+
+    observer.on_hook_done(timing, hook.title, charge, message)
+    if charge == 'negative' and hook.abort_on_fail:
+      observer.on_fatal_error()
+      return False
+
+  return True
+
 
 
 def run_post_hooks(update: UpdateDict):

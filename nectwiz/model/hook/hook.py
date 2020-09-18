@@ -12,6 +12,7 @@ class Hook(WizModel):
     super().__init__(config)
     self.action_desc = config.get('action')
     self.trigger_selector: Dict = config.get('triggerSelector', {})
+    self.abort_on_fail: bool = config.get('abort_on_fail', True)
 
   def subscribes_to(self, **labels) -> bool:
     return self.trigger_selector.items() <= labels.items()
