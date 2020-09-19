@@ -25,5 +25,7 @@ def flags():
 
 
 def exec_cmd(cmd):
-  full_cmd = f"{config_man.tam()['uri']} {cmd}".split(" ")
+  uri, ver = config_man.tam()['uri'], config_man.tam()['version']
+  exec_name = f"{uri}-{ver}" if ver else uri
+  full_cmd = f"{exec_name} {cmd}".split(" ")
   return subprocess.check_output(full_cmd).decode('utf-8')

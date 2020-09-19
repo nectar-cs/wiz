@@ -11,6 +11,7 @@ from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.model.hook.hook import Hook
+from nectwiz.model.mock_update.mock_update import MockUpdate, next_mock_update_id
 from nectwiz.model.predicate import default_predicates
 from nectwiz.model.step import status_computer
 from nectwiz.model.step.step_state import StepState
@@ -34,12 +35,20 @@ def fetch_next_update() -> Optional[UpdateDict]:
 
 
 def next_available() -> Optional[UpdateDict]:
-  uuid = config_man.install_uuid()
-  url = f'/api/cli/{uuid}/app_updates/available'
-  resp = hub_client.get(url)
-  data = resp.json()['data'] if resp.status_code < 205 else None
-  print(f"[nw::updates_man] avail: {data}")
-  return data['bundle'] if data else None
+  if utils.is_prod():
+    uuid = config_man.install_uuid()
+    resp = hub_client.get(f'/api/cli/{uuid}/app_updates/available')
+    data = resp.json()['data'] if resp.status_code < 205 else None
+    return data['bundle'] if data else None
+  else:
+    return MockUpdate.inflate_with_key(next_mock_update_id)
+
+
+def install_next_available():
+  update = next_available()
+  if not update:
+    raise RuntimeError("No update to install")
+  install_update(update)
 
 
 def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:

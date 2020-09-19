@@ -1,8 +1,7 @@
 import subprocess
-from typing import List, Dict
+from typing import Dict
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import ActionOutcome
 from nectwiz.model.action.action import Action
 
 

@@ -1,6 +1,9 @@
+from typing import Optional
+
 from rq import Queue
 from rq.job import Job
 
+from nectwiz.core.core.types import ProgressItem
 from nectwiz.worker import conn
 
 
@@ -19,7 +22,7 @@ def find_job(job_id: str) -> Job:
   return Job.fetch(job_id, connection=conn)
 
 
-def ternary_job_status(job_id):
+def ternary_job_status(job_id: str) -> Optional[str]:
   job = find_job(job_id)
   if job:
     if job.is_failed:
@@ -32,6 +35,10 @@ def ternary_job_status(job_id):
       print(f"[nectwiz::jobclient] Danger job status {job.get_status()}")
   return None
 
+
+def job_progress(job_id: str) -> Optional[ProgressItem]:
+  job: Job = find_job(job_id)
+  return job.meta.get('progress')
 
 
 def load_and_perform_action(key_or_dict, **kwargs):

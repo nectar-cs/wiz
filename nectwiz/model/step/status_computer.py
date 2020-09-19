@@ -39,8 +39,6 @@ def needs_recomputing(pred_eval: PredEval, charge: str) -> bool:
 
 
 def compute(root: Dict[str, List[Predicate]], step_state: StepState):
-  print("[statuscomputer]GOT MA PREDS")
-  print(root)
   pos_predicates = root.get(POS, [])
   neg_predicates = root.get(NEG, [])
 
@@ -53,7 +51,7 @@ def compute(root: Dict[str, List[Predicate]], step_state: StepState):
       if any_condition_met(step_state.exit_statuses[POS]):
         step_state.notify_failed()
   else:
-    print("NO PREDS SO AUTO SUC")
+    print("[nectwiz::status_computer] DANGER NO PREDS SO AUTO SUCCESS")
     step_state.notify_succeeded()
 
 
