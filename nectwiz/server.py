@@ -7,8 +7,7 @@ from k8kat.auth.kube_broker import BrokerConnException
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, chart_variables_controller, resources_controller
 from nectwiz.core.core import utils
-from nectwiz.core.core.config_man import config_man, coerce_ns
-from nectwiz.core.job.job_client import enqueue_func
+from nectwiz.core.core.config_man import coerce_ns
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')

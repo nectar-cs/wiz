@@ -92,7 +92,7 @@ class ChartVariable(WizModel):
     into instances of the Operation class.
     :return: list of inflated Operation objects.
     """
-    from nectwiz.model.operations.operation import Operation
+    from nectwiz.model.operation.operation import Operation
     return self.load_children('operations', Operation)
 
   @classmethod

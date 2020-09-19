@@ -1,7 +1,7 @@
 from typing import List
 
 from nectwiz.model.base.wiz_model import WizModel, key_or_dict_to_key
-from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
 

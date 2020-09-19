@@ -6,7 +6,7 @@ from nectwiz.core.core.types import CommitOutcome
 from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
-from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.predicate import default_predicates
 from nectwiz.model.step import step_exprs, status_computer
 from nectwiz.model.step.step_state import StepState

@@ -4,7 +4,7 @@ from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core.config_man import config_man, tam_config_key, tam_vars_key
-from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.step.step_state import StepState
 
 

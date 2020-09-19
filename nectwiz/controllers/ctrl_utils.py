@@ -10,4 +10,4 @@ def jparse():
     truncated = payload_str[1:len(payload_str) - 1]
     return json.loads(truncated)
   else:
-    return request.json()
+    return request.json

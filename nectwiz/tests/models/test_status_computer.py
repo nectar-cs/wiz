@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.step.status_computer import eval_preds, compute
 from nectwiz.model.step.step import Step

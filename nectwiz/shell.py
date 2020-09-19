@@ -21,7 +21,7 @@ def start():
   from nectwiz.model.base import wiz_model
   from nectwiz.model.base.res_match_rule import ResMatchRule
   from nectwiz.model.field.field import Field
-  from nectwiz.model.operations.operation import Operation
+  from nectwiz.model.operation.operation import Operation
   from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
   from nectwiz.model.predicate.predicate import Predicate
   from nectwiz.model.stage.stage import Stage

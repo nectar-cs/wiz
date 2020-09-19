@@ -147,7 +147,6 @@ def read_ns() -> Optional[str]:
     path = ns_path
   elif utils.is_dev():
     path = dev_ns_path
-
   if path:
     with open(path, 'r') as file:
       return file.read()

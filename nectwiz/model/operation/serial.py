@@ -1,4 +1,4 @@
-from nectwiz.model.operations.operation import Operation
+from nectwiz.model.operation.operation import Operation
 from nectwiz.model.stage import serial as stage_serial
 
 

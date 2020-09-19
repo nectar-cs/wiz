@@ -1,7 +1,7 @@
 from typing import Type
 
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.operations.operation import Operation
+from nectwiz.model.operation.operation import Operation
 from nectwiz.tests.models.test_wiz_model import Base
 
 

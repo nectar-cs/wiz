@@ -1,5 +1,6 @@
 import time
 
+from k8kat.auth.kube_broker import broker
 from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.testing import ns_factory
 
@@ -21,9 +22,11 @@ class TestUpdatesMan(ClusterTest):
 
   def test_await_resource_settled(self):
     config_man._ns,  = ns_factory.request(1)
+    broker.client.con
     action = CmdExecAction(config=dict(
       cmd=f"kubectl run nginx --image=nginx -n {config_man.ns()}"
     ))
+    result = action.run()
     logs = action.run()['data']['logs']
     observer = UpdateObserver('release')
     observer.on_perform_finished('positive', logs)

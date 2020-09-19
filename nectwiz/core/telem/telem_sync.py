@@ -2,7 +2,7 @@ from typing import List
 
 from nectwiz.core.core import hub_client, config_man
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.operations.operation_state import OperationState, operation_states
+from nectwiz.model.operation.operation_state import OperationState, operation_states
 from nectwiz.serializers import operation_state_ser
 
 

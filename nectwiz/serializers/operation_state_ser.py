@@ -1,5 +1,5 @@
 from nectwiz.core.core.types import PredEval, ExitStatuses
-from nectwiz.model.operations.operation_state import OperationState
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.step.step_state import StepState
 
 

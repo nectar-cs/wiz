@@ -3,9 +3,9 @@ from flask import Blueprint, jsonify, request
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
-from nectwiz.model.operations import serial as operation_serial
-from nectwiz.model.operations.operation import Operation
-from nectwiz.model.operations.operation_state import OperationState, operation_states
+from nectwiz.model.operation import serial as operation_serial
+from nectwiz.model.operation.operation import Operation
+from nectwiz.model.operation.operation_state import OperationState, operation_states
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
 from nectwiz.model.step import step_serial
@@ -181,10 +181,6 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
   :return: dict with tone and status if at least one Validator is unsuccessful,
   dict with "valid" otherwise.
   """
-  print("THIS IS EVERYTHING")
-  print(request.data)
-  print(request.headers)
-  print(jparse())
   field = find_field(operation_id, stage_id, step_id, field_id)
   value = jparse()['value']
   tone, message = field.validate(value)

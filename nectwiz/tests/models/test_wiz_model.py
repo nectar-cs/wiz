@@ -2,7 +2,7 @@ from typing import Type
 
 from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.field.field import Field
-from nectwiz.model.operations.operation import Operation
+from nectwiz.model.operation.operation import Operation
 from nectwiz.model.step.step import Step
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
