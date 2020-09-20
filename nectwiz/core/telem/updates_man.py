@@ -34,6 +34,17 @@ def fetch_next_update() -> Optional[UpdateDict]:
   return None
 
 
+def fetch_update(_id: str) -> Optional[UpdateDict]:
+  if utils.is_prod():
+    uuid = config_man.install_uuid()
+    resp = hub_client.get(f'/api/cli/{uuid}/app_updates/{_id}')
+    data = resp.json()['data'] if resp.status_code < 205 else None
+    return data['bundle'] if data else None
+  else:
+    model = MockUpdate.inflate_with_key(_id)
+    return model.as_bundle()
+
+
 def next_available() -> Optional[UpdateDict]:
   if utils.is_prod():
     uuid = config_man.install_uuid()
@@ -41,7 +52,8 @@ def next_available() -> Optional[UpdateDict]:
     data = resp.json()['data'] if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
-    return MockUpdate.inflate_with_key(next_mock_update_id)
+    model = MockUpdate.inflate_with_key(next_mock_update_id)
+    return model.as_bundle()
 
 
 def install_next_available():
@@ -114,7 +126,7 @@ def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
 
 @raise_on_false
 def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
-  config_man.patch_tam(dict(version=release['version']))
+  config_man.patch_tam(updated_release_tam(release))
   target_var_ids = [cv.id() for cv in ChartVariable.release_dpdt_vars()]
   new_mfst_defaults = tam_client().load_manifest_defaults()
   new_keyed_defaults = dict2keyed(new_mfst_defaults)
@@ -127,6 +139,7 @@ def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
 
 @raise_on_false
 def await_resource_settled(observer: UpdateObserver) -> bool:
+  observer.on_settle_wait_started()
   logs = observer.get_ktl_apply_logs()
   predicate_tree = default_predicates.from_apply_outcome(logs)
   predicates = utils.flatten(predicate_tree.values())
@@ -167,6 +180,15 @@ def notify_checked() -> bool:
 def _gen_injection_telem(keys: List[str]):
   all_vars = config_man.read_mfst_vars()
   return {k: all_vars[k] for k in keys}
+
+
+def updated_release_tam(release: UpdateDict) -> Dict:
+  tam_patches = dict(version=release['version'])
+  if release.get('tam_type'):
+    tam_patches['type'] = release.get('tam_type')
+  if release.get('tam_uri'):
+    tam_patches['uri'] = release.get('tam_uri')
+  return tam_patches
 
 
 class HaltedError(RuntimeError):

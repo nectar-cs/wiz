@@ -14,6 +14,9 @@ class UpdateDict(TypedDict):
   id: str
   type: str
   version: str
+  tam_type: str
+  tam_uri: str
+  note: str
   injections: Dict[str, str]
   manual: bool
 

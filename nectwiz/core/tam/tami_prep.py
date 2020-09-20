@@ -50,9 +50,8 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
           V1Container(
             name='main',
             image=image,
-            # command=["/bin/sh", "-c", "--" ],
-            # args=["while true; do sleep 30; done;" ],
             args=args,
+            # image_pull_policy='IfNotPresent' if utils.is_prod() else 'Always',
             image_pull_policy='IfNotPresent',
             volume_mounts=volume_mounts(),
             resources=V1ResourceRequirements(

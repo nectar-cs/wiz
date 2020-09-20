@@ -48,8 +48,7 @@ def run_hook(hook_id):
 @controller.route(f'{BASE_PATH}/jobs/<job_id>/status')
 def job_progress(job_id):
   progress = job_client.job_progress(job_id)
-  status= job_client.ternary_job_status(job_id)
-  print(f"Progress bundle for {job_id}: {progress}")
+  status = job_client.ternary_job_status(job_id)
   return jsonify(
     data=dict(
       status=status,

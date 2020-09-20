@@ -1,5 +1,3 @@
-import sys
-
 from k8kat.auth.kube_broker import broker
 
 from nectwiz import server, worker
@@ -8,10 +6,9 @@ from nectwiz.model.base.wiz_model import models_man
 
 
 def start():
-  print("MY SYSARGV")
-  print(sys.argv)
   broker.connect()
   models_man.add_defaults()
+
   if utils.is_server():
     server.start()
   elif utils.is_worker():

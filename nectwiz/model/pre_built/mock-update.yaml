@@ -1,6 +1,6 @@
 kind: MockUpdate
 id: vendor.mock-updates.release
-tyype: release
+type: release
 version: 2.0.0
 note: Mock release from baseline to version 2.0.0
 
@@ -8,6 +8,6 @@ note: Mock release from baseline to version 2.0.0
 
 kind: MockUpdate
 id: vendor.mock-updates.partial
-tyype: release
+type: release
 version: ''
 note: Mock partial-update populated with injections

@@ -48,7 +48,7 @@ def compute(root: Dict[str, List[Predicate]], step_state: StepState):
       step_state.notify_succeeded()
     else:
       eval_preds(neg_predicates, NEG, step_state)
-      if any_condition_met(step_state.exit_statuses[POS]):
+      if any_condition_met(step_state.exit_statuses[NEG]):
         step_state.notify_failed()
   else:
     print("[nectwiz::status_computer] DANGER NO PREDS SO AUTO SUCCESS")

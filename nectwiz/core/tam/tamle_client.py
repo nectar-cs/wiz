@@ -27,5 +27,8 @@ def flags():
 def exec_cmd(cmd):
   uri, ver = config_man.tam()['uri'], config_man.tam()['version']
   exec_name = f"{uri}-{ver}" if ver else uri
+  print(f"Local exec name {exec_name}")
   full_cmd = f"{exec_name} {cmd}".split(" ")
-  return subprocess.check_output(full_cmd).decode('utf-8')
+  output = subprocess.check_output(full_cmd).decode('utf-8')
+  print(f"{full_cmd} -> {output}")
+  return output
