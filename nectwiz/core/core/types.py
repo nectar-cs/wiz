@@ -39,6 +39,7 @@ class PredEval(TypedDict, total=False):
   name: str
   met: bool
   reason: Optional[str]
+  tone: str
 
 
 class ExitStatuses(TypedDict, total=False):

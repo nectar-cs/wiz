@@ -1,5 +1,6 @@
-from typing import Optional, List, TypeVar
+from typing import List, TypeVar, Dict
 
+from nectwiz.core.core.types import PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
@@ -16,14 +17,19 @@ class GenericVariable(WizModel):
     return GenericInput.inflate(self.config.get('input'))
 
   def validators(self) -> List[Predicate]:
-    return self.load_children('validations', Predicate)
+    return self.load_children('validation', Predicate)
 
   def default_value(self) -> str:
     return self.explicit_default
 
-  def validate(self, value, context) -> List[Optional[str]]:
+  def validate(self, value: any, context: Dict) -> PredEval:
     context = dict(**context, value=value)
     for predicate in self.validators():
       if not predicate.evaluate(context):
-        return [predicate.tone, predicate.reason]
-    return [None, None]
+        return PredEval(
+          predicate_id=predicate.id(),
+          met=False,
+          reason=predicate.reason,
+          tone=predicate.tone
+        )
+    return PredEval(met=True)

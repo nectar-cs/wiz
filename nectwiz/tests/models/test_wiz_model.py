@@ -34,9 +34,9 @@ class Base:
 
     def test_inflate_with_type_key(self):
       class Custom(self.model_class()):
-        @property
-        def info(self):
-          return 'baz'
+        def __init__(self, config):
+          super().__init__(config)
+          self.info = 'baz'
 
       models_man.add_classes([Custom])
       result = self.model_class().inflate_with_key(Custom.__name__)
@@ -64,9 +64,9 @@ class Base:
 
     def test_inflate_with_config_inherit_hard(self):
       class SubModel(self.model_class()):
-        @property
-        def info(self):
-          return 'grandpas'
+        def __init__(self, config):
+          super().__init__(config)
+          self.info = 'grandpas'
 
       models_man.add_classes([SubModel])
       models_man.add_descriptors([{

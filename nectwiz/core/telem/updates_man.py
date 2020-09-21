@@ -9,12 +9,12 @@ from nectwiz.core.core.types import UpdateDict, UpdateOutcome, ActionOutcome
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.update_observer import UpdateObserver
-from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.model.hook.hook import Hook
 from nectwiz.model.mock_update.mock_update import MockUpdate, next_mock_update_id
 from nectwiz.model.predicate import default_predicates
 from nectwiz.model.step import status_computer
 from nectwiz.model.step.step_state import StepState
+from nectwiz.model.variables.manifest_variable import ManifestVariable
 
 TYPE_RELEASE = 'release'
 TYPE_UPDATE = 'update'
@@ -127,7 +127,7 @@ def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
 @raise_on_false
 def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
   config_man.patch_tam(updated_release_tam(release))
-  target_var_ids = [cv.id() for cv in ChartVariable.release_dpdt_vars()]
+  target_var_ids = [cv.id() for cv in ManifestVariable.release_dpdt_vars()]
   new_mfst_defaults = tam_client().load_manifest_defaults()
   new_keyed_defaults = dict2keyed(new_mfst_defaults)
   overridden_vars = [e for e in new_keyed_defaults if e[0] in target_var_ids]

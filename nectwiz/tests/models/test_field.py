@@ -11,15 +11,28 @@ class TestField(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Field
 
-  def test_delegate_explicit(self):
+  def test_delegate_inside(self):
+    field = Field(dict(
+      id='bar',
+      title='t',
+      info='i'
+    ))
+    self.assertEqual('bar', field.id())
+    self.assertEqual('t', field.title)
+    self.assertEqual('i', field.info)
 
+
+  def test_delegate_outside(self):
     models_man.add_descriptors([
       dict(
+        id='foo',
         kind='GenericVariable',
-
+        title='generic-t',
+        info='generic-i'
       )
     ])
 
-    Field(dict(
-
-    ))
+    field = Field(dict(id='foo', variable_id='foo'))
+    self.assertEqual('foo', field.id())
+    self.assertEqual('generic-t', field.title)
+    self.assertEqual('generic-i', field.info)

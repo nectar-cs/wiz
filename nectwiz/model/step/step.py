@@ -2,7 +2,7 @@ from typing import List, Dict, Optional
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import CommitOutcome
+from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
@@ -44,7 +44,7 @@ class Step(WizModel):
   def has_explicit_next(self) -> bool:
     return step_exprs.none_if_default(self.next_step_desc) is None
 
-  def validate_field(self, field_id: str, value: str, op_state: TOS):
+  def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:
     context = resolution_context(op_state)
     return self.field(field_id).validate(value, context)
 

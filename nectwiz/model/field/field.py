@@ -15,18 +15,26 @@ T = TypeVar('T', bound='Field')
 
 class Field(WizModel):
 
-  def __init__(self, config):
+  def __init__(self, config: Dict):
     super().__init__(config)
     self._delegate_variable = self.resolve_variable_spec()
-    # self.title =
-
+    self.title = self._delegate_variable.title
+    self.info = self._delegate_variable.info
     self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
 
-
-  def load_delegate_variable(self) -> Optional[GenericVariable]:
-    _id = self.config.get('variable_id')
-    return GenericVariable.inflate(_id) if _id else None
+  @classmethod
+  def inflate_with_key(cls, _id: str) -> T:
+    is_kind = len(_id) > 0 and _id[0].isupper()
+    if not is_kind:
+      if not cls.id_exists(_id):
+        return cls.inflate_with_config(dict(
+          kind='Field',
+          id=_id,
+          variable_id=_id
+        ))
+    else:
+      return super().inflate_with_key(_id)
 
   def input_spec(self) -> Optional[GenericInput]:
     return self.resolve_variable_spec().input_spec()
@@ -35,9 +43,11 @@ class Field(WizModel):
     return self.resolve_variable_spec().validate(value, context)
 
   def resolve_variable_spec(self) -> GenericVariable:
-    self._delegate_variable = self.load_delegate_variable()
-    if not self._delegate_variable:
-      self._delegate_variable = GenericVariable(self.config)
+    variable_id = self.config.get('variable_id')
+    if variable_id:
+      return GenericVariable.inflate(variable_id)
+    else:
+      return GenericVariable(self.config)
 
   def options(self) -> List[Dict]:
     return self.input_spec().options()
@@ -71,19 +81,6 @@ class Field(WizModel):
       return predicate.evaluate(context)
     else:
       return True
-
-  @classmethod
-  def inflate_with_key(cls, _id: str) -> T:
-    is_kind = len(_id) > 0 and _id[0].isupper()
-    if not is_kind:
-      if not cls.id_exists(_id):
-        return cls.inflate_with_config(dict(
-          kind='Field',
-          id=_id,
-          variable_id=_id
-        ))
-    else:
-      return super().inflate_with_key(_id)
 
   def sanitize_value(self, value):
     return value

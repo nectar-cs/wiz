@@ -1,4 +1,5 @@
 from typing import Type
+from unittest.mock import patch
 
 from k8kat.utils.testing import ns_factory
 
@@ -10,11 +11,54 @@ from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import one_step_state, create_base_master_map
 
 
+def fake_assigns():
+  return True
+
+
 class TestStep(Base.TestWizModel):
 
   @classmethod
   def model_class(cls) -> Type[WizModel]:
     return Step
+
+  def test_next_step_trivial(self):
+    op_state = OperationState('', '')
+    step = Step(dict())
+    self.assertIsNone(step.next_step_id(op_state))
+
+    step = Step(dict(next=None))
+    self.assertIsNone(step.next_step_id(op_state))
+
+    step = Step(dict(next='default'))
+    self.assertIsNone(step.next_step_id(op_state))
+
+    step = Step(dict(next='foo'))
+    self.assertEqual('foo', step.next_step_id(op_state))
+
+  def test_next_step_with_predicate(self):
+    step = Step(dict(
+      next={
+        'if': dict(
+          challenge="{operation/x.y}",
+          check_against='z'
+        ),
+        'then': 'foo',
+        'else': 'bar'
+      }
+    ))
+
+    op_state = OperationState('', '')
+    op_state.gen_step_state(step)
+    op_state.step_states[0].state_assigns={"x.y": 'z'}
+
+    actual = step.next_step_id(op_state)
+    self.assertEqual('foo', actual)
+
+    op_state.step_states[0].state_assigns={"x.y": 'z2'}
+
+    actual = step.next_step_id(op_state)
+    self.assertEqual('bar', actual)
+
 
   def test_run_commit_man_only(self):
     config_man._ns, = ns_factory.request(1)
@@ -81,3 +125,4 @@ class TestStep(Base.TestWizModel):
     exp = dict(chart={'f1': 'v1'}, inline={'f2': 'v2'}, state={'f3': 'v3'})
     actual = step.partition_user_asgs(assigns, one_step_state(step))
     self.assertEqual(exp, actual)
+

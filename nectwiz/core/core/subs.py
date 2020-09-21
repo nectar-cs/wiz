@@ -15,7 +15,7 @@ class SubsGetter:
     elif len(resolver_desc) == 2:
       resolvers = self.src.get('resolvers', {})
       resolver = resolvers.get(resolver_desc[0])
-      resolvable_key = resolver_desc[1]
+      resolvable_key = resolver_desc[1].replace("---", ".")
       return resolver(resolvable_key) if resolver else None
     else:
       return None
@@ -43,5 +43,6 @@ def interp_dict_vals(root: Dict, context: Dict) -> Dict:
 
 
 def interp(string: str, context: Dict) -> str:
+  string = string.replace(".", "---")
   fmt_string = string.replace("{", "{0.")
   return fmt_string.format(SubsGetter(context or {}))

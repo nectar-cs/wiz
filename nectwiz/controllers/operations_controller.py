@@ -169,8 +169,10 @@ def steps_next_id(operation_id, stage_id, step_id):
   :param step_id: step id to locate the right step.
   :return: computed id of next step or "done" if no more steps left.
   """
+  stage = find_stage(operation_id, stage_id)
   step = find_step(operation_id, stage_id, step_id)
-  result = step.next_step_id(find_op_state())
+  op_state = find_op_state()
+  result = stage.next_step_id(step, op_state)
   return jsonify(step_id=result)
 
 
@@ -179,11 +181,10 @@ def fields_validate(operation_id, stage_id, step_id, field_id):
   value = jparse()['value']
   step = find_step(operation_id, stage_id, step_id)
   op_state = find_op_state()
-  tone, message = step.validate_field(field_id, value, op_state)
-  if tone:
-    return jsonify(data=dict(status=tone, message=message))
-  else:
-    return jsonify(data=dict(status='valid'))
+  eval_result = step.validate_field(field_id, value, op_state)
+  status = 'valid' if eval_result['met'] else eval_result['tone']
+  message = None if eval_result['met'] else eval_result['reason']
+  return jsonify(data=dict(status=status, message=message))
 
 
 @controller.route(f'{FIELD_PATH}/decorate', methods=['POST'])
