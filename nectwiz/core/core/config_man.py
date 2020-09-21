@@ -35,7 +35,7 @@ class ConfigMan:
       self._ns = read_ns()
     return self._ns
 
-  def prefs(self, force_reload=False) -> TamDict:
+  def prefs(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._prefs:
       self._prefs = self.read_prefs()
     return self._prefs
@@ -68,16 +68,24 @@ class ConfigMan:
 
   # noinspection PyTypedDict
   def resolvers(self) -> Dict:
+    def app_cont(n: str) -> str:
+      return dict(
+        install_uuid=self.install_uuid(),
+        ns=self.ns()
+      )[n]
+
     return dict(
       manifest_variables=lambda n: self.read_tam_var(n),
-      tam_config=lambda n: self.tam().get(n)
+      tam_config=lambda n: self.tam().get(n),
+      prefs=lambda n: self.prefs().get(n),
+      app=app_cont
     )
 
   def read_cmap_dict(self, outer_key: str) -> Dict:
     cmap = self.master_cmap()
     return cmap.jget(outer_key, {}) if cmap else {}
 
-  def read_cmap_primitive(self, flat_key: str):
+  def read_cmap_primitive(self, flat_key: str) -> any:
     cmap = self.master_cmap()
     return cmap.data.get(flat_key) if cmap else None
 

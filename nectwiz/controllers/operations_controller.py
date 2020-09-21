@@ -1,6 +1,9 @@
+from typing import Dict
+
 from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
 from nectwiz.model.operation import serial as operation_serial
@@ -82,7 +85,8 @@ def prerequisite_eval(operation_id, prerequisite_id):
   prereq = find_prereq(operation_id, prerequisite_id)
   # noinspection PyBroadException
   try:
-    condition_met = prereq.evaluate()
+    context = dict(resolvers=config_man.resolvers())
+    condition_met = prereq.evaluate(context)
   except:
     condition_met = None
   return jsonify(data=dict(
@@ -101,9 +105,10 @@ def steps_show(operation_id, stage_id, step_id):
   :param step_id: step id to search by.
   :return: serialized Step object.
   """
+  values: Dict = jparse()['values']
+  op_state = find_op_state()
   step = find_step(operation_id, stage_id, step_id)
-  step_state = find_op_state().find_step_state(step)
-  serialized = step_serial.standard(step)
+  serialized = step_serial.standard(step, values, op_state)
   return jsonify(data=serialized)
 
 
