@@ -16,8 +16,8 @@ class UpdateDict(TypedDict):
   id: str
   type: str
   version: str
-  tam_type: str
-  tam_uri: str
+  tam_type: Optional[str]
+  tam_uri: Optional[str]
   note: str
   injections: Dict[str, str]
   manual: bool

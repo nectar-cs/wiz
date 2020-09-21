@@ -144,8 +144,9 @@ def await_resource_settled(observer: UpdateObserver) -> bool:
   predicate_tree = default_predicates.from_apply_outcome(logs)
   predicates = utils.flatten(predicate_tree.values())
   state = StepState('synthetic', None)
+  context = dict(resolvers=config_man.resolvers())
   for i in range(120):
-    status_computer.compute(predicate_tree, state)
+    status_computer.compute(predicate_tree, state, context)
     observer.on_exit_statuses_computed(predicates, state.exit_statuses)
     if state.has_settled():
       break

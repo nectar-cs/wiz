@@ -12,7 +12,7 @@ class TestStatusComputer(ClusterTest):
   def test_eval_preds_halting_logic(self):
     step_state = OperationState('', '').gen_step_state(Step({}))
     predicates = [TrivPred({'id': 'x', 'o': True}), TrivPred({})]
-    eval_preds(predicates, 'negative', step_state)
+    eval_preds(predicates, 'negative', step_state, {})
     exp_eval = {'met': True, 'name': 'x', 'predicate_id': 'x', 'reason': 'r'}
     exp = {'positive': [], 'negative': [exp_eval]}
     self.assertEqual(exp, step_state.exit_statuses)
@@ -23,7 +23,7 @@ class TestStatusComputer(ClusterTest):
     step_state.exit_statuses = {'positive': [cached_result], 'negative': []}
 
     with patch('nectwiz.model.step.status_computer.eval_pred') as mock:
-      eval_preds([TrivPred({'id': 'x'})], 'positive', step_state)
+      eval_preds([TrivPred({'id': 'x'})], 'positive', step_state, {})
       self.assertTrue(mock.called)
 
   def test_eval_preds_recomputing_logic(self):
@@ -31,16 +31,16 @@ class TestStatusComputer(ClusterTest):
     cached_result = {'predicate_id': 'x', 'met': False}
     step_state.exit_statuses = {'positive': [cached_result], 'negative': []}
     predicate = TrivPred({'id': 'x', 'o': True})
-    eval_preds([predicate], 'positive', step_state)
+    eval_preds([predicate], 'positive', step_state, {})
     exp_eval = {'predicate_id': 'x', 'met': True, 'name': 'x', 'reason': 'r'}
     exp = {'positive': [exp_eval], 'negative': []}
     self.assertEqual(exp, step_state.exit_statuses)
 
   def test_compute_empty(self):
     step_state = OperationState('', '').gen_step_state(Step({}))
-    compute({}, step_state)
+    compute({}, step_state, {})
     self.assertTrue(step_state.did_succeed())
-    compute({'positive': [], 'negative': []}, step_state)
+    compute({'positive': [], 'negative': []}, step_state, {})
     self.assertTrue(step_state.did_succeed())
 
 
@@ -51,6 +51,5 @@ class TrivPred(Predicate):
     self.outcome = (config or {}).get('o', False)
     self.reason = 'r'
 
-  def evaluate(self):
+  def evaluate(self, context):
     return self.outcome
-

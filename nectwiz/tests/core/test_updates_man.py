@@ -3,6 +3,7 @@ import time
 from k8kat.auth.kube_broker import broker
 from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.testing import ns_factory
+from kubernetes.client import V1Pod, V1ObjectMeta, V1PodSpec, V1Container
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, UpdateDict
@@ -22,14 +23,10 @@ class TestUpdatesMan(ClusterTest):
 
   def test_await_resource_settled(self):
     config_man._ns,  = ns_factory.request(1)
-    broker.client.con
-    action = CmdExecAction(config=dict(
-      cmd=f"kubectl run nginx --image=nginx -n {config_man.ns()}"
-    ))
-    result = action.run()
-    logs = action.run()['data']['logs']
+    create_pod(config_man.ns())
+    would_be_logs = "pods/nginx created"
     observer = UpdateObserver('release')
-    observer.on_perform_finished('positive', logs)
+    observer.on_perform_finished('positive', would_be_logs)
     updates_man.await_resource_settled(observer)
 
   def test_hooks(self):
@@ -95,8 +92,6 @@ class TestUpdatesMan(ClusterTest):
       actual = list(map(boil, observer.item('after_hooks')['sub_items']))
       self.assertEqual(exp, actual)
 
-
-
   def test_apply_release_update(self):
     config_man._ns, = ns_factory.request(1)
     create_base_master_map(config_man.ns())
@@ -147,13 +142,30 @@ class TestUpdatesMan(ClusterTest):
     self.assertEqual('positive', progress['status'])
     self.assertEqual(exp_logs, progress['logs'])
 
-  # def test_run_hooks(self):
-
 
 update_package = UpdateDict(
   id='foo',
   type='release',
   version='2.0.0',
   injections={},
-  manual=False
+  manual=False,
+  tam_type=None,
+  tam_uri=None,
+  note='irrelevant'
 )
+
+
+def create_pod(ns):
+  broker.coreV1.create_namespaced_pod(ns, V1Pod(
+    metadata=V1ObjectMeta(
+      name='nginx'
+    ),
+    spec=V1PodSpec(
+      containers=[
+        V1Container(
+          name='nginx',
+          image='nginx'
+        )
+      ]
+    )
+  ))

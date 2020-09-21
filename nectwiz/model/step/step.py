@@ -123,7 +123,8 @@ class Step(WizModel):
 
   def compute_settling_status(self, step_state: StepState):
     exit_predicates = self.exit_predicates(step_state)
-    status_computer.compute(exit_predicates, step_state)
+    context = resolution_context(step_state.parent_op)
+    status_computer.compute(exit_predicates, step_state, context)
     return step_state.has_settled()
 
   def exit_predicates(self, step_state: StepState):
