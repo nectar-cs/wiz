@@ -1,7 +1,7 @@
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.tam import tam_client
-from nectwiz.model.base.res_match_rule import ResMatchRule
+from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
@@ -25,7 +25,7 @@ class TestTamiClient(ClusterTest):
 
   def test_filter_res(self):
     res_list = g_res_list(('k1', 'n1'), ('k1', 'n2'))
-    result = tam_client.filter_res(res_list, [ResMatchRule("k1:n1")])
+    result = tam_client.filter_res(res_list, [ResourceSelector("k1:n1")])
     self.assertEqual(result, [res_list[0]])
 
 def g_res(_tuple):

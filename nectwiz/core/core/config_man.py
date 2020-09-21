@@ -66,6 +66,13 @@ class ConfigMan:
     else:
       return None
 
+  # noinspection PyTypedDict
+  def resolvers(self) -> Dict:
+    return dict(
+      manifest_variables=lambda n: self.read_tam_var(n),
+      tam_config=lambda n: self.tam().get(n)
+    )
+
   def read_cmap_dict(self, outer_key: str) -> Dict:
     cmap = self.master_cmap()
     return cmap.jget(outer_key, {}) if cmap else {}

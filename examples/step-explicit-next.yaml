@@ -1,0 +1,36 @@
+kind: Step
+next: security
+
+---
+
+kind: Step
+id: backups
+info: I'm reference in the next step
+fields:
+  - backups.enabled
+
+---
+
+kind: Step
+next:
+  if:
+    check_against: "true"
+    challenge: $vars/backups.enabled
+  then: backups
+  else: done
+
+---
+
+kind: Step
+id: repeat-on-fail-step
+info: We'll repeat this step if the deployment isn't working
+next:
+  if:
+    kind: ResPropComparePredicate
+    property: ternary_status
+    check_against: negative
+    selector:
+      kind: Deployment
+      name: $vars/special_deployment
+  then: repeat-on-fail-step
+  else: move-on

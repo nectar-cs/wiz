@@ -4,8 +4,8 @@ from typing import List, Tuple, Optional
 import yaml
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core.core.types import K8sResDict, TamDict
-from nectwiz.model.base.res_match_rule import ResMatchRule
+from nectwiz.core.core.types import K8sResDict
+from nectwiz.model.base.resource_selector import ResourceSelector
 
 tmp_file_mame = '/tmp/man.yaml'
 
@@ -20,7 +20,7 @@ class TamClient:
   def load_templated_mfst(self, inlines=None) -> List[K8sResDict]:
     raise NotImplemented
 
-  def apply(self, rules: Optional[List[ResMatchRule]], inlines=None) -> str:
+  def apply(self, rules: Optional[List[ResourceSelector]], inlines=None) -> str:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local
     file (filtering resources by rules), and runs kubectl apply -f on it.
@@ -33,7 +33,7 @@ class TamClient:
     return kubectl_apply()
 
 
-def save_manifest_as_tmp(res_dicts: List[K8sResDict], rules: List[ResMatchRule]):
+def save_manifest_as_tmp(res_dicts: List[K8sResDict], rules: List[ResourceSelector]):
   """
   Launches Tami container with passed inline arguments. Then collects logs from
   resources that match the rules, and writes them out to a file.
@@ -76,17 +76,17 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def filter_res(res_list: List[K8sResDict], rules: List[ResMatchRule]) -> List[K8sResDict]:
+def filter_res(res_list: List[K8sResDict], selector: List[ResourceSelector]) -> List[K8sResDict]:
   """
   Filters the list of parsed kubernetes resources from the tami-generated
   application manifest according to the passed rule-set.
   :param res_list: k8s resource list to be filtered.
-  :param rules: rules to be used for filtering.
+  :param selector: rules to be used for filtering.
   :return: filtered resource list.
   """
-  if rules:
+  if selector:
     def decide_res(res):
-      for rule in rules:
+      for rule in selector:
         if rule.evaluate(res):
           return True
       return False

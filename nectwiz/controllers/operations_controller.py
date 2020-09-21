@@ -154,7 +154,7 @@ def step_compute_settle_status(operation_id, stage_id, step_id):
   )
 
 
-@controller.route(f'{STEP_PATH}/next', methods=['POST'])
+@controller.route(f'{STEP_PATH}/next')
 def steps_next_id(operation_id, stage_id, step_id):
   """
   computes and returns the id of the next step.
@@ -163,25 +163,15 @@ def steps_next_id(operation_id, stage_id, step_id):
   :param step_id: step id to locate the right step.
   :return: computed id of next step or "done" if no more steps left.
   """
-  values = jparse()['values']
-  stage = find_stage(operation_id, stage_id)
   step = find_step(operation_id, stage_id, step_id)
-  next_step_id = stage.next_step_id(step, values)
-  return jsonify(step_id=next_step_id)
+  step_state = find_op_state().gen_step_state(step)
+  return jsonify(step_id=step.next_step_id(step_state))
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
 def fields_validate(operation_id, stage_id, step_id, field_id):
-  """
-  Validates the given field against all associated Validators.
-  :param operation_id: operation id to locate the right field.
-  :param stage_id: stage id to locate the right field.
-  :param step_id: step id to locate the right field.
-  :param field_id: field id to locate the right field.
-  :return: dict with tone and status if at least one Validator is unsuccessful,
-  dict with "valid" otherwise.
-  """
-  field = find_field(operation_id, stage_id, step_id, field_id)
+  step = find_step(operation_id, stage_id, step_id)
+  step_state = find_op_state()
   value = jparse()['value']
   tone, message = field.validate(value)
   if tone and message:

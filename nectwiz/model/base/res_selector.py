@@ -2,7 +2,7 @@ from typing import List
 
 from k8kat.res.base.kat_res import KatRes
 
-from nectwiz.model.base.res_match_rule import ResMatchRule
+from nectwiz.model.base.resource_selector import ResourceSelector
 
 
 def to_reslist(root) -> List[KatRes]:
@@ -12,5 +12,5 @@ def to_reslist(root) -> List[KatRes]:
   :return: list of KatRes resources.
   """
   root = [root] if not type(root) == list else root
-  groups = [ResMatchRule(node).query() for node in root]
+  groups = [ResourceSelector(node).query() for node in root]
   return [item for sublist in groups for item in sublist]

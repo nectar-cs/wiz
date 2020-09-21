@@ -1,6 +1,5 @@
 from typing import Dict
 
-from nectwiz.core.core.types import ActionOutcome
 from nectwiz.model.action.action import Action
 
 

@@ -36,18 +36,28 @@ class Step(WizModel):
   def runs_action(self) -> bool:
     return self.action_kod is not None
 
-  def next_step_id(self, values: Dict[str, str]) -> str:
+  def next_step_id(self, step_state: StepState) -> str:
     root = self.next_step_desc
-    return step_exprs.eval_next_expr(root, values)
+    context = resolution_context(step_state)
+    return step_exprs.eval_next_expr(root, context)
 
   def has_explicit_next(self) -> bool:
-    return not step_exprs.is_default_next(self.next_step_desc)
+    return step_exprs.none_if_default(self.next_step_desc) is None
+
+  def validate_field(self, field_id, value, step_state):
+    context = resolution_context(step_state)
+    return self.field(field_id).validate(value, context)
 
   def fields(self) -> List[Field]:
     return self.load_children('fields', Field)
 
   def field(self, _id) -> Field:
-    return self.load_list_child('fields', Field, _id)
+    finder = lambda field: field.id() == _id
+    return next(filter(finder, self.fields()), None)
+
+  def fields2(self) -> List[Field]:
+    descs = self.config.get('fields')
+    return list(map(Field.from_expr, descs))
 
   def visible_fields(self, user_values, step_state: StepState) -> List[Field]:
     all_fields = self.fields()
@@ -147,3 +157,12 @@ class Step(WizModel):
         TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
         TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
       }
+
+
+def resolution_context(step_state: StepState):
+  return dict(
+    resolvers=dict(
+      step=lambda n: step_state.all_assigns().get(n),
+      operation=lambda n: step_state.parent_op.all_assigns().get(n)
+    )
+  )

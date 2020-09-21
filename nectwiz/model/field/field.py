@@ -1,43 +1,47 @@
-from typing import List, Optional
+from typing import List, Optional, TypeVar, Dict
 
-from nectwiz.core.core.utils import deep_get
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.base.res_match_rule import ResMatchRule
-from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.predicate.predicate import Predicate
+from nectwiz.model.input.input import Input
+from nectwiz.model.variables.generic_variable import GenericVariable
 
 TARGET_CHART = 'chart'
 TARGET_INLIN = 'inline'
 TARGET_STATE = 'state'
 TARGET_TYPES = [TARGET_CHART, TARGET_INLIN, TARGET_STATE]
 
+T = TypeVar('T', bound='Field')
 
 class Field(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.input_type = config.get('type', 'text-input')
-    self.option_descriptors = config.get('options')
+    self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
-    self.options_source = config.get('options_source', None)
-    self.expl_default = config.get('default')
-    self.validation_descriptors = config.get('validations', [
-      dict(type='presence')
-    ])
+    self._delegate_variable = None
 
-  def options(self) -> List[dict]:
-    if self.options_source:
-      _type = self.options_source.get('type')
-      if _type == 'select-k8s-res':
-        rule_descriptors = self.options_source.get('res_match_rules', [])
-        rules = [ResMatchRule(rd) for rd in rule_descriptors]
-        res_list = set(sum([rule.query() for rule in rules], []))
-        return [{'id': r.name, 'value': r.name} for r in res_list]
-      else:
-        raise RuntimeError(f"Can't process source {type}")
-    else:
-      return self.option_descriptors
+  def load_delegate_variable(self) -> Optional[GenericVariable]:
+    _id = self.config.get('variable_id')
+    return GenericVariable.inflate(_id) if _id else None
+
+  def input_spec(self) -> Optional[Input]:
+    return self.variable_spec().input_spec()
+
+  def validate(self, value, context):
+    return self.variable_spec().validate(value, context)
+
+  def variable_spec(self) -> GenericVariable:
+    if not self._delegate_variable:
+      self._delegate_variable = self.load_delegate_variable()
+      if not self._delegate_variable:
+        self._delegate_variable = GenericVariable(self.config)
+    return self._delegate_variable
+
+  def input_type(self) -> Optional[str]:
+    return self.input_spec().type()
+
+  def options(self) -> List[Dict]:
+    return self.input_spec().options()
 
   def is_manifest_bound(self) -> bool:
     return self.is_chart_var() or self.is_inline_chart_var()
@@ -59,29 +63,7 @@ class Field(WizModel):
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:
-    if self.expl_default:
-      return self.expl_default
-    else:
-      tam_defaults = config_man.tam_defaults() or {}
-      native_default = deep_get(tam_defaults, self.id().split("."))
-      if native_default:
-        return native_default
-      elif self.input_type == 'select':
-        options = self.options()
-        return options[0].get('id') if len(options) > 0 else None
-      else:
-        return None
-
-  def validators(self) -> List[Validator]:
-    validation_configs = self.validation_descriptors
-    return [Validator.inflate(c) for c in validation_configs]
-
-  def validate(self, value) -> List[Optional[str]]:
-    for validator in self.validators():
-      tone, message = validator.validate(value)
-      if tone and message:
-        return [tone, message]
-    return [None, None]
+    return self.load_delegate_variable().default_value()
 
   def compute_visibility(self) -> bool:
     predicate_kod = self.config.get('show_condition')
@@ -96,3 +78,16 @@ class Field(WizModel):
 
   def decorate_value(self, value: str) -> Optional[any]:
     return None
+
+  @classmethod
+  def inflate_with_key(cls, _id: str) -> T:
+    is_kind = len(_id) > 0 and _id[0].isupper()
+    if not is_kind:
+      if not cls.id_exists(_id):
+        return cls.inflate_with_config(dict(
+          kind='Field',
+          id=_id,
+          variable_id=_id
+        ))
+    else:
+      return super().inflate_with_key(_id)
