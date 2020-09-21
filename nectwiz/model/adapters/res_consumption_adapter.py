@@ -7,10 +7,10 @@ from werkzeug.utils import cached_property
 from k8kat.res.cluster.kat_cluster import KatCluster
 
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.adapters.adapter import Adapter
+from nectwiz.model.base.wiz_model import WizModel
 
 
-class BaseConsumptionAdapter(Adapter):
+class BaseConsumptionAdapter(WizModel):
 
   @cached_property
   def kat_ns(self) -> KatNs:

@@ -12,7 +12,7 @@ class TamsClient(TamClient):
   def load_manifest_defaults(self) -> Dict[str, str]:
     return http_get('/values')
 
-  def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_templated_mfst(self, inlines=None) -> List[K8sResDict]:
     payload = dict(values=config_man.mfst_vars(force_reload=True))
     return http_post('/template', payload)
 

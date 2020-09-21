@@ -4,17 +4,20 @@ from typing import List, Tuple, Optional
 import yaml
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.core.types import K8sResDict, TamDict
 from nectwiz.model.base.res_match_rule import ResMatchRule
 
 tmp_file_mame = '/tmp/man.yaml'
 
 class TamClient:
 
+  def __init__(self, tam: TamDict):
+    self.tam: TamDict = tam
+
   def load_manifest_defaults(self):
     raise NotImplemented
 
-  def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_templated_mfst(self, inlines=None) -> List[K8sResDict]:
     raise NotImplemented
 
   def apply(self, rules: Optional[List[ResMatchRule]], inlines=None) -> str:
@@ -25,7 +28,7 @@ class TamClient:
     :param inlines: inline values to be applied together with the manifest, if any.
     :return: any generated terminal output from kubectl apply.
     """
-    res_dicts = self.load_tpd_manifest(inlines)
+    res_dicts = self.load_templated_mfst(inlines)
     save_manifest_as_tmp(res_dicts, rules)
     return kubectl_apply()
 

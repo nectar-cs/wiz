@@ -2,27 +2,7 @@ kind: Step
 info: "Use the pre-built apply-resources action as-is."
 fields:
   - id: ingress.domain
-action: nectar.action.apply-resources
-
----
-
-kind: Step
-info: "Customize apply-resources technique #1"
-fields:
-  - id: ingress.domain
-action:
-  inherit: nectar.action.apply-resources
-  filter: 'Ingress:*'
-
----
-
-kind: Step
-info: "Customize apply-resources technique #2"
-fields:
-  - id: ingress.domain
-action:
-  kind: StepApplyResAction
-  filter: 'Ingress:*'
+action: StepApplyResAction
 
 ---
 
@@ -32,5 +12,18 @@ fields:
   - id: nickname
     target: state
 action:
-  inherit: nectar.actions.exec_cmd
-  data: kubectl annotate deploy nectar-wiz nickname=$vars::state::nickname -n $app
+  kind: StepExecCmd
+  data: kubectl annotate deploy nectar-wiz nickname=$vars/nickname -n $app
+
+---
+
+kind: Step
+info: Use a different TAM to carry out the work
+fields:
+  - id: foo
+action:
+  kind: StepApplyResAction
+  tam:
+    type: server
+    uri: http://tams.codenectar.com/nectar/something-cool
+    version: 1.2.3

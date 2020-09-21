@@ -49,6 +49,10 @@ class Step(WizModel):
   def field(self, _id) -> Field:
     return self.load_list_child('fields', Field, _id)
 
+  def visible_fields(self, user_values, step_state: StepState) -> List[Field]:
+    all_fields = self.fields()
+    return all_fields
+
   def state_recall_descriptors2(self, target):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
     return filter(predicate, self.reassignment_descs)
@@ -128,7 +132,7 @@ class Step(WizModel):
       return {}
 
   def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
-    fields = self.fields()
+    fields = self.visible_fields(assigns, ps)
 
     def find_field(_id):
       return next(filter(lambda f: f.id() == _id, fields), None)

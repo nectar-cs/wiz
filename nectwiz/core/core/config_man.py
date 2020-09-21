@@ -13,6 +13,7 @@ from nectwiz.core.core.types import TamDict
 cmap_name = 'master'
 install_uuid_path = '/etc/sec/install_uuid'
 tam_config_key = 'tam'
+prefs_config_key = 'prefs'
 tam_vars_key = 'manifest_variables'
 tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
@@ -27,11 +28,17 @@ class ConfigMan:
     self._install_uuid: Optional[str] = None
     self._tam_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
+    self._prefs: Optional[Dict] = None
 
   def ns(self, force_reload=False):
     if force_reload or utils.is_worker() or not self._ns:
       self._ns = read_ns()
     return self._ns
+
+  def prefs(self, force_reload=False) -> TamDict:
+    if force_reload or utils.is_worker() or not self._prefs:
+      self._prefs = self.read_prefs()
+    return self._prefs
 
   def tam(self, force_reload=False) -> TamDict:
     if force_reload or utils.is_worker() or not self._tam:
@@ -77,6 +84,9 @@ class ConfigMan:
 
   def read_tam(self) -> TamDict:
     return self.read_cmap_dict(tam_config_key)
+
+  def read_prefs(self) -> TamDict:
+    return self.read_cmap_dict(prefs_config_key)
 
   def write_tam(self, new_tam: TamDict):
     self.patch_cmap_with_dict(tam_config_key, new_tam)

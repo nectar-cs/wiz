@@ -15,13 +15,13 @@ vars_full_path = f'{tami_prep.vars_mount_dir}/{tami_prep.vars_file_name}'
 class TamiClient(TamClient):
 
   def load_manifest_defaults(self) -> Dict[str, str]:
-    pod_args_str = f"values {config_man.tam().get('args', '')}"
+    pod_args_str = f"values {self.tam.get('args', '')}"
     pod_args = [v for v in pod_args_str.split(' ') if v]
-    ns, image = config_man.ns(), image_name(config_man.tam())
+    ns, image = config_man.ns(), image_name(self.tam)
     result = tami_prep.consume(ns, image, pod_args)
     return yaml.load(result, Loader=yaml.FullLoader)
 
-  def load_tpd_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_templated_mfst(self, inlines=None) -> List[K8sResDict]:
     """
     Creates a Kubernetes pod running the vendor-specified image, then reads the
     output logs, expected to be a string literal of the interpolated application manifest.
@@ -29,7 +29,7 @@ class TamiClient(TamClient):
     :return: parsed logs from the Tami container.
     """
     pod_args = ['template'] + gen_tami_args(inlines)
-    ns, image = config_man.ns(), image_name(config_man.tam())
+    ns, image = config_man.ns(), image_name(self.tam)
     result = tami_prep.consume(ns, image, pod_args)
     if not result:
       print(f"[nectwiz::tami_client]Fatal tami returned {result}!")

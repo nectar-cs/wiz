@@ -5,7 +5,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.res_match_rule import ResMatchRule
 from nectwiz.model.base.validator import Validator
 from nectwiz.model.base.wiz_model import WizModel
-
+from nectwiz.model.predicate.predicate import Predicate
 
 TARGET_CHART = 'chart'
 TARGET_INLIN = 'inline'
@@ -82,6 +82,14 @@ class Field(WizModel):
       if tone and message:
         return [tone, message]
     return [None, None]
+
+  def compute_visibility(self) -> bool:
+    predicate_kod = self.config.get('show_condition')
+    if predicate_kod:
+      predicate = Predicate.inflate(predicate_kod)
+      return predicate.evaluate()
+    else:
+      return True
 
   def sanitize_value(self, value):
     return value
