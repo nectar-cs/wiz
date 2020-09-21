@@ -63,7 +63,7 @@ class WizModel:
     to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
     return list(map(to_child, kods))
 
-  def load_list_child(self, key: str, child_cls: Type[T], child_key: str) -> List[T]:
+  def load_list_child(self, key: str, child_cls: Type[T], child_key: str) -> T:
     descriptor_list = self.config.get(key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)

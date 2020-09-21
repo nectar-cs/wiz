@@ -42,7 +42,8 @@ class Step(WizModel):
     return step_exprs.eval_next_expr(root, context)
 
   def has_explicit_next(self) -> bool:
-    return step_exprs.none_if_default(self.next_step_desc) is None
+    expr = step_exprs.none_if_default(self.next_step_desc)
+    return expr is not None
 
   def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:
     context = resolution_context(op_state)

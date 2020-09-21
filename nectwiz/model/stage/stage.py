@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from nectwiz.model.base.wiz_model import WizModel, key_or_dict_to_key
 from nectwiz.model.operation.operation_state import OperationState

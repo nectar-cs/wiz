@@ -1,6 +1,5 @@
-from typing import Dict, Union, List
+from typing import Dict, Union
 
-from nectwiz.core.core import subs
 from nectwiz.model.predicate.predicate import Predicate
 
 

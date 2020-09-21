@@ -23,19 +23,6 @@ class Field(WizModel):
     self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
 
-  @classmethod
-  def inflate_with_key(cls, _id: str) -> T:
-    is_kind = len(_id) > 0 and _id[0].isupper()
-    if not is_kind:
-      if not cls.id_exists(_id):
-        return cls.inflate_with_config(dict(
-          kind='Field',
-          id=_id,
-          variable_id=_id
-        ))
-    else:
-      return super().inflate_with_key(_id)
-
   def input_spec(self) -> Optional[GenericInput]:
     return self.resolve_variable_spec().input_spec()
 
@@ -72,7 +59,7 @@ class Field(WizModel):
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:
-    return self.load_delegate_variable().default_value()
+    return self._delegate_variable.default_value()
 
   def compute_visibility(self, context) -> bool:
     predicate_kod = self.config.get('show_condition')

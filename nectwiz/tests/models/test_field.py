@@ -21,7 +21,6 @@ class TestField(Base.TestWizModel):
     self.assertEqual('t', field.title)
     self.assertEqual('i', field.info)
 
-
   def test_delegate_outside(self):
     models_man.add_descriptors([
       dict(
@@ -36,3 +35,5 @@ class TestField(Base.TestWizModel):
     self.assertEqual('foo', field.id())
     self.assertEqual('generic-t', field.title)
     self.assertEqual('generic-i', field.info)
+
+

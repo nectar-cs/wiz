@@ -1,5 +1,4 @@
 from typing import Type
-from unittest.mock import patch
 
 from k8kat.utils.testing import ns_factory
 
@@ -49,16 +48,14 @@ class TestStep(Base.TestWizModel):
 
     op_state = OperationState('', '')
     op_state.gen_step_state(step)
-    op_state.step_states[0].state_assigns={"x.y": 'z'}
 
+    op_state.step_states[0].state_assigns = {"x.y": 'z'}
     actual = step.next_step_id(op_state)
     self.assertEqual('foo', actual)
 
-    op_state.step_states[0].state_assigns={"x.y": 'z2'}
-
+    op_state.step_states[0].state_assigns = {"x.y": 'z2'}
     actual = step.next_step_id(op_state)
     self.assertEqual('bar', actual)
-
 
   def test_run_commit_man_only(self):
     config_man._ns, = ns_factory.request(1)
@@ -125,4 +122,3 @@ class TestStep(Base.TestWizModel):
     exp = dict(chart={'f1': 'v1'}, inline={'f2': 'v2'}, state={'f3': 'v3'})
     actual = step.partition_user_asgs(assigns, one_step_state(step))
     self.assertEqual(exp, actual)
-

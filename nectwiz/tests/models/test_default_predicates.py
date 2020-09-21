@@ -15,7 +15,14 @@ class TestDefaultPredicates(ClusterTest):
     self.assertEqual(2, len(result['negative']))
 
     self.assertEqual('positive', result['positive'][0].config['check_against'])
-    self.assertEqual("pods:pod", result['positive'][0].config['selector'])
+    self.assertEqual(dict(
+      k8s_kind='pods',
+      name='pod'
+    ), result['positive'][0].config['selector'])
 
     self.assertEqual('negative', result['negative'][0].config['check_against'])
-    self.assertEqual("pods:pod", result['negative'][0].config['selector'])
+    self.assertEqual(dict(
+      k8s_kind='pods',
+      name='pod'
+    ), result['negative'][0].config['selector'])
+

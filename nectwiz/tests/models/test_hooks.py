@@ -8,14 +8,12 @@ from nectwiz.tests.models.test_wiz_model import Base
 
 class TestHooks(Base.TestWizModel):
 
-  def setUp(self) -> None:
-    models_man.clear(restore_defaults=True)
-
   @classmethod
   def model_class(cls) -> Type[WizModel]:
     return Hook
 
   def test_run(self):
+    models_man.clear(restore_defaults=True)
     hook = Hook(config=dict(
       action=dict(
         kind=CmdExecAction.__name__,
@@ -27,6 +25,7 @@ class TestHooks(Base.TestWizModel):
     self.assertEqual(['hooked'], outcome['data']['logs'])
 
   def test_by_trigger(self):
+    models_man.clear(restore_defaults=True)
     models_man.add_descriptors([
       dict(
         id='h1',
@@ -66,4 +65,3 @@ class TestHooks(Base.TestWizModel):
 
 def ids(models) -> List[str]:
   return [model.id() for model in models]
-

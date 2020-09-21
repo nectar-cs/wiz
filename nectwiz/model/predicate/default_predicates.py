@@ -27,7 +27,7 @@ def res_comp_predicate(ktl_out: KtlApplyOutcome, charge):
     check_against=charge,
     match_type='all',
     selector=dict(
-      kind=ktl_out['kind'],
+      k8s_kind=ktl_out['kind'],
       name=ktl_out['name']
     )
   ))
