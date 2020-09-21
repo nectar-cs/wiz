@@ -8,7 +8,7 @@ from nectwiz.model.base.wiz_model import WizModel
 class Predicate(WizModel):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.reason = None
+    self.reason = config.get('reason')
     self.tone = config.get('tone', 'error')
     self.operator = config.get('op', 'equals')
     self.challenge = config.get('challenge')

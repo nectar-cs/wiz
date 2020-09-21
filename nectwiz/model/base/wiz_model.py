@@ -42,18 +42,12 @@ class WizModel:
   def __init__(self, config: Dict):
     self.config: Dict = config
     self._id: str = config.get('id')
+    self.title: str = config.get('title')
+    self.info: str = config.get('info')
     self.parent = None
 
   def id(self):
     return self._id
-
-  @property
-  def title(self):
-    return self.config.get('title')
-
-  @property
-  def info(self):
-    return self.config.get('info')
 
   @classmethod
   def kind(cls):
@@ -93,8 +87,8 @@ class WizModel:
     raise RuntimeError(f"Bad input {key_or_dict}")
 
   @classmethod
-  def id_exists(cls, _id: str):
-    pass
+  def id_exists(cls, _id: str) -> bool:
+    return True
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> T:
@@ -175,9 +169,11 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
   from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
+  from nectwiz.model.variables.manifest_variable import ManifestVariable
   return [
     CmdExecAction,
     StepApplyResAction,
     FlushTelemAction,
-    DeletionSpec
+    DeletionSpec,
+    ManifestVariable
   ]

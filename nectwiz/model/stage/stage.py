@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from nectwiz.model.base.wiz_model import WizModel, key_or_dict_to_key
+from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.step.step import Step
 
 
@@ -19,15 +20,15 @@ class Stage(WizModel):
     first = step_descriptors[0] if len(step_descriptors) else None
     return key_or_dict_to_key(first) if first else None
 
-  def next_step_id(self, crt_step: Step, values: Dict[str, str]) -> str:
+  def next_step_id(self, crt_step: Step, op_state: OperationState) -> str:
     """
     Returns the id of the next step, or "done" if no next step exists.
     :param crt_step:
-    :param values: if-then-else values, if necessary.
+    :param op_state: if-then-else values, if necessary.
     :return: id of next step or "done".
     """
     if crt_step.has_explicit_next():
-      return crt_step.next_step_id(values)
+      return crt_step.next_step_id(op_state)
     else:
       stage_steps = self.steps()
       index = step_index(stage_steps, crt_step.id())
