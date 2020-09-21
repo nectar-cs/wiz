@@ -1,6 +1,6 @@
 import unittest
 
-from nectwiz.core.core.subs import SubsGetter, interp
+from nectwiz.core.core.subs import SubsGetter, interp, coerce_sub_tokens
 
 
 class TestSubs(unittest.TestCase):
@@ -27,3 +27,14 @@ class TestSubs(unittest.TestCase):
     string = "easy {foo} hard {foo/bar}"
     expect = "easy bar hard new_bar"
     self.assertEqual(expect, interp(string, context))
+
+    string = "easy {foo} hardest {foo/bar.baz}"
+    expect = "easy bar hardest new_bar.baz"
+    self.assertEqual(expect, interp(string, context))
+
+  def test_coerce_sub_tokens(self):
+    actual = coerce_sub_tokens('nothing to see')
+    self.assertEqual('nothing to see', actual)
+
+    actual = coerce_sub_tokens('trick {or.treat}')
+    self.assertEqual('trick {0.or---treat}', actual)

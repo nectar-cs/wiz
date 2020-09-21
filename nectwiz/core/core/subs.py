@@ -1,4 +1,7 @@
+import re
 from typing import Dict
+
+NON_DOT = "---"
 
 class SubsGetter:
   def __init__(self, src: Dict):
@@ -15,7 +18,7 @@ class SubsGetter:
     elif len(resolver_desc) == 2:
       resolvers = self.src.get('resolvers', {})
       resolver = resolvers.get(resolver_desc[0])
-      resolvable_key = resolver_desc[1]
+      resolvable_key = resolver_desc[1].replace(NON_DOT, ".")
       return resolver(resolvable_key) if resolver else None
     else:
       return None
@@ -42,6 +45,17 @@ def interp_dict_vals(root: Dict, context: Dict) -> Dict:
   return new_dict
 
 
+def coerce_sub_tokens(string: str):
+  pattern = re.compile(r"{(.*?)}")
+  empty_exclude = lambda s: not s.strip() == ''
+  matches = list(filter(empty_exclude, pattern.findall(string)))
+  output = string
+  for match in matches:
+    replacement = '0.' + match.replace(".", NON_DOT)
+    output = output.replace('{' + match + '}', '{' + replacement + '}')
+  return output
+
+
 def interp(string: str, context: Dict) -> str:
-  fmt_string = string.replace("{", "{0.")
+  fmt_string = coerce_sub_tokens(string)
   return fmt_string.format(SubsGetter(context or {}))
