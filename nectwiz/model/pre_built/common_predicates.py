@@ -1,9 +1,11 @@
+from plistlib import Dict
 from typing import Optional
 
 import validators
 
+from nectwiz.core.core import subs
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.base import res_selector
+from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.predicate.predicate import Predicate, getattr_deep
 
 
@@ -12,7 +14,7 @@ class ChartVarComparePredicate(Predicate):
     super().__init__(config)
     self.variable_name = config.get('variable')
 
-  def evaluate(self) -> bool:
+  def evaluate(self, context: Dict) -> bool:
     current_value = config_man.read_tam_var(self.variable_name)
     return self._common_compare(current_value)
 
@@ -22,9 +24,13 @@ class ResCountComparePredicate(Predicate):
     super().__init__(config)
     self.selector_config = config.get('selector', '*:*')
 
-  def evaluate(self) -> bool:
-    res_list = res_selector.to_reslist(self.selector_config)
+  def evaluate(self, context: Dict) -> bool:
+    res_list = self.selector(context).query(context)
     return self._common_compare(len(res_list))
+
+  def selector(self, context) -> ResourceSelector:
+    expr = self.selector_config
+    return ResourceSelector.from_expr(expr, context)
 
 
 class ResPropComparePredicate(Predicate):
@@ -34,10 +40,11 @@ class ResPropComparePredicate(Predicate):
     self.prop_name = config.get('property', 'ternary_status')
     self.match_type = config.get('match', 'all')
 
-  def evaluate(self) -> bool:
-    res_list = res_selector.to_reslist(self.selector_config)
-
-    resolved_values = [getattr_deep(r, self.prop_name) for r in res_list]
+  def evaluate(self, context: Dict) -> bool:
+    prop_name = subs.interp(self.prop_name, context)
+    read_prop = lambda r: getattr_deep(r, prop_name)
+    res_list = self.selector(context).query(context)
+    resolved_values = list(map(read_prop, res_list))
     compare_challenge = lambda v: self._common_compare(v)
     cond_met_evals = list(map(compare_challenge, resolved_values))
 
@@ -51,10 +58,15 @@ class ResPropComparePredicate(Predicate):
       print("DANGER DONT KNOW MATCH TYPE" + self.match_type)
       return False
 
+  def selector(self, context) -> ResourceSelector:
+    expr = self.selector_config
+    return ResourceSelector.from_expr(expr, context)
+
 
 class FormatPredicate(Predicate):
-  def evaluate(self) -> Optional[bool]:
-    check, challenge = self.check_against, self.challenge
+  def evaluate(self, context: Dict) -> Optional[bool]:
+    check = self.check_against
+    challenge = context.get('value', self.challenge)
     if check == 'integer':
       return challenge.isdigit()
     elif check == 'boolean':

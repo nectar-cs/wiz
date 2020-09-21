@@ -16,7 +16,3 @@ class SelectInput(Input):
       return list(map(trans, self.option_descs.items()))
     else:
       return self.option_descs
-
-  def load_provider_options(self):
-    provider = WizModel.inflate(self.provider_desc)
-    return provider.as_options()

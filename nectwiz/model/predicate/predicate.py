@@ -1,11 +1,10 @@
 import functools
-from typing import Optional, Callable
+from typing import Optional, Callable, Dict
 
 from nectwiz.model.base.wiz_model import WizModel
 
 
 class Predicate(WizModel):
-
   def __init__(self, config):
     super().__init__(config)
     self.reason = None
@@ -14,12 +13,12 @@ class Predicate(WizModel):
     self.challenge = config.get('challenge')
     self.check_against = config.get('check_against')
 
-  def evaluate(self) -> Optional[bool]:
-    return self._common_compare(self.challenge)
+  def evaluate(self, context: Dict) -> Optional[bool]:
+    challenge = context.get('value', self.challenge)
+    return self._common_compare(challenge)
 
   def _common_compare(self, value):
     return comparator(self.operator)(value, self.check_against)
-
 
 def getattr_deep(obj, attr):
   """

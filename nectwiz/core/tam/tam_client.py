@@ -73,17 +73,17 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def filter_res(res_list: List[K8sResDict], rules: List[ResourceSelector]) -> List[K8sResDict]:
+def filter_res(res_list: List[K8sResDict], selector: List[ResourceSelector]) -> List[K8sResDict]:
   """
   Filters the list of parsed kubernetes resources from the tami-generated
   application manifest according to the passed rule-set.
   :param res_list: k8s resource list to be filtered.
-  :param rules: rules to be used for filtering.
+  :param selector: rules to be used for filtering.
   :return: filtered resource list.
   """
-  if rules:
+  if selector:
     def decide_res(res):
-      for rule in rules:
+      for rule in selector:
         if rule.evaluate(res):
           return True
       return False

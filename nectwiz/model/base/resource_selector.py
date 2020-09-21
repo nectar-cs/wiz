@@ -1,35 +1,32 @@
-from typing import Dict, Optional, List
+from typing import List, Dict, TypeVar
 
 from k8kat.res.base.kat_res import KatRes
-from typing_extensions import TypedDict
 
 from nectwiz.core.core.config_man import config_man
+from nectwiz.core.core.subs import interp
 from nectwiz.core.core.types import K8sResDict
 from nectwiz.model.base.wiz_model import WizModel
 
-
-class RuleDict(TypedDict, total=False):
-  k8s_kind: str
-  name: Optional[str]
-  label_selectors: Optional[Dict[str, str]]
-  field_selectors: Optional[Dict[str, str]]
-
+T = TypeVar('T', bound='ResourceSelector')
 
 class ResourceSelector(WizModel):
-  def __init__(self, config: RuleDict):
+  def __init__(self, config):
     super().__init__(config)
     self.k8s_kind = config['k8s_kind']
     self.name = config.get('name')
-    self.label_selectors = config.get('label_selectors')
-    self.field_selectors = config.get('field_selectors')
+    self.label_selector = config.get('label_selector')
+    self.field_selector = config.get('field_selector')
 
   @classmethod
-  def from_expr(cls, expr: str):
-    parts = expr.split(':')
-    return cls(config=RuleDict(
-      k8s_kind=parts[len(parts) - 2],
-      name=parts[len(parts) - 1],
-    ))
+  def from_expr(cls, expr: str, context) -> T:
+    if ":" in expr:
+      parts = interp(expr, context).split(':')
+      return cls(config=dict(
+        k8s_kind=parts[len(parts) - 2],
+        name=parts[len(parts) - 1],
+      ))
+    else:
+      return cls.inflate(expr)
 
   def evaluate(self, res: K8sResDict) -> bool:
     res_kind = res['kind']
@@ -42,10 +39,10 @@ class ResourceSelector(WizModel):
         return False
     return True
 
-  def query(self) -> List[KatRes]:
+  def query(self, context: Dict) -> List[KatRes]:
     kat_class = KatRes.find_res_class(self.k8s_kind)
     if kat_class:
-      field_selectors = self.field_selectors
+      field_selectors = self.field_selector
 
       if self.name and self.name != '*':
         field_selectors = {
@@ -55,7 +52,7 @@ class ResourceSelector(WizModel):
 
       return kat_class.list(
         ns=config_man.ns(),
-        labels=self.label_selectors,
+        labels=self.label_selector,
         fields=field_selectors
       )
     else:

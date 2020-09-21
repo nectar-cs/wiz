@@ -77,13 +77,13 @@ class WizModel:
     return key_or_dict_to_child(key_or_dict, child_cls, self)
 
   @classmethod
-  def inflate_all(cls) -> List[Type[T]]:
+  def inflate_all(cls) -> List[T]:
     cls_pool = cls.lteq_classes(models_man.classes())
     configs = configs_for_kinds(models_man.descriptors(), cls_pool)
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: Union[str, Dict]) -> Optional[Type[T]]:
+  def inflate(cls: T, key_or_dict: Union[str, Dict]) -> Optional[T]:
     if isinstance(key_or_dict, str):
       return cls.inflate_with_key(key_or_dict)
     elif isinstance(key_or_dict, Dict):
@@ -95,7 +95,7 @@ class WizModel:
     pass
 
   @classmethod
-  def inflate_with_key(cls, _id: str) -> Type[T]:
+  def inflate_with_key(cls, _id: str) -> T:
     if _id and _id[0].isupper():
       config = dict(kind=_id)
     else:

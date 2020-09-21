@@ -22,7 +22,7 @@ next:
 ---
 
 kind: Step
-id: make-special-deployment
+id: repeat-on-fail-step
 info: We'll repeat this step if the deployment isn't working
 next:
   if:
@@ -32,5 +32,5 @@ next:
     selector:
       kind: Deployment
       name: $vars/special_deployment
-  then: make-special-deployment
+  then: repeat-on-fail-step
   else: move-on

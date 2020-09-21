@@ -1,48 +1,33 @@
 from typing import Optional, List, TypeVar
 
 from nectwiz.core.core import config_man, utils
-from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.core.utils import dict2keyed
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.input.input import Input
+from nectwiz.core.core.utils import dict2keyed
+from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.model.variables.generic_variable import GenericVariable
 
 T = TypeVar('T', bound='ManifestVariable')
 
-class ManifestVariable(WizModel):
+class ManifestVariable(GenericVariable):
   def __init__(self, config):
     super().__init__(config)
-    self.data_type: str = config.get('type', 'string')
-    self.explicit_default: str = config.get('default')
     self.mode: str = config.get('mode', 'internal')
-    self.release_overridable: str = config.get('release_overridable', False)
-
-  def input_spec(self) -> Input:
-    return Input.inflate(self.config.get('input'))
-
-  def load_predicates(self, value):
-    default = dict(challenge='$input')
+    self.release_overridable: bool = config.get('release_overridable', False)
 
   def default_value(self) -> str:
-    if self.explicit_default:
-      return self.explicit_default
+    hardcoded = super().default_value()
+    if hardcoded:
+      return hardcoded
     return config_man.tam_defaults().get(self.id())
-
-  @property
-  def linked_res_name(self) -> str:
-    return self.config.get('resource')
 
   def is_safe_to_set(self) -> bool:
     return self.mode == 'public'
-
-  def validate(self, value) -> List[Optional[str]]:
-    pass
 
   def read_crt_value(self, force_reload=False) -> Optional[str]:
     root = config_man.mfst_vars(force_reload)
     return utils.deep_get(root, self.id().split('.'))
 
-  def commit(self, value:str):
+  def commit(self, value: str):
     config_man.commit_keyed_mfst_vars([(self.id(), value)])
     if self.is_safe_to_set():
       tam_client().apply(rules=None, inlines=None)
@@ -65,5 +50,5 @@ class ManifestVariable(WizModel):
 
   @classmethod
   def release_dpdt_vars(cls) -> List[T]:
-    matcher = lambda cv: cv.release_overridable == True
+    matcher = lambda cv: cv.release_overridable
     return list(filter(matcher, ManifestVariable.inflate_all()))

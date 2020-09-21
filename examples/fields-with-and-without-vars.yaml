@@ -6,3 +6,9 @@ input:
     kind: ResourceSelector
     k8s_kind: Deployment
     namespace: $vars/monitoring.namespace
+
+---
+
+kind: Field
+id: daemon.monitor-target
+chart_variable_id: daemon.monitor-target

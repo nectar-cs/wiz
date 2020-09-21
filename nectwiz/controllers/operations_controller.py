@@ -170,20 +170,8 @@ def steps_next_id(operation_id, stage_id, step_id):
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
 def fields_validate(operation_id, stage_id, step_id, field_id):
-  """
-  Validates the given field against all associated Validators.
-  :param operation_id: operation id to locate the right field.
-  :param stage_id: stage id to locate the right field.
-  :param step_id: step id to locate the right field.
-  :param field_id: field id to locate the right field.
-  :return: dict with tone and status if at least one Validator is unsuccessful,
-  dict with "valid" otherwise.
-  """
-  print("THIS IS EVERYTHING")
-  print(request.data)
-  print(request.headers)
-  print(jparse())
-  field = find_field(operation_id, stage_id, step_id, field_id)
+  step = find_step(operation_id, stage_id, step_id)
+  step_state = find_op_state()
   value = jparse()['value']
   tone, message = field.validate(value)
   if tone and message:

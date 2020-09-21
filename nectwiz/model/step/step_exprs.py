@@ -4,14 +4,12 @@ from nectwiz.core.core import subs
 from nectwiz.model.predicate.predicate import Predicate
 
 
-def eval_next_expr(root: any, sub_map: Dict[str, str]) -> str:
+def eval_next_expr(root: any, context: Dict[str, any]) -> str:
   if not root or type(root) == str:
     return none_if_default(root)
   elif type(root) == dict and is_ift_tree(root):
-    desc = root.get('if')
-    desc = subs.deep_sub(desc, sub_map) if type(desc) == dict else desc
-    predicate = Predicate.inflate(desc)
-    outcome = predicate.evaluate()
+    predicate: Predicate = Predicate.inflate(root.get('if'))
+    outcome = predicate.evaluate(context)
     logic_key = 'then' if outcome else 'else'
     return none_if_default(root.get(logic_key))
   else:

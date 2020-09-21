@@ -1,9 +1,9 @@
-from typing import List, Optional, TypeVar
+from typing import List, Optional, TypeVar, Dict
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import Input
-from nectwiz.model.manifest_variable.manifest_variable import ManifestVariable
+from nectwiz.model.variables.generic_variable import GenericVariable
 
 TARGET_CHART = 'chart'
 TARGET_INLIN = 'inline'
@@ -18,26 +18,29 @@ class Field(WizModel):
     super().__init__(config)
     self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
-    self._manifest_variable = None
+    self._delegate_variable = None
 
-  def manifest_variable(self) -> Optional[ManifestVariable]:
-    _id = self.config.get('chartVariableId')
-    return ManifestVariable.inflate(_id) if _id else None
+  def load_delegate_variable(self) -> Optional[GenericVariable]:
+    _id = self.config.get('variable_id')
+    return GenericVariable.inflate(_id) if _id else None
 
   def input_spec(self) -> Optional[Input]:
     return self.variable_spec().input_spec()
 
-  def variable_spec(self) -> ManifestVariable:
-    if not self._manifest_variable:
-      self._manifest_variable = self.manifest_variable()
-      if not self._manifest_variable:
-        self._manifest_variable = ManifestVariable(self.config)
-    return self._manifest_variable
+  def validate(self, value, context):
+    return self.variable_spec().validate(value, context)
+
+  def variable_spec(self) -> GenericVariable:
+    if not self._delegate_variable:
+      self._delegate_variable = self.load_delegate_variable()
+      if not self._delegate_variable:
+        self._delegate_variable = GenericVariable(self.config)
+    return self._delegate_variable
 
   def input_type(self) -> Optional[str]:
     return self.input_spec().type()
 
-  def options(self) -> List[dict]:
+  def options(self) -> List[Dict]:
     return self.input_spec().options()
 
   def is_manifest_bound(self) -> bool:
@@ -60,17 +63,23 @@ class Field(WizModel):
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:
-    return self.manifest_variable().default_value()
-
-  def validate(self, value) -> List[Optional[str]]:
-    for validator in self.validators():
-      tone, message = validator.validate(value)
-      if tone and message:
-        return [tone, message]
-    return [None, None]
+    return self.load_delegate_variable().default_value()
 
   def sanitize_value(self, value):
     return value
 
   def decorate_value(self, value: str) -> Optional[any]:
     return None
+
+  @classmethod
+  def inflate_with_key(cls, _id: str) -> T:
+    is_kind = len(_id) > 0 and _id[0].isupper()
+    if not is_kind:
+      if not cls.id_exists(_id):
+        return cls.inflate_with_config(dict(
+          kind='Field',
+          id=_id,
+          variable_id=_id
+        ))
+    else:
+      return super().inflate_with_key(_id)

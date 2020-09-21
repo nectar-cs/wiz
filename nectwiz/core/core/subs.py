@@ -1,19 +1,42 @@
 from typing import Dict
 
+class Getter:
+  def __init__(self, src: Dict):
+    self.src: Dict = src
 
-def deep_sub(root: Dict, sub_map: Dict) -> Dict:
+  def __getitem__(self, k: str):
+    direct_hit = self.src[k]
+    resolver_desc = k.split("/")
+    if direct_hit:
+      if type(direct_hit) == str:
+        return direct_hit
+      elif callable(direct_hit):
+        return direct_hit()
+    elif len(resolver_desc) == 2:
+      resolvers = self.src.get('resolvers', {})
+      resolver = resolvers.get(resolver_desc[0])
+      resolvable_key = resolver_desc[1]
+      return resolver(resolvable_key) if resolver else None
+  __getattr__ = __getitem__
+
+
+def interp_str():
+  pass
+
+
+def deep_dict(root: Dict, sub_map: Dict) -> Dict:
   new_dict = {}
 
   def do_sub(var: any) -> any:
-    return poly_interp(var, sub_map) if type(var) == str else var
+    return interp(var, sub_map) if type(var) == str else var
 
   for k, v in list(root.items()):
     if type(v) == dict:
-      new_dict[k] = deep_sub(v,  sub_map)
+      new_dict[k] = deep_dict(v, sub_map)
     elif type(v) == list:
       for i, item in v:
         if type(v) == dict:
-          new_dict[k][i] = deep_sub(item,  sub_map)
+          new_dict[k][i] = deep_dict(item, sub_map)
         else:
           new_dict[k][i] = do_sub(v)
     else:
@@ -21,23 +44,5 @@ def deep_sub(root: Dict, sub_map: Dict) -> Dict:
   return new_dict
 
 
-def poly_interp(source: str, sub_map: Dict) -> str:
-  for substring, replacement in sub_map.items():
-
-    substitute = replacement
-    if callable(replacement):
-      substitute = replacement()
-    source = source.replace(substring, replacement)
-  return source
-
-
-experiment = "$(right) $() of $(the-bat) we $(have/one) not $fakes"
-
-result = re.findall(r"\$\((.*?)\)", experiment)
-
-result2 = re.finditer(r"\$\((.*?)\)", experiment)
-
-r3 = re.search(r"\$\((.*?)\)", experiment)
-
-
-
+def interp(string: str, context: Dict) -> str:
+  return string.format(Getter(context))
