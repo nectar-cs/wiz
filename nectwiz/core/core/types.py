@@ -1,6 +1,8 @@
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 
 from typing_extensions import TypedDict
+
+Kod = Union[str, dict]
 
 class ProgressItem(TypedDict):
   id: Optional[str]

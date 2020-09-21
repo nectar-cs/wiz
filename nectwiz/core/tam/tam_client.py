@@ -4,7 +4,7 @@ from typing import List, Tuple, Optional
 import yaml
 from k8kat.auth.kube_broker import broker
 
-from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.core.types import K8sResDict, TamDict
 from nectwiz.model.base.resource_selector import ResourceSelector
 
 tmp_file_mame = '/tmp/man.yaml'

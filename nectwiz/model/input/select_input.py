@@ -1,10 +1,10 @@
 from typing import Optional, List, Dict
 
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.input.input import Input
+from nectwiz.model.input.input import GenericInput
 
 
-class SelectInput(Input):
+class SelectInput(GenericInput):
 
   def implied_default(self) -> Optional[str]:
     options = self.options()

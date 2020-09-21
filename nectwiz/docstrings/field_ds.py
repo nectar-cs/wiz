@@ -25,7 +25,7 @@ def document():
   """
 
 
-  Field.needs_decorating.__doc__ = """
+  Field.requires_decoration.__doc__ = """
   Checks if the Field is of type "slider" and thus needs decorating.
   :return: True if does, False otherwise.
   """

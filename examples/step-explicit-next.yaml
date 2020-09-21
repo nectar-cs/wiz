@@ -15,7 +15,7 @@ kind: Step
 next:
   if:
     check_against: "true"
-    challenge: $vars/backups.enabled
+    challenge: "{step/backups.enabled}"
   then: backups
   else: done
 
@@ -31,6 +31,6 @@ next:
     check_against: negative
     selector:
       kind: Deployment
-      name: $vars/special_deployment
+      name: "{step/backups.enabled}"
   then: repeat-on-fail-step
   else: move-on

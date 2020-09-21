@@ -2,7 +2,8 @@ from typing import List, Optional, TypeVar, Dict
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.input.input import Input
+from nectwiz.model.input.input import GenericInput
+from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.variables.generic_variable import GenericVariable
 
 TARGET_CHART = 'chart'
@@ -24,10 +25,10 @@ class Field(WizModel):
     _id = self.config.get('variable_id')
     return GenericVariable.inflate(_id) if _id else None
 
-  def input_spec(self) -> Optional[Input]:
+  def input_spec(self) -> Optional[GenericInput]:
     return self.variable_spec().input_spec()
 
-  def validate(self, value, context):
+  def validate(self, value: str, context: Dict):
     return self.variable_spec().validate(value, context)
 
   def variable_spec(self) -> GenericVariable:
@@ -36,9 +37,6 @@ class Field(WizModel):
       if not self._delegate_variable:
         self._delegate_variable = GenericVariable(self.config)
     return self._delegate_variable
-
-  def input_type(self) -> Optional[str]:
-    return self.input_spec().type()
 
   def options(self) -> List[Dict]:
     return self.input_spec().options()
@@ -55,8 +53,8 @@ class Field(WizModel):
   def is_state_var(self) -> bool:
     return self.target == TARGET_STATE
 
-  def needs_decorating(self) -> bool:
-    return self.input_type == 'slider'
+  def requires_decoration(self) -> bool:
+    return self.input_spec().requires_decoration()
 
   def current_or_default(self) -> Optional[str]:
     current = config_man.mfst_vars(False).get(self.id())
@@ -65,19 +63,13 @@ class Field(WizModel):
   def default_value(self) -> Optional[str]:
     return self.load_delegate_variable().default_value()
 
-  def compute_visibility(self) -> bool:
+  def compute_visibility(self, context) -> bool:
     predicate_kod = self.config.get('show_condition')
     if predicate_kod:
-      predicate = Predicate.inflate(predicate_kod)
-      return predicate.evaluate()
+      predicate: Predicate = Predicate.inflate(predicate_kod)
+      return predicate.evaluate(context)
     else:
       return True
-
-  def sanitize_value(self, value):
-    return value
-
-  def decorate_value(self, value: str) -> Optional[any]:
-    return None
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> T:
@@ -91,3 +83,9 @@ class Field(WizModel):
         ))
     else:
       return super().inflate_with_key(_id)
+
+  def sanitize_value(self, value):
+    return value
+
+  def decorate_value(self, value: str) -> Optional[any]:
+    return None

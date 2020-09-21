@@ -2,6 +2,7 @@ import os
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
 from nectwiz.core.core import utils
+from nectwiz.core.core.types import Kod
 
 T = TypeVar('T', bound='WizModel')
 
@@ -61,19 +62,19 @@ class WizModel:
     descriptor_list = self.config.get(config_key, [])
     return self.load_related(descriptor_list, child_class)
 
-  def load_related(self, descriptor_list: List, child_class: Type[T]) -> List[T]:
-    is_list = isinstance(descriptor_list, list)
-    descriptor_list = descriptor_list if is_list else [descriptor_list]
+  def load_related(self, kods: List, child_class: Type[T]) -> List[T]:
+    is_list = isinstance(kods, list)
+    kods = kods if is_list else [kods]
     to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
-    return list(map(to_child, descriptor_list))
+    return list(map(to_child, kods))
 
-  def load_list_child(self, config_key: str, child_class: Type[T], child_key: str) -> T:
-    descriptor_list = self.config.get(config_key, [])
+  def load_list_child(self, key: str, child_cls: Type[T], child_key: str) -> List[T]:
+    descriptor_list = self.config.get(key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
-    return self.load_child(child_class, match) if match else None
+    return self.load_child(child_cls, match) if match else None
 
-  def load_child(self, child_cls: Type[T], key_or_dict: Union[str, dict]) -> T:
+  def load_child(self, child_cls: Type[T], key_or_dict: Kod) -> T:
     return key_or_dict_to_child(key_or_dict, child_cls, self)
 
   @classmethod
@@ -83,7 +84,7 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: Union[str, Dict]) -> Optional[T]:
+  def inflate(cls: T, key_or_dict: Kod) -> Optional[T]:
     if isinstance(key_or_dict, str):
       return cls.inflate_with_key(key_or_dict)
     elif isinstance(key_or_dict, Dict):
@@ -137,11 +138,11 @@ def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
   raise RuntimeError(f"Can't handle {key_or_dict}")
 
 
-def key_or_dict_matches(key_or_dict: Union[str, dict], target_key: str) -> bool:
+def key_or_dict_matches(key_or_dict: Kod, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
 
 
-def key_or_dict_to_child(key_or_dict: Union[str, dict], child_cls: Type[T],
+def key_or_dict_to_child(key_or_dict: Kod, child_cls: Type[T],
                          parent: T = None) -> T:
   inflated = child_cls.inflate(key_or_dict)
   inflated.parent = parent

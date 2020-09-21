@@ -1,7 +1,7 @@
 from typing import Dict
 
-from nectwiz.model.input.input import Input
+from nectwiz.model.input.input import GenericInput
 
 
-class CheckboxesInput(Input):
+class CheckboxesInput(GenericInput):
   pass

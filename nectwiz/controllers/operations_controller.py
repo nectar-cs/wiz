@@ -92,7 +92,7 @@ def prerequisite_eval(operation_id, prerequisite_id):
   ))
 
 
-@controller.route(STEP_PATH)
+@controller.route(STEP_PATH, methods=['POST'])
 def steps_show(operation_id, stage_id, step_id):
   """
   Finds the Step with a matching operation_id, stage_id and step_id.
@@ -102,6 +102,7 @@ def steps_show(operation_id, stage_id, step_id):
   :return: serialized Step object.
   """
   step = find_step(operation_id, stage_id, step_id)
+  step_state = find_op_state().find_step_state(step)
   serialized = step_serial.standard(step)
   return jsonify(data=serialized)
 
@@ -164,17 +165,17 @@ def steps_next_id(operation_id, stage_id, step_id):
   :return: computed id of next step or "done" if no more steps left.
   """
   step = find_step(operation_id, stage_id, step_id)
-  step_state = find_op_state().gen_step_state(step)
-  return jsonify(step_id=step.next_step_id(step_state))
+  result = step.next_step_id(find_op_state())
+  return jsonify(step_id=result)
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
 def fields_validate(operation_id, stage_id, step_id, field_id):
-  step = find_step(operation_id, stage_id, step_id)
-  step_state = find_op_state()
   value = jparse()['value']
-  tone, message = field.validate(value)
-  if tone and message:
+  step = find_step(operation_id, stage_id, step_id)
+  op_state = find_op_state()
+  tone, message = step.validate_field(field_id, value, op_state)
+  if tone:
     return jsonify(data=dict(status=tone, message=message))
   else:
     return jsonify(data=dict(status='valid'))

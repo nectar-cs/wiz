@@ -11,7 +11,6 @@ def standard(step: Step) -> Dict:
   :param step: Step class instance.
   :return: serialized Step in dict form.
   """
-
   config_man.read_mfst_vars()
   ser_field = lambda f: field_serial.embedded(f)
 

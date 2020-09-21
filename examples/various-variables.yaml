@@ -3,7 +3,7 @@ id: general.whitelabel_strategy
 title: Whitelabelling Strategy
 info: "Product-wide logo strategy"
 input:
-  type: select
+  kind: SelectInput
   options:
     no_whitelabel: No whitelabelling, always display the vendor logo
     user_whitelabel: Whitelabel non-admin web applications

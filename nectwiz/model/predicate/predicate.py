@@ -1,6 +1,7 @@
 import functools
 from typing import Optional, Callable, Dict
 
+from nectwiz.core.core import subs
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -14,7 +15,9 @@ class Predicate(WizModel):
     self.check_against = config.get('check_against')
 
   def evaluate(self, context: Dict) -> Optional[bool]:
-    challenge = context.get('value', self.challenge)
+    challenge = context.get('value')
+    if not challenge:
+      challenge = subs.interp(self.challenge, context)
     return self._common_compare(challenge)
 
   def _common_compare(self, value):

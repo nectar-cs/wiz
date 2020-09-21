@@ -29,23 +29,23 @@ class Step(WizModel):
     self.expl_applies_manifest = config.get('applies_manifest')
     self.action_kod = config.get('action')
 
-  def sig(self):
+  def sig(self) -> str:
     parent_id = self.parent.id() if self.parent else 'orphan'
     return f"{parent_id}::{self.id()}"
 
   def runs_action(self) -> bool:
     return self.action_kod is not None
 
-  def next_step_id(self, step_state: StepState) -> str:
+  def next_step_id(self, op_state: OperationState) -> str:
     root = self.next_step_desc
-    context = resolution_context(step_state)
+    context = resolution_context(op_state)
     return step_exprs.eval_next_expr(root, context)
 
   def has_explicit_next(self) -> bool:
     return step_exprs.none_if_default(self.next_step_desc) is None
 
-  def validate_field(self, field_id, value, step_state):
-    context = resolution_context(step_state)
+  def validate_field(self, field_id: str, value: str, op_state: TOS):
+    context = resolution_context(op_state)
     return self.field(field_id).validate(value, context)
 
   def fields(self) -> List[Field]:
@@ -55,20 +55,16 @@ class Step(WizModel):
     finder = lambda field: field.id() == _id
     return next(filter(finder, self.fields()), None)
 
-  def fields2(self) -> List[Field]:
-    descs = self.config.get('fields')
-    return list(map(Field.from_expr, descs))
+  def visible_fields(self, user_values, op_state: TOS) -> List[Field]:
+    context = dict(**(user_values or {}), **resolution_context(op_state))
+    return [f for f in self.fields() if f.compute_visibility(context)]
 
-  def visible_fields(self, user_values, step_state: StepState) -> List[Field]:
-    all_fields = self.fields()
-    return all_fields
-
-  def state_recall_descriptors2(self, target):
+  def state_recall_descriptors(self, target: str):
     predicate = lambda d: d.get('target', TARGET_CHART) == target
     return filter(predicate, self.reassignment_descs)
 
   def comp_recalled_asgs(self, target: str, prev_state: TSS) -> dict:
-    descriptors = self.state_recall_descriptors2(target)
+    descriptors = self.state_recall_descriptors(target)
     state_assigns = prev_state.parent_op.all_assigns()
     recalled_keys = utils.flatten(d['ids'] for d in descriptors)
     return {key: state_assigns.get(key) for key in recalled_keys}
@@ -142,7 +138,7 @@ class Step(WizModel):
       return {}
 
   def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
-    fields = self.visible_fields(assigns, ps)
+    fields = self.visible_fields(assigns, ps.parent_op)
 
     def find_field(_id):
       return next(filter(lambda f: f.id() == _id, fields), None)
@@ -159,10 +155,9 @@ class Step(WizModel):
       }
 
 
-def resolution_context(step_state: StepState):
+def resolution_context(op_state: OperationState):
   return dict(
     resolvers=dict(
-      step=lambda n: step_state.all_assigns().get(n),
-      operation=lambda n: step_state.parent_op.all_assigns().get(n)
+      operation=lambda n: op_state.all_assigns().get(n)
     )
   )

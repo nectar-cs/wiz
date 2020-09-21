@@ -6,9 +6,9 @@ steps:
   - kind: Step
     id: nectar.step.telem.main
     title: Persistence
-    info: "Nectar saves telemetry for important events
-     to enable convenient auditing.<br/><br/>For this, a persistent database
-     is required. Choose one of the following ways host it."
+    info: "Nectar saves telemetry for important events so that users
+     can later audit their application.<br/><br/>For this, a persistent database
+     is required. This step helps you decide where and how to host it."
     tam:
       type: image
       uri: gcr.io/nectar-bazaar/telem-tami
@@ -17,11 +17,12 @@ steps:
       - id: nectar.field.telem.strategy
         title: Database Strategy
           input:
+            kind: SelectInput
             options:
-              managed_pvc: "Managed PVC: in-cluster storage managed by Nectar"
-              nectar_cloud: "Cloud storage: remote Nectar database"
+              managed_pvc: "Managed PVC: encrypted in-cluster storage managed by Nectar"
+              nectar_cloud: "Nectar cloud storage: secure remote database"
               self_managed: "Own storage: you supply a Redis database"
-          disabled: "Disabled: telemetry will not be persisted"
+              disabled: "Disabled: telemetry will not be persisted"
         validations:
           - operator: equals
             check_against: none
@@ -41,15 +42,13 @@ steps:
           - kind: FormatValidator
             check_against: domain
         show_condition:
-          operator: equals
-          challenge: $input/nectar.field.telem.strategy
+          challenge: "{nectar.field.telem.strategy}"
           check_against: self_managed
       - id: nectar.field.telem.db_port
-        title: Redis database host
+        title: Telem Redis database host
         validations:
           - kind: FormatValidator
             check_against: integer
         show_condition:
-          operator: equals
-          challenge: $input/nectar.field.telem.strategy
+          challenge: "{nectar.field.telem.strategy}"
           check_against: self_managed

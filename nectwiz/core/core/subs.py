@@ -45,4 +45,4 @@ def deep_dict(root: Dict, sub_map: Dict) -> Dict:
 
 
 def interp(string: str, context: Dict) -> str:
-  return string.format(Getter(context))
+  return string.format(Getter(context or {}))
