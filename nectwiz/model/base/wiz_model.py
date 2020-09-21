@@ -55,8 +55,9 @@ class WizModel:
   def info(self):
     return self.config.get('info')
 
-  def kind(self):
-    return self.__class__.__name__
+  @classmethod
+  def kind(cls):
+    return cls.__name__
 
   def load_children(self, config_key: str, child_class: Type[T]) -> List[T]:
     descriptor_list = self.config.get(config_key, [])

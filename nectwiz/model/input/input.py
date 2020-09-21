@@ -30,7 +30,7 @@ class GenericInput(WizModel):
     return []
 
   def load_provider_options(self):
-    provider = ResourceSelector.from_expr(self.provider_desc)
+    provider = ResourceSelector.inflate(self.provider_desc)
     return provider.as_options()
 
   def requires_decoration(self) -> bool:

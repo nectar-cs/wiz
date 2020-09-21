@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
 import yaml
+from yaml import scanner
 
 from nectwiz.core.core.types import KtlApplyOutcome
 
@@ -126,7 +127,11 @@ def yamls_in_file(fname) -> List[Dict]:
   """
   with open(fname, 'r') as stream:
     file_contents = stream.read()
-    return list(yaml.full_load_all(file_contents))
+    try:
+      return list(yaml.full_load_all(file_contents))
+    except scanner.ScannerError as e:
+      print(f"[nectwiz::utils] YAML parse error @ {fname}")
+      raise e
 
 
 def jk_exec(cmd, **kwargs) -> Dict[str, any]:

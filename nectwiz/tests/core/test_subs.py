@@ -24,7 +24,6 @@ class TestSubs(unittest.TestCase):
       )
     )
 
-    # print('{0[foo]} - {0.full_name}'.format(Getter(user())))
-    string = "easy {0.foo} hard {0.foo/bar}"
+    string = "easy {foo} hard {foo/bar}"
     expect = "easy bar hard new_bar"
     self.assertEqual(expect, interp(string, context))

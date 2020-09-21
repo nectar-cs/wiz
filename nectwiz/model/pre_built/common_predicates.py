@@ -1,5 +1,4 @@
-from plistlib import Dict
-from typing import Optional
+from typing import Optional, Dict
 
 import validators
 
@@ -25,12 +24,11 @@ class ResCountComparePredicate(Predicate):
     self.selector_config = config.get('selector', '*:*')
 
   def evaluate(self, context: Dict) -> bool:
-    res_list = self.selector(context).query(context)
+    res_list = self.selector().query_cluster(context)
     return self._common_compare(len(res_list))
 
-  def selector(self, context) -> ResourceSelector:
-    expr = self.selector_config
-    return ResourceSelector.from_expr(expr, context)
+  def selector(self) -> ResourceSelector:
+    return ResourceSelector.inflate(self.selector_config)
 
 
 class ResPropComparePredicate(Predicate):
@@ -43,7 +41,7 @@ class ResPropComparePredicate(Predicate):
   def evaluate(self, context: Dict) -> bool:
     prop_name = subs.interp(self.prop_name, context)
     read_prop = lambda r: getattr_deep(r, prop_name)
-    res_list = self.selector(context).query(context)
+    res_list = self.selector().query_cluster(context)
     resolved_values = list(map(read_prop, res_list))
     compare_challenge = lambda v: self._common_compare(v)
     cond_met_evals = list(map(compare_challenge, resolved_values))
@@ -58,9 +56,9 @@ class ResPropComparePredicate(Predicate):
       print("DANGER DONT KNOW MATCH TYPE" + self.match_type)
       return False
 
-  def selector(self, context) -> ResourceSelector:
+  def selector(self) -> ResourceSelector:
     expr = self.selector_config
-    return ResourceSelector.from_expr(expr, context)
+    return ResourceSelector.inflate(expr)
 
 
 class FormatPredicate(Predicate):

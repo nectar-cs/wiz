@@ -27,15 +27,6 @@ class ManifestVariable(GenericVariable):
     root = config_man.mfst_vars(force_reload)
     return utils.deep_get(root, self.id().split('.'))
 
-  def commit(self, value: str):
-    config_man.commit_keyed_mfst_vars([(self.id(), value)])
-    if self.is_safe_to_set():
-      tam_client().apply(rules=None, inlines=None)
-
-  def operations(self):
-    from nectwiz.model.operations.operation import Operation
-    return self.load_children('operations', Operation)
-
   @classmethod
   def all_vars(cls) -> List[T]:
     raw = config_man.mfst_vars(force_reload=True)

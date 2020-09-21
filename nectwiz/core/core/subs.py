@@ -22,5 +22,26 @@ class SubsGetter:
   __getattr__ = __getitem__
 
 
+def interp_dict_vals(root: Dict, context: Dict) -> Dict:
+  new_dict = {}
+
+  def do_sub(var: any) -> any:
+    return interp(var, context) if type(var) == str else var
+
+  for k, v in list(root.items()):
+    if type(v) == dict:
+      new_dict[k] = interp_dict_vals(v, context)
+    elif type(v) == list:
+      for i, item in v:
+        if type(v) == dict:
+          new_dict[k][i] = interp_dict_vals(item, context)
+        else:
+          new_dict[k][i] = do_sub(v)
+    else:
+      new_dict[k] = do_sub(v)
+  return new_dict
+
+
 def interp(string: str, context: Dict) -> str:
-  return string.format(SubsGetter(context or {}))
+  fmt_string = string.replace("{", "{0.")
+  return fmt_string.format(SubsGetter(context or {}))

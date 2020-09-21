@@ -16,13 +16,13 @@ steps:
     fields:
       - id: nectar.field.telem.strategy
         title: Database Strategy
-          input:
-            kind: SelectInput
-            options:
-              managed_pvc: "Managed PVC: encrypted in-cluster storage managed by Nectar"
-              nectar_cloud: "Nectar cloud storage: secure remote database"
-              self_managed: "Own storage: you supply a Redis database"
-              disabled: "Disabled: telemetry will not be persisted"
+        input:
+          kind: SelectInput
+          options:
+            managed_pvc: "Managed PVC: encrypted in-cluster storage managed by Nectar"
+            nectar_cloud: "Nectar cloud storage: secure remote database"
+            self_managed: "Own storage: you supply a Redis database"
+            disabled: "Disabled: telemetry will not be persisted"
         validations:
           - operator: equals
             check_against: none

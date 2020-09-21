@@ -6,7 +6,7 @@ from nectwiz.model.base.wiz_model import WizModel
 
 
 class Predicate(WizModel):
-  def __init__(self, config):
+  def __init__(self, config: Dict):
     super().__init__(config)
     self.reason = None
     self.tone = config.get('tone', 'error')

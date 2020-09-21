@@ -26,6 +26,25 @@ class TestPredicate(Base.TestWizModel):
   def test_load_children(self):
     super().test_load_children()
 
+  def test_base(self):
+    actual = Predicate(dict(
+      check_against='x',
+      challenge='x'
+    )).evaluate({})
+    self.assertTrue(actual)
+
+    actual = Predicate(dict(
+      check_against='x',
+      challenge='x'
+    )).evaluate(dict(value='y'))
+    self.assertFalse(actual)
+
+    actual = Predicate(dict(
+      check_against='x',
+      challenge='y'
+    )).evaluate(dict(value='x'))
+    self.assertTrue(actual)
+
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
     config_man._ns = ns
@@ -78,7 +97,7 @@ def mk_pred1(sel, match, prop, against, op='eq'):
     match=match,
     property=prop,
     check_against=against
-  )).evaluate()
+  )).evaluate({})
 
 
 def mk_pred2(sel, against, op='eq'):
@@ -87,7 +106,7 @@ def mk_pred2(sel, against, op='eq'):
     selector=f'ConfigMap:{sel}',
     op=op,
     check_against=against
-  )).evaluate()
+  )).evaluate({})
 
 
 def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
@@ -95,7 +114,8 @@ def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
     op=op,
     variable=variable_name,
     check_against=against
-  )).evaluate()
+  )).evaluate({})
+
 
 def create_cmap(name, ns=None, data=None):
   data = data if data else dict(foo='bar')

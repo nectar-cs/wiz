@@ -12,5 +12,5 @@ def to_reslist(root) -> List[KatRes]:
   :return: list of KatRes resources.
   """
   root = [root] if not type(root) == list else root
-  groups = [ResourceSelector(node).query() for node in root]
+  groups = [ResourceSelector(node).query_cluster() for node in root]
   return [item for sublist in groups for item in sublist]

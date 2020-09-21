@@ -47,25 +47,25 @@ class TestResMatchRules(ClusterTest):
     simple_pod.create(name='p1', ns=ns)
     simple_pod.create(name='p2', ns=ns)
 
-    actual = ResourceSelector("Service:s0").query()
+    actual = ResourceSelector("Service:s0").query_cluster()
     self.assertEqual(names(actual), [])
 
-    actual = ResourceSelector("Role:").query()
+    actual = ResourceSelector("Role:").query_cluster()
     self.assertEqual(names(actual), [])
 
-    actual = ResourceSelector("Service:s1").query()
+    actual = ResourceSelector("Service:s1").query_cluster()
     self.assertEqual(names(actual), ['s1'])
 
-    actual = ResourceSelector("Service:").query()
+    actual = ResourceSelector("Service:").query_cluster()
     self.assertEqual(names(actual), ['s1', 's2'])
 
     actual = ResourceSelector(dict(
       kind='Service',
       label_selectors=dict(app='s2')
-    )).query()
+    )).query_cluster()
     self.assertEqual(names(actual), ['s2'])
 
-    actual = ResourceSelector(dict(kind='Pod', name='p1')).query()
+    actual = ResourceSelector(dict(kind='Pod', name='p1')).query_cluster()
     self.assertEqual(names(actual), ['p1'])
 
 def names(res_list):
