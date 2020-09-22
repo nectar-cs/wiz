@@ -12,6 +12,7 @@ from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.core.telem.updates_man import HaltedError
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
+from nectwiz.model.variables.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers.helper import ci_tami_name, create_base_master_map
 
@@ -109,12 +110,12 @@ class TestUpdatesMan(ClusterTest):
 
     models_man.add_descriptors([
       dict(
-        kind='ChartVariable',
+        kind=ManifestVariable.__name__,
         id='pod.image',
         release_overridable=True
       ),
       dict(
-        kind='ChartVariable',
+        kind=ManifestVariable.__name__,
         id='pod.name',
         release_overridable=False
       )
