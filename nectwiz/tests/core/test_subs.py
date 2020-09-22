@@ -38,3 +38,6 @@ class TestSubs(unittest.TestCase):
 
     actual = coerce_sub_tokens('trick {or.treat}')
     self.assertEqual('trick {0.or---treat}', actual)
+
+    actual = coerce_sub_tokens('')
+    self.assertEqual('', actual)

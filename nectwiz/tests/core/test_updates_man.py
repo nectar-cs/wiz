@@ -11,7 +11,6 @@ from nectwiz.core.telem import updates_man
 from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.core.telem.updates_man import HaltedError
 from nectwiz.model.base.wiz_model import models_man
-from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers.helper import ci_tami_name, create_base_master_map

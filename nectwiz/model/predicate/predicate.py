@@ -10,14 +10,14 @@ class Predicate(WizModel):
     super().__init__(config)
     self.reason = config.get('reason')
     self.tone = config.get('tone', 'error')
-    self.operator = config.get('op', 'equals')
+    self.operator = config.get('operator', 'equals')
     self.challenge = config.get('challenge')
     self.check_against = config.get('check_against')
 
   def evaluate(self, context: Dict) -> Optional[bool]:
-    challenge = context.get('value')
-    if not challenge:
-      challenge = subs.interp(self.challenge, context)
+    challenge = self.challenge
+    if 'value' in context.keys():
+      challenge = context.get('value')
     return self._common_compare(challenge)
 
   def _common_compare(self, value):
@@ -59,7 +59,7 @@ def comparator(name) -> Callable[[any, any], bool]:
     return lambda a, b: float(a) < float(b)
   elif name in ['lte', '<=']:
     return lambda a, b: float(a) <= float(b)
-  elif name in ['defined', 'is-defined']:
+  elif name in ['presence', 'defined', 'is-defined']:
     return lambda a, b: bool(a)
   elif name in ['undefined', 'is-undefined']:
     return lambda a, b: not bool(a)

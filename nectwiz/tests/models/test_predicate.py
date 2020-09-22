@@ -93,7 +93,7 @@ class TestPredicate(Base.TestWizModel):
 def mk_pred1(sel, match, prop, against, op='eq'):
   return ResPropComparePredicate(dict(
     selector=f'ConfigMap:{sel}',
-    op=op,
+    operator=op,
     match=match,
     property=prop,
     check_against=against
@@ -104,14 +104,14 @@ def mk_pred2(sel, against, op='eq'):
   return ResCountComparePredicate(dict(
     key='ec',
     selector=f'ConfigMap:{sel}',
-    op=op,
+    operator=op,
     check_against=against
   )).evaluate({})
 
 
 def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
   return ChartVarComparePredicate(dict(
-    op=op,
+    operator=op,
     variable=variable_name,
     check_against=against
   )).evaluate({})

@@ -10,7 +10,6 @@ T = TypeVar('T', bound='ManifestVariable')
 class GenericVariable(WizModel):
   def __init__(self, config):
     super().__init__(config)
-    self.data_type: str = config.get('type', 'string')
     self.explicit_default: str = config.get('default')
 
   def input_spec(self) -> GenericInput:

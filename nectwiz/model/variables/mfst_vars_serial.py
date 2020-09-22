@@ -1,8 +1,8 @@
-from nectwiz.model.chart_variable.chart_variable import ChartVariable
 from nectwiz.model.field import serial as field_serial
+from nectwiz.model.variables.manifest_variable import ManifestVariable
 
 
-def standard(cv: ChartVariable):
+def standard(cv: ManifestVariable):
   """
   Standard serializer for the ChartVariable instance.
   :param cv: ChartVariable class instance.
@@ -12,14 +12,12 @@ def standard(cv: ChartVariable):
     id=cv.id(),
     mode=cv.mode,
     description=cv.info,
-    data_type=cv.data_type,
-    default_value=cv.default_value,
-    resource=cv.linked_res_name,
+    default_value=cv.default_value(),
     value=cv.read_crt_value(force_reload=False),
   )
 
 
-def with_field(cv: ChartVariable):
+def with_field(cv: ManifestVariable):
   """
   Extended serializer for the ChartVariable instance, which also includes includes
   details about the associated field.

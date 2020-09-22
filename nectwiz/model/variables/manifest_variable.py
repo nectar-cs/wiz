@@ -1,12 +1,13 @@
 from typing import Optional, List, TypeVar
 
-from nectwiz.core.core import config_man, utils
+from nectwiz.core.core import config_man, utils, hub_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
-from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.variables.generic_variable import GenericVariable
 
+
 T = TypeVar('T', bound='ManifestVariable')
+
 
 class ManifestVariable(GenericVariable):
   def __init__(self, config):
@@ -43,3 +44,16 @@ class ManifestVariable(GenericVariable):
   def release_dpdt_vars(cls) -> List[T]:
     matcher = lambda cv: cv.release_overridable
     return list(filter(matcher, ManifestVariable.inflate_all()))
+
+  @classmethod
+  def inject_server_defaults(cls) -> bool:
+    install_uuid = config_man.install_uuid(force_reload=True)
+    if install_uuid:
+      route = f'/installs/{install_uuid}/injections'
+      resp = hub_client.get(route)
+      if resp.status_code < 300:
+        injections = resp.json().get('data')
+        if injections:
+          config_man.commit_mfst_vars(injections)
+          return True
+    return False

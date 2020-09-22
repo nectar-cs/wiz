@@ -52,4 +52,3 @@ def mk_map(contents: Dict):
       }
     )
   )
-

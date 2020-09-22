@@ -1,41 +1,33 @@
 from flask import Blueprint, jsonify, request
 
+from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import hub_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.chart_variable import serial
-from nectwiz.model.chart_variable.chart_variable import ChartVariable
+from nectwiz.model.variables import mfst_vars_serial
+from nectwiz.model.variables.manifest_variable import ManifestVariable
+
+BASE = '/api/manifest-variables'
 
 controller = Blueprint('variables_controller', __name__)
 
 
-@controller.route('/api/chart-variables')
+@controller.route(BASE)
 def chart_variables_index():
   """
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
   """
-  chart_variables = ChartVariable.all_vars()
-  serialize = lambda cv: serial.standard(cv=cv)
-  serialized = [serialize(cv) for cv in chart_variables]
+  manifest_var_models = ManifestVariable.all_vars()
+  serialize = lambda cv: mfst_vars_serial.standard(cv=cv)
+  serialized = list(map(serialize, manifest_var_models))
   return jsonify(data=serialized)
 
 
-@controller.route('/api/chart-variables/commit-injections', methods=['POST'])
+@controller.route(f'{BASE}/commit-injections', methods=['POST'])
 def chart_vars_commit_injections():
-  install_uuid = config_man.install_uuid(force_reload=True)
-  if install_uuid:
-    route = f'/installs/{install_uuid}/injections'
-    resp = hub_client.get(route)
-    injections = None
-    if resp.status_code < 300:
-      injections = resp.json().get('data')
-      if injections:
-        config_man.commit_mfst_vars(injections)
-    return jsonify(data=injections)
-  else:
-    print("Install UUID not found!")
-    return {}
+  result = ManifestVariable.inject_server_defaults()
+  return jsonify(data=result)
 
 
 @controller.route('/api/chart-variables/populate-defaults')
@@ -82,7 +74,7 @@ def chart_variables_commit_apply():
   return jsonify(status='success')
 
 
-@controller.route('/api/chart-variables/<key>/validate', methods=['POST'])
+@controller.route('/api/manifest-variables/<key>/validate', methods=['POST'])
 def chart_variables_validate(key):
   """
   Validates the chart variable against
@@ -90,13 +82,13 @@ def chart_variables_validate(key):
   :return: validation status, with tone and message if unsuccessful.
   """
   chart_variable = find_variable(key)
-  value = request.json['value']
-  tone, message = chart_variable.validate(value)
-  if tone and message:
-    return jsonify(data=dict(status=tone, message=message))
-  else:
-    return jsonify(data=dict(status='valid'))
+  value = jparse()['value']
+  context = dict(resolvers=config_man.resolvers())
+  eval_result = chart_variable.validate(value, context)
+  status = 'valid' if eval_result['met'] else eval_result['tone']
+  message = None if eval_result['met'] else eval_result['reason']
+  return jsonify(data=dict(status=status, message=message))
 
 
-def find_variable(key) -> ChartVariable:
-  return ChartVariable.inflate(key)
+def find_variable(key) -> ManifestVariable:
+  return ManifestVariable.inflate(key)
