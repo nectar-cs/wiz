@@ -54,7 +54,7 @@ def operations_show(operation_id):
   return jsonify(data=operation_serial.ser_full(operation))
 
 
-@controller.route(f'{OPERATION_PATH}/request-ost')
+@controller.route(f'{OPERATION_PATH}/generate-ost', methods=['POST'])
 def operations_gen_ost(operation_id):
   """
   Generates a new OST (random 10 character string).

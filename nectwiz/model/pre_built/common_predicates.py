@@ -70,6 +70,6 @@ class FormatPredicate(Predicate):
     elif check == 'boolean':
       return challenge not in ['true', 'false']
     elif check == 'email':
-      return not validators.email(challenge)
+      return validators.email(challenge)
     elif check == 'domain':
-      return not validators.domain(challenge)
+      return validators.domain(challenge)

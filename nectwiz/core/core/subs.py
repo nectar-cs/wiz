@@ -8,6 +8,7 @@ class SubsGetter:
     self.src: Dict = src
 
   def __getitem__(self, k: str):
+    k = k.replace(NON_DOT, ".")
     direct_hit = self.src.get(k)
     resolver_desc = k.split("/")
     if direct_hit:
@@ -18,7 +19,7 @@ class SubsGetter:
     elif len(resolver_desc) == 2:
       resolvers = self.src.get('resolvers', {})
       resolver = resolvers.get(resolver_desc[0])
-      resolvable_key = resolver_desc[1].replace(NON_DOT, ".")
+      resolvable_key = resolver_desc[1]
       return resolver(resolvable_key) if resolver else None
     else:
       return None

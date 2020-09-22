@@ -3,6 +3,7 @@ import json
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.model.base.wiz_model import models_man
+from nectwiz.model.input.select_input import SelectInput
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 from nectwiz.server import app
 from nectwiz.tests.t_helpers import helper
@@ -17,13 +18,33 @@ class TestManifestVariablesController(ClusterTest):
     self.ns, = ns_factory.request(1)
     helper.mock_globals(self.ns)
 
+  def test_show(self):
+    endpoint = '/api/manifest-variables/foo'
+    models_man.add_descriptors([
+      dict(
+        kind=ManifestVariable.__name__,
+        id='foo',
+        input=dict(
+          kind=SelectInput.__name__,
+          options=dict(x='X', y='Y')
+        )
+      )
+    ])
+
+    response = app.test_client().get(endpoint)
+    body = json.loads(response.data).get('data')
+
+    exp_opts = [dict(id='x', title='X'), dict(id='y', title='Y')]
+    self.assertEqual('foo', body.get('id'))
+    self.assertEqual(SelectInput.__name__, body.get('type'))
+    self.assertEqual(exp_opts, body.get('options'))
+
   def test_validate(self):
     endpoint = '/api/manifest-variables/foo/validate'
     models_man.add_descriptors([
       dict(
         kind=ManifestVariable.__name__,
         id='foo',
-        field=dict(id='f'),
         validation=[
           dict(
             operator='presence',

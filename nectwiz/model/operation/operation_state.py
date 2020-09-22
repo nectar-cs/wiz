@@ -66,6 +66,10 @@ class OperationState:
     return operation_states.pop(index) if index else None
 
   @classmethod
+  def clear_list(cls):
+    operation_states.clear()
+
+  @classmethod
   def prune(cls):
     while cls.find(None):
       cls.delete_if_exists(None)

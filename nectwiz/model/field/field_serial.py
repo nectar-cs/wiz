@@ -1,4 +1,5 @@
 from nectwiz.model.field.field import Field
+from nectwiz.model.input import input_serializer
 
 
 def embedded(field: Field):
@@ -10,12 +11,11 @@ def embedded(field: Field):
   return dict(
     id=field.id(),
     title=field.title,
-    type=field.input_type,
-    options=field.options(),
     info=field.info,
     is_inline=field.target == 'inline',
     needs_decorating=field.requires_decoration(),
-    default=field.current_or_default()
+    default=field.current_or_default(),
+    **input_serializer.in_variable(field.input_spec()),
   )
 
 

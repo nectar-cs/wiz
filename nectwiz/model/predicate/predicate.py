@@ -18,6 +18,8 @@ class Predicate(WizModel):
     challenge = self.challenge
     if 'value' in context.keys():
       challenge = context.get('value')
+
+    challenge = subs.interp(challenge, context)
     return self._common_compare(challenge)
 
   def _common_compare(self, value):

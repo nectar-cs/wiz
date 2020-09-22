@@ -17,12 +17,13 @@ class TestSubs(unittest.TestCase):
     self.assertEqual('new_bar', resolving_getter['foo/bar'])
 
   def test_interp(self):
-    context = dict(
-      foo='bar',
-      resolvers=dict(
+    context = {
+      'foo': 'bar',
+      'dash-1.5': 'one-point-five',
+      'resolvers': dict(
         foo=lambda k: f"new_{k}"
       )
-    )
+    }
 
     string = "easy {foo} hard {foo/bar}"
     expect = "easy bar hard new_bar"
@@ -31,6 +32,9 @@ class TestSubs(unittest.TestCase):
     string = "easy {foo} hardest {foo/bar.baz}"
     expect = "easy bar hardest new_bar.baz"
     self.assertEqual(expect, interp(string, context))
+
+    expect = "one-point-five"
+    self.assertEqual(expect, interp('{dash-1.5}', context))
 
   def test_coerce_sub_tokens(self):
     actual = coerce_sub_tokens('nothing to see')
@@ -41,3 +45,7 @@ class TestSubs(unittest.TestCase):
 
     actual = coerce_sub_tokens('')
     self.assertEqual('', actual)
+
+    actual = coerce_sub_tokens('{dash-1.5}')
+    self.assertEqual('{0.dash-1---5}', actual)
+

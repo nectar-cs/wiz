@@ -1,7 +1,5 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.utils import deep_get
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import WizModel
 
@@ -12,10 +10,6 @@ class GenericInput(WizModel):
     super().__init__(config)
     self.option_descs = config.get('options')
     self.provider_desc = config.get('options_provider')
-
-  def type(self):
-    #todo make sure still necessary
-    return self.__class__.__name__
 
   def options(self) -> List:
     if self.provider_desc:

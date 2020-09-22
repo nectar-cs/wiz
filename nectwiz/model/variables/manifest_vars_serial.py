@@ -1,4 +1,5 @@
-from nectwiz.model.field import serial as field_serial
+from nectwiz.model.field import field_serial as field_serial
+from nectwiz.model.input import input_serializer
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
 
@@ -17,15 +18,14 @@ def standard(cv: ManifestVariable):
   )
 
 
-def with_field(cv: ManifestVariable):
+def full(cv: ManifestVariable):
   """
   Extended serializer for the ChartVariable instance, which also includes includes
   details about the associated field.
   :param cv: ChartVariable class instance.
   :return: extended serialized ChartVariable object (dict).
   """
-  field = cv.field()
   return dict(
     **standard(cv),
-    field=(field and field_serial.without_meta(field))
+    **input_serializer.in_variable(cv.input_spec())
   )

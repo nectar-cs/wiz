@@ -1,6 +1,6 @@
 from typing import List, TypeVar, Dict
 
-from nectwiz.core.core.types import PredEval
+from nectwiz.core.core.types import PredEval, Kod
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
@@ -13,7 +13,8 @@ class GenericVariable(WizModel):
     self.explicit_default: str = config.get('default')
 
   def input_spec(self) -> GenericInput:
-    return GenericInput.inflate(self.config.get('input'))
+    kod = self.config.get('input', default_input_kod())
+    return GenericInput.inflate(kod)
 
   def validators(self) -> List[Predicate]:
     return self.load_children('validation', Predicate)
@@ -32,3 +33,7 @@ class GenericVariable(WizModel):
           tone=predicate.tone
         )
     return PredEval(met=True)
+
+
+def default_input_kod() -> Kod:
+  return GenericInput.__name__

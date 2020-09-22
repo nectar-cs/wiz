@@ -24,10 +24,10 @@ class Field(WizModel):
     self.target = config.get('target', TARGET_CHART)
 
   def input_spec(self) -> Optional[GenericInput]:
-    return self.resolve_variable_spec().input_spec()
+    return self._delegate_variable.input_spec()
 
   def validate(self, value: str, context: Dict):
-    return self.resolve_variable_spec().validate(value, context)
+    return self._delegate_variable.validate(value, context)
 
   def resolve_variable_spec(self) -> GenericVariable:
     variable_id = self.config.get('variable_id')
@@ -55,7 +55,7 @@ class Field(WizModel):
     return self.input_spec().requires_decoration()
 
   def current_or_default(self) -> Optional[str]:
-    current = config_man.mfst_vars(False).get(self.id())
+    current = config_man.mfst_vars().get(self.id())
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:

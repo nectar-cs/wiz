@@ -170,10 +170,25 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
   from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
   from nectwiz.model.variables.manifest_variable import ManifestVariable
+  from nectwiz.model.input.input import GenericInput
+  from nectwiz.model.input.select_input import SelectInput
+  from nectwiz.model.input.slider_input import SliderInput
+  from nectwiz.model.pre_built.common_predicates import FormatPredicate
+  from nectwiz.model.pre_built.common_predicates import ResPropComparePredicate
+  from nectwiz.model.pre_built.common_predicates import ResCountComparePredicate
+  from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate
+
   return [
     CmdExecAction,
+    FormatPredicate,
+    ResPropComparePredicate,
+    ResCountComparePredicate,
+    ChartVarComparePredicate,
     StepApplyResAction,
+    SliderInput,
+    SelectInput,
     FlushTelemAction,
     DeletionSpec,
-    ManifestVariable
+    ManifestVariable,
+    GenericInput
   ]
