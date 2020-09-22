@@ -1,42 +1,42 @@
 kind: Stage
-id: nectar.stage.telem
+id: nectar.operations.telem.stage-1
 title: Auditing
 info: Nectar telemetry persistence
 steps:
   - kind: Step
-    id: nectar.step.telem.main
-    title: Persistence
+    id: nectar.operations.telem.stage-1.step-1
+    title: Telemetry Persistence
     info: "Nectar saves telemetry for important events so that users
      can later audit their application.<br/><br/>For this, a persistent database
      is required. This step helps you decide where and how to host it."
     tam:
       type: image
       uri: gcr.io/nectar-bazaar/telem-tami
-      version: latest
+      version: 1.0.0
     fields:
-      - id: nectar.field.telem.strategy
+      - id: nectar.telem.strategy
         title: Database Strategy
         input:
           kind: SelectInput
           options:
-            managed_pvc: "Managed PVC: encrypted in-cluster storage managed by Nectar"
+            managed_pvc: "Managed PVC: in-cluster storage managed by Nectar"
             nectar_cloud: "Nectar cloud storage: secure remote database"
             self_managed: "Own storage: you supply a Redis database"
             disabled: "Disabled: telemetry will not be persisted"
-        validations:
-          - operator: equals
-            check_against: none
-            disabled: warning
-            message: "Auditing will not be available. You can turn this on later."
-          - operator: equals
-            check_against: self_managed
-            disabled: warning
-            message: "You will be responsible for managing this database."
-          - operator: equals
-            check_against: nectar_cloud
-            disabled: error
-            message: "Not available for your current plan"
-      - id: nectar.field.telem.db_host
+        validation:
+          - check_against: disabled
+            operator: =/=
+            tone: warning
+            reason: "Auditing will not be available. You can turn this on later."
+          - check_against: self_managed
+            operator: =/=
+            tone: warning
+            reason: "You will be responsible for managing this database."
+          - check_against: nectar_cloud
+            operator: =/=
+            tone: error
+            reason: "Not available for your current plan"
+      - id: nectar.operations.telem.stage-1.step-1.db_host
         title: Redis database host
         validations:
           - kind: FormatValidator
@@ -44,7 +44,7 @@ steps:
         show_condition:
           challenge: "{nectar.field.telem.strategy}"
           check_against: self_managed
-      - id: nectar.field.telem.db_port
+      - id: nectar.operations.telem.stage-1.step-1.db_port
         title: Telem Redis database host
         validations:
           - kind: FormatValidator

@@ -54,6 +54,11 @@ def dict2keyed(assigns: Dict) -> List[Tuple[str, any]]:
   return list(map(massager, list_keyed_dict))
 
 
+def dict2flat(assigns) -> Dict:
+  tuples = dict2keyed(assigns)
+  return {t[0]: t[1] for t in tuples}
+
+
 def _dict2keyed(parents, assigns: Dict) -> List[Tuple[List[str], any]]:
   result: List[Tuple[List[str], any]] = []
 

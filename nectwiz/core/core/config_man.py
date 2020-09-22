@@ -40,6 +40,9 @@ class ConfigMan:
       self._prefs = self.read_prefs()
     return self._prefs
 
+  def flat_prefs(self, force_reload=False) -> Dict:
+    return utils.dict2flat(self.prefs(force_reload))
+
   def tam(self, force_reload=False) -> TamDict:
     if force_reload or utils.is_worker() or not self._tam:
       self._tam = self.read_tam()

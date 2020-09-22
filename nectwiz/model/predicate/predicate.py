@@ -49,7 +49,7 @@ def comparator(name) -> Callable[[any, any], bool]:
   """
   if name in ['equals', 'equal', 'eq', '==', '=']:
     return lambda a, b: str(a) == str(b)
-  elif name in ['not-equals', 'not-equal', 'neq', '!=']:
+  elif name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
     return lambda a, b: str(a) != str(b)
   elif name in ['is-in', 'in']:
     return lambda a, b: a in b

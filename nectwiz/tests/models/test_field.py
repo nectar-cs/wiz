@@ -35,5 +35,3 @@ class TestField(Base.TestWizModel):
     self.assertEqual('foo', field.id())
     self.assertEqual('generic-t', field.title)
     self.assertEqual('generic-i', field.info)
-
-
