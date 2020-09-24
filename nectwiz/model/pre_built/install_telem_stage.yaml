@@ -1,28 +1,20 @@
 kind: Stage
 id: nectar.operations.telem.stage-1
 title: Auditing
-info: Nectar telemetry persistence
+info: Nectar auditing preferences
 steps:
   - kind: Step
     id: nectar.operations.telem.stage-1.step-1
     title: Telemetry Persistence
     info: "Nectar saves telemetry for important events so that users
-     can later audit their application.<br/><br/>For this, a persistent database
+     can later audit their application. For this, a persistent database
      is required. This step helps you decide where and how to host it."
-    tam:
-      type: image
-      uri: gcr.io/nectar-bazaar/telem-tami
-      version: 1.0.0
     action:
       kind: StepApplyResAction
-      apply_filters:
-        - k8s_kind: xyz
-          field_selector:
-            metadata.something: something
-            something.else: foar
-          label_selector:
-            something: something
-
+      tam:
+        type: image
+        uri: gcr.io/nectar-bazaar/telem-tami
+        version: 1.0.0
     fields:
       - id: nectar.telem.strategy
         title: Database Strategy

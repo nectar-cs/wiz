@@ -84,6 +84,7 @@ class StepActionKwargs(TypedDict):
 
 
 class KtlApplyOutcome(TypedDict):
+  api_group: str
   kind: str
   name: str
   verb: str

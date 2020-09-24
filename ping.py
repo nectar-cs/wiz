@@ -1,4 +1,4 @@
-from nectwiz.core.job import job_client
+from nectwiz.core.core import job_client
 
 config = dict(
   kind='CmdExecAction',

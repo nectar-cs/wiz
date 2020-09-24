@@ -45,8 +45,5 @@ def job_progress(job_id: str) -> Optional[ProgressItem]:
 
 def load_and_perform_action(key_or_dict, **kwargs):
   from nectwiz.model.action.action import Action
-  print("COMING IN HOT")
-  print(key_or_dict)
-  print(kwargs)
   model: Action = Action.inflate(key_or_dict)
   return model.run(**kwargs)

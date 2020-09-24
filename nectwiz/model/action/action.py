@@ -19,6 +19,8 @@ class Action(WizModel):
         charge='positive'
       )
     except Exception as err:
+      print("ACTION ERR")
+      print(err)
       return ActionOutcome(
         cls_name=self.__class__.__name__,
         id=self.id(),

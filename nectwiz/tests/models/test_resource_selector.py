@@ -34,6 +34,22 @@ class TestResourceSelector(Base.TestWizModel):
     )
 
     selector = ResourceSelector(dict(
+      k8s_kind='NotPod',
+      label_selector=dict(
+        app='nectar'
+      )
+    ))
+    self.assertFalse(selector.selects_res(res, {}))
+
+    selector = ResourceSelector(dict(
+      k8s_kind='*',
+      label_selector=dict(
+        app='nectar'
+      )
+    ))
+    self.assertTrue(selector.selects_res(res, {}))
+
+    selector = ResourceSelector(dict(
       k8s_kind='Pod',
       label_selector=dict(
         app='nectar'

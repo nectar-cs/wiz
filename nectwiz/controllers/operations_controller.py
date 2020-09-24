@@ -149,14 +149,14 @@ def step_run(operation_id, stage_id, step_id):
   return jsonify(status=step_state.status)
 
 
-@controller.route(f"{STEP_PATH}/compute-settling-status")
+@controller.route(f"{STEP_PATH}/status")
 def step_compute_settle_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   prev_state = find_op_state().find_step_state(step)
-  step.compute_status(prev_state)
+  status = step.compute_status(prev_state)
   return jsonify(
-    status=prev_state.status,
-    condition_statuses=prev_state.exit_statuses
+    status=status.get('status'),
+    progress=status.get('progress')
   )
 
 

@@ -5,7 +5,6 @@ from nectwiz.core.core.types import PredEval, ExitStatuses, ActionOutcome
 
 IDLE = 'idle'
 RUNNING = 'running'
-SETTLING = 'settling'
 SETTLED_POS = 'positive'
 SETTLED_NEG = 'negative'
 
@@ -24,7 +23,7 @@ class StepState:
     self.terminated_at = None
     self.job_id = None
 
-  def was_running(self):
+  def is_running(self):
     return self.status == RUNNING
 
   def has_settled(self):
@@ -42,9 +41,6 @@ class StepState:
   def did_fail(self):
     return self.status == SETTLED_NEG
 
-  def is_awaiting_settlement(self):
-    return self.status == SETTLING
-
   def notify_action_started(self, job_id):
     self.status = 'running'
     self.job_id = job_id
@@ -58,10 +54,6 @@ class StepState:
 
   def notify_failed(self):
     self.status = SETTLED_NEG
-
-  def notify_is_settling(self, action_outcome: ActionOutcome):
-    self.action_outcome = action_outcome
-    self.status = SETTLING
 
   def notify_exit_status_computed(self, charge, new_eval: PredEval):
     # noinspection PyTypedDict

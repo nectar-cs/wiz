@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from nectwiz.core.job import job_client
+from nectwiz.core.core import job_client
 from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook

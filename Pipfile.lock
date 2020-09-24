@@ -67,10 +67,10 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:bcbd9f970e7144fe933908aa286d7a12c44b7deb6d78a76871f0377a29d09789",
-                "sha256:f4d5093f13b1b1c0a434ab1dc851cd26a983f86a4d75c95239974e33ed406a87"
+                "sha256:31941bf019fb242c04d0de32845da10180788bfddb0de87d78c4bdf55555dda1",
+                "sha256:873051a6317294b083795cffc467bcd05b6df483ef542bfe0069ddbfbac0a096"
             ],
-            "version": "==1.21.1"
+            "version": "==1.21.3"
         },
         "idna": {
             "hashes": [
@@ -102,10 +102,10 @@
         },
         "k8kat": {
             "hashes": [
-                "sha256:60e5dc7c96449cf32631db6089385d91cb12fb2b74a126aa4db69d23a15d890c",
-                "sha256:edb3af9cf8ea70970c0ed0d00404f19306536cdafc097abe7e25cd35394f2cf7"
+                "sha256:749c0d7d6723d9c1ced38147ac1e7c14c80dc051f73b66303d4c4ad8057fe81a",
+                "sha256:a233e739478b14b5789621cf6829dab75ced626267895fc7739f87b34bbf6060"
             ],
-            "version": "==0.0.204"
+            "version": "==0.0.205"
         },
         "kubernetes": {
             "hashes": [

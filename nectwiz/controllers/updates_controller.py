@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from nectwiz.core.job import job_client
+from nectwiz.core.core import job_client
 from nectwiz.core.telem import updates_man
 
 controller = Blueprint('updates_controller', __name__)

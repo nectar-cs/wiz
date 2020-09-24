@@ -42,6 +42,7 @@ def save_manifest_as_tmp(res_dicts: List[K8sResDict], rules: List[ResourceSelect
   """
   filtered = filter_res(res_dicts, rules)
   composed = yaml.dump_all(filtered)
+  print(composed)
   with open(tmp_file_mame, 'w') as file:
     file.write(composed)
 

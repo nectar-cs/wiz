@@ -56,3 +56,28 @@ class TestUtils(unittest.TestCase):
 
     expected = [('foo.bar', 'baz'), ('bar.foo', 'zab')]
     self.assertEqual(expected, actual)
+
+  def test_log2ktlapplyoutcome(self):
+    log = "pod/foo created"
+    self.assertEqual(dict(
+      kind='pod',
+      name='foo',
+      verb='created',
+      api_group=''
+    ), utils.log2ktlapplyoutcome(log))
+
+    log = "deployment.apps/foo created"
+    self.assertEqual(dict(
+      kind='deployment',
+      name='foo',
+      verb='created',
+      api_group='apps'
+    ), utils.log2ktlapplyoutcome(log))
+
+    log = "role.rbac.authorization.k8s.io/foo unchanged"
+    self.assertEqual(dict(
+      kind='role',
+      name='foo',
+      verb='unchanged',
+      api_group='rbac.authorization.k8s.io'
+    ), utils.log2ktlapplyoutcome(log))

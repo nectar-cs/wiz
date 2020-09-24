@@ -274,12 +274,22 @@ def clean_log_lines(chunk) -> List[str]:
     return []
 
 
-
 def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
   try:
+    api = ''
     kind_and_name, verb = log.split(" ")
     kind, name = kind_and_name.split("/")
-    return KtlApplyOutcome(kind=kind, name=name, verb=verb)
+    if "." in kind:
+      parts = kind.split(".")
+      kind = parts[0]
+      api = '.'.join(parts[1:])
+
+    return KtlApplyOutcome(
+      api_group=api,
+      kind=kind,
+      name=name,
+      verb=verb
+    )
   except:
     return None
 

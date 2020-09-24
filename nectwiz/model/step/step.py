@@ -1,16 +1,14 @@
 from typing import List, Dict, Optional
 
-from nectwiz.core.core import utils
+from nectwiz.core.core import utils, job_client
 from nectwiz.core.core.config_man import config_man
+from nectwiz.core.core.job_client import enqueue_action, find_job
 from nectwiz.core.core.types import CommitOutcome, PredEval
-from nectwiz.core.job.job_client import enqueue_action, find_job
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.predicate import default_predicates
-from nectwiz.model.step import step_exprs, status_computer
+from nectwiz.model.step import step_exprs
 from nectwiz.model.step.step_state import StepState
-
 
 TOS = OperationState
 TSS = StepState
@@ -88,9 +86,11 @@ class Step(WizModel):
 
   def run(self, assigns: Dict, prev_state: StepState):
     buckets = self.partition_user_asgs(assigns, prev_state)
+    mfst_vars, state_vars = buckets[TARGET_CHART], buckets[TARGET_STATE]
+    prev_state.notify_vars_assigned(mfst_vars, state_vars)
 
-    if len(buckets[TARGET_CHART]):
-      keyed_tuples = list(buckets[TARGET_CHART].items())
+    if len(mfst_vars):
+      keyed_tuples = list(mfst_vars.items())
       config_man.commit_keyed_mfst_vars(keyed_tuples)
 
     if self.runs_action():
@@ -99,46 +99,25 @@ class Step(WizModel):
     else:
       prev_state.notify_succeeded()
 
-    prev_state.notify_vars_assigned(
-      buckets[TARGET_CHART],
-      buckets[TARGET_STATE]
-    )
-
-  def compute_status(self, prev_state: TSS = None) -> bool:
-    if prev_state.was_running():
+  # noinspection PyMethodMayBeStatic
+  def compute_status(self, prev_state: TSS = None) -> Dict:
+    if prev_state.is_running():
       action_job = find_job(prev_state.job_id)
-      if action_job.is_finished:
-        outcome = action_job.result
-        print("[nectwiz::step::run] OUTCOME")
-        print(outcome)
-        prev_state.notify_is_settling(outcome)
-        return self.compute_settling_status(prev_state)
-      elif action_job.is_failed:
-        print("Oh crap job failed!")
-        return True
+      if action_job:
+        status = job_client.ternary_job_status(prev_state.job_id)
+        progress = job_client.job_progress(prev_state.job_id)
+        if action_job.is_finished:
+          prev_state.notify_succeeded()
+        elif action_job.is_failed:
+          prev_state.notify_failed()
+        return dict(status=status, progress=progress)
       else:
-        print("Job still going...")
-        return False
-    elif prev_state.is_awaiting_settlement():
-      return self.compute_settling_status(prev_state)
-
-  def compute_settling_status(self, step_state: StepState):
-    exit_predicates = self.exit_predicates(step_state)
-    context = resolution_context(step_state.parent_op)
-    status_computer.compute(exit_predicates, step_state, context)
-    return step_state.has_settled()
-
-  def exit_predicates(self, step_state: StepState):
-    if self.exit_predicate_descs:
-      return self.exit_predicate_descs
-    elif step_state.action_was("StepApplyResAction"):
-      logs = step_state.action_outcome['data'].get('logs', [])
-      return default_predicates.from_apply_outcome(logs)
+        print(f"[nectwiz::step] DANGER job {prev_state.job_id} lost!")
+        return dict(status='negative', progress={})
     else:
-      print("DANGER I SHOULD HAVE PREDS BUT DONT")
-      print(self.exit_predicate_descs)
-      print(step_state.action_outcome)
-      return {}
+      print(f"[nectwiz::step] DANGER compute_status called when not running")
+      prev_state.notify_succeeded()
+      return dict(status='positive', progress={})
 
   def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
     fields = self.visible_fields(assigns, ps.parent_op)

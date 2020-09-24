@@ -30,6 +30,7 @@ class TamiClient(TamClient):
     """
     pod_args = ['template'] + gen_tami_args(inlines)
     ns, image = config_man.ns(), image_name(self.tam)
+    print(f"[tamcli] using {self.tam}")
     result = tami_prep.consume(ns, image, pod_args)
     if not result:
       print(f"[nectwiz::tami_client]Fatal tami returned {result}!")
