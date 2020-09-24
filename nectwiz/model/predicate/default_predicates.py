@@ -28,6 +28,7 @@ def res_comp_predicate(ktl_out: KtlApplyOutcome, charge):
     match_type='all',
     selector=dict(
       k8s_kind=ktl_out['kind'],
-      name=ktl_out['name']
+      name=ktl_out['name'],
+      api_group=ktl_out['api_group']
     )
   ))
