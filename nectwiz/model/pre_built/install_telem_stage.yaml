@@ -13,6 +13,16 @@ steps:
       type: image
       uri: gcr.io/nectar-bazaar/telem-tami
       version: 1.0.0
+    action:
+      kind: StepApplyResAction
+      apply_filters:
+        - k8s_kind: xyz
+          field_selector:
+            metadata.something: something
+            something.else: foar
+          label_selector:
+            something: something
+
     fields:
       - id: nectar.telem.strategy
         title: Database Strategy
@@ -36,19 +46,19 @@ steps:
             operator: =/=
             tone: error
             reason: "Not available for your current plan"
-      - id: nectar.operations.telem.stage-1.step-1.db_host
+      - id: nectar.telem.db_host
         title: Redis database host
-        validations:
-          - kind: FormatValidator
+        validation:
+          - kind: FormatPredicate
             check_against: domain
         show_condition:
-          challenge: "{nectar.field.telem.strategy}"
+          challenge: "{nectar.telem.strategy}"
           check_against: self_managed
-      - id: nectar.operations.telem.stage-1.step-1.db_port
+      - id: nectar.telem.db_port
         title: Telem Redis database host
-        validations:
-          - kind: FormatValidator
+        validation:
+          - kind: FormatPredicate
             check_against: integer
         show_condition:
-          challenge: "{nectar.field.telem.strategy}"
+          challenge: "{nectar.telem.strategy}"
           check_against: self_managed

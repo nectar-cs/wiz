@@ -62,6 +62,11 @@ class ResPropComparePredicate(Predicate):
 
 
 class FormatPredicate(Predicate):
+
+  def __init__(self, config: Dict):
+    super().__init__(config)
+    self.reason = f"Must be a(n) {self.check_against}"
+
   def evaluate(self, context: Dict) -> Optional[bool]:
     check = self.check_against
     challenge = context.get('value', self.challenge)

@@ -10,11 +10,14 @@ class StepApplyResAction(Action):
 
   def __init__(self, config):
     super().__init__(config)
-    self.res_selectors = config.get('cmd', [])
+    self.res_selectors = config.get('apply_only', [])
 
   def perform(self, **kwargs: StepActionKwargs) -> Dict:
     inlines = (kwargs.get('inline') or {}).items()
-    out = tam_client().apply(self.res_selectors, inlines)
+    tam = kwargs.get('tam')
+    
+    out = tam_client(tam).apply(self.res_selectors, inlines)
+
     logs = utils.clean_log_lines(out)
     #todo move predicate logic to here
     return dict(logs=logs)

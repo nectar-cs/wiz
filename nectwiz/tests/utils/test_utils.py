@@ -4,6 +4,20 @@ from nectwiz.core.core import utils
 
 
 class TestUtils(unittest.TestCase):
+  
+  def test_deep_get2(self):
+    src = {'x': 'y'}
+    self.assertEqual('y', utils.deep_get2(src, 'x'))
+
+    src = {'x': 'y'}
+    self.assertEqual(None, utils.deep_get2(src, 'x2'))
+
+    src = {'x': {'x': 'y'}}
+    self.assertEqual('y', utils.deep_get2(src, 'x.x'))
+
+    src = {'x': {'x': 'y'}}
+    self.assertEqual(None, utils.deep_get2(src, 'x.x2'))
+
   def test_deep_set(self):
     root = dict(x='x', y='y')
     utils.deep_set(root, ['x'], 'y')

@@ -58,7 +58,8 @@ class Step(WizModel):
 
   def visible_fields(self, user_values, op_state: TOS) -> List[Field]:
     context = dict(**(user_values or {}), **resolution_context(op_state))
-    return [f for f in self.fields() if f.compute_visibility(context)]
+    result = [f for f in self.fields() if f.compute_visibility(context)]
+    return result
 
   def state_recall_descriptors(self, target: str):
     predicate = lambda d: d.get('target', TARGET_CHART) == target

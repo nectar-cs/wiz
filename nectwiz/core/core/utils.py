@@ -88,6 +88,10 @@ def deep_set(dict_root: Dict, names: List[str], value: any):
     deep_set(dict_root[names[0]], names[1:], value)
 
 
+def deep_get2(dict_root: Dict, deep_key) -> str:
+  return deep_get(dict_root, deep_key.split('.'))
+
+
 def deep_get(dict_root: Dict, keys: List[str]) -> str:
   """
   Iterates over items in keys list, using them as keys to go deeper into the

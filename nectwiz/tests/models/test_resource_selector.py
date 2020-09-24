@@ -16,6 +16,65 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertEqual("Pod", selector.k8s_kind)
     self.assertEqual("nginx", selector.name)
 
+  def test_selects_res(self):
+    res = dict(
+      kind='Pod',
+      metadata=dict(
+        namespace='foo',
+        name='bar',
+        labels=dict(
+          app='nectar',
+          tier='testware'
+        )
+      ),
+      spec=dict(
+        replicas=2,
+        imagePullPolicy='Never'
+      )
+    )
+
+    selector = ResourceSelector(dict(
+      k8s_kind='Pod',
+      label_selector=dict(
+        app='nectar'
+      )
+    ))
+    self.assertTrue(selector.selects_res(res, {}))
+
+    selector = ResourceSelector(dict(
+      k8s_kind='Pod',
+      label_selector=dict(
+        app='nectar',
+        tier='backend'
+      )
+    ))
+    self.assertFalse(selector.selects_res(res, {}))
+
+    selector = ResourceSelector(dict(
+      k8s_kind='Pod',
+      label_selector=dict(
+        app='nectar',
+        tier='testware'
+      ),
+      field_selector={
+        'spec.imagePullPolicy': 'Never'
+      }
+    ))
+    self.assertTrue(selector.selects_res(res, {}))
+
+    selector = ResourceSelector(dict(
+      k8s_kind='Pod',
+      label_selector=dict(
+        app='nectar',
+        tier='testware'
+      ),
+      field_selector={
+        'spec.imagePullPolicy': 'Never',
+        'metadata.namespace': 'baz'
+      }
+    ))
+    self.assertFalse(selector.selects_res(res, {}))
+
   def test_build_k8kat_query(self):
     config_man._ns = 'irrelevant'
     selector = ResourceSelector(dict(

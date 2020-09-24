@@ -1,6 +1,7 @@
 from typing import List, Dict, TypeVar
 
 from k8kat.res.base.kat_res import KatRes
+from nectwiz.core.core.utils import keyed2dict, deep_get, deep_get2
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.subs import interp_dict_vals
@@ -28,17 +29,6 @@ class ResourceSelector(WizModel):
     else:
       return super().inflate_with_key(_id)
 
-  def evaluate(self, res: K8sResDict) -> bool:
-    res_kind = res['kind']
-    res_name = res['metadata']['name']
-
-    tuples = [(self.k8s_kind, res_kind), (self.name, res_name)]
-
-    for rule, challenge in tuples:
-      if not component_matches(rule, challenge):
-        return False
-    return True
-
   def query_cluster(self, context: Dict) -> List[KatRes]:
     kat_class = KatRes.find_res_class(self.k8s_kind)
     if kat_class:
@@ -48,13 +38,26 @@ class ResourceSelector(WizModel):
       print(f"[nextwiz::res_match_rule] No kat for {self.kind}; kubectl fallback")
       return []
 
+  def selects_res(self, res: K8sResDict, context: Dict) -> bool:
+    if self.k8s_kind in [res['kind'], '*']:
+      query_dict = self.build_k8kat_query(context)
+      res_labels = (res.get('metadata') or {}).get('labels') or {}
+
+      labels_match = query_dict['labels'].items() <= res_labels.items()
+      fields_match = keyed_compare(query_dict['fields'], res)
+
+      return labels_match and fields_match
+      pass
+    else:
+      return False
+
   def build_k8kat_query(self, context: Dict) -> Dict:
     field_selector = self.field_selector
 
     if self.name and self.name != '*':
       field_selector = {
+        'metadata.name': self.name,
         **(field_selector or {}),
-        'metadata.name': self.name
       }
 
     field_selector = interp_dict_vals(field_selector, context)
@@ -67,11 +70,9 @@ class ResourceSelector(WizModel):
     )
 
 
-def component_matches(rule_exp: str, challenge: str) -> bool:
-  if rule_exp:
-    if rule_exp == '*' or rule_exp == challenge:
-      return True
-    else:
+def keyed_compare(keyed_q_dict: Dict, against_dict: Dict):
+  for deep_key, check_val in keyed_q_dict.items():
+    actual = deep_get2(against_dict, deep_key)
+    if not actual == check_val:
       return False
-  else:
-    return True
+  return True

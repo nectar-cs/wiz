@@ -1,0 +1,6 @@
+* [Your first Wizard](README.md)
+* [Getting Started](getting-started.md)
+* [Values in Kerbi](values.md)
+* [Subclassing Mixer](subclassing-mixer.md)
+    * [Templating](templating.md)
+* [Code Organization](code-org.md)

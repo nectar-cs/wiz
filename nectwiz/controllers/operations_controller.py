@@ -97,7 +97,7 @@ def prerequisite_eval(operation_id, prerequisite_id):
 
 
 @controller.route(STEP_PATH, methods=['POST'])
-def steps_show(operation_id, stage_id, step_id):
+def step_show(operation_id, stage_id, step_id):
   """
   Finds the Step with a matching operation_id, stage_id and step_id.
   :param operation_id: operation id to search by.
@@ -177,7 +177,7 @@ def steps_next_id(operation_id, stage_id, step_id):
 
 
 @controller.route(f'{FIELD_PATH}/validate', methods=['POST'])
-def fields_validate(operation_id, stage_id, step_id, field_id):
+def step_field_validate(operation_id, stage_id, step_id, field_id):
   value = jparse()['value']
   step = find_step(operation_id, stage_id, step_id)
   op_state = find_op_state()

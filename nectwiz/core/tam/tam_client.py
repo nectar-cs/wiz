@@ -87,7 +87,7 @@ def filter_res(res_list: List[K8sResDict], selector: List[ResourceSelector]) -> 
   if selector:
     def decide_res(res):
       for rule in selector:
-        if rule.evaluate(res):
+        if rule.selects_res(res):
           return True
       return False
     return [res for res in res_list if decide_res(res)]
