@@ -17,6 +17,7 @@ class TamleClient(TamClient):
     return yaml.load(raw, Loader=yaml.FullLoader)
 
   def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
+    write_values_to_tmpfile()
     split_flags = gen_template_args(inlines, tmp_vars_path)
     flat_flags = " ".join(split_flags)
     raw = exec_cmd(self.tam, f'template {flat_flags}')
