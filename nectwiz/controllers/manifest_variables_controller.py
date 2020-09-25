@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
+from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
 from nectwiz.model.variables import manifest_vars_serial
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
@@ -54,30 +56,16 @@ def manifest_variable_show(key):
   return jsonify(data=serialized)
 
 
-@controller.route(f'{BASE}/<key>/submit', methods=['POST'])
-def manifest_variable_submit(key):
-  """
-  Updates the chart variable with new value.
-  :param key: key to locate the right chart variable.
-  :return: status of the update.
-  """
-  value = request.json['value']
-  variable_model = find_variable(key)
-  variable_model.commit(value)
-  return jsonify(status='success')
-
-
 @controller.route(f'{BASE}/commit-apply', methods=['POST'])
 def manifest_variables_commit_apply():
   """
-  Updates the chart variable with new value.
+s  Updates the chart variable with new value.
   :return: status of the update.
   """
   assignments = list(request.json['assignments'].items())
   config_man.commit_keyed_mfst_vars(assignments)
-  logs = tam_client().apply([])
-  print(logs)
-  return jsonify(status='success')
+  job_id = job_client.enqueue_action(StepApplyResAction.__name__)
+  return jsonify(data=dict(job_id=job_id))
 
 
 @controller.route(f'{BASE}/<key>/validate', methods=['POST'])

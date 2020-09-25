@@ -12,7 +12,7 @@ setuptools.setup(
   long_description=long_description,
   long_description_content_type="text/markdown",
   url="https://github.com/nectar-cs/nectwiz",
-  packages = setuptools.find_packages(exclude=[
+  packages=setuptools.find_packages(exclude=[
     "nectwiz.tests.*", "nectwiz.tests"
   ]),
   install_requires=[

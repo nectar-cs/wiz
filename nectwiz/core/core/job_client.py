@@ -4,13 +4,13 @@ from typing import Optional
 from rq import Queue
 from rq.job import Job
 
-from nectwiz.core.core.types import ProgressItem
+from nectwiz.core.core.types import ProgressItem, Kod
 from nectwiz.worker import conn
 
 
 queue = Queue(connection=conn)
 
-def enqueue_action(key_or_dict, **kwargs):
+def enqueue_action(key_or_dict: Kod, **kwargs):
   return enqueue_func(load_and_perform_action, key_or_dict, **kwargs)
 
 

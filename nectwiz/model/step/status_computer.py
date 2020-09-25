@@ -51,7 +51,6 @@ def compute(root: Dict[str, List[Predicate]], step_state: StepState, context):
       if any_condition_met(step_state.exit_statuses[NEG]):
         step_state.notify_failed()
   else:
-    print("[nectwiz::status_computer] DANGER no predicate -> auto True")
     step_state.notify_succeeded()
 
 

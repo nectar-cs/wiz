@@ -29,7 +29,7 @@ class Base:
     def test_load_tpd_manifest(self):
       config_man.commit_keyed_mfst_vars(self.mock_tam_vars())
       inlines = [('service.name', 'inline')]
-      result = self.client_instance().load_templated_mfst(inlines)
+      result = self.client_instance().load_templated_manifest(inlines)
 
       kinds = sorted([r['kind'] for r in result])
       svc = [r for r in result if r['kind'] == 'Service'][0]

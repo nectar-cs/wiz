@@ -4,6 +4,7 @@ from typing import List, Tuple, Optional
 import yaml
 from k8kat.auth.kube_broker import broker
 
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import K8sResDict, TamDict
 from nectwiz.model.base.resource_selector import ResourceSelector
 
@@ -17,7 +18,7 @@ class TamClient:
   def load_manifest_defaults(self):
     raise NotImplemented
 
-  def load_templated_mfst(self, inlines=None) -> List[K8sResDict]:
+  def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
     raise NotImplemented
 
   def apply(self, rules: Optional[List[ResourceSelector]], inlines=None) -> str:
@@ -28,7 +29,7 @@ class TamClient:
     :param inlines: inline values to be applied together with the manifest, if any.
     :return: any generated terminal output from kubectl apply.
     """
-    res_dicts = self.load_templated_mfst(inlines)
+    res_dicts = self.load_templated_manifest(inlines)
     save_manifest_as_tmp(res_dicts, rules)
     return kubectl_apply()
 
@@ -42,9 +43,9 @@ def save_manifest_as_tmp(res_dicts: List[K8sResDict], rules: List[ResourceSelect
   """
   filtered = filter_res(res_dicts, rules)
   composed = yaml.dump_all(filtered)
-  print(composed)
   with open(tmp_file_mame, 'w') as file:
     file.write(composed)
+
 
 def kubectl_apply() -> str:
   """
@@ -88,9 +89,27 @@ def filter_res(res_list: List[K8sResDict], selector: List[ResourceSelector]) -> 
   if selector:
     def decide_res(res):
       for rule in selector:
-        if rule.selects_res(res):
+        if rule.selects_res(res, {}):
           return True
       return False
     return [res for res in res_list if decide_res(res)]
   else:
     return res_list
+
+
+def gen_template_args(inline_assigns, vars_full_path) -> List[str]:
+  """
+  Generates arguments to pass to the Tami image at startup.
+  :param inline_assigns: desired inline assigns.
+  :param vars_full_path: pointer to values file
+  :return: list of flags to pass to Tami image.
+  """
+  default_inlines = [('namespace', config_man.ns())]
+  inlines = default_inlines + (inline_assigns or [])
+  values_flag: str = f"-f {vars_full_path}"
+  vendor_flags: str = config_man.tam().get('args')
+  inline_flags: str = fmt_inline_assigns(inlines)
+  all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
+  return [w for w in all_flags.split(" ") if w]
+
+

@@ -10,7 +10,6 @@ from nectwiz.core.core.types import StepActionKwargs, ProgressItem, TamDict, Pre
 from nectwiz.core.tam.tam_client import save_manifest_as_tmp, kubectl_apply
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.action import Action
-from nectwiz.model.predicate import default_predicates
 from nectwiz.model.predicate.default_predicates import from_apply_outcome
 from nectwiz.model.step import status_computer
 from nectwiz.model.step.step_state import StepState
@@ -35,13 +34,14 @@ class StepApplyResAction(Action):
 
   def apply_part(self, inlines):
     client = tam_client(self.tam)
-    res_dicts = client.load_templated_mfst(inlines)
+    res_dicts = client.load_templated_manifest(inlines)
     save_manifest_as_tmp(res_dicts, self.res_selectors)
     self.observer.on_apply_started()
     out = kubectl_apply()
     print(out)
     self.apply_logs = utils.clean_log_lines(out)
     self.observer.on_apply_finished()
+    time.sleep(2)
 
   def await_part(self):
     predicate_tree = from_apply_outcome(self.apply_logs)

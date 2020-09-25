@@ -1,4 +1,3 @@
-from nectwiz.model.field import field_serial as field_serial
 from nectwiz.model.input import input_serializer
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
@@ -14,7 +13,7 @@ def standard(cv: ManifestVariable):
     mode=cv.mode,
     description=cv.info,
     default_value=cv.default_value(),
-    value=cv.read_crt_value(force_reload=False),
+    value=cv.read_crt_value(force_reload=False)    
   )
 
 
