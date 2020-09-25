@@ -19,18 +19,20 @@ class ManifestVariable(GenericVariable):
     hardcoded = super().default_value()
     if hardcoded:
       return hardcoded
-    return config_man.tam_defaults().get(self.id())
+    else:
+      defaults = config_man.manifest_defaults()
+      return utils.deep_get2(defaults, self.id())
 
   def is_safe_to_set(self) -> bool:
     return self.mode == 'public'
 
   def read_crt_value(self, force_reload=False) -> Optional[str]:
-    root = config_man.mfst_vars(force_reload)
-    return utils.deep_get(root, self.id().split('.'))
+    root = config_man.manifest_vars(force_reload)
+    return utils.deep_get2(root, self.id())
 
   @classmethod
   def all_vars(cls) -> List[T]:
-    raw = config_man.mfst_vars(force_reload=True)
+    raw = config_man.manifest_vars(force_reload=True)
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
     pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0

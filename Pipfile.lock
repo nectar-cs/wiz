@@ -102,10 +102,10 @@
         },
         "k8kat": {
             "hashes": [
-                "sha256:749c0d7d6723d9c1ced38147ac1e7c14c80dc051f73b66303d4c4ad8057fe81a",
-                "sha256:a233e739478b14b5789621cf6829dab75ced626267895fc7739f87b34bbf6060"
+                "sha256:e4114ab67dd27cc232208f7d91b135f41d35c370f11b5fd82590389ace56cd07",
+                "sha256:ee0b4fd8057c1469f75da29f1229164ee2c5e02bc022840dd10bac64ebd7af29"
             ],
-            "version": "==0.0.205"
+            "version": "==0.0.206"
         },
         "kubernetes": {
             "hashes": [

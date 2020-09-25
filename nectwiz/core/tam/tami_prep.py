@@ -52,7 +52,7 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
             image=image,
             args=args,
             # image_pull_policy='IfNotPresent' if utils.is_prod() else 'Always',
-            image_pull_policy='Always',
+            image_pull_policy='IfNotPresent',
             volume_mounts=volume_mounts(),
             resources=V1ResourceRequirements(
               requests=dict(cpu='20m', memory='100M'),

@@ -69,10 +69,10 @@ class FormatPredicate(Predicate):
 
   def evaluate(self, context: Dict) -> Optional[bool]:
     check = self.check_against
-    challenge = context.get('value', self.challenge)
-    if check == 'integer':
+    challenge = str(context.get('value', self.challenge))
+    if check in ['integer', 'int', 'number']:
       return challenge.isdigit()
-    elif check == 'boolean':
+    elif check in ['boolean', 'bool']:
       return challenge not in ['true', 'false']
     elif check == 'email':
       return validators.email(challenge)

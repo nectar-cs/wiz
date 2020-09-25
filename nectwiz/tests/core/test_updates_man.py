@@ -126,7 +126,7 @@ class TestUpdatesMan(ClusterTest):
 
     progress = observer.item('perform')
     ns, defs = config_man.ns(), config_man.tam_defaults(True)
-    tam, mfst_vars = config_man.tam(True), config_man.mfst_vars(True)
+    tam, mfst_vars = config_man.tam(True), config_man.manifest_vars(True)
     self.assertEqual("2.0.0", tam.get('version'))
     self.assertEqual(ci_tami_name(), tam.get('uri'))
 

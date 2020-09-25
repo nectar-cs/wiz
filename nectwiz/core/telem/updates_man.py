@@ -65,7 +65,7 @@ def install_next_available():
 
 def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
   observer = observer or UpdateObserver(update.get('type'))
-  pre_op_tam = config_man.mfst_vars(True)
+  pre_op_tam = config_man.manifest_vars(True)
 
   try:
     run_hooks('before', update, observer)
@@ -83,7 +83,7 @@ def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
     version=update.get('version'),
     apply_logs=observer.get_ktl_apply_logs(),
     pre_man_vars=pre_op_tam,
-    post_man_vars=config_man.mfst_vars(True)
+    post_man_vars=config_man.manifest_vars(True)
   )
 
 @raise_on_false

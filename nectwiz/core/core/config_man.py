@@ -27,6 +27,7 @@ class ConfigMan:
     self._tam: Optional[TamDict] = None
     self._install_uuid: Optional[str] = None
     self._tam_defaults: Optional[Dict] = None
+    self._manifest_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
     self._prefs: Optional[Dict] = None
 
@@ -50,13 +51,18 @@ class ConfigMan:
 
   def tam_defaults(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_defaults:
-      self._tam_defaults = self.read_mfst_defaults()
+      self._tam_defaults = self.read_manifest_defaults()
     return self._tam_defaults
 
-  def mfst_vars(self, force_reload=False) -> Dict:
+  def manifest_vars(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_vars:
       self._tam_vars = self.read_mfst_vars()
     return self._tam_vars
+
+  def manifest_defaults(self, force_reload=True):
+    if force_reload or utils.is_worker() or not self._manifest_defaults:
+      self._manifest_defaults = self.read_manifest_defaults()
+    return self._manifest_defaults
 
   def install_uuid(self, force_reload=False) -> str:
     if self.ns() and (utils.is_worker() or force_reload or not self.install_uuid):
@@ -118,14 +124,14 @@ class ConfigMan:
     return self.read_cmap_dict(tam_vars_key)
 
   def patch_mfst_defaults(self, assigns: Dict):
-    new_defaults = {**self.read_mfst_defaults(), **assigns}
+    new_defaults = {**self.read_manifest_defaults(), **assigns}
     self.write_mfst_defaults(new_defaults)
 
   def write_mfst_defaults(self, assigns: Dict):
     self.patch_cmap_with_dict(tam_defaults_key, assigns)
     self._tam_defaults = None
 
-  def read_mfst_defaults(self) -> Dict:
+  def read_manifest_defaults(self) -> Dict:
     return self.read_cmap_dict(tam_defaults_key)
 
   def read_last_update_checked(self) -> str:

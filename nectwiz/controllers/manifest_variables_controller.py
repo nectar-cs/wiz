@@ -12,7 +12,7 @@ controller = Blueprint('manifest_variables_controller', __name__)
 
 
 @controller.route(BASE)
-def chart_variables_index():
+def manifest_variables_index():
   """
   Inflates and serializes the current list of chart variables.
   :return: serialized list of chart variables.
@@ -21,6 +21,12 @@ def chart_variables_index():
   serialize = lambda cv: manifest_vars_serial.standard(cv=cv)
   serialized = list(map(serialize, manifest_var_models))
   return jsonify(data=serialized)
+
+
+@controller.route(f"{BASE}/defaults")
+def manifest_variables_defaults():
+  as_dict = config_man.read_manifest_defaults()
+  return jsonify(data=as_dict)
 
 
 @controller.route(f'{BASE}/commit-injections', methods=['POST'])

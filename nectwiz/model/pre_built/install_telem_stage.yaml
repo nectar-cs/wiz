@@ -18,6 +18,7 @@ steps:
     fields:
       - id: nectar.telem.strategy
         title: Database Strategy
+        default: managed_pvc
         input:
           kind: SelectInput
           options:
@@ -48,6 +49,7 @@ steps:
           check_against: self_managed
       - id: nectar.telem.db_port
         title: Telem Redis database host
+        default: 6379
         validation:
           - kind: FormatPredicate
             check_against: integer

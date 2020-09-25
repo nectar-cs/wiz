@@ -1,5 +1,7 @@
 from typing import Type
 
+from nectwiz.model.input.input import GenericInput
+
 from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.field.field import Field
 from nectwiz.tests.models.test_wiz_model import Base
@@ -10,6 +12,10 @@ class TestField(Base.TestWizModel):
   @classmethod
   def model_class(cls) -> Type[WizModel]:
     return Field
+
+  def test_default_input_spec(self):
+    spec = Field({}).input_spec()
+    self.assertEqual(GenericInput, spec.__class__)
 
   def test_delegate_inside(self):
     field = Field(dict(

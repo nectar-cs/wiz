@@ -13,7 +13,7 @@ class GenericVariable(WizModel):
     self.explicit_default: str = config.get('default')
 
   def input_spec(self) -> GenericInput:
-    kod = self.config.get('input', default_input_kod())
+    kod = self.config.get('input', GenericInput.__name__)
     return GenericInput.inflate(kod)
 
   def validators(self) -> List[Predicate]:
@@ -33,7 +33,3 @@ class GenericVariable(WizModel):
           tone=predicate.tone
         )
     return PredEval(met=True)
-
-
-def default_input_kod() -> Kod:
-  return GenericInput.__name__
