@@ -7,7 +7,7 @@ class TestDefaultPredicates(ClusterTest):
     logs = [
       "pods/pod created",
       "namespaces/ns configured",
-      "deployments/dep unchanged"
+      "apps.deployments/dep unchanged"
     ]
 
     result = default_predicates.from_apply_outcome(logs)
@@ -17,12 +17,14 @@ class TestDefaultPredicates(ClusterTest):
     self.assertEqual('positive', result['positive'][0].config['check_against'])
     self.assertEqual(dict(
       k8s_kind='pods',
-      name='pod'
+      name='pod',
+      api_group='',
     ), result['positive'][0].config['selector'])
 
     self.assertEqual('negative', result['negative'][0].config['check_against'])
     self.assertEqual(dict(
       k8s_kind='pods',
-      name='pod'
+      name='pod',
+      api_group='',
     ), result['negative'][0].config['selector'])
 

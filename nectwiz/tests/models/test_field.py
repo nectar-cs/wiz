@@ -37,7 +37,7 @@ class TestField(Base.TestWizModel):
       )
     ])
 
-    field = Field(dict(id='foo', variable_id='foo'))
+    field = Field(dict(id='foo', variable='foo'))
     self.assertEqual('foo', field.id())
     self.assertEqual('generic-t', field.title)
     self.assertEqual('generic-i', field.info)

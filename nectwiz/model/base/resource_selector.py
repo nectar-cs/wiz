@@ -15,7 +15,6 @@ class ResourceSelector(WizModel):
     super().__init__(config)
     self.k8s_kind = config.get('k8s_kind')
     self.name: str = config.get('name')
-    self.api_group: str = config.get('api_group', '')
     self.label_selector: Dict = config.get('label_selector') or {}
     self.field_selector: Dict = config.get('field_selector') or {}
 
@@ -31,7 +30,7 @@ class ResourceSelector(WizModel):
       return super().inflate_with_key(_id)
 
   def query_cluster(self, context: Dict) -> List[KatRes]:
-    kat_class = KatRes.class_for(self.k8s_kind, self.api_group)
+    kat_class = KatRes.class_for(self.k8s_kind)
     query_params = self.build_k8kat_query(context)
     return kat_class.list(**query_params)
 

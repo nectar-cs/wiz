@@ -1,3 +1,0 @@
-NAME                              SHORTNAMES   APIGROUP                       NAMESPACED   KIND
-configmaps                        cm                                          true         ConfigMap
-deployments                       deploy       apps                           true         Deployment
