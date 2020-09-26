@@ -63,6 +63,14 @@ class K8sResDict(TypedDict):
   metadata: K8sResMeta
 
 
+class ResDefDict(TypedDict):
+  name: str
+  shortnames: str
+  apigroup: str
+  namespaced: str
+  kind: str
+
+
 class TamDict(TypedDict):
   type: str
   uri: str

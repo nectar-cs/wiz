@@ -1,0 +1,21 @@
+kind: ResourceQueriesAdapter
+id: nectar.adapters.resources-query-adapter
+
+namespaced_kinds_per_category:
+  compute:
+    - deployments
+    - jobs
+  network:
+    - services
+    - ingress
+  storage:
+    - persistentvolumes
+    - persistentvolumeclaims
+  config:
+    - configmaps
+    - secrets
+    - resourcequotas
+  perms:
+    - roles
+    - rolebindings
+    - serviceaccounts

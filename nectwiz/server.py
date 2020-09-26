@@ -46,7 +46,6 @@ def read_dev_ns():
       print("[nectwiz::server] *danger* tried set-ns from header")
 
 
-
 def start():
   app.config["cmd"] = ["bash"]
   app.run(host='0.0.0.0', port=5000)

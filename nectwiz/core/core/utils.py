@@ -107,13 +107,13 @@ def deep_get(dict_root: Dict, keys: List[str]) -> str:
   )
 
 
-def shell_exec(cmd) -> str:
-  formatted_cmd = cmd.split(' ')
+def shell_exec(unsplit_cmd: str) -> str:
+  formatted_cmd = unsplit_cmd.split(' ')
   output = subprocess.run(
     formatted_cmd,
     stdout=subprocess.PIPE
   )
-  return output.stdout
+  return output.stdout.decode('utf-8')
 
 
 def yamls_in_dir(dirpath) -> [Dict]:

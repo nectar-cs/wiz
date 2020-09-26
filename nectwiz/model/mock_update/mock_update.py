@@ -1,5 +1,7 @@
 from typing import Dict
 
+import requests
+
 from nectwiz.core.core.types import UpdateDict
 
 from nectwiz.model.base.wiz_model import WizModel
@@ -17,9 +19,9 @@ class MockUpdate(WizModel):
     self.injections = config.get('injections')
     self.tam_type = config.get('tam_type')
     self.tam_uri = config.get('tam_uri')
-    if not self.note and config.get('note_src'):
-      with open(config.get('note_src')) as file:
-        self.note = file.read()
+    if not self.note and config.get('note_url'):
+      remote_note = requests.get(config.get('note_url'))
+      self.note = remote_note.text
 
   def as_bundle(self) -> UpdateDict:
     return UpdateDict(

@@ -21,8 +21,8 @@ controller = Blueprint('resources_controller', __name__)
 BASE_PATH = '/api/resources'
 
 
-@controller.route(f'{BASE_PATH}/category/<category_id>')
-def list_by_category(category_id):
+@controller.route(BASE_PATH)
+def list_all(category_id):
   """
   Lists KatRes resources by category.
   :param category_id: eg "workloads" would list KatDep resources.

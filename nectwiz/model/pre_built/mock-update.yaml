@@ -2,7 +2,7 @@ kind: MockUpdate
 id: vendor.mock-updates.release
 type: release
 version: 2.0.0
-note: Mock release from baseline to version 2.0.0
+note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
 
 ---
 
@@ -10,4 +10,4 @@ kind: MockUpdate
 id: vendor.mock-updates.partial
 type: release
 version: ''
-note: Mock partial-update populated with injections
+note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
