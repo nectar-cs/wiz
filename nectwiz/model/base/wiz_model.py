@@ -4,6 +4,7 @@ from typing import Type, Optional, Dict, Union, List, TypeVar
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import Kod
 
+
 T = TypeVar('T', bound='WizModel')
 
 class ModelsMan:
@@ -177,9 +178,11 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.common_predicates import ResPropComparePredicate
   from nectwiz.model.pre_built.common_predicates import ResCountComparePredicate
   from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate
+  from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
 
   return [
     CmdExecAction,
+    ResourceQueryAdapter,
     FormatPredicate,
     ResPropComparePredicate,
     ResCountComparePredicate,

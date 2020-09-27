@@ -31,8 +31,12 @@ class ResourceSelector(WizModel):
 
   def query_cluster(self, context: Dict) -> List[KatRes]:
     kat_class = KatRes.class_for(self.k8s_kind)
-    query_params = self.build_k8kat_query(context)
-    return kat_class.list(**query_params)
+    if kat_class:
+      query_params = self.build_k8kat_query(context)
+      return kat_class.list(**query_params)
+    else:
+      print(f"[nectwiz::resourceselector] DANGER no kat for {self.k8s_kind}")
+      return []
 
   def selects_res(self, res: K8sResDict, context: Dict) -> bool:
     if self.k8s_kind in [res['kind'], '*']:

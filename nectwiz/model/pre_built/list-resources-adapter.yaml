@@ -1,7 +1,6 @@
-kind: ResourceQueriesAdapter
+kind: ResourceQueryAdapter
 id: nectar.adapters.resources-query-adapter
-
-namespaced_kinds_per_category:
+category_resources:
   compute:
     - deployments
     - jobs
@@ -15,7 +14,7 @@ namespaced_kinds_per_category:
     - configmaps
     - secrets
     - resourcequotas
-  perms:
+  policy:
     - roles
     - rolebindings
     - serviceaccounts
