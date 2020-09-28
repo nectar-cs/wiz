@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from k8kat.res.base.kat_res import KatRes
 
 from nectwiz.core.core.config_man import config_man
@@ -23,8 +23,22 @@ def resources_in_category(category_id):
   serialized_kats = list(map(res_serializers.basic, kats))
   return jsonify(data=serialized_kats)
 
+@controller.route(f'{BASE_PATH}/for_kinds')
+def resources_for_kinds():
+  """
+  Finds a particular KatRes resource instance.
+  :return: serialized resource KatRes instance.
+  """
+  kinds = request.args.get('kinds', '').split(',')
+  kats = []
+  for kind in list(set(kinds)):
+    klass = KatRes.class_for(kind)
+    kats += (klass.list(config_man.ns()) if klass else [])
+  serialized_kats = list(map(res_serializers.basic, kats))
+  return jsonify(data=serialized_kats)
 
-@controller.route(f'{BASE_PATH}/<kind>/<name>')
+
+@controller.route(f'{BASE_PATH}/detail/<kind>/<name>')
 def resource_detail(kind: str, name: str):
   """
   Finds a particular KatRes resource instance.

@@ -10,7 +10,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 
 
-class BaseConsumptionAdapter(WizModel):
+class ResourceConsumptionAdapter(WizModel):
 
   @cached_property
   def kat_ns(self) -> KatNs:

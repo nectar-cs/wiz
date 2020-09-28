@@ -1,6 +1,7 @@
 import functools
 from typing import Optional
 
+from k8kat.auth.kube_broker import broker
 from redis import Redis
 
 from nectwiz.core.core.config_man import config_man
@@ -21,9 +22,9 @@ def connected_and_enabled(backup=None):
   def actual_decorator(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-      prefs = config_man.flat_prefs()
-      strategy = prefs.get('telem.strategy')
-      if not strategy in [STRATEGY_DISABLED, None]:
+      manifest_vars = config_man.flat_manifest_vars()
+      strategy = manifest_vars.get('telem_storage.strategy')
+      if strategy not in [STRATEGY_DISABLED, None]:
         if not redis():
           connection_obj['redis'] = connect()
         if redis():
@@ -57,10 +58,10 @@ def store_mfst_var_assign():
 
 
 def connect() -> Optional[Redis]:
-  prefs = config_man.prefs()
-  host, port = prefs.get('telem_db_host'), prefs.get('telem_db_port')
+  manifest_vars = config_man.flat_manifest_vars()
+  host = manifest_vars.get('telem_storage.host')
+  port = manifest_vars.get('telem_storage.port')
   if host:
-    port = int(port or 6379)
-    return Redis(host=host, port=port)
+    return Redis(host=host, port=int(port or 6379))
   else:
     return None

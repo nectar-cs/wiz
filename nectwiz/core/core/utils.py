@@ -13,7 +13,7 @@ from typing import Dict, List, Tuple, Optional
 import yaml
 from yaml import scanner
 
-from nectwiz.core.core.types import KtlApplyOutcome
+from nectwiz.core.core.types import ApplyOutkome
 
 legal_envs = ['production', 'development', 'test']
 
@@ -274,7 +274,7 @@ def clean_log_lines(chunk) -> List[str]:
     return []
 
 
-def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
+def log2outkome(log: str) -> Optional[ApplyOutkome]:
   try:
     api = ''
     kind_and_name, verb = log.split(" ")
@@ -284,7 +284,7 @@ def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
       kind = parts[0]
       api = '.'.join(parts[1:])
 
-    return KtlApplyOutcome(
+    return ApplyOutkome(
       api_group=api,
       kind=kind,
       name=name,
@@ -292,6 +292,11 @@ def log2ktlapplyoutcome(log: str) -> Optional[KtlApplyOutcome]:
     )
   except:
     return None
+
+
+def logs2outkomes(logs: List[str]) -> List[ApplyOutkome]:
+  outcomes = list(map(log2outkome, logs))
+  return [o for o in outcomes if o is not None]
 
 
 def flatten(nested_list):

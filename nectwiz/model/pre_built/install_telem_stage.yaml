@@ -16,7 +16,7 @@ steps:
         uri: gcr.io/nectar-bazaar/telem-tami
         version: 1.0.0
     fields:
-      - id: nectar.telem.strategy
+      - id: telem_storage.strategy
         title: Database Strategy
         default: managed_pvc
         input:
@@ -39,7 +39,7 @@ steps:
             operator: =/=
             tone: error
             reason: "Not available for your current plan"
-      - id: nectar.telem.db_host
+      - id: telem_storage.host
         title: Redis database host
         validation:
           - kind: FormatPredicate
@@ -47,7 +47,7 @@ steps:
         show_condition:
           challenge: "{nectar.telem.strategy}"
           check_against: self_managed
-      - id: nectar.telem.db_port
+      - id: telem_storage.port
         title: Telem Redis database host
         default: 6379
         validation:

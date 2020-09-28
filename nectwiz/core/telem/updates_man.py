@@ -65,14 +65,15 @@ def install_next_available():
 
 def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
   observer = observer or UpdateObserver(update.get('type'))
-  pre_op_tam = config_man.manifest_vars(True)
+  manifest_vars_pre = config_man.manifest_vars(True)
+  version_pre = config_man.tam().get('version')
 
   try:
     run_hooks('before', update, observer)
     perform(update, observer)
     await_resource_settled(observer)
     run_hooks('after', update, observer)
-    notify_checked()
+    notify_hub_checked()
     observer.on_succeeded()
   except HaltedError:
     print("Early stop!")
@@ -80,10 +81,11 @@ def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
   return UpdateOutcome(
     update_id=update.get('id'),
     type=update.get('type'),
+    version_pre=version_pre,
     version=update.get('version'),
     apply_logs=observer.get_ktl_apply_logs(),
-    pre_man_vars=pre_op_tam,
-    post_man_vars=config_man.manifest_vars(True)
+    manifest_vars_pre=manifest_vars_pre,
+    manifest_vars_post=config_man.manifest_vars(True)
   )
 
 @raise_on_false
@@ -166,16 +168,19 @@ def apply_update(patch: UpdateDict) -> str:
 
 
 @raise_on_false
-def notify_checked() -> bool:
+def notify_hub_checked() -> bool:
   uuid = config_man.install_uuid()
-  url = f'/api/cli/{uuid}/app_updates/notify_checked_update'
-  resp = hub_client.post(url, dict(data=dict(
-    tam_type=config_man.tam().get('type'),
-    tam_uri=config_man.tam().get('uri'),
-    tam_version=config_man.tam().get('version'),
-  )))
-  print(f"[updates_man::notify_checked] resp: {resp}")
-  return resp.status_code < 205
+  if uuid:
+    url = f'/{uuid}/app_updates/notify_checked_update'
+    resp = hub_client.post(url, dict(data=dict(
+      tam_type=config_man.tam().get('type'),
+      tam_uri=config_man.tam().get('uri'),
+      tam_version=config_man.tam().get('version'),
+    )))
+    print(f"[updates_man::notify_checked] resp: {resp}")
+    return resp.status_code < 205
+  else:
+    return True
 
 
 def _gen_injection_telem(keys: List[str]):

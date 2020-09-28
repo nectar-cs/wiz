@@ -29,6 +29,7 @@ class UpdateObserver:
           title='Perform Update',
           info='Apply the new application manifest',
           logs=[],
+          outcomes=[],
           mfst_vars={},
           sub_items=[
             dict(
@@ -100,9 +101,11 @@ class UpdateObserver:
     self.subitem('perform', 'perform_apply')['status'] = 'running'
     self.notify_job()
 
+  # noinspection PyTypeChecker
   def on_perform_finished(self, status, log_chunk):
-    # noinspection PyTypeChecker
-    self.item('perform')['logs'] = utils.clean_log_lines(log_chunk)
+    logs = utils.clean_log_lines(log_chunk)
+    self.item('perform')['logs'] = logs
+    self.item('perform')['outcomes'] = utils.logs2outkomes(logs)
     self.item('perform')['status'] = status
     self.notify_job()
 

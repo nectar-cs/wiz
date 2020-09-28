@@ -2,6 +2,7 @@ from typing import Dict
 
 from flask import Blueprint, jsonify
 from k8kat.auth.kube_broker import broker
+from nectwiz.model.base.wiz_model import models_man, default_descriptors, configs_for_kinds, WizModel
 
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core.config_man import config_man
@@ -67,6 +68,26 @@ def templated_manifest():
   return jsonify(
     data=tam_client().load_templated_manifest()
   )
+
+
+@controller.route('/api/status/descriptors')
+def dump_descriptors():
+  descriptors = models_man.descriptors()
+  return jsonify(data=descriptors)
+
+
+@controller.route('/api/status/descriptors/<kind>')
+def dump_descriptors_by_kind(kind):
+  master = WizModel.inflate(kind)
+  cls_pool = master.lteq_classes(models_man.classes())
+  descriptors = configs_for_kinds(models_man.descriptors(), cls_pool)
+  return jsonify(data=descriptors)
+
+
+@controller.route('/api/status/default-descriptors')
+def dump_default_descriptors():
+  descriptors = default_descriptors()
+  return jsonify(data=descriptors)
 
 
 def is_healthy() -> bool:

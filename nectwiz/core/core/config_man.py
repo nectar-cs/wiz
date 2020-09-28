@@ -59,6 +59,9 @@ class ConfigMan:
       self._tam_vars = self.read_mfst_vars()
     return self._tam_vars
 
+  def flat_manifest_vars(self, force_reload=False):
+    return utils.dict2flat(self.manifest_vars(force_reload))
+
   def manifest_defaults(self, force_reload=True):
     if force_reload or utils.is_worker() or not self._manifest_defaults:
       self._manifest_defaults = self.read_manifest_defaults()

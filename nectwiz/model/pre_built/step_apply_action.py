@@ -40,7 +40,7 @@ class StepApplyResAction(Action):
     out = kubectl_apply()
     print(out)
     self.apply_logs = utils.clean_log_lines(out)
-    self.observer.on_apply_finished()
+    self.observer.on_apply_finished(self.apply_logs)
     time.sleep(2)
 
   def await_part(self):
@@ -82,6 +82,7 @@ class Observer:
           status='idle',
           title='Run kubectl apply',
           info='Applies the templated manifest to the cluster',
+          data={},
           sub_items=[]
         ),
         ProgressItem(
@@ -99,9 +100,10 @@ class Observer:
     self.item('apply')['status'] = 'running'
     self.notify_job()
 
-  def on_apply_finished(self):
+  def on_apply_finished(self, logs: List[str]):
     self.item('apply')['status'] = 'positive'
     self.item('await_settled')['status'] = 'running'
+    self.item('apply')['data'] = {'outcomes': utils.logs2outkomes(logs)}
     self.notify_job()
 
   def on_exit_statuses_computed(self, predicates, statuses):

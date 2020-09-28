@@ -13,7 +13,7 @@ from k8kat.res.base.kat_res import KatRes
 
 def basic(res: KatRes) -> Dict:
   return dict(
-    kind=res.kind,
+    kind=res.res_name_plural,
     name=res.name,
     status=res.ternary_status()
   )

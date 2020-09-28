@@ -64,7 +64,7 @@ class TestUtils(unittest.TestCase):
       name='foo',
       verb='created',
       api_group=''
-    ), utils.log2ktlapplyoutcome(log))
+    ), utils.log2outkome(log))
 
     log = "deployment.apps/foo created"
     self.assertEqual(dict(
@@ -72,7 +72,7 @@ class TestUtils(unittest.TestCase):
       name='foo',
       verb='created',
       api_group='apps'
-    ), utils.log2ktlapplyoutcome(log))
+    ), utils.log2outkome(log))
 
     log = "role.rbac.authorization.k8s.io/foo unchanged"
     self.assertEqual(dict(
@@ -80,4 +80,4 @@ class TestUtils(unittest.TestCase):
       name='foo',
       verb='unchanged',
       api_group='rbac.authorization.k8s.io'
-    ), utils.log2ktlapplyoutcome(log))
+    ), utils.log2outkome(log))

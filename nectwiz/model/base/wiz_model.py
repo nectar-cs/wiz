@@ -81,11 +81,15 @@ class WizModel:
 
   @classmethod
   def inflate(cls: T, key_or_dict: Kod) -> Optional[T]:
-    if isinstance(key_or_dict, str):
-      return cls.inflate_with_key(key_or_dict)
-    elif isinstance(key_or_dict, Dict):
-      return cls.inflate_with_config(key_or_dict)
-    raise RuntimeError(f"Bad input {key_or_dict}")
+    try:
+      if isinstance(key_or_dict, str):
+        return cls.inflate_with_key(key_or_dict)
+      elif isinstance(key_or_dict, Dict):
+        return cls.inflate_with_config(key_or_dict)
+      raise RuntimeError(f"Bad input {key_or_dict}")
+    except Exception as err:
+      print(f"Inflate failed for {key_or_dict}")
+      raise err
 
   @classmethod
   def id_exists(cls, _id: str) -> bool:
@@ -101,6 +105,12 @@ class WizModel:
       all_configs = models_man.descriptors()
       config = find_config_by_id(_id, all_configs, candidate_kinds)
     return cls.inflate_with_config(config)
+
+  @classmethod
+  def descendent_or_self(cls) -> T:
+    subclasses = cls.lteq_classes(models_man.classes())
+    not_self = lambda kls: not kls == cls
+    return next(filter(not_self, subclasses), cls)({})
 
   @classmethod
   def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
@@ -166,6 +176,7 @@ def default_descriptors() -> List[Dict]:
 
 
 def default_model_classes() -> List[Type[T]]:
+
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
   from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
@@ -180,18 +191,34 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
 
+  from nectwiz.model.operation.operation import Operation
+  from nectwiz.model.stage.stage import Stage
+  from nectwiz.model.step.step import Step
+  from nectwiz.model.field.field import Field
+  from nectwiz.model.variables.generic_variable import GenericVariable
+  from nectwiz.model.base.resource_selector import ResourceSelector
   return [
-    CmdExecAction,
-    ResourceQueryAdapter,
+    Operation,
+    Stage,
+    Step,
+    Field,
+
+    GenericVariable,
+    ManifestVariable,
+    GenericInput,
+    SliderInput,
+    SelectInput,
+
+    ResourceSelector,
     FormatPredicate,
     ResPropComparePredicate,
     ResCountComparePredicate,
     ChartVarComparePredicate,
+
+    CmdExecAction,
     StepApplyResAction,
-    SliderInput,
-    SelectInput,
     FlushTelemAction,
-    DeletionSpec,
-    ManifestVariable,
-    GenericInput
+
+    ResourceQueryAdapter,
+    DeletionSpec
   ]

@@ -4,12 +4,13 @@ from typing_extensions import TypedDict
 
 Kod = Union[str, dict]
 
-class ProgressItem(TypedDict):
+class ProgressItem(TypedDict, total=False):
   id: Optional[str]
   title: str
   info: Optional[str]
   status: str
   sub_items: List['ProgressItem']
+  data: Dict
 
 
 class UpdateDict(TypedDict):
@@ -83,7 +84,7 @@ class StepActionKwargs(TypedDict):
   state_assigns: Dict
 
 
-class KtlApplyOutcome(TypedDict):
+class ApplyOutkome(TypedDict):
   api_group: str
   kind: str
   name: str
@@ -93,7 +94,8 @@ class KtlApplyOutcome(TypedDict):
 class UpdateOutcome(TypedDict):
   update_id: str
   type: str
+  version_pre: str
   version: str
-  pre_man_vars: Dict
-  post_man_vars: Dict
+  manifest_vars_pre: Dict
+  manifest_vars_post: Dict
   apply_logs: List[str]

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
+from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
@@ -69,18 +70,12 @@ def app_resource_usage():
   pass
 
 
-@controller.route(f'{BASE_PATH}/application_endpoints', methods=["GET"])
+@controller.route(f'{BASE_PATH}/access-points', methods=["GET"])
 def application_endpoints():
   """
   Returns a list of application endpoint adapters.
   :return: list of serialized adapters.
   """
-  # provider = wiz_app.find_provider(AppEndpointAdapter)()
-  # if provider:
-  #   adapters = provider.produce_adapters()
-  #   ser_endpoints = [a.serialize() for a in adapters]
-  #   return jsonify(data=ser_endpoints)
-  # else:
-  #   return jsonify(data=[])
-  pass
-
+  adapter = AccessPointsAdapter.descendent_or_self()
+  aps = [ap for ap in adapter.access_points() if ap is not None]
+  return jsonify(data=aps)
