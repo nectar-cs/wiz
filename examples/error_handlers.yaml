@@ -1,0 +1,29 @@
+kind: ErrorHandler
+selector:
+  kind: ErrorFilter
+  matches:
+    initiator: update
+    event: kubectl_apply
+  data:
+    resource:
+      kind: pods
+      name:
+  event_type:
+  - kubectl_apply
+  - predicate_eval
+  - template_error
+
+---
+
+tic-tac:
+  diagnosis:
+    text: "It looks like "
+    fixes:
+      - "Delete the application, do this"
+      - "Try removing this or that"
+
+  - what: kubectl-apply-error
+    when:
+      - operation
+      - apply variables
+      - apply update

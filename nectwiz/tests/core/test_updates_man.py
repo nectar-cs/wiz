@@ -7,7 +7,7 @@ from kubernetes.client import V1Pod, V1ObjectMeta, V1PodSpec, V1Container
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, UpdateDict
-from nectwiz.core.telem import updates_man
+from nectwiz.core.telem import updates_man, telem_man
 from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.core.telem.updates_man import HaltedError
 from nectwiz.model.base.wiz_model import models_man
@@ -20,6 +20,25 @@ class TestUpdatesMan(ClusterTest):
 
   def setUp(self) -> None:
     models_man.clear(restore_defaults=True)
+
+  def test_e2e(self):
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man.ns())
+
+    config_man.write_tam(TamDict(
+      version='1.0.0',
+      type='image',
+      uri=ci_tami_name(),
+      args=None
+    ))
+
+    telem_man.clear_update_outcomes()
+    updates_man.install_update(update_package)
+    telem_man.list_update_outcomes()
+    outcome = telem_man.get_update_outcome('foo')
+    self.assertIsNotNone(outcome)
+    self.assertEqual('1.0.0', outcome['version_pre'])
+    self.assertEqual('positive', outcome['status'])
 
   def test_await_resource_settled(self):
     config_man._ns,  = ns_factory.request(1)
@@ -85,12 +104,12 @@ class TestUpdatesMan(ClusterTest):
     actual = list(map(boil, observer.item('before_hooks')['sub_items']))
     self.assertEqual(exp, actual)
 
-    with self.assertRaises(HaltedError):
-      r_after = updates_man.run_hooks('after', update_package, observer)
-      self.assertFalse(r_after)
-      exp = [('After Only', 'negative'), ('Both', 'negative')]
-      actual = list(map(boil, observer.item('after_hooks')['sub_items']))
-      self.assertEqual(exp, actual)
+    # with self.assertRaises(HaltedError):
+    r_after = updates_man.run_hooks('after', update_package, observer)
+    self.assertFalse(r_after)
+    exp = [('After Only', 'negative'), ('Both', 'idle')]
+    actual = list(map(boil, observer.item('after_hooks')['sub_items']))
+    self.assertEqual(exp, actual)
 
   def test_apply_release_update(self):
     config_man._ns, = ns_factory.request(1)

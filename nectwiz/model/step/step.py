@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional
 
-from nectwiz.core.core import utils, job_client
+from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.job_client import enqueue_action, find_job
 from nectwiz.core.core.types import CommitOutcome, PredEval
@@ -60,14 +60,18 @@ class Step(WizModel):
     return result
 
   def state_recall_descriptors(self, target: str):
-    predicate = lambda d: d.get('target', TARGET_CHART) == target
+    predicate = lambda d: d.get('to', TARGET_CHART) == target
     return filter(predicate, self.reassignment_descs)
 
-  def comp_recalled_asgs(self, target: str, prev_state: TSS) -> dict:
-    descriptors = self.state_recall_descriptors(target)
+  def comp_recalled_asgs(self, target: str, prev_state: TSS) -> Dict:
     state_assigns = prev_state.parent_op.all_assigns()
-    recalled_keys = utils.flatten(d['ids'] for d in descriptors)
-    return {key: state_assigns.get(key) for key in recalled_keys}
+    new_assigns = {}
+
+    for desc in self.state_recall_descriptors(target):
+      _id, value = desc['id'], desc.get('value', state_assigns.get(desc))
+      new_assigns[_id] = value
+
+    return new_assigns
 
   # noinspection PyUnusedLocal
   def finalize_chart_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:

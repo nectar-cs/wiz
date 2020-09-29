@@ -1,7 +1,7 @@
-from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate, ResCountComparePredicate, \
+from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate, ResCountComparePredicate, \
   ResPropComparePredicate
 
-ChartVarComparePredicate.evaluate.__doc__ = """
+ManifestVarComparePredicate.evaluate.__doc__ = """
 Evaluates if a given chart variable matches up with the desired value.
 :return: True if matches up, False otherwise.
 """

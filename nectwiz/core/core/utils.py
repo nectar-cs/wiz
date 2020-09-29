@@ -32,6 +32,10 @@ def is_worker() -> bool:
   return exec_mode() == 'worker'
 
 
+def is_opsim() -> bool:
+  return exec_mode() == 'opsim'
+
+
 def is_shell() -> bool:
   return exec_mode() == 'shell'
 

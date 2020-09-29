@@ -32,4 +32,8 @@ class GenericVariable(WizModel):
           reason=predicate.reason,
           tone=predicate.tone
         )
-    return PredEval(met=True)
+    return PredEval(
+      met=True,
+      tone='',
+      reason=''
+    )

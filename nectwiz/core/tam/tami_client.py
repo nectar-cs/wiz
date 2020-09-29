@@ -31,9 +31,10 @@ class TamiClient(TamClient):
     pod_args = ['template'] + gen_template_args(inlines, vars_full_path)
     ns, image = config_man.ns(), image_name(self.tam)
     result = tami_prep.consume(ns, image, pod_args)
-    if not result:
-      print(f"[nectwiz::tami_client]Fatal tami returned {result}!")
-    return list(yaml.load_all(result, Loader=yaml.FullLoader))
+    if result:
+      return list(yaml.load_all(result, Loader=yaml.FullLoader))
+    else:
+      raise TamiNonStarterError("Could not start TAMI pod")
 
 
 def image_name(tam: TamDict):
@@ -46,3 +47,7 @@ def image_name(tam: TamDict):
   else:
     clean_name = given_name
   return f"{clean_name}:{version}"
+
+
+class TamiNonStarterError(Exception):
+  pass

@@ -10,7 +10,7 @@ steps:
      can later audit their application. For this, a persistent database
      is required. This step helps you decide where and how to host it."
     action:
-      kind: StepApplyResAction
+      kind: ApplyManifestAction
       tam:
         type: image
         uri: gcr.io/nectar-bazaar/telem-tami

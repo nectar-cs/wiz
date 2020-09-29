@@ -62,6 +62,16 @@ class ConfigMan:
   def flat_manifest_vars(self, force_reload=False):
     return utils.dict2flat(self.manifest_vars(force_reload))
 
+  def manifest_var(self, deep_key: str, reload=False) -> Optional[str]:
+    """
+    Deep-gets the value specified as deep_key from the ConfigMap.
+    :param deep_key: key in the following format: level1.level2.level3, where levels
+    refer to keys at various depths of the dict, from most shallow to deepest.
+    :param reload: force reload
+    :return: value behind deep key.
+    """
+    return utils.deep_get2(self.manifest_vars(reload), deep_key)
+
   def manifest_defaults(self, force_reload=True):
     if force_reload or utils.is_worker() or not self._manifest_defaults:
       self._manifest_defaults = self.read_manifest_defaults()
@@ -87,7 +97,7 @@ class ConfigMan:
       )[n]
 
     return dict(
-      manifest_variables=lambda n: self.read_tam_var(n),
+      manifest_variables=lambda n: self.manifest_var(n),
       tam_config=lambda n: self.tam().get(n),
       prefs=lambda n: self.prefs().get(n),
       app=app_cont
@@ -142,15 +152,6 @@ class ConfigMan:
 
   def write_last_update_checked(self, new_value):
     return self.patch_cmap(update_checked_at_key, new_value)
-
-  def read_tam_var(self, deep_key: str) -> Optional[str]:
-    """
-    Deep-gets the value specified as deep_key from the ConfigMap.
-    :param deep_key: key in the following format: level1.level2.level3, where levels
-    refer to keys at various depths of the dict, from most shallow to deepest.
-    :return: value behind deep key.
-    """
-    return utils.deep_get(self.read_mfst_vars(), deep_key.split('.'))
 
   def read_install_uuid(self):
     if utils.is_dev():

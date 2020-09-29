@@ -10,18 +10,19 @@ from nectwiz.core.core.types import StepActionKwargs, ProgressItem, TamDict, Pre
 from nectwiz.core.tam.tam_client import save_manifest_as_tmp, kubectl_apply
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.action import Action
+from nectwiz.model.action.observer import Observer
 from nectwiz.model.predicate.default_predicates import from_apply_outcome
 from nectwiz.model.step import status_computer
 from nectwiz.model.step.step_state import StepState
 
 
-class StepApplyResAction(Action):
+class ApplyManifestAction(Action):
 
   def __init__(self, config):
     super().__init__(config)
     self.res_selectors = config.get('apply_filters', [])
     self.tam: Optional[TamDict] = config.get('tam')
-    self.observer = Observer(self.tam or config_man.tam())
+    self.observer = MyObserver(self.tam or config_man.tam())
     self.apply_logs: List[str] = []
 
   def perform(self, **kwargs: StepActionKwargs) -> Dict:
@@ -62,8 +63,9 @@ class StepApplyResAction(Action):
     return state.did_succeed()
 
 
-class Observer:
+class MyObserver(Observer):
   def __init__(self, tam: TamDict):
+    super().__init__()
     self.progress = ProgressItem(
       id=None,
       status='running',
@@ -106,33 +108,6 @@ class Observer:
     self.item('apply')['data'] = {'outcomes': utils.logs2outkomes(logs)}
     self.notify_job()
 
-  def on_exit_statuses_computed(self, predicates, statuses):
-    flat_stats: List[Union[PredEval, ProgressItem]] = statuses['positive']
-    for status in flat_stats:
-      finder = lambda pred: pred.id() == status['predicate_id']
-      originator = next(filter(finder, predicates), None)
-      status['id'] = status['predicate_id']
-      status['title'] = originator and originator.title
-      status['info'] = originator and originator.info
-      status['status'] = 'positive' if status['met'] else 'running'
-
-    self.item('await_settled')['sub_items'] = flat_stats
-    self.notify_job()
-
-  def notify_job(self):
-    job: Job = get_current_job()
-    if job:
-      job.meta['progress'] = json.dumps(self.progress)
-      job.save_meta()
-
   def on_settled(self, status: str):
     self.item('await_settled')['status'] = status
-    self.notify_job()
-
-  def item(self, _id) -> Optional[ProgressItem]:
-    finder = lambda item: item.get('id') == _id
-    return next(filter(finder, self.progress['sub_items']), None)
-
-  def on_succeeded(self):
-    self.progress['status'] = 'positive'
     self.notify_job()

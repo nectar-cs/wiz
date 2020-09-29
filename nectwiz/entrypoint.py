@@ -1,6 +1,6 @@
 from k8kat.auth.kube_broker import broker
 
-from nectwiz import server, worker
+from nectwiz import server, worker, opsim
 from nectwiz.core.core import utils
 from nectwiz.model.base.wiz_model import models_man
 
@@ -13,6 +13,8 @@ def start():
     server.start()
   elif utils.is_worker():
     worker.start()
+  elif utils.is_opsim():
+    opsim.start()
   elif utils.is_shell():
     from nectwiz import shell
     shell.start()

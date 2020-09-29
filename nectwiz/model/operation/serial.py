@@ -39,7 +39,7 @@ def ser_full(operation: Operation):
   :return: serialized Operation dict.
   """
   stage_dicts = list(map(stage_serial.standard, operation.stages()))
-  prereq_dicts = list(map(ser_embedded_prereq, operation.prerequisites()))
+  prereq_dicts = list(map(ser_embedded_prereq, operation.preflight_predicates()))
 
   return dict(
     **ser_standard(operation),

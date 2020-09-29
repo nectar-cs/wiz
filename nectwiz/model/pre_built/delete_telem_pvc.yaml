@@ -1,0 +1,51 @@
+kind: Operation
+id: nectar.operations.delete-telem-pvc
+
+preflight:
+  - id: check_current_strategy
+    kind: ManifestVarComparePredicate
+    title: "Check telemetry storage strategy"
+    info: "Checks if this operation is applicable by checking for the current
+      declared telemetry storage method."
+    variable: telem_storage.strategy
+    check_against: managed_pvc
+    reason: It seems like telemetry is not currently saved to an internal PVC
+    tone: warning
+
+stages:
+  - id: nectar.stages.delete-telem-confirm
+    title: Confirm and Delete
+    info: Confirm consent and proceed to deleting telemetry-related resources
+    steps:
+      - id: nectar.steps.delete-telem-confirm
+        title: Confirm Consent
+        info: "I understand that proceeding will irreversibly
+        delete the local telemetry database, erasing all telemetry related
+         to updates, variable assignments, and operations."
+        reassignments:
+          - to: chart
+            id: telem_storage.strategy
+            value: disabled
+        action:
+          kind: MultiAction
+          sub_actions:
+            - kind: DeleteResourcesAction
+              selector: "deployments:telem-redis"
+            - kind: DeleteResourcesAction
+              selector: "services:telem-redis"
+            - kind: DeleteResourcesAction
+              selector: "persistentvolumeclaims:telem-redis"
+            - kind: ApplyManifestAction
+              tam:
+                type: image
+                uri: gcr.io/nectar-bazaar/telem-tami
+                version: 1.0.0
+        fields:
+          - id: nectar.fields.delete-telem-confirm
+            title: I understand
+            target: state
+            input: CheckboxInput
+            default: False
+            validation:
+              operator: =/=
+              reason: "Check to continue"

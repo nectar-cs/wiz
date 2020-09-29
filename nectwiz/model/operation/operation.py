@@ -97,18 +97,18 @@ class Operation(WizModel):
     """
     return self.load_list_child('stages', Stage, key)
 
-  def prerequisites(self) -> List[Predicate]:
+  def preflight_predicates(self) -> List[Predicate]:
     """
     Loads the Prerequisites associated with the Operation.
     :return: list of Predicate instances.
     """
-    return self.load_children('prerequisites', Predicate)
+    return self.load_children('preflight', Predicate)
 
-  def prerequisite(self, key:str) -> Predicate:
+  def preflight_predicate(self, key: str) -> Predicate:
     """
     Finds the Prerequisite by key and inflates (instantiates) into a Predicate
     instance.
     :param key: identifier for desired Prerequisite.
     :return: Predicate instance.
     """
-    return self.load_list_child('prerequisites', Predicate, key)
+    return self.load_list_child('preflight', Predicate, key)

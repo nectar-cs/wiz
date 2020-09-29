@@ -91,11 +91,14 @@ class ApplyOutkome(TypedDict):
   verb: str
 
 
-class UpdateOutcome(TypedDict):
+class UpdateOutcome(TypedDict, total=False):
+  status: str
   update_id: str
   type: str
   version_pre: str
+  fatal_err: Dict
   version: str
   manifest_vars_pre: Dict
   manifest_vars_post: Dict
   apply_logs: List[str]
+  timestamp: str

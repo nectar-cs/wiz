@@ -8,6 +8,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict, UpdateOutcome, ActionOutcome
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.core.telem import telem_man
 from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.model.hook.hook import Hook
 from nectwiz.model.mock_update.mock_update import MockUpdate, next_mock_update_id
@@ -63,10 +64,11 @@ def install_next_available():
   install_update(update)
 
 
-def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
+def install_update(update: UpdateDict, observer=None):
   observer = observer or UpdateObserver(update.get('type'))
   manifest_vars_pre = config_man.manifest_vars(True)
   version_pre = config_man.tam().get('version')
+  fatal_err = None
 
   try:
     run_hooks('before', update, observer)
@@ -75,20 +77,24 @@ def install_update(update: UpdateDict, observer=None) -> UpdateOutcome:
     run_hooks('after', update, observer)
     notify_hub_checked()
     observer.on_succeeded()
-  except HaltedError:
+  except Exception as err:
+    fatal_err = err
     print("Early stop!")
 
-  return UpdateOutcome(
+  telem_man.store_update_outcome(UpdateOutcome(
+    status="negative" if fatal_err else 'positive',
     update_id=update.get('id'),
     type=update.get('type'),
     version_pre=version_pre,
+    fatal_err={'coming': 'soon!'},
     version=update.get('version'),
     apply_logs=observer.get_ktl_apply_logs(),
     manifest_vars_pre=manifest_vars_pre,
-    manifest_vars_post=config_man.manifest_vars(True)
-  )
+    manifest_vars_post=config_man.manifest_vars(True),
+    timestamp=str(datetime.now())
+  ))
 
-@raise_on_false
+
 def perform(update: UpdateDict, observer: UpdateObserver) -> bool:
   observer.on_perform_started()
 
@@ -104,7 +110,6 @@ def perform(update: UpdateDict, observer: UpdateObserver) -> bool:
   observer.on_perform_finished('positive', log_chunk)
   return True
 
-@raise_on_false
 def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
   hooks = Hook.by_trigger(
     event='software-update',
@@ -126,7 +131,6 @@ def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
   return True
 
 
-@raise_on_false
 def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
   config_man.patch_tam(updated_release_tam(release))
   target_var_ids = [cv.id() for cv in ManifestVariable.release_dpdt_vars()]
@@ -139,7 +143,6 @@ def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
   return tam_client().apply([])
 
 
-@raise_on_false
 def await_resource_settled(observer: UpdateObserver) -> bool:
   observer.on_settle_wait_started()
   logs = observer.get_ktl_apply_logs()
@@ -159,7 +162,6 @@ def await_resource_settled(observer: UpdateObserver) -> bool:
   return state.did_succeed()
 
 
-@raise_on_false
 def apply_update(patch: UpdateDict) -> str:
   keyed_or_nested_asgs: Dict = patch.get('injections', {})
   keyed = utils.dict2keyed(keyed_or_nested_asgs)
@@ -167,7 +169,6 @@ def apply_update(patch: UpdateDict) -> str:
   return tam_client().apply([])
 
 
-@raise_on_false
 def notify_hub_checked() -> bool:
   uuid = config_man.install_uuid()
   if uuid:
@@ -198,4 +199,7 @@ def updated_release_tam(release: UpdateDict) -> Dict:
 
 
 class HaltedError(RuntimeError):
+  def __init__(self, data):
+    super().__init__()
+    self.data = data
   pass

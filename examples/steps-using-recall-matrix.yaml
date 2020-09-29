@@ -13,5 +13,6 @@ kind: Step
 id: var-multiplexer
 info: "Redirect value from prev step to an inline assignment"
 reassignments:
-  - target: "inline"
-    ids: ['password']
+  - to: "inline"
+    from: state
+    id: 'password'

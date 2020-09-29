@@ -55,8 +55,8 @@ def consume(ns, image: str, args: List[str]) -> Optional[str]:
             image_pull_policy='IfNotPresent',
             volume_mounts=volume_mounts(),
             resources=V1ResourceRequirements(
-              requests=dict(cpu='20m', memory='100M'),
-              limits=dict(cpu='40m', memory='200M')
+              requests=dict(cpu='20m', memory='30M'),
+              limits=dict(cpu='40m', memory='60M')
             )
           )
         ]

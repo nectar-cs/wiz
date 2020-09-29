@@ -7,7 +7,7 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 from nectwiz.core.core import config_man
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate, ResCountComparePredicate, \
+from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate, ResCountComparePredicate, \
   ResPropComparePredicate
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.tests.models.test_wiz_model import Base
@@ -110,7 +110,7 @@ def mk_pred2(sel, against, op='eq'):
 
 
 def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
-  return ChartVarComparePredicate(dict(
+  return ManifestVarComparePredicate(dict(
     operator=op,
     variable=variable_name,
     check_against=against

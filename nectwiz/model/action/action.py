@@ -1,10 +1,15 @@
 from typing import Dict
 
 from nectwiz.core.core.types import ActionOutcome
+from nectwiz.model.action.observer import Observer
 from nectwiz.model.base.wiz_model import WizModel
 
 
 class Action(WizModel):
+
+  def __init__(self, config: Dict):
+    super().__init__(config)
+    self.observer = Observer()
 
   def final_status(self):
     pass

@@ -238,7 +238,7 @@ def find_prereq(operation_id, prereq_id) -> Predicate:
   :return: Predicate class instance.
   """
   operation = find_operation(operation_id)
-  return operation.prerequisite(prereq_id)
+  return operation.preflight_predicate(prereq_id)
 
 
 def find_stage(operation_id, stage_id) -> Stage:

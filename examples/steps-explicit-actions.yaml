@@ -2,7 +2,7 @@ kind: Step
 info: "Use the pre-built apply-resources action as-is."
 fields:
   - id: ingress.domain
-action: StepApplyResAction
+action: ApplyManifestAction
 
 ---
 
@@ -22,7 +22,7 @@ info: Use a different TAM to carry out the work
 fields:
   - id: foo
 action:
-  kind: StepApplyResAction
+  kind: ApplyManifestAction
   tam:
     type: server
     uri: http://tams.codenectar.com/nectar/something-cool

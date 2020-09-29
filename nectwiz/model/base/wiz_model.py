@@ -176,9 +176,8 @@ def default_descriptors() -> List[Dict]:
 
 
 def default_model_classes() -> List[Type[T]]:
-
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
-  from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
+  from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
   from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
   from nectwiz.model.variables.manifest_variable import ManifestVariable
@@ -188,7 +187,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.common_predicates import FormatPredicate
   from nectwiz.model.pre_built.common_predicates import ResPropComparePredicate
   from nectwiz.model.pre_built.common_predicates import ResCountComparePredicate
-  from nectwiz.model.pre_built.common_predicates import ChartVarComparePredicate
+  from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
 
   from nectwiz.model.operation.operation import Operation
@@ -197,6 +196,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.field.field import Field
   from nectwiz.model.variables.generic_variable import GenericVariable
   from nectwiz.model.base.resource_selector import ResourceSelector
+  from nectwiz.model.operation.operation_run_simulator import OperationRunSimulator
+  from nectwiz.model.pre_built.delete_resources_action import DeleteResourcesAction
+
   return [
     Operation,
     Stage,
@@ -213,12 +215,15 @@ def default_model_classes() -> List[Type[T]]:
     FormatPredicate,
     ResPropComparePredicate,
     ResCountComparePredicate,
-    ChartVarComparePredicate,
+    ManifestVarComparePredicate,
 
     CmdExecAction,
-    StepApplyResAction,
+    ApplyManifestAction,
     FlushTelemAction,
+    DeleteResourcesAction,
 
     ResourceQueryAdapter,
-    DeletionSpec
+    DeletionSpec,
+
+    OperationRunSimulator
   ]

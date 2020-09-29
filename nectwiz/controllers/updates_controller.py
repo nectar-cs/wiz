@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
-from nectwiz.core.telem import updates_man
+from nectwiz.core.telem import updates_man, telem_man
 
 controller = Blueprint('updates_controller', __name__)
 
@@ -33,3 +33,9 @@ def install_next_available():
   updater = updates_man.install_next_available
   job_id = job_client.enqueue_func(updater)
   return jsonify(data=(dict(job_id=job_id)))
+
+
+@controller.route(f'{BASE_PATH}/outcomes')
+def list_past_updates():
+  outcomes = telem_man.list_update_outcomes()
+  return jsonify(data=outcomes)

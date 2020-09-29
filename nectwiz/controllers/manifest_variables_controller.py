@@ -4,7 +4,7 @@ from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.pre_built.step_apply_action import StepApplyResAction
+from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
 from nectwiz.model.variables import manifest_vars_serial
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
@@ -64,7 +64,7 @@ s  Updates the chart variable with new value.
   """
   assignments = list(request.json['assignments'].items())
   config_man.commit_keyed_mfst_vars(assignments)
-  job_id = job_client.enqueue_action(StepApplyResAction.__name__)
+  job_id = job_client.enqueue_action(ApplyManifestAction.__name__)
   return jsonify(data=dict(job_id=job_id))
 
 
