@@ -11,7 +11,6 @@ namespace: program
 id: ops1
 preflight: true
 validations: true
-print_progress: true
 operation: nectar.sim.operations.telem
 stages:
   - stage: nectar.operations.telem.stage-1
@@ -19,3 +18,18 @@ stages:
       - step: nectar.operations.telem.stage-1.step-1
         input:
           telem_storage.strategy: managed_pvc
+
+---
+
+kind: OperationRunSimulator
+namespace: program
+id: ops2
+preflight: true
+validations: true
+operation: nectar.operations.delete-telem-pvc
+stages:
+  - stage: nectar.stages.delete-telem-confirm
+    steps:
+      - step: nectar.steps.delete-telem-confirm
+        input:
+          nectar.fields.delete-telem-confirm: "true"

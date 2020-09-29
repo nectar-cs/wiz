@@ -11,19 +11,12 @@ class MultiAction(Action):
     self.observer = ReluctantObserver()
 
   def load_sub_actions(self) -> List[Action]:
-    return self.load_children('actions', Action)
+    return self.load_children('sub_actions', Action)
 
   def perform(self, *args, **kwargs) -> Dict:
-    sub_actions = self.load_sub_actions()
-
-    combined_sub_items = []
-    for action in sub_actions:
-      combined_sub_items += action.observer.progress.get('sub_items', [])
-
-    self.observer.progress['sub_items'] = combined_sub_items
-
-    for action in sub_actions:
+    for action in self.load_sub_actions():
+      static_subs = action.observer.progress.get('sub_items', [])
+      self.observer.progress['sub_items'] += static_subs
       action.observer.progress = self.observer.progress
       action.perform()
-
     return {}

@@ -68,7 +68,9 @@ class Step(WizModel):
     new_assigns = {}
 
     for desc in self.state_recall_descriptors(target):
-      _id, value = desc['id'], desc.get('value', state_assigns.get(desc))
+      bkp_val = state_assigns.get(desc.get('from'))
+      _id, value = desc['id'], desc.get('value', bkp_val)
+
       new_assigns[_id] = value
 
     return new_assigns

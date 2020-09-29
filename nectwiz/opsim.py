@@ -42,12 +42,11 @@ def start():
       step.compute_status(step_state)
       print("     Run")
       while step_state.status == 'running':
-        if simulator.print_progress:
-          job_id = step_state.job_id
-          progress = job_client.job_progress(job_id)
-          print_progress(progress)
-          time.sleep(3)
-          step.compute_status(step_state)
+        job_id = step_state.job_id
+        progress = job_client.job_progress(job_id)
+        print_progress(progress)
+        time.sleep(3)
+        step.compute_status(step_state)
       print("     Run Complete")
       step_id = stage.next_step_id(step, state)
       print("   Step complete")

@@ -35,7 +35,11 @@ class Observer:
 
   def subitem(self, _id, sub_id) -> Optional[ProgressItem]:
     finder = lambda item: item.get('id') == sub_id
-    return next(filter(finder, self.item(_id)['sub_items']), None)
+    outer_item = self.item(_id)
+    return next(filter(finder, outer_item['sub_items']), None)
+
+  def add_subitem(self, outer_id, subitem):
+    self.item(outer_id)['sub_items'].append(subitem)
 
   def on_exit_statuses_computed(self, predicates, statuses):
     flat_stats: List[Union[PredEval, ProgressItem]] = statuses['positive']

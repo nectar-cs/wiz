@@ -1,8 +1,4 @@
-import json
-from typing import List, Tuple, Optional
-
-from rq import get_current_job
-from rq.job import Job
+from typing import List, Tuple
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem

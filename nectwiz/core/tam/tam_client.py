@@ -52,13 +52,19 @@ def kubectl_apply() -> str:
   Kubectl applies the manifest and returns any generated terminal output.
   :return: any generated teminal output.
   """
+
+  with open(tmp_file_mame, 'r') as file:
+    as_dicts = yaml.load_all(file.read(), Loader=yaml.FullLoader)
+    if len(list(as_dicts)) < 1:
+      print("[nectwiz::tam_client] manifest empty, skipping kubectl apply")
+      return ""
+
   cmd = f"kubectl apply -f {tmp_file_mame}"
 
   if not broker.is_in_cluster_auth():
     if broker.connect_config.get('context'):
       cmd = f"{cmd} --context={broker.connect_config['context']}"
 
-  print(f"Running {cmd}")
   result = subprocess.check_output(cmd.split(" "))
   return result.decode('utf-8') if result else None
 

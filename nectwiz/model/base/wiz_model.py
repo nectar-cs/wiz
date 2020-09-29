@@ -198,6 +198,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.base.resource_selector import ResourceSelector
   from nectwiz.model.operation.operation_run_simulator import OperationRunSimulator
   from nectwiz.model.pre_built.delete_resources_action import DeleteResourcesAction
+  from nectwiz.model.action.multi_action import MultiAction
 
   return [
     Operation,
@@ -217,6 +218,7 @@ def default_model_classes() -> List[Type[T]]:
     ResCountComparePredicate,
     ManifestVarComparePredicate,
 
+    MultiAction,
     CmdExecAction,
     ApplyManifestAction,
     FlushTelemAction,
