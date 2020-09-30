@@ -9,6 +9,8 @@ from nectwiz.model.action.action import Action
 from nectwiz.model.base.resource_selector import ResourceSelector
 
 
+key_main = 'delete_resources'
+
 class DeleteResourcesAction(Action):
 
   def __init__(self, config: Dict):
@@ -17,29 +19,27 @@ class DeleteResourcesAction(Action):
     self.observer.progress = ProgressItem(
       sub_items=[
         ProgressItem(
-          id='delete_resources',
+          id=key_main,
           title='Delete Resources',
           status='idle',
-          info='Delete resources one by one',
+          info='Delete resources one at a time',
           sub_items=[]
         )
       ]
     )
 
   def perform(self, *args, **kwargs) -> Dict:
+    self.observer.set_item_status(key_main, 'running')
     selector = ResourceSelector.inflate(self.selector_desc)
     context = dict(resolvers=config_man.resolvers())
     victims = selector.query_cluster(context)
-    self.observer.set_item_status('delete_resources', 'running')
 
     for victim in victims:
       item = make_item(victim)
-      self.observer.add_subitem('delete_resources', item)
-      print(f"Dream of delete {victim.name}")
-      time.sleep(2)
-      self.observer.subitem('delete_resources', item['id'])['status'] = 'positive'
-
-    self.observer.set_item_status('delete_resources', 'positive')
+      self.observer.add_subitem(key_main, item)
+      victim.delete()
+      self.observer.subitem(key_main, item['id'])['status'] = 'positive'
+    self.observer.set_item_status(key_main, 'positive')
 
     return {}
 

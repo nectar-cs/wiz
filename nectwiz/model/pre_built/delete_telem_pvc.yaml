@@ -28,13 +28,17 @@ stages:
             value: disabled
         action:
           kind: MultiAction
+          title: Delete resources and reload
+          info: Delete telem resources and reapply manifest
           sub_actions:
             - kind: DeleteResourcesAction
               selector: "deployments:telem-redis"
             - kind: DeleteResourcesAction
               selector: "services:telem-redis"
             - kind: DeleteResourcesAction
-              selector: "persistentvolumeclaims:telem-redis"
+              selector: "persistentvolumeclaims:telem-redis-pvc"
+            - kind: DeleteResourcesAction
+              selector: "secrets:telem-redis-secret"
             - kind: ApplyManifestAction
               tam:
                 type: image
