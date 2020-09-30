@@ -17,7 +17,8 @@ class RunPredicatesAction(Action):
           id=predicate.id(),
           title=predicate.title,
           info=predicate.info,
-          status='idle'
+          status='idle',
+          sub_items=[]
         )
       )
 
@@ -26,4 +27,9 @@ class RunPredicatesAction(Action):
     for predicate in self.predicates:
       self.observer.set_item_running(predicate.id())
       result = predicate.evaluate(context)
-      self.observer.set_item_outcome(result)
+      self.observer.set_item_outcome(predicate.id(), result)
+      self.observer.item(predicate.id())['data'] = dict(
+        tone=predicate.tone,
+        reason=predicate.reason
+      )
+    self.observer.on_succeeded()

@@ -1,5 +1,5 @@
 import re
-from typing import Dict
+from typing import Dict, Any
 
 NON_DOT = "---"
 
@@ -57,6 +57,9 @@ def coerce_sub_tokens(string: str):
   return output
 
 
-def interp(string: str, context: Dict) -> str:
-  fmt_string = coerce_sub_tokens(string)
-  return fmt_string.format(SubsGetter(context or {}))
+def interp(value: Any, context: Dict) -> Any:
+  if type(value) == str:
+    fmt_string = coerce_sub_tokens(value)
+    return fmt_string.format(SubsGetter(context or {}))
+  else:
+    return value

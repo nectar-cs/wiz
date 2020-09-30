@@ -1,10 +1,10 @@
 kind: Stage
-id: nectar.operations.telem.stage-1
-title: Auditing
-info: Nectar auditing preferences
+id: nectar.stages.telem-storage
+title: Telemetry Storage
+info: Configure where telemetry data should be persisted
 steps:
   - kind: Step
-    id: nectar.operations.telem.stage-1.step-1
+    id: nectar.steps.telem-storage-step-1
     title: Telemetry Persistence
     info: "Nectar saves telemetry for important events so that users
      can later audit their application. For this, a persistent database
@@ -56,3 +56,12 @@ steps:
         show_condition:
           challenge: "{nectar.telem.strategy}"
           check_against: self_managed
+
+---
+
+kind: Operation
+id: nectar.operations.telem-storage
+title: Telemetry Storage
+info: Configure where telemetry data should be persisted
+stages:
+  - nectar.stages.telem-storage

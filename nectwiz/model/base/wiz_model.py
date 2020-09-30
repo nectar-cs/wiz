@@ -1,4 +1,5 @@
 import os
+from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
 from nectwiz.core.core import utils
@@ -11,6 +12,7 @@ class ModelsMan:
   def __init__(self):
     self._descriptors: List[Dict] = []
     self._classes: List[Type[T]] = []
+    self._asset_paths: List[str] = []
 
   def add_descriptors(self, descriptors: List[Dict]):
     self._descriptors = self._descriptors + descriptors
@@ -18,9 +20,13 @@ class ModelsMan:
   def add_classes(self, model_classes: List[Type[T]]):
     self._classes = self._classes + model_classes
 
+  def add_asset_dir_paths(self, paths: List[str]):
+    self._asset_paths += paths
+
   def add_defaults(self):
     self.add_descriptors(default_descriptors())
     self.add_classes(default_model_classes())
+    self.add_asset_dir_paths(default_asset_paths())
 
   def clear(self, restore_defaults=True):
     self._descriptors = []
@@ -34,6 +40,9 @@ class ModelsMan:
   def classes(self) -> List[Type[T]]:
     return self._classes
 
+  def asset_dir_paths(self) -> List[str]:
+    return self._asset_paths
+
 
 models_man = ModelsMan()
 
@@ -45,10 +54,19 @@ class WizModel:
     self._id: str = config.get('id')
     self.title: str = config.get('title')
     self.info: str = config.get('info')
+    if self.info and self.info.startswith("file::"):
+      self.info = read_from_asset(self.info)
     self.parent = None
 
   def id(self):
     return self._id
+
+  def to_dict(self):
+    return dict(
+      id=self.id(),
+      title=self.title,
+      info=self.info
+    )
 
   @classmethod
   def kind(cls):
@@ -115,12 +133,11 @@ class WizModel:
   @classmethod
   def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
     host_class = cls or def_cls
-    subclasses = cls.lteq_classes(models_man.classes())
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
 
     if expl_kind and not expl_kind == cls.__name__:
-      host_class = find_class_by_name(expl_kind, subclasses)
+      host_class = cls.kind2cls(expl_kind)
 
     if inherit_id:
       other = cls.inflate_with_key(inherit_id)
@@ -132,6 +149,21 @@ class WizModel:
   @classmethod
   def lteq_classes(cls, classes: List[Type]) -> List[Type[T]]:
     return [klass for klass in [*classes, cls] if issubclass(klass, cls)]
+
+  @classmethod
+  def kind2cls(cls, kind: str):
+    subclasses = cls.lteq_classes(models_man.classes())
+    return find_class_by_name(kind, subclasses)
+
+
+def read_from_asset(descriptor: str) -> str:
+  _, path = descriptor.split("::")
+  for dirpath in models_man.asset_dir_paths():
+    full_path = f"{dirpath}/{path}"
+    if isfile(full_path):
+      with open(full_path) as file:
+        return file.read()
+  return ''
 
 
 def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
@@ -175,6 +207,11 @@ def default_descriptors() -> List[Dict]:
   return utils.yamls_in_dir(f"{pwd}/../../model/pre_built")
 
 
+def default_asset_paths() -> List[str]:
+  pwd = os.path.join(os.path.dirname(__file__))
+  return [f"{pwd}/../../model/pre_built"]
+
+
 def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
   from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
@@ -199,6 +236,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.operation.operation_run_simulator import OperationRunSimulator
   from nectwiz.model.pre_built.delete_resources_action import DeleteResourcesAction
   from nectwiz.model.action.multi_action import MultiAction
+  from nectwiz.model.pre_built.run_predicates_action import RunPredicatesAction
 
   return [
     Operation,
@@ -223,6 +261,7 @@ def default_model_classes() -> List[Type[T]]:
     ApplyManifestAction,
     FlushTelemAction,
     DeleteResourcesAction,
+    RunPredicatesAction,
 
     ResourceQueryAdapter,
     DeletionSpec,

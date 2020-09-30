@@ -1,21 +1,19 @@
-from typing import List
+from typing import List, Dict
 
-from nectwiz.model.base.wiz_model import WizModel, key_or_dict_to_key
+from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
+from nectwiz.model.pre_built.run_predicates_action import RunPredicatesAction
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
 
 
 class Operation(WizModel):
 
-  def first_stage_key(self) -> str:
-    """
-    Returns the key of the first associated Stage, if present.
-    :return: Stage key if present, else None.
-    """
-    stage_descriptors = self.config.get('stages', [])
-    first = stage_descriptors[0] if len(stage_descriptors) else 0
-    return key_or_dict_to_key(first) if first else None
+  def preflight_action_config(self) -> Dict:
+    return dict(
+      kind=RunPredicatesAction.__name__,
+      predicates=self.config.get('preflight_predicates', [])
+    )
 
   def is_state_owner(self, op_state: OperationState) -> bool:
     """

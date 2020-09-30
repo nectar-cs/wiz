@@ -10,13 +10,29 @@ from nectwiz.model.operation.operation_state import OperationState
 
 def start():
   simulator: OperationRunSimulator = read_simulator()
+  operation = simulator.operation
   coerce_ns(simulator.force_ns)
-  state = OperationState(utils.rand_str(), simulator.operation.id())
+  state = OperationState(utils.rand_str(), operation.id())
 
-  print(f"Operation[{simulator.operation.title}]")
+  print(f"Operation[{operation.title or operation.id()}]")
 
   stage_ind = 0
   step_id = None
+
+  if simulator.run_preflight:
+    print("   Preflight Checks: ")
+    preflight_action = operation.preflight_action_config()
+    job_id = job_client.enqueue_action(preflight_action)
+    status = 'running'
+    while status == 'running':
+      progress = job_client.job_progress(job_id)
+      status = job_client.ternary_job_status(job_id)
+      if progress:
+        print_progress(progress)
+      else:
+        print("        No progress :/")
+      time.sleep(3)
+    print("   Preflight Checks complete")
 
   while simulator.stage_at(stage_ind) is not None:
     stage = simulator.stage_at(stage_ind)
@@ -64,6 +80,10 @@ def print_progress(progress: ProgressItem):
       for sub_sub_item in item['sub_items']:
         base = f"          {sub_sub_item['title']}"
         print(f"{base}: {status_emoji(sub_sub_item['status'])}")
+      tone = item.get('data', {}).get('tone')
+      reason = item.get('data', {}).get('reason')
+      if tone and reason:
+        print(f"          {tone}: {reason}")
 
 
 def read_simulator() -> OperationRunSimulator:
@@ -73,11 +93,11 @@ def read_simulator() -> OperationRunSimulator:
 
 def status_emoji(charge):
   if charge == 'running':
-    return '▶'
+    return '🏃‍️'
   elif charge == 'positive':
-    return '✔'
+    return '✅'
   elif charge == 'negative':
-    return '⚠⚠'
+    return " 🚨"
   elif charge == 'idle':
     return "✋"
   else:

@@ -33,7 +33,6 @@ class DeleteResourcesAction(Action):
     selector = ResourceSelector.inflate(self.selector_desc)
     context = dict(resolvers=config_man.resolvers())
     victims = selector.query_cluster(context)
-
     for victim in victims:
       item = make_item(victim)
       self.observer.add_subitem(key_main, item)

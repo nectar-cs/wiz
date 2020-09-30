@@ -1,21 +1,13 @@
-kind: Operation
-id: nectar.sim.operations.telem
-title: Telem Stage Wrapper
-stages:
-  - nectar.operations.telem.stage-1
-
----
-
 kind: OperationRunSimulator
 namespace: program
 id: ops1
 preflight: true
 validations: true
-operation: nectar.sim.operations.telem
+operation: nectar.operations.telem-storage
 stages:
-  - stage: nectar.operations.telem.stage-1
+  - stage: nectar.stages.telem-storage
     steps:
-      - step: nectar.operations.telem.stage-1.step-1
+      - step: nectar.steps.telem-storage-step-1
         input:
           telem_storage.strategy: managed_pvc
 
@@ -32,4 +24,4 @@ stages:
     steps:
       - step: nectar.steps.delete-telem-confirm
         input:
-          nectar.fields.delete-telem-confirm: "true"
+          nectar.fields.delete-telem-confirm: true

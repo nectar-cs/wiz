@@ -1,12 +1,9 @@
-import json
 import time
-from typing import Dict, Optional, Union, List
-
-from rq.job import Job, get_current_job
+from typing import Dict, Optional, List
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import StepActionKwargs, ProgressItem, TamDict, PredEval
+from nectwiz.core.core.types import StepActionKwargs, ProgressItem, TamDict
 from nectwiz.core.tam.tam_client import save_manifest_as_tmp, kubectl_apply
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.action import Action

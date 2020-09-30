@@ -84,6 +84,13 @@ def dump_descriptors_by_kind(kind):
   return jsonify(data=descriptors)
 
 
+@controller.route('/api/status/descriptors/<kind>/<res_id>')
+def dump_descriptor(kind, res_id):
+  model_class: WizModel = WizModel.kind2cls(kind)
+  instance = model_class.inflate(res_id)
+  return jsonify(data=instance.to_dict())
+
+
 @controller.route('/api/status/default-descriptors')
 def dump_default_descriptors():
   descriptors = default_descriptors()

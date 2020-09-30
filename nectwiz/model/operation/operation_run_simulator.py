@@ -11,9 +11,9 @@ class OperationRunSimulator(WizModel):
     self.force_ns: str = config['namespace']
     self.operation: Operation = Operation.inflate(config['operation'])
     self.stage_sims: List[Dict] = config.get('stages', [])
-    self.validate_input: bool = config.get('validations', False)
+    self.validate_input: bool = config.get('validations', True)
     self.run_preflight: bool = config.get('preflight', False)
-    self.print_progress: bool = config.get('print_progress', False)
+    self.print_progress: bool = config.get('print_progress', True)
 
   def stage_at(self, index: int) -> Optional[Stage]:
     if index < len(self.stage_sims):
