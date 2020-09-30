@@ -15,7 +15,7 @@ class DeleteResourcesAction(Action):
 
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.selector_desc = config.get('selector')
+    self.selector_descs = config.get('resource_selectors')
     self.observer.progress = ProgressItem(
       sub_items=[
         ProgressItem(
@@ -30,9 +30,13 @@ class DeleteResourcesAction(Action):
 
   def perform(self, *args, **kwargs) -> Dict:
     self.observer.set_item_status(key_main, 'running')
-    selector = ResourceSelector.inflate(self.selector_desc)
     context = dict(resolvers=config_man.resolvers())
-    victims = selector.query_cluster(context)
+    victims = []
+
+    for selector_desc in self.selector_descs:
+      selector = ResourceSelector.inflate(selector_desc)
+      victims += selector.query_cluster(context)
+
     for victim in victims:
       item = make_item(victim)
       self.observer.add_subitem(key_main, item)

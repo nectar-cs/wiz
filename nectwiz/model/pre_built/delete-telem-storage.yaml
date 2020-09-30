@@ -1,17 +1,20 @@
 kind: Operation
 title: Disable local telemetry storage
-info: file::delete-telem-storage-info.html
+info: If using in-cluster storage for telemetry, destroys all related storage resources
+synopsis: file::delete-telem-storage-info.html
 id: nectar.operations.delete-telem-pvc
 preflight_predicates:
   - id: check_current_strategy
     kind: ManifestVarComparePredicate
-    title: "Check current storage strategy"
-    info: "Ensure local telemetry storage is enabled to begin with"
+    title: Telemetry is currently stored in-cluster?
+    info: "Ensure it makes sense to perform this operation by checking
+    the current configurations."
     variable: telem_storage.strategy
     check_against: managed_pvc
     reason: "It seems like telemetry is not
     currently saved to an internal PVC. Proceeding will not do harm but
-    it may not be necessary either."
+    it may not be necessary either as it looks like there's nothing to
+    change or destroy."
     tone: warning
 stages:
   - id: nectar.stages.delete-telem-confirm
@@ -33,13 +36,11 @@ stages:
           info: Delete telem resources and reapply manifest
           sub_actions:
             - kind: DeleteResourcesAction
-              selector: "deployments:telem-redis"
-            - kind: DeleteResourcesAction
-              selector: "services:telem-redis"
-            - kind: DeleteResourcesAction
-              selector: "persistentvolumeclaims:telem-redis-pvc"
-            - kind: DeleteResourcesAction
-              selector: "secrets:telem-redis-secret"
+              resource_selectors:
+                - "deployments:telem-redis"
+                - "services:telem-redis"
+                - "persistentvolumeclaims:telem-redis-pvc"
+                - "secrets:telem-redis-secret"
             - kind: ApplyManifestAction
               tam:
                 type: image
@@ -47,10 +48,10 @@ stages:
                 version: 1.0.0
         fields:
           - id: nectar.fields.delete-telem-confirm
-            title: I understand
+            title: I have read and understood the above.
             target: state
             input: CheckboxInput
-            default: False
+            default: false
             validation:
               check_against: True
               reason: "Check to continue"

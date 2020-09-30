@@ -3,22 +3,19 @@ from typing import Dict
 from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
+from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
 from nectwiz.model.operation import serial as operation_serial
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState, operation_states
-from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.stage.stage import Stage
 from nectwiz.model.step import step_serial
 from nectwiz.model.step.step import Step
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
-
-PREREQUISITES_PATH = f'/{OPERATION_PATH}/prerequisites'
-PREREQUISITE_PATH = f'/{PREREQUISITES_PATH}/<prerequisite_id>'
 
 STAGES_PATH = f'{OPERATION_PATH}/stages'
 STAGE_PATH = f'{STAGES_PATH}/<stage_id>'
@@ -54,6 +51,15 @@ def operations_show(operation_id):
   return jsonify(data=operation_serial.ser_full(operation))
 
 
+@controller.route(f'{OPERATIONS_PATH}/osts')
+def operations_ost_index():
+  """
+  Generates a list of currently available OperationStates.
+  :return: list of currently available OperationStates.
+  """
+  return jsonify(data=operation_states)
+
+
 @controller.route(f'{OPERATION_PATH}/generate-ost', methods=['POST'])
 def operations_gen_ost(operation_id):
   """
@@ -64,17 +70,8 @@ def operations_gen_ost(operation_id):
   return jsonify(data=uuid)
 
 
-@controller.route(f'{OPERATIONS_PATH}/osts')
-def operations_ost_index():
-  """
-  Generates a list of currently available OperationStates.
-  :return: list of currently available OperationStates.
-  """
-  return jsonify(data=operation_states)
-
-
-@controller.route(f"{PREREQUISITE_PATH}/evaluate", methods=['POST'])
-def prerequisite_eval(operation_id, prerequisite_id):
+@controller.route(f"{OPERATION_PATH}/eval-preflight", methods=['POST'])
+def eval_preflight(operation_id):
   """
   Finds the Prerequisite with a matching operation_id and prerequisite_id,
   and evaluates it.
@@ -82,18 +79,10 @@ def prerequisite_eval(operation_id, prerequisite_id):
   :param prerequisite_id: prerequisite id to search by.
   :return: dict containing results of evaluation.
   """
-  prereq = find_prereq(operation_id, prerequisite_id)
-  # noinspection PyBroadException
-  try:
-    context = dict(resolvers=config_man.resolvers())
-    condition_met = prereq.evaluate(context)
-  except:
-    condition_met = None
-  return jsonify(data=dict(
-    condition_met=condition_met,
-    tone=prereq.tone,
-    reason=prereq.reason
-  ))
+  operation = find_operation(operation_id)
+  preflight_action = operation.preflight_action_config()
+  job_id = job_client.enqueue_action(preflight_action)
+  return jsonify(data=dict(job_id=job_id))
 
 
 @controller.route(STEP_PATH, methods=['POST'])
@@ -228,17 +217,6 @@ def find_operation(operation_id: str) -> Operation:
   :return: Operation instance.
   """
   return Operation.inflate(operation_id)
-
-
-def find_prereq(operation_id, prereq_id) -> Predicate:
-  """
-  Finds the Prerequisite with a matching operation_id and prereq_id.
-  :param operation_id: operation id to search by.
-  :param prereq_id: prerequisite id to search by.
-  :return: Predicate class instance.
-  """
-  operation = find_operation(operation_id)
-  return operation.preflight_predicate(prereq_id)
 
 
 def find_stage(operation_id, stage_id) -> Stage:

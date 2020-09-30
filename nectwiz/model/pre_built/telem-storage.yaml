@@ -61,7 +61,8 @@ steps:
 
 kind: Operation
 id: nectar.operations.telem-storage
-title: Telemetry Storage
-info: Configure where telemetry data should be persisted
+title: Setup Telemetry Storage
+synopsis: file::delete-telem-storage-info.html
+info: Choose and implement a persistent storage solution for telemetry data.
 stages:
   - nectar.stages.telem-storage

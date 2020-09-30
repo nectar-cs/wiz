@@ -11,23 +11,8 @@ def ser_standard(operation: Operation):
   return dict(
     id=operation.id(),
     title=operation.title,
-    description=operation.info,
-    synopsis=operation.synopsis,
-    affects_data=operation.affects_data,
-    affects_uptime=operation.affects_uptime
-  )
-
-
-def ser_embedded_prereq(prereq):
-  """
-  Serializer for an Embedded Prerequisite.
-  :param prereq: Prerequisite instance.
-  :return: serialized Prerequisite dict.
-  """
-  return dict(
-    id=prereq.id(),
-    title=prereq.title,
-    description=prereq.info
+    info=operation.info,
+    synopsis=operation.synopsis
   )
 
 
@@ -39,12 +24,8 @@ def ser_full(operation: Operation):
   :return: serialized Operation dict.
   """
   stage_dicts = list(map(stage_serial.standard, operation.stages()))
-  prereq_dicts = list(map(ser_embedded_prereq, operation.preflight_predicates()))
 
   return dict(
     **ser_standard(operation),
-    long_description=operation.long_desc,
-    risks=operation.risks,
-    stages=stage_dicts,
-    pre_requisites=prereq_dicts
+    stages=stage_dicts
   )

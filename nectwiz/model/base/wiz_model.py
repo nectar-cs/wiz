@@ -54,8 +54,6 @@ class WizModel:
     self._id: str = config.get('id')
     self.title: str = config.get('title')
     self.info: str = config.get('info')
-    if self.info and self.info.startswith("file::"):
-      self.info = read_from_asset(self.info)
     self.parent = None
 
   def id(self):
@@ -155,6 +153,13 @@ class WizModel:
     subclasses = cls.lteq_classes(models_man.classes())
     return find_class_by_name(kind, subclasses)
 
+  @staticmethod
+  def asset_attr(value):
+    if value and type(value) == str and value.startswith("file::"):
+      return read_from_asset(value)
+    else:
+      return value
+
 
 def read_from_asset(descriptor: str) -> str:
   _, path = descriptor.split("::")
@@ -237,6 +242,8 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.delete_resources_action import DeleteResourcesAction
   from nectwiz.model.action.multi_action import MultiAction
   from nectwiz.model.pre_built.run_predicates_action import RunPredicatesAction
+  from nectwiz.model.input.checkboxes_input import CheckboxesInput
+  from nectwiz.model.input.checkboxes_input import CheckboxInput
 
   return [
     Operation,
@@ -249,6 +256,8 @@ def default_model_classes() -> List[Type[T]]:
     GenericInput,
     SliderInput,
     SelectInput,
+    CheckboxesInput,
+    CheckboxInput,
 
     ResourceSelector,
     FormatPredicate,
