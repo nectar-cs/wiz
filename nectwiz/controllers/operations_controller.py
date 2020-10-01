@@ -5,13 +5,13 @@ from flask import Blueprint, jsonify, request
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_sync
+from nectwiz.model.field import field
 from nectwiz.model.field.field import Field, TARGET_CHART
-from nectwiz.model.operation import serial as operation_serial
+from nectwiz.serializers import operation_serial as operation_serial, step_serial
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState, operation_states
-from nectwiz.model.stage.stage import Stage
-from nectwiz.model.step import step_serial
-from nectwiz.model.step.step import Step
+from nectwiz.model.operation.stage import Stage
+from nectwiz.model.operation.step import Step
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
@@ -83,22 +83,6 @@ def eval_preflight(operation_id):
   return jsonify(data=dict(job_id=job_id))
 
 
-@controller.route(STEP_PATH, methods=['POST'])
-def step_show(operation_id, stage_id, step_id):
-  """
-  Finds the Step with a matching operation_id, stage_id and step_id.
-  :param operation_id: operation id to search by.
-  :param stage_id: stage id to search by.
-  :param step_id: step id to search by.
-  :return: serialized Step object.
-  """
-  values: Dict = jparse()['values']
-  op_state = find_op_state()
-  step = find_step(operation_id, stage_id, step_id)
-  serialized = step_serial.standard(step, values, op_state)
-  return jsonify(data=serialized)
-
-
 @controller.route(f"{STEP_PATH}/refresh", methods=['POST'])
 def step_refresh(operation_id, stage_id, step_id):
   """
@@ -113,8 +97,11 @@ def step_refresh(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
   asgs = step.partition_user_asgs(values, synth_step_state)
-  serialized = step_serial.standard(step, values, op_state)
-  return jsonify(data=serialized)
+  serialized = step_serial.ser_refreshed(step, values, op_state)
+  return jsonify(data=dict(
+    step=serialized,
+    assignments=asgs.get(field.TARGET_CHART)
+  ))
 
 
 @controller.route(f"{STEP_PATH}/preview-chart-assignments", methods=['POST'])

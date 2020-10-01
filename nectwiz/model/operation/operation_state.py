@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 
 from nectwiz.core.core import utils
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation.step_state import StepState
 
 
 class OperationState:

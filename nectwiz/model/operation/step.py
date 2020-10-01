@@ -7,8 +7,8 @@ from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.step import step_exprs
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation import step_expr_helpers
+from nectwiz.model.operation.step_state import StepState
 
 TOS = OperationState
 TSS = StepState
@@ -37,10 +37,10 @@ class Step(WizModel):
   def next_step_id(self, op_state: OperationState) -> str:
     root = self.next_step_desc
     context = resolution_context(op_state)
-    return step_exprs.eval_next_expr(root, context)
+    return step_expr_helpers.eval_next_expr(root, context)
 
   def has_explicit_next(self) -> bool:
-    expr = step_exprs.none_if_default(self.next_step_desc)
+    expr = step_expr_helpers.none_if_default(self.next_step_desc)
     return expr is not None
 
   def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:

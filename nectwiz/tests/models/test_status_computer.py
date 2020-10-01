@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.step.status_computer import eval_preds, compute
-from nectwiz.model.step.step import Step
+from nectwiz.model.operation.status_computer import eval_preds, compute
+from nectwiz.model.operation.step import Step
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 

@@ -1,5 +1,4 @@
-from nectwiz.model.step import step
-
+from nectwiz.model.operation import step
 
 step.Step.partition_user_asgs.__doc__ = """
 Partitions new assigns into 3 buckets (chart, inline, state) and

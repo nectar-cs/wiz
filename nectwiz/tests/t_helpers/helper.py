@@ -5,7 +5,7 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core.config_man import config_man, tam_config_key, tam_vars_key
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation.step_state import StepState
 
 
 def ci_tami_name():

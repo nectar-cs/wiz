@@ -38,6 +38,9 @@ class Field(WizModel):
     else:
       return GenericVariable(self.config)
 
+  def delegate_variable(self):
+    return self._delegate_variable
+
   def options(self) -> List[Dict]:
     return self.input_spec().options()
 

@@ -4,7 +4,7 @@ from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.pre_built.run_predicates_action import RunPredicatesAction
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.stage.stage import Stage
+from nectwiz.model.operation.stage import Stage
 
 
 class Operation(WizModel):

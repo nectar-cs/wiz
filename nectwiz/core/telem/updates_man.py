@@ -13,8 +13,8 @@ from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.model.hook.hook import Hook
 from nectwiz.model.adapters.mock_update import MockUpdate, next_mock_update_id
 from nectwiz.model.predicate import default_predicates
-from nectwiz.model.step import status_computer
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation import status_computer
+from nectwiz.model.operation.step_state import StepState
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
 TYPE_RELEASE = 'release'

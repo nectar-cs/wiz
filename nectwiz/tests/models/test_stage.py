@@ -2,7 +2,7 @@ from typing import Type
 
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.stage.stage import Stage
+from nectwiz.model.operation.stage import Stage
 from nectwiz.tests.models.test_wiz_model import Base
 
 

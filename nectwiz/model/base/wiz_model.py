@@ -231,10 +231,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.common_predicates import ResCountComparePredicate
   from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
-
   from nectwiz.model.operation.operation import Operation
-  from nectwiz.model.stage.stage import Stage
-  from nectwiz.model.step.step import Step
+  from nectwiz.model.operation.stage import Stage
+  from nectwiz.model.operation.step import Step
   from nectwiz.model.field.field import Field
   from nectwiz.model.variables.generic_variable import GenericVariable
   from nectwiz.model.base.resource_selector import ResourceSelector

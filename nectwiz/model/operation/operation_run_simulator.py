@@ -2,7 +2,7 @@ from typing import Dict, Optional, List
 
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation import Operation
-from nectwiz.model.stage.stage import Stage
+from nectwiz.model.operation.stage import Stage
 
 
 class OperationRunSimulator(WizModel):

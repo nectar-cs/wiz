@@ -1,6 +1,6 @@
 from nectwiz.core.core.types import PredEval, ExitStatuses
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation.step_state import StepState
 
 
 def ser_exit_cond_outcome(outcome: PredEval, polarity: str):

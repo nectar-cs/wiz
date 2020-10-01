@@ -5,7 +5,7 @@ from k8kat.utils.testing import ns_factory
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.step.step import Step
+from nectwiz.model.operation.step import Step
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import one_step_state, create_base_master_map
 

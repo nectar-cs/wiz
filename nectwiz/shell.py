@@ -24,8 +24,8 @@ def start():
   from nectwiz.model.operation.operation import Operation
   from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
   from nectwiz.model.predicate.predicate import Predicate
-  from nectwiz.model.stage.stage import Stage
-  from nectwiz.model.step.step import Step
+  from nectwiz.model.operation.stage import Stage
+  from nectwiz.model.operation.step import Step
 
 
   print("[nectwiz::shell] loaded packages for shell mode")

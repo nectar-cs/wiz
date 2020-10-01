@@ -1,9 +1,11 @@
 import json
+from typing import Dict, Any
 
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.pre_built.common_predicates import FormatPredicate
+from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -14,6 +16,7 @@ class TestOperationsController(ClusterTest):
   def setUp(self) -> None:
     models_man.clear(restore_defaults=True)
     models_man.add_descriptors([basic_operation_config])
+    models_man.add_classes([SimpleDecorator])
     OperationState.clear_list()
 
     endpoint = f'{operation_path}/generate-ost'
@@ -27,18 +30,26 @@ class TestOperationsController(ClusterTest):
     response = app.test_client().get('/api/operations')
     self.assertEqual(200, response.status_code)
 
-  def test_step_show(self):
-    endpoint = f'{steps_path}/step-1'
+  def test_step_refresh(self):
+    endpoint = f'{steps_path}/step-1/refresh'
 
     payload = dict(values={'field-1.1': 'off'})
     response = self.http_post(endpoint, json=payload)
     body = json.loads(response.data)['data']
-    self.assertEqual(1, len(body['fields']))
+    step_part, assigns_part = body.get('step'), body.get('assignments')
+    f1 = step_part['fields'][0]
+    self.assertEqual(1, len(step_part['fields']))
+    self.assertEqual("it's decorated-off", f1.get('decorated_value'))
+    self.assertEqual('off', assigns_part['field-1.1'])
 
     payload = dict(values={'field-1.1': 'on'})
     response = self.http_post(endpoint, json=payload)
     body = json.loads(response.data)['data']
-    self.assertEqual(2, len(body['fields']))
+    step_part, assigns_part = body.get('step'), body.get('assignments')
+    f1 = step_part['fields'][0]
+    self.assertEqual(2, len(step_part['fields']))
+    self.assertEqual("it's decorated-on", f1.get('decorated_value'))
+    self.assertEqual('on', assigns_part['field-1.1'])
 
   def test_fields_validate(self):
     endpoint = f'{steps_path}/step-1/fields/field-1.1/validate'
@@ -61,6 +72,11 @@ stage_path = f'{operation_path}/stages/stage-1'
 steps_path = f'{stage_path}/steps'
 
 
+class SimpleDecorator(VariableValueDecorator):
+  def compute(self, value: Any, operation_state: OperationState) -> Dict:
+    return {'foo': f"decorated-{value}"}
+
+
 basic_operation_config = dict(
   kind=Operation.__name__,
   id='unittest',
@@ -78,7 +94,11 @@ basic_operation_config = dict(
                   kind=FormatPredicate.__name__,
                   check_against='email'
                 )
-              ]
+              ],
+              value_decorator=dict(
+                kind=SimpleDecorator.__name__,
+                template="it's {foo}"
+              )
             ),
             dict(
               id='field-1.2',

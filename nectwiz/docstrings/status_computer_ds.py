@@ -1,4 +1,4 @@
-from nectwiz.model.step import status_computer
+from nectwiz.model.operation import status_computer
 
 status_computer.eval_pred.__doc__ = """
   Evaluates the passed condition and prepares an output with details of the

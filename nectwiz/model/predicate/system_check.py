@@ -10,5 +10,3 @@ class SystemCheck(WizModel):
   # traffic between two arbitrary points work
   # can curl publicly
   # no pods have suspicious restart rates
-
-

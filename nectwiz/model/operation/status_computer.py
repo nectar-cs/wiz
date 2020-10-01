@@ -2,7 +2,7 @@ from typing import List, Optional, Dict
 
 from nectwiz.core.core.types import PredEval
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation.step_state import StepState
 
 POS = 'positive'
 NEG = 'negative'

@@ -9,8 +9,8 @@ from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.action import Action
 from nectwiz.model.action.observer import Observer
 from nectwiz.model.predicate.default_predicates import from_apply_outcome
-from nectwiz.model.step import status_computer
-from nectwiz.model.step.step_state import StepState
+from nectwiz.model.operation import status_computer
+from nectwiz.model.operation.step_state import StepState
 
 
 class ApplyManifestAction(Action):
