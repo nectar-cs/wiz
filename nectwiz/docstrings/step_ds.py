@@ -1,20 +1,6 @@
 from nectwiz.model.step import step
 
 
-step.Step.applies_manifest.__doc__ = """
-Decides whether to kubectl apply the manifest at this time.
-:return: True if yes, False otherwise.
-"""
-
-
-step.Step.sanitize_field_assigns.__doc__ = """
-Converts the values in the passed key-value dict from strings to sanitized
-instances of the Fields class.
-:param values: dict to be sanitized.
-:return: sanitized key-values dict.
-"""
-
-
 step.Step.partition_user_asgs.__doc__ = """
 Partitions new assigns into 3 buckets (chart, inline, state) and
 merges with existing assigns in each bucket.

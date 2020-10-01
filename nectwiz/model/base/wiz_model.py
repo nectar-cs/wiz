@@ -221,7 +221,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
   from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
-  from nectwiz.model.deletion_spec.deletion_spec import DeletionSpec
+  from nectwiz.model.adapters.deletion_spec import DeletionSpec
   from nectwiz.model.variables.manifest_variable import ManifestVariable
   from nectwiz.model.input.input import GenericInput
   from nectwiz.model.input.select_input import SelectInput
@@ -244,6 +244,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.run_predicates_action import RunPredicatesAction
   from nectwiz.model.input.checkboxes_input import CheckboxesInput
   from nectwiz.model.input.checkboxes_input import CheckboxInput
+  from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
 
   return [
     Operation,
@@ -253,6 +254,8 @@ def default_model_classes() -> List[Type[T]]:
 
     GenericVariable,
     ManifestVariable,
+    VariableValueDecorator,
+
     GenericInput,
     SliderInput,
     SelectInput,

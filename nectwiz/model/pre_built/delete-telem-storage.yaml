@@ -11,7 +11,7 @@ preflight_predicates:
     the current configurations."
     variable: telem_storage.strategy
     check_against: managed_pvc
-    reason: "It seems like telemetry is not
+    reason: "It seems that telemetry is not
     currently saved to an internal PVC. Proceeding will not do harm but
     it may not be necessary either as it looks like there's nothing to
     change or destroy."
@@ -41,11 +41,11 @@ stages:
                 - "services:telem-redis"
                 - "persistentvolumeclaims:telem-redis-pvc"
                 - "secrets:telem-redis-secret"
-            - kind: ApplyManifestAction
-              tam:
-                type: image
-                uri: gcr.io/nectar-bazaar/telem-tami
-                version: 1.0.0
+            # - kind: ApplyManifestAction
+            #   tam:
+            #     type: image
+            #     uri: gcr.io/nectar-bazaar/telem-tami
+            #     version: 1.0.0
         fields:
           - id: nectar.fields.delete-telem-confirm
             title: I have read and understood the above.

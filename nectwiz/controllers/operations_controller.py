@@ -4,7 +4,6 @@ from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.telem import telem_sync
 from nectwiz.model.field.field import Field, TARGET_CHART
 from nectwiz.model.operation import serial as operation_serial
@@ -76,7 +75,6 @@ def eval_preflight(operation_id):
   Finds the Prerequisite with a matching operation_id and prerequisite_id,
   and evaluates it.
   :param operation_id: operation id to search by.
-  :param prerequisite_id: prerequisite id to search by.
   :return: dict containing results of evaluation.
   """
   operation = find_operation(operation_id)
@@ -97,6 +95,24 @@ def step_show(operation_id, stage_id, step_id):
   values: Dict = jparse()['values']
   op_state = find_op_state()
   step = find_step(operation_id, stage_id, step_id)
+  serialized = step_serial.standard(step, values, op_state)
+  return jsonify(data=serialized)
+
+
+@controller.route(f"{STEP_PATH}/refresh", methods=['POST'])
+def step_refresh(operation_id, stage_id, step_id):
+  """
+  Finds the Step with a matching operation_id, stage_id and step_id.
+  :param operation_id: operation id to search by.
+  :param stage_id: stage id to search by.
+  :param step_id: step id to search by.
+  :return: serialized Step object.
+  """
+  values: Dict = jparse()['values']
+  op_state = find_op_state()
+  step = find_step(operation_id, stage_id, step_id)
+  synth_step_state = find_op_state().gen_step_state(step, keep=False)
+  asgs = step.partition_user_asgs(values, synth_step_state)
   serialized = step_serial.standard(step, values, op_state)
   return jsonify(data=serialized)
 

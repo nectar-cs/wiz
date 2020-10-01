@@ -8,7 +8,7 @@ class SliderInput(GenericInput):
     super().__init__(config)
     self.min: int = config.get('min')
     self.max: int = config.get('max')
-    self.step: int = config.get('step')
+    self.step: int = config.get('step', 1)
 
   def extras(self) -> Dict[str, any]:
     return dict(

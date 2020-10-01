@@ -11,7 +11,7 @@ from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem import telem_man
 from nectwiz.core.telem.update_observer import UpdateObserver
 from nectwiz.model.hook.hook import Hook
-from nectwiz.model.mock_update.mock_update import MockUpdate, next_mock_update_id
+from nectwiz.model.adapters.mock_update import MockUpdate, next_mock_update_id
 from nectwiz.model.predicate import default_predicates
 from nectwiz.model.step import status_computer
 from nectwiz.model.step.step_state import StepState

@@ -45,7 +45,7 @@ steps:
           - kind: FormatPredicate
             check_against: domain
         show_condition:
-          challenge: "{nectar.telem.strategy}"
+          challenge: "{telem_storage.strategy}"
           check_against: self_managed
       - id: telem_storage.port
         title: Telem Redis database host
@@ -54,7 +54,7 @@ steps:
           - kind: FormatPredicate
             check_against: integer
         show_condition:
-          challenge: "{nectar.telem.strategy}"
+          challenge: "{telem_storage.strategy}"
           check_against: self_managed
 
 ---
@@ -64,5 +64,15 @@ id: nectar.operations.telem-storage
 title: Setup Telemetry Storage
 synopsis: file::delete-telem-storage-info.html
 info: Choose and implement a persistent storage solution for telemetry data.
+preflight_predicates:
+  - id: check_current_strategy
+    kind: ManifestVarComparePredicate
+    title: Ensure telemetry storage is currently disabled
+    info: "Ensure that telemetry storage is disabled before enabling it."
+    variable: telem_storage.strategy
+    check_against: disabled
+    reason: "It seems that telemetry storage is already enabled. Instead
+    of proceeding, disable it safely using the appropriate operation."
+    tone: error
 stages:
   - nectar.stages.telem-storage

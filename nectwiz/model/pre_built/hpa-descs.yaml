@@ -1,0 +1,49 @@
+kind: Step
+id: ice-cream.steps.hpa-vs-static
+title: Compute Resource Allocation
+info: "Choose a strategy for how the application's
+computing resources are allocated in the cluster."
+fields:
+  - id: compute.hpa_enabled
+    title: How should computing resources be allocated?
+    input:
+      kind: SelectInput
+      options:
+        false: "Statically - Estimate an amount and keep it the same"
+        true: "Dynamically - Vary the amount based on current usage"
+  - id: deployment.replicas
+    title: Pod replica fixed count
+    info: More pods means less latency at higher volumes of traffic
+    input:
+      kind: SliderInput
+      min: 2
+      max: 10
+    value_decorator:
+      kind: FixedReplicasDecorator
+      template: "Suitable for a {size} distribution. You can expect:
+      <br/>
+      <ul>
+        <li>Tolerance for ~{volume} concurrent application users</li>
+        <li>An increase of ~${cost} in cloud provider cost</li>
+      </ul>"
+    show_condition:
+      challenge: "{compute.hpa_enabled}"
+      check_against: false
+  - id: compute.hpa_max
+    title: Pod replica upper boundary
+    info: Ensure the number of pods never exceeds this amount
+    input:
+      kind: SliderInput
+      min: 2
+      max: 10
+    value_decorator:
+      kind: FixedReplicasDecorator
+      template: "Suitable for a {size} distribution. You can expect:
+      <br/>
+      <ul>
+        <li>Tolerance up to ~{volume} concurrent application users</li>
+        <li>An increase of up to ~${cost} in cloud provider cost</li>
+      </ul>"
+    show_condition:
+      challenge: "{compute.hpa_enabled}"
+      check_against: true
