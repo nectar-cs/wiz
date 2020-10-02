@@ -8,7 +8,7 @@ from functools import reduce
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 
 import yaml
 from yaml import scanner
@@ -305,3 +305,26 @@ def logs2outkomes(logs: List[str]) -> List[ApplyOutkome]:
 
 def flatten(nested_list):
   return [item for sublist in nested_list for item in sublist]
+
+
+def unmuck_primitives(root: Any) -> Any:
+  if type(root) == dict:
+    return {k: unmuck_primitives(v) for k, v in root.items()}
+  elif type(root) == list:
+    return list(map(unmuck_primitives, root))
+  else:
+    return unmuck_primitive(root)
+
+
+def unmuck_primitive(original: Any) -> Any:
+  if type(original) == str:
+    if original.isdigit():
+      return int(original)
+    elif original.lower() == 'true':
+      return True
+    elif original.lower() == 'false':
+      return False
+    else:
+      return original
+  else:
+    return original

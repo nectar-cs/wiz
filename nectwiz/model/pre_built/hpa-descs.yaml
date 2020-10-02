@@ -5,6 +5,7 @@ info: "Choose a strategy for how the application's
 computing resources are allocated in the cluster."
 fields:
   - id: compute.hpa_enabled
+    default: false
     title: How should computing resources be allocated?
     input:
       kind: SelectInput
@@ -13,18 +14,18 @@ fields:
         true: "Dynamically - Vary the amount based on current usage"
   - id: deployment.replicas
     title: Pod replica fixed count
+    default: 4
     info: More pods means less latency at higher volumes of traffic
     input:
       kind: SliderInput
       min: 2
-      max: 10
+      max: 30
     value_decorator:
       kind: FixedReplicasDecorator
-      template: "Suitable for a {size} distribution. You can expect:
-      <br/>
+      template: "<p>Suitable for a {size} distribution. Expect:</p>
       <ul>
-        <li>Tolerance for ~{volume} concurrent application users</li>
-        <li>An increase of ~${cost} in cloud provider cost</li>
+        <li><p>Tolerance for ~{volume} concurrent application users</p></li>
+        <li><p>An increase of ~${cost} in cloud provider cost</p></li>
       </ul>"
     show_condition:
       challenge: "{compute.hpa_enabled}"
@@ -32,17 +33,17 @@ fields:
   - id: compute.hpa_max
     title: Pod replica upper boundary
     info: Ensure the number of pods never exceeds this amount
+    default: 12
     input:
       kind: SliderInput
       min: 2
-      max: 10
+      max: 30
     value_decorator:
       kind: FixedReplicasDecorator
-      template: "Suitable for a {size} distribution. You can expect:
-      <br/>
+      template: "<p>Suitable for a {size} distribution. Expect:</p>
       <ul>
-        <li>Tolerance up to ~{volume} concurrent application users</li>
-        <li>An increase of up to ~${cost} in cloud provider cost</li>
+        <li><p>Tolerance up to ~{volume} concurrent application users</p></li>
+        <li><p>An increase of up to ~${cost} in cloud provider cost</p></</li>
       </ul>"
     show_condition:
       challenge: "{compute.hpa_enabled}"

@@ -36,7 +36,7 @@ class TestOperationsController(ClusterTest):
     payload = dict(values={'field-1.1': 'off'})
     response = self.http_post(endpoint, json=payload)
     body = json.loads(response.data)['data']
-    step_part, assigns_part = body.get('step'), body.get('assignments')
+    step_part, assigns_part = body.get('step'), body.get('manifest_assignments')
     f1 = step_part['fields'][0]
     self.assertEqual(1, len(step_part['fields']))
     self.assertEqual("it's decorated-off", f1.get('decorated_value'))
@@ -45,7 +45,7 @@ class TestOperationsController(ClusterTest):
     payload = dict(values={'field-1.1': 'on'})
     response = self.http_post(endpoint, json=payload)
     body = json.loads(response.data)['data']
-    step_part, assigns_part = body.get('step'), body.get('assignments')
+    step_part, assigns_part = body.get('step'), body.get('manifest_assignments')
     f1 = step_part['fields'][0]
     self.assertEqual(2, len(step_part['fields']))
     self.assertEqual("it's decorated-on", f1.get('decorated_value'))

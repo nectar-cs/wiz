@@ -1,6 +1,7 @@
 import unittest
 
 from nectwiz.core.core import utils
+from nectwiz.core.core.utils import unmuck_primitives
 
 
 class TestUtils(unittest.TestCase):
@@ -81,3 +82,29 @@ class TestUtils(unittest.TestCase):
       verb='unchanged',
       api_group='rbac.authorization.k8s.io'
     ), utils.log2outkome(log))
+
+
+  def test_unmuck_primitives(self):
+    actual = 'foo'
+    self.assertEqual(actual, unmuck_primitives(actual))
+
+    actual = dict(x='y')
+    self.assertEqual(actual, unmuck_primitives(actual))
+
+    actual = dict(x=0)
+    self.assertEqual(actual, unmuck_primitives(actual))
+
+    actual, exp = dict(x='0'), dict(x=0)
+    self.assertEqual(exp, unmuck_primitives(actual))
+
+    actual, exp = [dict(x='0')], [dict(x=0)]
+    self.assertEqual(exp, unmuck_primitives(actual))
+
+    actual, exp = [[0], '0'], [[0], 0]
+    self.assertEqual(exp, unmuck_primitives(actual))
+
+    actual, exp = [dict(x=['false'])], [dict(x=[False])]
+    self.assertEqual(exp, unmuck_primitives(actual))
+
+    actual = dict(x=[[dict(x=False)]], y=[True])
+    self.assertEqual(actual, unmuck_primitives(actual))

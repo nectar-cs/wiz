@@ -1,7 +1,7 @@
 import functools
 from typing import Optional, Callable, Dict
 
-from nectwiz.core.core import subs
+from nectwiz.core.core import subs, utils
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -15,15 +15,20 @@ class Predicate(WizModel):
     self.check_against = config.get('check_against')
 
   def evaluate(self, context: Dict) -> Optional[bool]:
-    challenge = self.challenge
-    if 'value' in context.keys():
-      challenge = context.get('value')
-
+    fresher_challenge = context.get('value')
+    challenge = fresher_challenge or self.challenge
+    print(context)
+    print(f"challenge 1", challenge)
     challenge = subs.interp(challenge, context)
+    print(f"challenge 2", challenge)
     return self._common_compare(challenge)
 
   def _common_compare(self, value):
-    return comparator(self.operator)(value, self.check_against)
+    challenge = utils.unmuck_primitives(value)
+    against = utils.unmuck_primitives(self.check_against)
+    print(f"VALUE {type(value)} {value} --> {type(challenge)} {challenge}")
+    print(f"AGAINST {type(self.check_against)} {self.check_against} --> {type(against)} {against}")
+    return comparator(self.operator)(challenge, against)
 
 def getattr_deep(obj, attr):
   """
@@ -48,13 +53,13 @@ def comparator(name) -> Callable[[any, any], bool]:
   :return: actual operation to be performed.
   """
   if name in ['equals', 'equal', 'eq', '==', '=']:
-    return lambda a, b: str(a) == str(b)
+    return lambda a, b: a == b
   elif name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
-    return lambda a, b: str(a) != str(b)
+    return lambda a, b: a != b
   elif name in ['is-in', 'in']:
     return lambda a, b: a in b
   elif name in ['is-greater-than', 'greater-than', 'gt', '>']:
-    return lambda a, b: float(a) > float(b)
+    return lambda a, b: a > float(b)
   elif name in ['gte', '>=']:
     return lambda a, b: float(a) >= float(b)
   elif name in ['is-less-than', 'less-than', 'lt', '<']:

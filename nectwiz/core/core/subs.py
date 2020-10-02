@@ -11,11 +11,11 @@ class SubsGetter:
     k = k.replace(NON_DOT, ".")
     direct_hit = self.src.get(k)
     resolver_desc = k.split("/")
-    if direct_hit:
-      if type(direct_hit) == str:
-        return direct_hit
-      elif callable(direct_hit):
+    if k in self.src.keys():
+      if callable(direct_hit):
         return direct_hit()
+      else:
+        return direct_hit
     elif len(resolver_desc) == 2:
       resolvers = self.src.get('resolvers', {})
       resolver = resolvers.get(resolver_desc[0])

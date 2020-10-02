@@ -100,7 +100,7 @@ def step_refresh(operation_id, stage_id, step_id):
   serialized = step_serial.ser_refreshed(step, values, op_state)
   return jsonify(data=dict(
     step=serialized,
-    assignments=asgs.get(field.TARGET_CHART)
+    manifest_assignments=asgs.get(field.TARGET_CHART)
   ))
 
 

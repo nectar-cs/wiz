@@ -245,6 +245,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.input.checkboxes_input import CheckboxInput
   from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
 
+  from nectwiz.model.pre_built.pod_scaling_decorator import FixedReplicasDecorator
   return [
     Operation,
     Stage,
@@ -254,6 +255,7 @@ def default_model_classes() -> List[Type[T]]:
     GenericVariable,
     ManifestVariable,
     VariableValueDecorator,
+    FixedReplicasDecorator,
 
     GenericInput,
     SliderInput,

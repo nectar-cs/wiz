@@ -6,7 +6,7 @@ from nectwiz.model.variables.variable_value_decorator import VariableValueDecora
 
 class FixedReplicasDecorator(VariableValueDecorator):
   def compute(self, value: Any, operation_state: OperationState) -> Dict:
-    if (value or '').isdigit():
+    if type(value) == int or (value or '').isdigit():
       replicas = int(value)
       return dict(
         size="small" if replicas < 10 else "large",

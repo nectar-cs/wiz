@@ -66,7 +66,7 @@ class Field(WizModel):
   def default_value(self) -> Optional[str]:
     return self._delegate_variable.default_value()
 
-  def compute_visibility(self, context) -> bool:
+  def compute_visibility(self, context: Dict) -> bool:
     predicate_kod = self.config.get('show_condition')
     if predicate_kod:
       predicate: Predicate = Predicate.inflate(predicate_kod)

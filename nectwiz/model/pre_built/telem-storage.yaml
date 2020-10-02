@@ -3,6 +3,7 @@ id: nectar.stages.telem-storage
 title: Telemetry Storage
 info: Configure where telemetry data should be persisted
 steps:
+  - ice-cream.steps.hpa-vs-static
   - kind: Step
     id: nectar.steps.telem-storage-step-1
     title: Telemetry Persistence
