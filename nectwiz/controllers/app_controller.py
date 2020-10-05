@@ -62,11 +62,6 @@ def job_progress(job_id):
   )
 
 
-@controller.route(f'{BASE_PATH}/errors/<error_id>/diagnose')
-def diagnose_error(error_id):
-  errdict = errors_man.find_error(error_id)
-
-
 @controller.route(f'{BASE_PATH}/resource-stats', methods=["GET"])
 def app_resource_usage():
   """

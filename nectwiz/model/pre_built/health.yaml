@@ -19,10 +19,11 @@
 #id: telem-redis-connection-down
 #trigger_selector:
 #  events: ["predicate_eval"]
-#  property_matches:
+#  property_selector:
 #    predicate_id: that-check
 #diagnoses:
 #  - title: A required resource is missing
+#    id: telem-redis-connection-down.d1
 #    info: "One or more of the resources required for in-cluster
 #    telemetry storage does not exist, or has the wrong name."
 #    predicate:
@@ -53,6 +54,7 @@
 #          tam: gcr.io/nectar-bazaar/telem-tami
 #          version: 1.0.0
 #  - title: The database workload is not running
+#    id: telem-redis-connection-down.d2
 #    info: "The workload controller for the database exists, but there are
 #    no working pods acting as the database driver."
 #    predicate:

@@ -1,0 +1,42 @@
+kind: ErrorHandler
+id: nectar.error-handler.catch-all
+diagnoses:
+  - id: nectar.diagnoses.catch-all
+    title: "Unknown Error"
+    info: "An unprocessable error has occurred."
+    actionables:
+      - title: "Contact the application vendor"
+        info: "Contact the application vendor"
+
+---
+
+kind: ErrorHandler
+id: nectar.error-handler.apply-failed
+selector:
+  property_selector:
+    event_type: ['apply_manifest']
+diagnoses:
+  - id: nectar.diagnoses.apply-failed-no-insight
+    title: "kubectl apply failed"
+    info: "kubectl returned an error status when running kubectl apply -f."
+    actionables:
+      - title: Read the logs
+        info: "Kubectl errors are most often due to manifest variables
+        format bugs. Check the error logs for clues and read the vendor
+        documentation for advice."
+
+---
+
+kind: ErrorHandler
+id: nectar.error-handler.await-failed
+selector:
+  property_selector:
+    event_type: ['await_settled']
+diagnoses:
+  - id: nectar.diagnoses.await-failed-no-insight
+    title: "Resources failed to settle"
+    info: "One or more resources have an error status or failed to
+     reach a positive status in a reasonable amount of time."
+    actionables:
+      - title: "This is most like"
+        info: "Nah"

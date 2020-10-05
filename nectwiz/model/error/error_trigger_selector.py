@@ -14,13 +14,11 @@ class ErrorTriggerSelector(WizModel):
     self.res_sel_kod: KoD = config.get('resource_selector', {})
 
   def match_confidence_score(self, errctx: ErrCtx) -> int:
-    score = 0
     prop_match_result = self.prop_match_score(errctx)
     if prop_match_result is not None:
-      score += prop_match_result
       res_match_result = self.res_match_score(errctx)
       if res_match_result is not None:
-        score += res_match_result
+        return prop_match_result + res_match_result
       else:
         return 0
     else:
@@ -37,7 +35,7 @@ class ErrorTriggerSelector(WizModel):
           return None
     return matches
 
-  def res_match_score(self, errctx: ErrCtx):
+  def res_match_score(self, errctx: ErrCtx) -> Optional[int]:
     if self.res_selector():
       if errctx.resource_dict():
         selector, resource = self.res_selector(), errctx.resource_dict()

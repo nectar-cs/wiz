@@ -246,6 +246,10 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
   from nectwiz.model.pre_built.pod_scaling_decorator import FixedReplicasDecorator
   from nectwiz.model.pre_built.common_predicates import MultiPredicate
+  from nectwiz.model.error.error_handler import ErrorHandler
+  from nectwiz.model.error.error_trigger_selector import ErrorTriggerSelector
+  from nectwiz.model.error.error_diagnosis import ErrorDiagnosis
+  from nectwiz.model.error.diagnosis_actionable import DiagnosisActionable
 
   return [
     Operation,
@@ -257,6 +261,11 @@ def default_model_classes() -> List[Type[T]]:
     ManifestVariable,
     VariableValueDecorator,
     FixedReplicasDecorator,
+
+    ErrorHandler,
+    ErrorTriggerSelector,
+    ErrorDiagnosis,
+    DiagnosisActionable,
 
     GenericInput,
     SliderInput,

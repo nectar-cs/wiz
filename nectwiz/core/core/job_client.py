@@ -49,7 +49,6 @@ def job_error(job_id: str) -> ErrDict:
   return json.loads(blob) if blob else None
 
 
-
 def load_and_perform_action(key_or_dict, **kwargs):
   from nectwiz.model.action.action import Action
   model: Action = Action.inflate(key_or_dict)
