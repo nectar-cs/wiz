@@ -1,10 +1,10 @@
 from functools import lru_cache
 from typing import Dict, Optional
 
-from nectwiz.core.core.types import ErrDict, KoD
+from nectwiz.core.core.types import KoD
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.error.error_context import ErrCxt
+from nectwiz.model.error.error_context import ErrCtx
 
 
 class ErrorTriggerSelector(WizModel):
@@ -13,7 +13,7 @@ class ErrorTriggerSelector(WizModel):
     self.prop_selector: Dict = config.get('property_selector', {})
     self.res_sel_kod: KoD = config.get('resource_selector', {})
 
-  def match_confidence_score(self, errctx: ErrCxt) -> int:
+  def match_confidence_score(self, errctx: ErrCtx) -> int:
     score = 0
     prop_match_result = self.prop_match_score(errctx)
     if prop_match_result is not None:
@@ -26,7 +26,7 @@ class ErrorTriggerSelector(WizModel):
     else:
       return 0
 
-  def prop_match_score(self, errctx: ErrCxt) -> Optional[int]:
+  def prop_match_score(self, errctx: ErrCtx) -> Optional[int]:
     challenge = errctx.selectable_properties()
     matches = 0
     for prop, check_against in self.prop_selector.items():
@@ -37,17 +37,17 @@ class ErrorTriggerSelector(WizModel):
           return None
     return matches
 
-  def res_match_score(self, errctx: ErrCxt):
+  def res_match_score(self, errctx: ErrCtx):
     if self.res_selector():
-      if errctx.resource():
-        selector, resource = self.res_selector(), errctx.resource().raw
+      if errctx.resource_dict():
+        selector, resource = self.res_selector(), errctx.resource_dict()
         if selector.selects_res(resource, {}):
           return 1
       return None
     else:
       return 0
 
-  @lru_cache
+  @lru_cache(maxsize=1)
   def res_selector(self) -> ResourceSelector:
     if self.res_sel_kod:
       return ResourceSelector.inflate(self.res_sel_kod)
