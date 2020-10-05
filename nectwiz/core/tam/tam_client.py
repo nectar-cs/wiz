@@ -1,14 +1,23 @@
+import os
 import subprocess
 from typing import List, Tuple, Optional
 
 import yaml
 from k8kat.auth.kube_broker import broker
+from k8kat.utils.main.api_defs_man import api_defs_man
 
+from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import K8sResDict, TamDict
+from nectwiz.core.core.types import K8sResDict, TamDict, KAO
 from nectwiz.model.base.resource_selector import ResourceSelector
 
+
 tmp_file_mame = '/tmp/man.yaml'
+ktl_apply_cmd_base = f"kubectl apply -f {tmp_file_mame}"
+RESD = K8sResDict
+RESDs = List[K8sResDict]
+SELs = List[ResourceSelector]
+
 
 class TamClient:
 
@@ -21,7 +30,7 @@ class TamClient:
   def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
     raise NotImplemented
 
-  def apply(self, rules: Optional[List[ResourceSelector]], inlines=None) -> str:
+  def apply(self, rules: SELs, inlines=None) -> List[KAO]:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local
     file (filtering resources by rules), and runs kubectl apply -f on it.
@@ -30,43 +39,71 @@ class TamClient:
     :return: any generated terminal output from kubectl apply.
     """
     res_dicts = self.load_templated_manifest(inlines)
-    save_manifest_as_tmp(res_dicts, rules)
-    return kubectl_apply()
+    res_dicts = filter_res(res_dicts, rules)
+    return self.kubectl_apply(res_dicts)
+
+  @staticmethod
+  def kubectl_apply(res_dicts: RESDs) -> List[KAO]:
+    """
+    Kubectl applies the manifest and returns any generated terminal output.
+    :return: any generated teminal output.
+    """
+    outcomes: List[KAO] = []
+    for res_dict in res_dicts:
+      with short_lived_resfile(res_dict):
+        command_parts = ktl_apply_cmd().split(" ")
+        try:
+          result = subprocess.check_output(command_parts, stderr=subprocess.STDOUT)
+          outcomes.append(log2outcome(True, res_dict, result))
+        except subprocess.CalledProcessError as e:
+          outcomes.append(log2outcome(False, res_dict, e.output))
+    return [o for o in outcomes if o]
 
 
-def save_manifest_as_tmp(res_dicts: List[K8sResDict], rules: List[ResourceSelector]):
-  """
-  Launches Tami container with passed inline arguments. Then collects logs from
-  resources that match the rules, and writes them out to a file.
-  :param res_dicts: dict representation of resources
-  :param rules: rules to be used for filtering resources.
-  """
-  filtered = filter_res(res_dicts, rules)
-  composed = yaml.dump_all(filtered)
-  with open(tmp_file_mame, 'w') as file:
-    file.write(composed)
+def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
+  raw_log = output.decode('utf-8') if output else ''
+  parts = raw_log.split("\n")
+  raw_log = parts[0] if len(parts) == 2 else None
+
+  if raw_log:
+    if succs:
+      return utils.log2outkome(raw_log)
+    else:
+      kind = resdict.get('kind')
+      kind = api_defs_man.kind2plurname(kind) or kind
+      api_group = api_defs_man.find_api_group(kind)
+      return KAO(
+        api_group=api_group,
+        kind=kind,
+        name=resdict.get('metadata', {}).get('name'),
+        verb=None,
+        error=raw_log
+      )
+  else:
+    print(f"[nectwiz::tamclient] panic log fmt unknown: {raw_log}")
+    return None
 
 
-def kubectl_apply() -> str:
-  """
-  Kubectl applies the manifest and returns any generated terminal output.
-  :return: any generated teminal output.
-  """
+class short_lived_resfile:
+  def __init__(self, resdict: K8sResDict):
+    self.res_dict = resdict
 
-  with open(tmp_file_mame, 'r') as file:
-    as_dicts = yaml.load_all(file.read(), Loader=yaml.FullLoader)
-    if len(list(as_dicts)) < 1:
-      print("[nectwiz::tam_client] manifest empty, skipping kubectl apply")
-      return ""
+  def __enter__(self):
+    with open(tmp_file_mame, 'w') as file:
+      file.write(yaml.dump(self.res_dict))
 
-  cmd = f"kubectl apply -f {tmp_file_mame}"
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    if os.path.isfile(tmp_file_mame):
+      os.remove(tmp_file_mame)
 
+
+def ktl_apply_cmd() -> str:
+  final_cmd = ktl_apply_cmd_base
   if not broker.is_in_cluster_auth():
     if broker.connect_config.get('context'):
-      cmd = f"{cmd} --context={broker.connect_config['context']}"
-
-  result = subprocess.check_output(cmd.split(" "))
-  return result.decode('utf-8') if result else None
+      context_part = f"--context={broker.connect_config['context']}"
+      final_cmd = f"{final_cmd} {context_part}"
+  return final_cmd
 
 
 def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
@@ -84,21 +121,21 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
   return " ".join(expr_array)
 
 
-def filter_res(res_list: List[K8sResDict], selector: List[ResourceSelector]) -> List[K8sResDict]:
+def filter_res(res_list: RESDs, selectors: SELs) -> RESDs:
   """
   Filters the list of parsed kubernetes resources from the tami-generated
   application manifest according to the passed rule-set.
   :param res_list: k8s resource list to be filtered.
-  :param selector: rules to be used for filtering.
+  :param selectors: rules to be used for filtering.
   :return: filtered resource list.
   """
-  if selector:
-    def decide_res(res):
-      for rule in selector:
-        if rule.selects_res(res, {}):
-          return True
-      return False
-    return [res for res in res_list if decide_res(res)]
+  def decide_res(res):
+    for selector in selectors:
+      if selector.selects_res(res, {}):
+        return True
+    return False
+  if selectors:
+    return list(filter(decide_res, res_list))
   else:
     return res_list
 
@@ -117,5 +154,3 @@ def gen_template_args(inline_assigns, vars_full_path) -> List[str]:
   inline_flags: str = fmt_inline_assigns(inlines)
   all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
   return [w for w in all_flags.split(" ") if w]
-
-

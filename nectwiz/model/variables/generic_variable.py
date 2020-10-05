@@ -1,6 +1,6 @@
 from typing import List, TypeVar, Dict, Optional
 
-from nectwiz.core.core.types import PredEval, Kod
+from nectwiz.core.core.types import PredEval, KoD
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate

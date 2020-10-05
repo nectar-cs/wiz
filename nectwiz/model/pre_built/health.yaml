@@ -1,0 +1,68 @@
+#kind: ActionTermPredicate
+#id: predicate.telem-storage-working
+#
+#
+#---
+#
+#kind: ErrorTriggerSelector
+#property_selector:
+#  event_type: ['await_settled', 'apply_resources', 'predicate']
+#  action_id: vt
+#  predicate_id: [this one, that one]
+#  verb: [create, delete]
+#resource_selector:
+#  kind: *
+#
+#---
+#
+#kind: ErrorHandler
+#id: telem-redis-connection-down
+#trigger_selector:
+#  events: ["predicate_eval"]
+#  property_matches:
+#    predicate_id: that-check
+#diagnoses:
+#  - title: A required resource is missing
+#    info: "One or more of the resources required for in-cluster
+#    telemetry storage does not exist, or has the wrong name."
+#    predicate:
+#      kind: MultiPredicate
+#      operation: or
+#      sub_predicates:
+#        - kind: ResourceCountPredicate
+#          selector: "persistentvolumeclaims:telem-redis"
+#          check_against: 0
+#        - kind: ResourceCountPredicate
+#          selector: "deployments:telem-redis"
+#          check_against: 0
+#        - kind: ResourceCountPredicate
+#          selector: "services:telem-redis"
+#          check_against: 0
+#    actionables:
+#      - title: "Disable telem storage if accidentally enabled"
+#        info: "If you did not want in-cluster telemetry storage enabled,
+#        and think that it is enabled by mistake, run the
+#        <b>Disable Telemetry</b> operation."
+#        operation: nectar.operations.delete-telem-pvc
+#      - title: Reapply the manifest
+#        info: "Try <b>reapplying the manifest again</b> and pay
+#        attention to the resources being created. Ifa new resource is
+#        created with errors, follow the troubleshooter there."
+#        action:
+#          kind: ApplyManifestAction
+#          tam: gcr.io/nectar-bazaar/telem-tami
+#          version: 1.0.0
+#  - title: The database workload is not running
+#    info: "The workload controller for the database exists, but there are
+#    no working pods acting as the database driver."
+#    predicate:
+#      kind: ResourcePropertyPredicate
+#      selector: deployments:telem-redis
+#      property: status.available_replicas
+#      operator: ">"
+#      check_against: 0
+#
+#---
+#
+#kind: GenericDepCreateFailedHandler
+#id: generic-pod-broken

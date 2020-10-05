@@ -1,37 +1,21 @@
 from typing import Dict
 
-from nectwiz.core.core.types import ActionOutcome
-from nectwiz.model.action.observer import Observer
+from nectwiz.model.action.action_observer import ActionObserver
 from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.error.controller_error import MyErr
 
 
 class Action(WizModel):
-
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.observer = Observer()
+    self.observer = ActionObserver()
 
-  def final_status(self):
-    pass
-
-  def run(self, **kwargs) -> ActionOutcome:
+  def run(self, **kwargs):
     try:
-      outcome_bundle = self.perform(**kwargs)
-      return ActionOutcome(
-        cls_name=self.__class__.__name__,
-        id=self.id(),
-        data=outcome_bundle,
-        charge='positive'
-      )
-    except Exception as err:
-      print("ACTION ERR")
-      print(err)
-      return ActionOutcome(
-        cls_name=self.__class__.__name__,
-        id=self.id(),
-        data=dict(error=str(err)),
-        charge='negative'
-      )
+      self.perform(**kwargs)
+    except MyErr as err:
+      print(f"CAUGHT MY ERR {err.errdict}")
+      self.observer.on_failed(err.errdict)
 
   def perform(self, *args, **kwargs) -> Dict:
     raise NotImplemented

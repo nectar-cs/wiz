@@ -1,17 +1,17 @@
-from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate, ResCountComparePredicate, \
-  ResPropComparePredicate
+from nectwiz.model.pre_built.common_predicates import ManifestVariablePredicate, ResourceCountPredicate, \
+  ResourcePropertyPredicate
 
-ManifestVarComparePredicate.evaluate.__doc__ = """
+ManifestVariablePredicate.evaluate.__doc__ = """
 Evaluates if a given chart variable matches up with the desired value.
 :return: True if matches up, False otherwise.
 """
 
-ResCountComparePredicate.evaluate.__doc__ = """
+ResourceCountPredicate.evaluate.__doc__ = """
 Evaluates if the resource matches up with the desired value.
 :return: True if matches up, False otherwise.
 """
 
-ResPropComparePredicate.evaluate.__doc__ = """
+ResourcePropertyPredicate.evaluate.__doc__ = """
 Evaluates a certain attribute for all eligible KatRes resources. Occurs in
 3 steps:
   1. Locate the eligible resource set based on Predicate's selector

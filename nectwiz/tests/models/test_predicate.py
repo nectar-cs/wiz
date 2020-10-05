@@ -7,8 +7,8 @@ from kubernetes.client import V1ConfigMap, V1ObjectMeta
 from nectwiz.core.core import config_man
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate, ResCountComparePredicate, \
-  ResPropComparePredicate
+from nectwiz.model.pre_built.common_predicates import ManifestVariablePredicate, ResourceCountPredicate, \
+  ResourcePropertyPredicate, MultiPredicate
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import create_base_master_map
@@ -89,9 +89,32 @@ class TestPredicate(Base.TestWizModel):
     self.assertFalse(mk_pred1('*', 'any', 'ternary_status', 'positive', 'neq'))
     self.assertFalse(mk_pred1('*', 'bad-matcher', 'name', 'r1'))
 
+  def test_multi_predicate(self):
+    true_pred = mk_pred0('foo', 'foo')
+    false_pred = mk_pred0('foo', 'bar')
+    multi = MultiPredicate(dict(
+      operator='and',
+      sub_predicates=[true_pred, false_pred]
+    ))
+    self.assertFalse(multi.evaluate({}))
+
+    multi = MultiPredicate(dict(
+      operator='or',
+      sub_predicates=[false_pred, true_pred]
+    ))
+    self.assertTrue(multi.evaluate({}))
+
+
+def mk_pred0(challenge, against, op='eq'):
+  return dict(
+    operator=op,
+    challenge=challenge,
+    check_against=against
+  )
+
 
 def mk_pred1(sel, match, prop, against, op='eq'):
-  return ResPropComparePredicate(dict(
+  return ResourcePropertyPredicate(dict(
     selector=f'ConfigMap:{sel}',
     operator=op,
     match=match,
@@ -101,7 +124,7 @@ def mk_pred1(sel, match, prop, against, op='eq'):
 
 
 def mk_pred2(sel, against, op='eq'):
-  return ResCountComparePredicate(dict(
+  return ResourceCountPredicate(dict(
     key='ec',
     selector=f'ConfigMap:{sel}',
     operator=op,
@@ -110,7 +133,7 @@ def mk_pred2(sel, against, op='eq'):
 
 
 def mk_pred3(variable_name, against, op: Optional[str] = 'eq'):
-  return ManifestVarComparePredicate(dict(
+  return ManifestVariablePredicate(dict(
     operator=op,
     variable=variable_name,
     check_against=against

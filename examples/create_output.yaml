@@ -1,0 +1,3 @@
+  role.rbac.authorization.k8s.io/pod-reader unchanged
+    configmap/game-config configured
+  Error from server (BadRequest): error when creating "nginx.yaml": Deployment in version "v1" cannot be handled as a Deployment: v1.Deployment.Spec: v1.DeploymentSpec.Replicas: readUint32: unexpected character: �, error found in #10 byte of ...|eplicas":false,"sele|..., bigger context ...|yment","namespace":"default"},"spec":{"replicas":false,"selector":{"matchLabels":{"app":"nginx"}},"t|...

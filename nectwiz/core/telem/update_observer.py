@@ -1,11 +1,10 @@
 from typing import List, Tuple
 
-from nectwiz.core.core import utils
-from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.observer import Observer
+from nectwiz.core.core.types import ProgressItem, KAOs
+from nectwiz.model.action.action_observer import ActionObserver
 
 
-class UpdateObserver(Observer):
+class UpdateObserver(ActionObserver):
   def __init__(self, _type):
     super().__init__()
     self.progress = ProgressItem(
@@ -26,7 +25,7 @@ class UpdateObserver(Observer):
           status='idle',
           title='Perform Update',
           info='Apply the new application manifest',
-          logs=[],
+          kaos=[],
           outcomes=[],
           mfst_vars={},
           sub_items=[
@@ -92,16 +91,14 @@ class UpdateObserver(Observer):
     self.notify_job()
 
   # noinspection PyTypeChecker
-  def on_perform_finished(self, status, log_chunk):
-    logs = utils.clean_log_lines(log_chunk)
+  def on_perform_finished(self, status: str, kaos: KAOs):
     self.subitem('perform', 'perform_apply')['status'] = 'positive'
-    self.item('perform')['logs'] = logs
-    self.item('perform')['outcomes'] = utils.logs2outkomes(logs)
+    self.item('perform')['kaos'] = kaos
     self.item('perform')['status'] = status
     self.notify_job()
 
-  def get_ktl_apply_logs(self) -> List[str]:
-    return self.item('perform')['logs'] or []
+  def get_ktl_apply_outcomes(self) -> KAOs:
+    return self.item('perform')['kaos'] or []
 
   def on_settle_wait_started(self):
     self.item('await_settled')['status'] = 'running'

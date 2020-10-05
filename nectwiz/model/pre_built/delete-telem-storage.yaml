@@ -5,7 +5,7 @@ synopsis: file::delete-telem-storage-info.html
 id: nectar.operations.delete-telem-pvc
 preflight_predicates:
   - id: check_current_strategy
-    kind: ManifestVarComparePredicate
+    kind: ManifestVariablePredicate
     title: Telemetry is currently stored in-cluster?
     info: "Ensure it makes sense to perform this operation by checking
     the current configurations."

@@ -14,21 +14,20 @@ class Predicate(WizModel):
     self.challenge = config.get('challenge')
     self.check_against = config.get('check_against')
 
-  def evaluate(self, context: Dict) -> Optional[bool]:
+  def evaluate(self, context: Dict) -> bool:
     fresher_challenge = context.get('value')
     challenge = fresher_challenge or self.challenge
-    print(context)
-    print(f"challenge 1", challenge)
     challenge = subs.interp(challenge, context)
-    print(f"challenge 2", challenge)
     return self._common_compare(challenge)
 
   def _common_compare(self, value):
     challenge = utils.unmuck_primitives(value)
     against = utils.unmuck_primitives(self.check_against)
-    print(f"VALUE {type(value)} {value} --> {type(challenge)} {challenge}")
-    print(f"AGAINST {type(self.check_against)} {self.check_against} --> {type(against)} {against}")
     return comparator(self.operator)(challenge, against)
+
+  # noinspection PyMethodMayBeStatic
+  def error_extras(self) -> Dict:
+    return {}
 
 def getattr_deep(obj, attr):
   """

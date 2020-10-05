@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 from nectwiz.core.core import job_client
 from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
+from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
 
@@ -50,12 +51,20 @@ def run_hook(hook_id):
 def job_progress(job_id):
   progress = job_client.job_progress(job_id)
   status = job_client.ternary_job_status(job_id)
+  error = job_client.job_error(job_id)
+  if error:
+    errors_man.push_error(error)
   return jsonify(
     data=dict(
       status=status,
       progress=progress
     )
   )
+
+
+@controller.route(f'{BASE_PATH}/errors/<error_id>/diagnose')
+def diagnose_error(error_id):
+  errdict = errors_man.find_error(error_id)
 
 
 @controller.route(f'{BASE_PATH}/resource-stats', methods=["GET"])

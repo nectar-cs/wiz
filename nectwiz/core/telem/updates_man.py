@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 from nectwiz.core.core import utils, hub_client
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import UpdateDict, UpdateOutcome, ActionOutcome
+from nectwiz.core.core.types import UpdateDict, UpdateOutcome, ActionOutcome, KAOs
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem import telem_man
@@ -88,7 +88,7 @@ def install_update(update: UpdateDict, observer=None):
     version_pre=version_pre,
     fatal_err={'coming': 'soon!'},
     version=update.get('version'),
-    apply_logs=observer.get_ktl_apply_logs(),
+    kaos=observer.get_ktl_apply_outcomes(),
     manifest_vars_pre=manifest_vars_pre,
     manifest_vars_post=config_man.manifest_vars(True),
     timestamp=str(datetime.now())
@@ -100,14 +100,14 @@ def perform(update: UpdateDict, observer: UpdateObserver) -> bool:
 
   _type = update.get('type')
   if _type == TYPE_RELEASE:
-    log_chunk = apply_release(update, observer)
+    kaos = apply_release(update, observer)
   elif _type == TYPE_UPDATE:
-    log_chunk = apply_update(update)
+    kaos = apply_update(update)
   else:
     print(f"[nectwiz::updates_man] illegal update type '{_type}'!")
     return False
 
-  observer.on_perform_finished('positive', log_chunk)
+  observer.on_perform_finished('positive', kaos)
   return True
 
 def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
@@ -131,7 +131,7 @@ def run_hooks(which, update: UpdateDict, observer: UpdateObserver) -> bool:
   return True
 
 
-def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
+def apply_release(release: UpdateDict, observer: UpdateObserver) -> KAOs:
   config_man.patch_tam(updated_release_tam(release))
   target_var_ids = [cv.id() for cv in ManifestVariable.release_dpdt_vars()]
   new_mfst_defaults = tam_client().load_manifest_defaults()
@@ -145,7 +145,7 @@ def apply_release(release: UpdateDict, observer: UpdateObserver) -> str:
 
 def await_resource_settled(observer: UpdateObserver) -> bool:
   observer.on_settle_wait_started()
-  logs = observer.get_ktl_apply_logs()
+  logs = observer.get_ktl_apply_outcomes()
   predicate_tree = default_predicates.from_apply_outcome(logs)
   predicates = utils.flatten(predicate_tree.values())
   state = StepState('synthetic', None)
@@ -162,7 +162,7 @@ def await_resource_settled(observer: UpdateObserver) -> bool:
   return state.did_succeed()
 
 
-def apply_update(patch: UpdateDict) -> str:
+def apply_update(patch: UpdateDict) -> KAOs:
   keyed_or_nested_asgs: Dict = patch.get('injections', {})
   keyed = utils.dict2keyed(keyed_or_nested_asgs)
   config_man.commit_keyed_mfst_vars(keyed)

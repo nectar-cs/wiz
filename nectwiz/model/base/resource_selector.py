@@ -17,6 +17,7 @@ class ResourceSelector(WizModel):
     self.name: str = config.get('name')
     self.label_selector: Dict = config.get('label_selector') or {}
     self.field_selector: Dict = config.get('field_selector') or {}
+    self.kat_prop_selector: Dict = config.get('prop_selector') or {}
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> T:

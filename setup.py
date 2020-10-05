@@ -22,7 +22,7 @@ setuptools.setup(
   install_requires=[
     'flask>=1.1',
     'flask-cors',
-    'k8kat>=0.0.210',
+    'k8kat>=0.0.212',
     'requests',
     'cachetools>=3.1',
     'redis>=3',

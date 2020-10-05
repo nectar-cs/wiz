@@ -4,13 +4,13 @@ from typing import Optional
 from rq import Queue
 from rq.job import Job
 
-from nectwiz.core.core.types import ProgressItem, Kod
+from nectwiz.core.core.types import ProgressItem, KoD, ErrDict
 from nectwiz.worker import conn
 
 
 queue = Queue(connection=conn)
 
-def enqueue_action(key_or_dict: Kod, **kwargs):
+def enqueue_action(key_or_dict: KoD, **kwargs):
   return enqueue_func(load_and_perform_action, key_or_dict, **kwargs)
 
 
@@ -41,6 +41,13 @@ def job_progress(job_id: str) -> Optional[ProgressItem]:
   job: Job = find_job(job_id)
   blob = job.meta.get('progress')
   return json.loads(blob) if blob else {}
+
+
+def job_error(job_id: str) -> ErrDict:
+  job: Job = find_job(job_id)
+  blob = job.meta.get('error')
+  return json.loads(blob) if blob else None
+
 
 
 def load_and_perform_action(key_or_dict, **kwargs):

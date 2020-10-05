@@ -9,9 +9,9 @@ class SubsGetter:
 
   def __getitem__(self, k: str):
     k = k.replace(NON_DOT, ".")
-    direct_hit = self.src.get(k)
     resolver_desc = k.split("/")
     if k in self.src.keys():
+      direct_hit = self.src.get(k)
       if callable(direct_hit):
         return direct_hit()
       else:

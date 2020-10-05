@@ -26,7 +26,7 @@ id: repeat-on-fail-step
 info: We'll repeat this step if the deployment isn't working
 next:
   if:
-    kind: ResPropComparePredicate
+    kind: ResourcePropertyPredicate
     property: ternary_status
     check_against: negative
     selector:

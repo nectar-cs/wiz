@@ -13,7 +13,7 @@ from typing import Dict, List, Tuple, Optional, Any
 import yaml
 from yaml import scanner
 
-from nectwiz.core.core.types import ApplyOutkome
+from nectwiz.core.core.types import KAO
 
 legal_envs = ['production', 'development', 'test']
 
@@ -278,7 +278,7 @@ def clean_log_lines(chunk) -> List[str]:
     return []
 
 
-def log2outkome(log: str) -> Optional[ApplyOutkome]:
+def log2outkome(log: str) -> Optional[KAO]:
   try:
     api = ''
     kind_and_name, verb = log.split(" ")
@@ -287,18 +287,18 @@ def log2outkome(log: str) -> Optional[ApplyOutkome]:
       parts = kind.split(".")
       kind = parts[0]
       api = '.'.join(parts[1:])
-
-    return ApplyOutkome(
+    return KAO(
       api_group=api,
       kind=kind,
       name=name,
-      verb=verb
+      verb=verb,
+      error=None
     )
   except:
     return None
 
 
-def logs2outkomes(logs: List[str]) -> List[ApplyOutkome]:
+def logs2outkomes(logs: List[str]) -> List[KAO]:
   outcomes = list(map(log2outkome, logs))
   return [o for o in outcomes if o is not None]
 
@@ -316,10 +316,20 @@ def unmuck_primitives(root: Any) -> Any:
     return unmuck_primitive(root)
 
 
+def isfloat(value):
+  try:
+    float(value)
+    return True
+  except ValueError:
+    return False
+
+
 def unmuck_primitive(original: Any) -> Any:
   if type(original) == str:
     if original.isdigit():
       return int(original)
+    elif isfloat(original):
+      return float(original)
     elif original.lower() == 'true':
       return True
     elif original.lower() == 'false':

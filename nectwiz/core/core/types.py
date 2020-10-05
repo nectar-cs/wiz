@@ -2,7 +2,6 @@ from typing import Optional, Dict, List, Union
 
 from typing_extensions import TypedDict
 
-Kod = Union[str, dict]
 
 class ProgressItem(TypedDict, total=False):
   id: Optional[str]
@@ -11,6 +10,7 @@ class ProgressItem(TypedDict, total=False):
   status: str
   sub_items: List['ProgressItem']
   data: Dict
+  error_id: str
 
 
 class UpdateDict(TypedDict):
@@ -64,7 +64,7 @@ class K8sResDict(TypedDict):
   metadata: K8sResMeta
 
 
-class TamDict(TypedDict):
+class TamDict(TypedDict, total=False):
   type: str
   uri: str
   args: Optional[List[str]]
@@ -84,11 +84,12 @@ class StepActionKwargs(TypedDict):
   state_assigns: Dict
 
 
-class ApplyOutkome(TypedDict):
-  api_group: str
+class KAO(TypedDict):
+  api_group: Optional[str]
   kind: str
   name: str
-  verb: str
+  verb: Optional[str]
+  error: Optional[str]
 
 
 class UpdateOutcome(TypedDict, total=False):
@@ -100,5 +101,15 @@ class UpdateOutcome(TypedDict, total=False):
   version: str
   manifest_vars_pre: Dict
   manifest_vars_post: Dict
-  apply_logs: List[str]
+  kaos: List[KAO]
   timestamp: str
+
+
+class ErrDict(TypedDict, total=False):
+  uuid: str
+  event_type: str
+  resource: Dict
+
+
+KAOs = List[KAO]
+KoD = Union[str, dict]

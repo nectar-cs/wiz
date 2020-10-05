@@ -3,7 +3,7 @@ from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import Kod
+from nectwiz.core.core.types import KoD
 
 
 T = TypeVar('T', bound='WizModel')
@@ -86,7 +86,7 @@ class WizModel:
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
     return self.load_child(child_cls, match) if match else None
 
-  def load_child(self, child_cls: Type[T], key_or_dict: Kod) -> T:
+  def load_child(self, child_cls: Type[T], key_or_dict: KoD) -> T:
     return key_or_dict_to_child(key_or_dict, child_cls, self)
 
   @classmethod
@@ -96,7 +96,7 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: Kod) -> Optional[T]:
+  def inflate(cls: T, key_or_dict: KoD) -> Optional[T]:
     try:
       if isinstance(key_or_dict, str):
         return cls.inflate_with_key(key_or_dict)
@@ -181,11 +181,11 @@ def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
   raise RuntimeError(f"Can't handle {key_or_dict}")
 
 
-def key_or_dict_matches(key_or_dict: Kod, target_key: str) -> bool:
+def key_or_dict_matches(key_or_dict: KoD, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
 
 
-def key_or_dict_to_child(key_or_dict: Kod, child_cls: Type[T],
+def key_or_dict_to_child(key_or_dict: KoD, child_cls: Type[T],
                          parent: T = None) -> T:
   inflated = child_cls.inflate(key_or_dict)
   inflated.parent = parent
@@ -227,9 +227,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.input.select_input import SelectInput
   from nectwiz.model.input.slider_input import SliderInput
   from nectwiz.model.pre_built.common_predicates import FormatPredicate
-  from nectwiz.model.pre_built.common_predicates import ResPropComparePredicate
-  from nectwiz.model.pre_built.common_predicates import ResCountComparePredicate
-  from nectwiz.model.pre_built.common_predicates import ManifestVarComparePredicate
+  from nectwiz.model.pre_built.common_predicates import ResourcePropertyPredicate
+  from nectwiz.model.pre_built.common_predicates import ResourceCountPredicate
+  from nectwiz.model.pre_built.common_predicates import ManifestVariablePredicate
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
   from nectwiz.model.operation.operation import Operation
   from nectwiz.model.operation.stage import Stage
@@ -244,8 +244,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.input.checkboxes_input import CheckboxesInput
   from nectwiz.model.input.checkboxes_input import CheckboxInput
   from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
-
   from nectwiz.model.pre_built.pod_scaling_decorator import FixedReplicasDecorator
+  from nectwiz.model.pre_built.common_predicates import MultiPredicate
+
   return [
     Operation,
     Stage,
@@ -265,9 +266,10 @@ def default_model_classes() -> List[Type[T]]:
 
     ResourceSelector,
     FormatPredicate,
-    ResPropComparePredicate,
-    ResCountComparePredicate,
-    ManifestVarComparePredicate,
+    MultiPredicate,
+    ResourcePropertyPredicate,
+    ResourceCountPredicate,
+    ManifestVariablePredicate,
 
     MultiAction,
     CmdExecAction,
