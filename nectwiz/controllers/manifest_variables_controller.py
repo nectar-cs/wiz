@@ -4,7 +4,7 @@ from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
+from nectwiz.model.pre_built.apply_manifest_action import ApplyManifestAction
 from nectwiz.model.variables import manifest_vars_serial
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 
@@ -40,7 +40,7 @@ def manifest_variables_commit_injections():
 @controller.route(f'{BASE}/populate-defaults')
 def chart_vars_populate_defaults():
   defaults = tam_client().load_manifest_defaults()
-  config_man.write_mfst_defaults(defaults)
+  config_man.write_manifest_defaults(defaults)
   return jsonify(data=defaults)
 
 
@@ -63,7 +63,7 @@ s  Updates the chart variable with new value.
   :return: status of the update.
   """
   assignments = list(request.json['assignments'].items())
-  config_man.commit_keyed_mfst_vars(assignments)
+  config_man.patch_keyed_manifest_vars(assignments)
   job_id = job_client.enqueue_action(ApplyManifestAction.__name__)
   return jsonify(data=dict(job_id=job_id))
 

@@ -219,7 +219,7 @@ def default_asset_paths() -> List[str]:
 
 def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
-  from nectwiz.model.pre_built.step_apply_action import ApplyManifestAction
+  from nectwiz.model.pre_built.apply_manifest_action import ApplyManifestAction
   from nectwiz.model.pre_built.flush_telem_action import FlushTelemAction
   from nectwiz.model.adapters.deletion_spec import DeletionSpec
   from nectwiz.model.variables.manifest_variable import ManifestVariable

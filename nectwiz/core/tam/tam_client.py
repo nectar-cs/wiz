@@ -39,7 +39,7 @@ class TamClient:
     :return: any generated terminal output from kubectl apply.
     """
     res_dicts = self.load_templated_manifest(inlines)
-    res_dicts = filter_res(res_dicts, rules)
+    res_dicts = self.filter_res(res_dicts, rules)
     return self.kubectl_apply(res_dicts)
 
   @staticmethod
@@ -58,6 +58,26 @@ class TamClient:
         except subprocess.CalledProcessError as e:
           outcomes.append(log2outcome(False, res_dict, e.output))
     return [o for o in outcomes if o]
+
+  @staticmethod
+  def filter_res(res_list: RESDs, selectors: SELs) -> RESDs:
+    """
+    Filters the list of parsed kubernetes resources from the tami-generated
+    application manifest according to the passed rule-set.
+    :param res_list: k8s resource list to be filtered.
+    :param selectors: rules to be used for filtering.
+    :return: filtered resource list.
+    """
+    def decide_res(res):
+      for selector in selectors:
+        if selector.selects_res(res, {}):
+          return True
+      return False
+    if selectors:
+      return list(filter(decide_res, res_list))
+    else:
+      return res_list
+
 
 
 def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
@@ -119,25 +139,6 @@ def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
     key_expr, value = str_assignment
     expr_array.append(f"--set {key_expr}={value}")
   return " ".join(expr_array)
-
-
-def filter_res(res_list: RESDs, selectors: SELs) -> RESDs:
-  """
-  Filters the list of parsed kubernetes resources from the tami-generated
-  application manifest according to the passed rule-set.
-  :param res_list: k8s resource list to be filtered.
-  :param selectors: rules to be used for filtering.
-  :return: filtered resource list.
-  """
-  def decide_res(res):
-    for selector in selectors:
-      if selector.selects_res(res, {}):
-        return True
-    return False
-  if selectors:
-    return list(filter(decide_res, res_list))
-  else:
-    return res_list
 
 
 def gen_template_args(inline_assigns, vars_full_path) -> List[str]:

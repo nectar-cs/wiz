@@ -1,15 +1,14 @@
 import json
-from typing import Optional, List
+from typing import Optional, Any
 
 from rq.job import Job, get_current_job
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import ProgressItem, PredEval, KAOs, ErrDict
-from nectwiz.model.error.controller_error import MyErr
-from nectwiz.model.operation.step_state import StepState
+from nectwiz.core.core.types import ProgressItem, ErrDict
+from nectwiz.model.error.controller_error import ActionHalt
 
 
-class ActionObserver:
+class Observer:
   def __init__(self, fail_fast=True):
     self.progress = ProgressItem()
     self.progress['sub_items'] = []
@@ -29,11 +28,17 @@ class ActionObserver:
     finder = lambda item: item.get('id') == _id
     return next(filter(finder, self.progress['sub_items']), None)
 
-  def set_item_status(self, _id, status):
-    item = self.item(_id)
+  def set_prop(self, item_id: str, prop_name: str, new_value: Any):
+    item = self.item(item_id)
     if item:
-      item['status'] = status
-    self.notify_job()
+      # noinspection PyTypedDict
+      item[prop_name] = new_value
+      self.notify_job()
+    else:
+      print(f"[nectwiz::observer] danger no item {item_id}")
+
+  def set_item_status(self, _id, status):
+    self.set_prop(_id, 'status', status)
 
   def set_item_running(self, _id: str):
     self.set_item_status(_id, 'running')
@@ -41,63 +46,24 @@ class ActionObserver:
   def set_item_outcome(self, _id: str, outcome: bool):
     self.set_item_status(_id, 'positive' if outcome else 'negative')
 
-  def subitem(self, _id, sub_id) -> Optional[ProgressItem]:
-    finder = lambda item: item.get('id') == sub_id
-    outer_item = self.item(_id)
-    return next(filter(finder, outer_item['sub_items']), None)
+  def subitem(self, item_id: str, sub_id: str) -> Optional[ProgressItem]:
+    outer_item = self.item(item_id)
+    if outer_item:
+      finder = lambda sub_item: sub_item.get('id') == sub_id
+      return next(filter(finder, outer_item['sub_items']), None)
+    else:
+      print(f"[nectwiz::observer] danger no item {item_id}")
+
+  def set_subitem_status(self, item_id:  str, sub_item_id: str, status: str):
+    subitem = self.subitem(item_id, sub_item_id)
+    if subitem:
+      self.subitem(item_id, sub_item_id)['status'] = status
+      self.notify_job()
+    else:
+      print(f"[nectwiz::observer] danger no subitem {item_id}/{sub_item_id}")
 
   def add_subitem(self, outer_id, subitem):
     self.item(outer_id)['sub_items'].append(subitem)
-
-  def on_await_cycle_done(self, predicates, state: StepState):
-    exit_statuses: List[PredEval] = state.exit_statuses['positive']
-    sub_items = []
-
-    for status in exit_statuses:
-      finder = lambda pred: pred.id() == status['predicate_id']
-      originator = next(filter(finder, predicates), None)
-      sub_items.append(dict(
-        id=status['predicate_id'],
-        title=originator and originator.title,
-        info=originator and originator.info,
-        status='positive' if status['met'] else 'running'
-      ))
-
-    self.item('await_settled')['sub_items'] = sub_items
-    self.check_res_wait_failures(state, predicates)
-    self.notify_job()
-
-  def check_kao_failures(self, outcomes: KAOs):
-    self.blame_item_id = 'apply'
-    fail_finder = lambda kao: kao.get('error') is not None
-    kao_culprit = next(filter(fail_finder, outcomes), None)
-    if kao_culprit is not None:
-      self.process_error(
-        event_type='apply_manifest',
-        resource=dict(
-          name=kao_culprit.get('name'),
-          kind=kao_culprit.get('kind'),
-        ),
-        error=kao_culprit.get('error')
-      )
-
-  def check_res_wait_failures(self, state: StepState, predicates):
-    if state.did_fail():
-      finder = lambda es: es.get('met') == True
-      culprit = next(filter(finder, state.exit_statuses['negative']), None)
-      if culprit:
-        finder = lambda pred: pred.id() == culprit['predicate_id']
-        culprit_pred = next(filter(finder, predicates), None)
-        if culprit_pred and hasattr(culprit_pred, 'selector'):
-          original_res_sel = culprit_pred.selector()
-          self.process_error(
-            predicate_id=culprit_pred.id(),
-            predicate_kind=culprit_pred.kind(),
-            resource=dict(
-              name=original_res_sel.name,
-              kind=original_res_sel.k8s_kind
-            )
-          )
 
   def on_succeeded(self):
     self.progress['status'] = 'positive'
@@ -116,18 +82,16 @@ class ActionObserver:
   def process_error(self, **errdict):
     errdict['uuid'] = utils.rand_str(20)
     if self.blame_item_id and self.item(self.blame_item_id):
-      self.item(self.blame_item_id)['error_id'] = errdict['uuid']
-      self.item(self.blame_item_id)['status'] = 'negative'
+      self.set_prop(self.blame_item_id, 'error_id', errdict['uuid'])
+      self.set_item_status(self.blame_item_id, 'negative')
     if self.fail_fast:
-      raise MyErr(errdict)
+      raise ActionHalt(errdict)
     else:
       self.errdicts.append(errdict)
       self.notify_job()
 
 
-class ReluctantObserver(ActionObserver):
+class ReluctantObserver(Observer):
   def on_succeeded(self):
     pass
 
-  def on_failed(self, ):
-    pass

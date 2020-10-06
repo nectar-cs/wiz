@@ -69,7 +69,7 @@ class TestStep(Base.TestWizModel):
     op_state = OperationState('123', 'abc')
     step_state = op_state.gen_step_state(step)
     step.run({'s1.f1': 'foo'}, step_state)
-    man_vars = config_man.read_mfst_vars()
+    man_vars = config_man.read_manifest_vars()
     self.assertEqual({'s1': {'f1': 'foo'}}, man_vars)
     self.assertEqual({'s1.f1': 'foo'}, step_state.chart_assigns)
     self.assertEqual({}, step_state.state_assigns)
@@ -81,12 +81,20 @@ class TestStep(Base.TestWizModel):
       'id': 's2',
       'reassignments': [
         {
-          'target': 'chart',
-          'ids': ['s1.state-var', 's2.state-var']
+          'to': 'chart',
+          'id': 's1.state-var'
         },
         {
-          'target': 'state',
-          'ids': ['s1.chart-var', 's2.chart-var']
+          'to': 'chart',
+          'id': 's2.state-var'
+        },
+        {
+          'to': 'state',
+          'id': 's1.chart-var'
+        },
+        {
+          'to': 'state',
+          'id': 's2.chart-var'
         }
       ]
     })

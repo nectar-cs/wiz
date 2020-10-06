@@ -27,7 +27,7 @@ class Base:
       self.assertEqual(exp_default_values, values)
 
     def test_load_tpd_manifest(self):
-      config_man.commit_keyed_mfst_vars(self.mock_tam_vars())
+      config_man.patch_keyed_manifest_vars(self.mock_tam_vars())
       inlines = [('service.name', 'inline')]
       result = self.client_instance().load_templated_manifest(inlines)
 

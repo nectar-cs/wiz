@@ -56,7 +56,7 @@ class ConfigMan:
 
   def manifest_vars(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_vars:
-      self._tam_vars = self.read_mfst_vars()
+      self._tam_vars = self.read_manifest_vars()
     return self._tam_vars
 
   def flat_manifest_vars(self, force_reload=False):
@@ -82,7 +82,7 @@ class ConfigMan:
       self._install_uuid = self.read_install_uuid()
     return self._install_uuid
 
-  def master_cmap(self) -> Optional[KatMap]:
+  def master_config_map(self) -> Optional[KatMap]:
     if config_man.ns():
       return KatMap.find(cmap_name, self.ns())
     else:
@@ -103,27 +103,27 @@ class ConfigMan:
       app=app_cont
     )
 
-  def read_cmap_dict(self, outer_key: str) -> Dict:
-    cmap = self.master_cmap()
-    return cmap.jget(outer_key, {}) if cmap else {}
+  def read_config_map_dict(self, outer_key: str) -> Dict:
+    config_map = self.master_config_map()
+    return config_map.jget(outer_key, {}) if config_map else {}
 
-  def read_cmap_primitive(self, flat_key: str) -> any:
-    cmap = self.master_cmap()
-    return cmap.data.get(flat_key) if cmap else None
+  def read_config_map_primitive(self, flat_key: str) -> any:
+    config_map = self.master_config_map()
+    return config_map.data.get(flat_key) if config_map else None
 
-  def patch_cmap(self, outer_key: str, value: any):
-    config_map = self.master_cmap()
+  def patch_config_map(self, outer_key: str, value: any):
+    config_map = self.master_config_map()
     config_map.raw.data[outer_key] = value
     config_map.touch(save=True)
 
   def patch_cmap_with_dict(self, outer_key: str, value: Dict):
-    self.patch_cmap(outer_key, json.dumps(value))
+    self.patch_config_map(outer_key, json.dumps(value))
 
   def read_tam(self) -> TamDict:
-    return self.read_cmap_dict(tam_config_key)
+    return self.read_config_map_dict(tam_config_key)
 
   def read_prefs(self) -> TamDict:
-    return self.read_cmap_dict(prefs_config_key)
+    return self.read_config_map_dict(prefs_config_key)
 
   def write_tam(self, new_tam: TamDict):
     self.patch_cmap_with_dict(tam_config_key, new_tam)
@@ -133,25 +133,25 @@ class ConfigMan:
     new_tam = {**self.tam(True), **partial_tam}
     self.write_tam(new_tam)
 
-  def read_mfst_vars(self) -> Dict:
-    return self.read_cmap_dict(tam_vars_key)
+  def read_manifest_vars(self) -> Dict:
+    return self.read_config_map_dict(tam_vars_key)
 
-  def patch_mfst_defaults(self, assigns: Dict):
+  def patch_manifest_defaults(self, assigns: Dict):
     new_defaults = {**self.read_manifest_defaults(), **assigns}
-    self.write_mfst_defaults(new_defaults)
+    self.write_manifest_defaults(new_defaults)
 
-  def write_mfst_defaults(self, assigns: Dict):
+  def write_manifest_defaults(self, assigns: Dict):
     self.patch_cmap_with_dict(tam_defaults_key, assigns)
     self._tam_defaults = None
 
   def read_manifest_defaults(self) -> Dict:
-    return self.read_cmap_dict(tam_defaults_key)
+    return self.read_config_map_dict(tam_defaults_key)
 
   def read_last_update_checked(self) -> str:
-    return self.read_cmap_primitive(update_checked_at_key)
+    return self.read_config_map_primitive(update_checked_at_key)
 
   def write_last_update_checked(self, new_value):
-    return self.patch_cmap(update_checked_at_key, new_value)
+    return self.patch_config_map(update_checked_at_key, new_value)
 
   def read_install_uuid(self):
     if utils.is_dev():
@@ -168,11 +168,11 @@ class ConfigMan:
       except FileNotFoundError:
         return None
 
-  def commit_keyed_mfst_vars(self, assignments: List[Tuple[str, any]]):
-    self.commit_mfst_vars(utils.keyed2dict(assignments))
+  def patch_keyed_manifest_vars(self, assignments: List[Tuple[str, any]]):
+    self.patch_manifest_vars(utils.keyed2dict(assignments))
 
-  def commit_mfst_vars(self, assignments: Dict[str, any]):
-    merged = deep_merge(self.read_mfst_vars(), assignments)
+  def patch_manifest_vars(self, assignments: Dict[str, any]):
+    merged = deep_merge(self.read_manifest_vars(), assignments)
     self.patch_cmap_with_dict(tam_vars_key, merged)
 
 

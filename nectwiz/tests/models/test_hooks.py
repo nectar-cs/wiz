@@ -12,18 +12,6 @@ class TestHooks(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Hook
 
-  def test_run(self):
-    models_man.clear(restore_defaults=True)
-    hook = Hook(config=dict(
-      action=dict(
-        kind=CmdExecAction.__name__,
-        cmd='echo hooked'
-      )
-    ))
-
-    outcome = hook.run()
-    self.assertEqual(['hooked'], outcome['data']['logs'])
-
   def test_by_trigger(self):
     models_man.clear(restore_defaults=True)
     models_man.add_descriptors([

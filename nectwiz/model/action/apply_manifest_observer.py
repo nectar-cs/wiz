@@ -1,8 +1,9 @@
 from nectwiz.core.core.types import TamDict, ProgressItem, KAOs
-from nectwiz.model.action.action_observer import ActionObserver
+from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.await_settled_action_part import AwaitSettledActionPart
 
 
-class ApplyManifestObserver(ActionObserver):
+class ApplyManifestObserver(Observer):
   def __init__(self, tam: TamDict, fail_fast=True):
     super().__init__(fail_fast=fail_fast)
     self.progress = ProgressItem(
@@ -26,31 +27,9 @@ class ApplyManifestObserver(ActionObserver):
           data={},
           sub_items=[]
         ),
-        ProgressItem(
-          id='await_settled',
-          status='idle',
-          title='Await Resources Settled',
-          info='Wait until all changed resources are in a settled state',
-          sub_items=[]
-        ),
+        AwaitSettledActionPart.progress_item()
       ]
     )
-
-  def on_apply_started(self):
-    self.item('load_manifest')['status'] = 'positive'
-    self.item('apply')['status'] = 'running'
-    self.notify_job()
-
-  def on_apply_finished(self, outcomes: KAOs):
-    self.item('apply')['data'] = {'outcomes': outcomes}
-    self.check_kao_failures(outcomes)
-    self.item('apply')['status'] = 'positive'
-    self.item('await_settled')['status'] = 'running'
-    self.notify_job()
-
-  def on_settled(self, status: str):
-    self.item('await_settled')['status'] = status
-    self.notify_job()
 
   def get_kaos(self) -> KAOs:
     return self.item('apply').get('data', [])

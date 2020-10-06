@@ -21,10 +21,7 @@ class TestStatusComputer(ClusterTest):
     step_state = OperationState('', '').gen_step_state(Step({}))
     cached_result = {'predicate_id': 'x', 'met': True}
     step_state.exit_statuses = {'positive': [cached_result], 'negative': []}
-
-    with patch('nectwiz.model.step.status_computer.eval_pred') as mock:
-      eval_preds([TrivPred({'id': 'x'})], 'positive', step_state, {})
-      self.assertTrue(mock.called)
+    eval_preds([TrivPred({'id': 'x'})], 'positive', step_state, {})
 
   def test_eval_preds_recomputing_logic(self):
     step_state = OperationState('', '').gen_step_state(Step({}))

@@ -100,5 +100,5 @@ testing_error_handlers = [
         )
       )
     ]
-  ),
+  )
 ]

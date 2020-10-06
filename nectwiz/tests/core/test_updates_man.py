@@ -5,11 +5,12 @@ from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.testing import ns_factory
 from kubernetes.client import V1Pod, V1ObjectMeta, V1PodSpec, V1Container
 
+from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, UpdateDict
 from nectwiz.core.telem import updates_man, telem_man
 from nectwiz.core.telem.update_observer import UpdateObserver
-from nectwiz.core.telem.updates_man import HaltedError
+from nectwiz.model.action.action import Action
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.variables.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -43,9 +44,9 @@ class TestUpdatesMan(ClusterTest):
   def test_await_resource_settled(self):
     config_man._ns,  = ns_factory.request(1)
     create_pod(config_man.ns())
-    would_be_logs = "pods/nginx created"
+    would_be_outcomes = utils.logs2outkomes(["pods/nginx created"])
     observer = UpdateObserver('release')
-    observer.on_perform_finished('positive', would_be_logs)
+    observer.on_perform_finished('positive', would_be_outcomes)
     updates_man.await_resource_settled(observer)
 
   def test_hooks(self):
@@ -122,7 +123,7 @@ class TestUpdatesMan(ClusterTest):
       args=None
     ))
 
-    config_man.commit_keyed_mfst_vars([
+    config_man.patch_keyed_manifest_vars([
       ('pod.name', 'legally-custom'),
     ])
 

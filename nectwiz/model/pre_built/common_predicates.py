@@ -3,10 +3,9 @@ from typing import Dict, Optional
 import validators
 from k8kat.res.pod.kat_pod import KatPod
 
-from nectwiz.core.core import subs
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.resource_selector import ResourceSelector
-from nectwiz.model.predicate.predicate import Predicate, getattr_deep
+from nectwiz.model.predicate.predicate import Predicate
 
 
 class ManifestVariablePredicate(Predicate):
@@ -30,36 +29,6 @@ class ResourceCountPredicate(Predicate):
 
   def selector(self) -> ResourceSelector:
     return ResourceSelector.inflate(self.selector_config)
-
-
-class ResourcePropertyPredicate(Predicate):
-  def __init__(self, config):
-    super().__init__(config)
-    self.selector_config = config.get('selector')
-    self.prop_name = config.get('property', 'ternary_status')
-    self.match_type = config.get('match', 'all')
-
-  def evaluate(self, context: Dict) -> bool:
-    prop_name = subs.interp(self.prop_name, context)
-    read_prop = lambda r: getattr_deep(r, prop_name)
-    res_list = self.selector().query_cluster(context)
-    resolved_values = list(map(read_prop, res_list))
-    compare_challenge = lambda v: self._common_compare(v)
-    cond_met_evals = list(map(compare_challenge, resolved_values))
-
-    if self.match_type == 'all':
-      return set(cond_met_evals) == {True}
-
-    elif self.match_type == 'any':
-      return True in cond_met_evals
-
-    else:
-      print("DANGER DONT KNOW MATCH TYPE" + self.match_type)
-      return False
-
-  def selector(self) -> ResourceSelector:
-    expr = self.selector_config
-    return ResourceSelector.inflate(expr)
 
 
 class FormatPredicate(Predicate):

@@ -43,9 +43,11 @@ class ResourceSelector(WizModel):
 
   def selects_res(self, res: K8sResDict, context: Dict) -> bool:
     res = fluff_resdict(res)
+
     kinds1 = api_defs_man.kind2plurname(self.k8s_kind)
     kinds2 = api_defs_man.kind2plurname(res['kind'])
-    if kinds1 == kinds2:
+
+    if kinds1 == kinds2 or self.k8s_kind == '*':
       query_dict = self.build_k8kat_query(context)
       res_labels = (res.get('metadata') or {}).get('labels') or {}
       labels_match = query_dict['labels'].items() <= res_labels.items()

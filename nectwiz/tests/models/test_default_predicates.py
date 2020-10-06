@@ -1,16 +1,17 @@
-from nectwiz.model.predicate import default_predicates
+from nectwiz.core.core import utils
+from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 
 class TestDefaultPredicates(ClusterTest):
   def test_from_apply_outcome(self):
-    logs = [
+    outcomes = utils.logs2outkomes([
       "pods/pod created",
       "namespaces/ns configured",
       "apps.deployments/dep unchanged"
-    ]
+    ])
 
-    result = default_predicates.from_apply_outcome(logs)
+    result = ResourcePropertyPredicate.from_apply_outcome(outcomes)
     self.assertEqual(2, len(result['positive']))
     self.assertEqual(2, len(result['negative']))
 

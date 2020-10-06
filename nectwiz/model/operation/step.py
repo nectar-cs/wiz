@@ -68,9 +68,8 @@ class Step(WizModel):
     new_assigns = {}
 
     for desc in self.state_recall_descriptors(target):
-      bkp_val = state_assigns.get(desc.get('from'))
-      _id, value = desc['id'], desc.get('value', bkp_val)
-
+      _id = desc['id']
+      value = desc.get('value', state_assigns.get(_id))
       new_assigns[_id] = value
 
     return new_assigns
@@ -97,7 +96,7 @@ class Step(WizModel):
 
     if len(mfst_vars):
       keyed_tuples = list(mfst_vars.items())
-      config_man.commit_keyed_mfst_vars(keyed_tuples)
+      config_man.patch_keyed_manifest_vars(keyed_tuples)
 
     if self.runs_action():
       job_id = enqueue_action(self.action_kod, **buckets)
