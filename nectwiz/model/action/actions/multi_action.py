@@ -1,14 +1,13 @@
 from typing import Dict, List
 
 from nectwiz.model.action.base.action import Action
-from nectwiz.model.action.base.action_observer import ReluctantObserver
 
 
 class MultiAction(Action):
 
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.observer = ReluctantObserver()
+    # self.observer = ReluctantObserver()
 
   def load_sub_actions(self) -> List[Action]:
     return self.load_children('sub_actions', Action)

@@ -4,7 +4,6 @@ from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.core.telem.updates_man import updated_release_tam
 from nectwiz.model.action.base.action_observer import Observer
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 
@@ -61,7 +60,17 @@ class UpdateManifestDefaultsActionPart:
   def on_mfst_vars_committed(cls, observer: Observer):
     observer.set_item_status('update_defaults', 'positive')
 
+
 def compute_overwritten_vars(manifest_defaults: Dict):
   target_var_ids = [cv.id() for cv in ManifestVariable.release_dpdt_vars()]
   new_keyed_defaults = utils.dict2keyed(manifest_defaults)
   return [e for e in new_keyed_defaults if e[0] in target_var_ids]
+
+
+def updated_release_tam(release: UpdateDict) -> Dict:
+  tam_patches = dict(version=release['version'])
+  if release.get('tam_type'):
+    tam_patches['type'] = release.get('tam_type')
+  if release.get('tam_uri'):
+    tam_patches['uri'] = release.get('tam_uri')
+  return tam_patches

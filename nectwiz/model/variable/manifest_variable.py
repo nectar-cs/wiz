@@ -27,12 +27,12 @@ class ManifestVariable(GenericVariable):
     return self.mode == 'public'
 
   def read_crt_value(self, force_reload=False) -> Optional[str]:
-    root = config_man.manifest_vars(force_reload)
-    return utils.deep_get2(root, self.id())
+    root = config_man.flat_manifest_vars(force_reload)
+    return root.get(self.id())
 
   @classmethod
   def all_vars(cls) -> List[T]:
-    raw = config_man.manifest_vars(force_reload=True)
+    raw = config_man.manifest_variables(force_reload=True)
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
     pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0

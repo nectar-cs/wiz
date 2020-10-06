@@ -61,7 +61,7 @@ class TestTamClient(ClusterTest):
   def test_filter_res(self):
     res_list = g_res_list(('k1', 'n1'), ('k1', 'n2'))
     selector = ResourceSelector.inflate("k1:n1")
-    result = tam_client.filter_res(res_list, [selector])
+    result = TamClient.filter_res(res_list, [selector])
     self.assertEqual(result, [res_list[0]])
 
 def g_res(_tuple):

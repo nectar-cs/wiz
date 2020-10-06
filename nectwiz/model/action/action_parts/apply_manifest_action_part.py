@@ -58,6 +58,7 @@ class ApplyManifestActionPart:
     kao_culprit = next(filter(fail_finder, outcomes), None)
     if kao_culprit is not None:
       observer.process_error(
+        fatal=True,
         event_type='apply_manifest',
         resource=dict(
           name=kao_culprit.get('name'),

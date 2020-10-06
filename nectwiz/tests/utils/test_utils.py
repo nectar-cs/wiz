@@ -60,29 +60,25 @@ class TestUtils(unittest.TestCase):
 
   def test_log2ktlapplyoutcome(self):
     log = "pod/foo created"
-    self.assertEqual(dict(
-      kind='pod',
-      name='foo',
-      verb='created',
-      api_group=''
-    ), utils.log2outkome(log))
+    result = utils.log2kao(log)
+    self.assertEqual('pod', result['kind'])
+    self.assertEqual('foo', result['name'])
+    self.assertEqual('created', result['verb'])
+    self.assertEqual('', result['api_group'])
 
     log = "deployment.apps/foo created"
-    self.assertEqual(dict(
-      kind='deployment',
-      name='foo',
-      verb='created',
-      api_group='apps'
-    ), utils.log2outkome(log))
+    result = utils.log2kao(log)
+    self.assertEqual('deployment', result['kind'])
+    self.assertEqual('foo', result['name'])
+    self.assertEqual('created', result['verb'])
+    self.assertEqual('apps', result['api_group'])
 
     log = "role.rbac.authorization.k8s.io/foo unchanged"
-    self.assertEqual(dict(
-      kind='role',
-      name='foo',
-      verb='unchanged',
-      api_group='rbac.authorization.k8s.io'
-    ), utils.log2outkome(log))
-
+    result = utils.log2kao(log)
+    self.assertEqual('role', result['kind'])
+    self.assertEqual('foo', result['name'])
+    self.assertEqual('unchanged', result['verb'])
+    self.assertEqual('rbac.authorization.k8s.io', result['api_group'])
 
   def test_unmuck_primitives(self):
     actual = 'foo'

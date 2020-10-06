@@ -87,7 +87,7 @@ def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
 
   if raw_log:
     if succs:
-      return utils.log2outkome(raw_log)
+      return utils.log2kao(raw_log)
     else:
       kind = resdict.get('kind')
       kind = api_defs_man.kind2plurname(kind) or kind

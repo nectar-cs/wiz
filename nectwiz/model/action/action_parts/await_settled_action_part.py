@@ -81,6 +81,7 @@ class AwaitSettledActionPart:
         if culprit_pred and hasattr(culprit_pred, 'selector'):
           original_res_sel = culprit_pred.selector()
           observer.process_error(
+            fatal=False,
             event_type=key_await_settled,
             predicate_id=culprit_pred.id(),
             predicate_kind=culprit_pred.kind(),

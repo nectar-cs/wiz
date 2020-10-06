@@ -278,7 +278,7 @@ def clean_log_lines(chunk) -> List[str]:
     return []
 
 
-def log2outkome(log: str) -> Optional[KAO]:
+def log2kao(log: str) -> Optional[KAO]:
   try:
     api = ''
     kind_and_name, verb = log.split(" ")
@@ -299,7 +299,7 @@ def log2outkome(log: str) -> Optional[KAO]:
 
 
 def logs2outkomes(logs: List[str]) -> List[KAO]:
-  outcomes = list(map(log2outkome, logs))
+  outcomes = list(map(log2kao, logs))
   return [o for o in outcomes if o is not None]
 
 

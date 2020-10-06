@@ -25,7 +25,7 @@ class TamleClient(TamClient):
 
 
 def write_values_to_tmpfile():
-  file_content = yaml.dump(config_man.manifest_vars())
+  file_content = yaml.dump(config_man.manifest_variables())
   with open(tmp_vars_path, 'w') as file:
     file.write(file_content)
 

@@ -16,8 +16,7 @@ class TestAwaitSettledActionPart(ClusterTest):
     config_man._ns = ns
     outcomes = [*good_cmap_kao(ns), *bad_pod_kao(ns)]
 
-    with self.assertRaises(ActionHalt):
-      AwaitSettledActionPart.perform(observer, outcomes)
+    AwaitSettledActionPart.perform(observer, outcomes)
 
     self.assertEqual(1, len(observer.errdicts))
     errdict = observer.errdicts[0]

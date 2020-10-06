@@ -4,7 +4,7 @@ from typing import Dict, Any
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.predicate.common_predicates import FormatPredicate
+from nectwiz.model.predicate.format_predicate import FormatPredicate
 from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf

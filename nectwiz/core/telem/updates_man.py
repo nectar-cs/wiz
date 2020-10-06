@@ -128,12 +128,3 @@ def notify_hub_checked() -> bool:
 def _gen_injection_telem(keys: List[str]):
   all_vars = config_man.read_manifest_vars()
   return {k: all_vars[k] for k in keys}
-
-
-def updated_release_tam(release: UpdateDict) -> Dict:
-  tam_patches = dict(version=release['version'])
-  if release.get('tam_type'):
-    tam_patches['type'] = release.get('tam_type')
-  if release.get('tam_uri'):
-    tam_patches['uri'] = release.get('tam_uri')
-  return tam_patches

@@ -50,8 +50,8 @@ class RunHookGroupActionPart:
 
   @classmethod
   def on_group_started(cls, observer: Observer, which: str, hooks: List[Hook]):
-    bucket = observer.item(f'{which}_hooks')
-    bucket['sub_items'] = list(map(gen_hook_empty_subitem, hooks))
+    sub_items = list(map(gen_hook_empty_subitem, hooks))
+    observer.set_prop(f'{which}_hooks', 'sub_items', sub_items)
     observer.set_item_status(f'{which}_hooks', 'running')
 
 def gen_hook_empty_subitem(hook: Hook):

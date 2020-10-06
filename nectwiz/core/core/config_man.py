@@ -54,13 +54,13 @@ class ConfigMan:
       self._tam_defaults = self.read_manifest_defaults()
     return self._tam_defaults
 
-  def manifest_vars(self, force_reload=False) -> Dict:
+  def manifest_variables(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_vars:
       self._tam_vars = self.read_manifest_vars()
     return self._tam_vars
 
-  def flat_manifest_vars(self, force_reload=False):
-    return utils.dict2flat(self.manifest_vars(force_reload))
+  def flat_manifest_vars(self, force_reload=False) -> Dict:
+    return utils.dict2flat(self.manifest_variables(force_reload))
 
   def manifest_var(self, deep_key: str, reload=False) -> Optional[str]:
     """
@@ -70,7 +70,7 @@ class ConfigMan:
     :param reload: force reload
     :return: value behind deep key.
     """
-    return utils.deep_get2(self.manifest_vars(reload), deep_key)
+    return utils.deep_get2(self.manifest_variables(reload), deep_key)
 
   def manifest_defaults(self, force_reload=True):
     if force_reload or utils.is_worker() or not self._manifest_defaults:

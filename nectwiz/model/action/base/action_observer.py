@@ -9,12 +9,11 @@ from nectwiz.model.error.controller_error import ActionHalt
 
 
 class Observer:
-  def __init__(self, fail_fast=True):
+  def __init__(self):
     self.progress = ProgressItem()
     self.progress['sub_items'] = []
     self.blame_item_id = None
     self.errdicts = []
-    self.fail_fast = fail_fast
 
   def notify_job(self, errdict=None):
     job: Job = get_current_job()
@@ -55,9 +54,12 @@ class Observer:
       print(f"[nectwiz::observer] danger no item {item_id}")
 
   def set_subitem_status(self, item_id:  str, sub_item_id: str, status: str):
+    self.set_subitem_prop(item_id, sub_item_id, 'status', status)
+
+  def set_subitem_prop(self, item_id:  str, sub_item_id: str, prop, value: str):
     subitem = self.subitem(item_id, sub_item_id)
     if subitem:
-      self.subitem(item_id, sub_item_id)['status'] = status
+      self.subitem(item_id, sub_item_id)[prop] = value
       self.notify_job()
     else:
       print(f"[nectwiz::observer] danger no subitem {item_id}/{sub_item_id}")
@@ -85,13 +87,7 @@ class Observer:
     if self.blame_item_id and self.item(self.blame_item_id):
       self.set_prop(self.blame_item_id, 'error_id', errdict['uuid'])
       self.set_item_status(self.blame_item_id, 'negative')
-    if self.fail_fast:
+    if errdict.get('fatal'):
       raise ActionHalt(errdict)
     else:
       self.notify_job()
-
-
-class ReluctantObserver(Observer):
-  def on_succeeded(self):
-    pass
-
