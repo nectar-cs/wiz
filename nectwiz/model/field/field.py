@@ -4,7 +4,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.variables.generic_variable import GenericVariable
+from nectwiz.model.variable.generic_variable import GenericVariable
 
 TARGET_CHART = 'chart'
 TARGET_INLIN = 'inline'

@@ -2,7 +2,7 @@ import subprocess
 from typing import Dict
 
 from nectwiz.core.core import utils
-from nectwiz.model.action.action import Action
+from nectwiz.model.action.base.action import Action
 
 
 class CmdExecAction(Action):

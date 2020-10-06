@@ -3,7 +3,7 @@ from typing import Optional
 
 from nectwiz.core.core.types import ProgressItem, KAOs, TamDict
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.base.action_observer import Observer
 
 key_load_manifest = 'load_manifest'
 key_apply_manifest = 'apply_manifest'
@@ -41,6 +41,7 @@ class ApplyManifestActionPart:
     observer.set_item_status(key_apply_manifest, 'running')
     apply_outcomes = client.kubectl_apply(manifestds)
     cls.on_apply_finished(observer, apply_outcomes)
+    cls.check_kao_failures(observer, apply_outcomes)
 
     time.sleep(2)
     return apply_outcomes
@@ -48,11 +49,10 @@ class ApplyManifestActionPart:
   @classmethod
   def on_apply_finished(cls, observer: Observer, outcomes: KAOs):
     observer.set_prop(key_apply_manifest, 'data', {'outcomes': outcomes})
-    cls.check_kao_failures(outcomes, observer)
     observer.set_item_status(key_apply_manifest, 'positive')
 
   @classmethod
-  def check_kao_failures(cls, outcomes: KAOs, observer: Observer):
+  def check_kao_failures(cls, observer: Observer, outcomes: KAOs):
     observer.blame_item_id = key_apply_manifest
     fail_finder = lambda kao: kao.get('error') is not None
     kao_culprit = next(filter(fail_finder, outcomes), None)

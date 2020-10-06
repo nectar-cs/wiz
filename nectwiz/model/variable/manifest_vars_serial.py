@@ -1,5 +1,5 @@
 from nectwiz.model.input import input_serializer
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 
 
 def standard(cv: ManifestVariable):

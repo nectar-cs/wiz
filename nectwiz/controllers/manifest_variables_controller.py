@@ -4,11 +4,11 @@ from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.pre_built.apply_manifest_action import ApplyManifestAction
-from nectwiz.model.variables import manifest_vars_serial
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
+from nectwiz.model.variable import manifest_vars_serial
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 
-BASE = '/api/manifest-variables'
+BASE = '/api/manifest-variable'
 
 controller = Blueprint('manifest_variables_controller', __name__)
 
@@ -16,8 +16,8 @@ controller = Blueprint('manifest_variables_controller', __name__)
 @controller.route(BASE)
 def manifest_variables_index():
   """
-  Inflates and serializes the current list of chart variables.
-  :return: serialized list of chart variables.
+  Inflates and serializes the current list of chart variable.
+  :return: serialized list of chart variable.
   """
   manifest_var_models = ManifestVariable.all_vars()
   serialize = lambda cv: manifest_vars_serial.standard(cv=cv)

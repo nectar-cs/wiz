@@ -1,7 +1,7 @@
 from typing import List
 
 from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.base.action_observer import Observer
 from nectwiz.model.hook.hook import Hook
 
 

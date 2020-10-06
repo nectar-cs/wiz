@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from nectwiz.model.action.action import Action
-from nectwiz.model.action.action_observer import ReluctantObserver
+from nectwiz.model.action.base.action import Action
+from nectwiz.model.action.base.action_observer import ReluctantObserver
 
 
 class MultiAction(Action):

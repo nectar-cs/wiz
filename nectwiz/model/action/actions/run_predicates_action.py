@@ -2,8 +2,8 @@ from typing import Dict
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.action import Action
-from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.base.action import Action
+from nectwiz.model.action.base.action_observer import Observer
 from nectwiz.model.predicate.predicate import Predicate
 
 

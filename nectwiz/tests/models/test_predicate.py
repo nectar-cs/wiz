@@ -5,11 +5,13 @@ from k8kat.utils.testing import ns_factory
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core import config_man
-from nectwiz.core.core.config_man import config_man
+from nectwiz.core.core.config_man import config_man, coerce_ns
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.pre_built.common_predicates import ManifestVariablePredicate, ResourceCountPredicate, \
-  ResourcePropertyPredicate, MultiPredicate
+from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
+from nectwiz.model.predicate.multi_predicate import MultiPredicate
 from nectwiz.model.predicate.predicate import Predicate
+from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
+from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import create_base_master_map
 
@@ -47,13 +49,14 @@ class TestPredicate(Base.TestWizModel):
 
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
-    config_man._ns = ns
+    coerce_ns(ns)
     create_base_master_map(ns)
-    config_man.commit_keyed_mfst_vars([('foo', 'bar'), ('x', '1')])
+    config_man.patch_keyed_manifest_vars([('foo', 'bar'), ('x', '1')])
 
     self.assertTrue(mk_pred3('foo', None, 'defined'))
     self.assertTrue(mk_pred3('foo', 'bar'))
     self.assertTrue(mk_pred3('x', '1'))
+    self.assertTrue(mk_pred3('x', 1))
     self.assertTrue(mk_pred3('x', 0, 'gt'))
     self.assertTrue(mk_pred3('x', '2', 'lt'))
     self.assertTrue(mk_pred3('nope', None, 'undefined'))

@@ -4,7 +4,7 @@ from nectwiz.core.core.types import PredEval, KoD
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
+from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 
 T = TypeVar('T', bound='ManifestVariable')
 

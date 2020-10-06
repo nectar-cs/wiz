@@ -21,7 +21,7 @@ diagnoses:
     info: "kubectl returned an error status when running kubectl apply -f."
     actionables:
       - title: Read the logs
-        info: "Kubectl errors are most often due to manifest variables
+        info: "Kubectl errors are most often due to manifest variable
         format bugs. Check the error logs for clues and read the vendor
         documentation for advice."
 

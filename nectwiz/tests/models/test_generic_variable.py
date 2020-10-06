@@ -1,7 +1,7 @@
 from typing import Type
 
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.variables.generic_variable import GenericVariable
+from nectwiz.model.variable.generic_variable import GenericVariable
 from nectwiz.tests.models.test_wiz_model import Base
 
 

@@ -5,8 +5,8 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.core.telem.updates_man import updated_release_tam
-from nectwiz.model.action.action_observer import Observer
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 
 
 class UpdateManifestDefaultsActionPart:

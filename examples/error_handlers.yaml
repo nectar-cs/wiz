@@ -25,5 +25,5 @@ tic-tac:
   - what: kubectl-apply-error
     when:
       - operation
-      - apply variables
+      - apply variable
       - apply update

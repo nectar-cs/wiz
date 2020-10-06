@@ -1,4 +1,4 @@
-from nectwiz.model.pre_built.common_predicates import ManifestVariablePredicate, ResourceCountPredicate, \
+from nectwiz.model.predicate.common_predicates import ManifestVariablePredicate, ResourceCountPredicate, \
   ResourcePropertyPredicate
 
 ManifestVariablePredicate.evaluate.__doc__ = """

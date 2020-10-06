@@ -1,6 +1,6 @@
 from typing import Dict
 
-from nectwiz.model.action.action import Action
+from nectwiz.model.action.base.action import Action
 
 
 class ApplyVariableAction(Action):

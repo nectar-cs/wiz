@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
+from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 
 
 class FixedReplicasDecorator(VariableValueDecorator):

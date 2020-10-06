@@ -4,8 +4,8 @@ from typing import Dict, Any
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.pre_built.common_predicates import FormatPredicate
-from nectwiz.model.variables.variable_value_decorator import VariableValueDecorator
+from nectwiz.model.predicate.common_predicates import FormatPredicate
+from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 from nectwiz.server import app
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest

@@ -81,13 +81,13 @@ class Observer:
 
   def process_error(self, **errdict):
     errdict['uuid'] = utils.rand_str(20)
+    self.errdicts.append(errdict)
     if self.blame_item_id and self.item(self.blame_item_id):
       self.set_prop(self.blame_item_id, 'error_id', errdict['uuid'])
       self.set_item_status(self.blame_item_id, 'negative')
     if self.fail_fast:
       raise ActionHalt(errdict)
     else:
-      self.errdicts.append(errdict)
       self.notify_job()
 
 

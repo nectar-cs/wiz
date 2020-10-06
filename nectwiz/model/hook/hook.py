@@ -1,6 +1,6 @@
 from typing import List, TypeVar, Dict
 
-from nectwiz.model.action.action import Action
+from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel
 
 

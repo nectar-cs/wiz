@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.base.action_observer import Observer
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.error.controller_error import ActionHalt
 

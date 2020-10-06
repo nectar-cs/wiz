@@ -4,7 +4,7 @@ from k8kat.utils.testing import ns_factory
 
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.input.select_input import SelectInput
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.server import app
 from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -19,7 +19,7 @@ class TestManifestVariablesController(ClusterTest):
     helper.mock_globals(self.ns)
 
   def test_show(self):
-    endpoint = '/api/manifest-variables/foo'
+    endpoint = '/api/manifest-variable/foo'
     models_man.add_descriptors([
       dict(
         kind=ManifestVariable.__name__,
@@ -40,7 +40,7 @@ class TestManifestVariablesController(ClusterTest):
     self.assertEqual(exp_opts, body.get('options'))
 
   def test_validate(self):
-    endpoint = '/api/manifest-variables/foo/validate'
+    endpoint = '/api/manifest-variable/foo/validate'
     models_man.add_descriptors([
       dict(
         kind=ManifestVariable.__name__,
@@ -71,7 +71,7 @@ class TestManifestVariablesController(ClusterTest):
       dict(kind=ManifestVariable.__name__, id='bar.foo')
     ])
 
-    response = app.test_client().get('/api/manifest-variables')
+    response = app.test_client().get('/api/manifest-variable')
     cv1, cv2 = body = json.loads(response.data).get('data')
     self.assertEqual(2, len(body))
     self.assertEqual('foo', cv1.get('id'))

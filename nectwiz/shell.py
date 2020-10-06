@@ -22,7 +22,7 @@ def start():
   from nectwiz.model.base.resource_selector import ResourceSelector
   from nectwiz.model.field.field import Field
   from nectwiz.model.operation.operation import Operation
-  from nectwiz.model.pre_built.apply_manifest_action import ApplyManifestAction
+  from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
   from nectwiz.model.predicate.predicate import Predicate
   from nectwiz.model.operation.stage import Stage
   from nectwiz.model.operation.step import Step

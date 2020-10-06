@@ -2,7 +2,6 @@ from typing import List, Type
 
 from nectwiz.model.base.wiz_model import models_man, WizModel
 from nectwiz.model.hook.hook import Hook
-from nectwiz.model.pre_built.cmd_exec_action import CmdExecAction
 from nectwiz.tests.models.test_wiz_model import Base
 
 

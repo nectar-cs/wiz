@@ -1,11 +1,10 @@
-import time
 from typing import Dict
 
 from k8kat.res.base.kat_res import KatRes
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.action import Action
+from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.resource_selector import ResourceSelector
 
 

@@ -3,7 +3,7 @@ from typing import Optional, List, TypeVar
 from nectwiz.core.core import config_man, utils, hub_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
-from nectwiz.model.variables.generic_variable import GenericVariable
+from nectwiz.model.variable.generic_variable import GenericVariable
 
 
 T = TypeVar('T', bound='ManifestVariable')

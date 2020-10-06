@@ -10,9 +10,8 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, UpdateDict
 from nectwiz.core.telem import updates_man, telem_man
 from nectwiz.core.telem.update_observer import UpdateObserver
-from nectwiz.model.action.action import Action
 from nectwiz.model.base.wiz_model import models_man
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers.helper import ci_tami_name, create_base_master_map
 

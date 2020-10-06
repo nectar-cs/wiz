@@ -50,6 +50,6 @@ def job_error(job_id: str) -> ErrDict:
 
 
 def load_and_perform_action(key_or_dict, **kwargs):
-  from nectwiz.model.action.action import Action
+  from nectwiz.model.action.base.action import Action
   model: Action = Action.inflate(key_or_dict)
   return model.run(**kwargs)

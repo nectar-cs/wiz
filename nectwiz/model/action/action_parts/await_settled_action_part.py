@@ -4,10 +4,10 @@ from typing import List
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem, KAO, PredEval
-from nectwiz.model.action.action_observer import Observer
+from nectwiz.model.action.base.action_observer import Observer
 from nectwiz.model.operation import status_computer
 from nectwiz.model.operation.step_state import StepState
-from nectwiz.model.pre_built.common_predicates import ResourcePropertyPredicate
+from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
 
 key_await_settled = 'await_settled'
 

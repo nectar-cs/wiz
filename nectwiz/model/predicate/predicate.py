@@ -1,5 +1,5 @@
 import functools
-from typing import Optional, Callable, Dict
+from typing import Callable, Dict
 
 from nectwiz.core.core import subs, utils
 from nectwiz.model.base.wiz_model import WizModel

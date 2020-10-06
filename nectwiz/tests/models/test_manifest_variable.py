@@ -3,7 +3,7 @@ from typing import Type
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.variables.manifest_variable import ManifestVariable
+from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers import helper
 

@@ -3,12 +3,12 @@ from typing import Dict, List, Optional
 
 from nectwiz.core.core import utils, hub_client
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import UpdateDict, KAOs, ProgressItem
-from nectwiz.model.action.action import Action
-from nectwiz.model.action.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.await_settled_action_part import AwaitSettledActionPart
-from nectwiz.model.action.run_hooks_action_part import RunHookGroupActionPart
-from nectwiz.model.action.update_manifest_defaults_action import UpdateManifestDefaultsActionPart
+from nectwiz.core.core.types import UpdateDict, ProgressItem
+from nectwiz.model.action.base.action import Action
+from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
+from nectwiz.model.action.action_parts.await_settled_action_part import AwaitSettledActionPart
+from nectwiz.model.action.action_parts.run_hooks_action_part import RunHookGroupActionPart
+from nectwiz.model.action.action_parts.update_manifest_defaults_action_part import UpdateManifestDefaultsActionPart
 from nectwiz.model.adapters.mock_update import MockUpdate, next_mock_update_id
 from nectwiz.model.hook.hook import Hook
 
@@ -24,7 +24,7 @@ class UpdateAction(Action):
       id=None,
       status='running',
       title=f"{self.update.get('type')} to {self.update.get('version')}",
-      info="Updates the variables manifest and waits for a settled state",
+      info="Updates the variable manifest and waits for a settled state",
       sub_items=[
         *RunHookGroupActionPart.progress_items('before'),
         *UpdateManifestDefaultsActionPart.progress_items(),

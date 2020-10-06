@@ -1,6 +1,6 @@
 kind: Step
 id: var-provider
-info: "Add variables to the operation state"
+info: "Add variable to the operation state"
 fields:
   - id: username
     target: chart

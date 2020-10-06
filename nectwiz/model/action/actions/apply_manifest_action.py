@@ -1,11 +1,9 @@
 from typing import Dict, Optional
 
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import StepActionKwargs, TamDict, ProgressItem
-from nectwiz.model.action.action import Action
-from nectwiz.model.action.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.apply_manifest_observer import ApplyManifestObserver
-from nectwiz.model.action.await_settled_action_part import AwaitSettledActionPart
+from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
+from nectwiz.model.action.action_parts.await_settled_action_part import AwaitSettledActionPart
+from nectwiz.model.action.base.action import Action
 
 
 class ApplyManifestAction(Action):
@@ -24,7 +22,6 @@ class ApplyManifestAction(Action):
 
     self.res_selectors = config.get('apply_filters', [])
     self.tam: Optional[TamDict] = config.get('tam')
-    self.observer = ApplyManifestObserver(self.tam or config_man.tam())
 
   def perform(self, **kwargs: StepActionKwargs) -> Dict:
     inlines = (kwargs.get('inline') or {}).items()
