@@ -1,4 +1,5 @@
 kind: ErrorHandler
+id: bullshit-handler
 selector:
   property_selector:
     predicate_id: nectar.predicate.calico-pods-present-for-netpol

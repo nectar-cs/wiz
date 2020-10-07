@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict, Any
 
 from nectwiz.model.action.base.observer import Observer
@@ -19,6 +20,7 @@ class Action(WizModel):
       return False
     except Exception as err:
       print(f"[nectwiz::action] fatal uncaught exception {err}")
+      print(traceback.format_exc())
       return False
 
   def perform(self, *args, **kwargs) -> Dict:

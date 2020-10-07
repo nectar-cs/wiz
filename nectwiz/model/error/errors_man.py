@@ -5,14 +5,23 @@ from nectwiz.core.core.types import ErrDict
 
 class ActionErrorsMan:
   def __init__(self):
-    self.errors: List[ErrDict] = []
+    self.errdicts: List[ErrDict] = []
 
-  def push_error(self, errdict: ErrDict):
-    self.errors.append(errdict)
+  def add_errors(self, errdicts: List[ErrDict]):
+    for new_errdict in errdicts:
+      new_err_id = new_errdict.get('uuid')
+      if new_err_id:
+        if not self.find_error(new_err_id):
+          self.errdicts.append(*errdicts)
+          print(f"added err {new_errdict}")
+      else:
+        print(f"[nectwiz::push_error] errdict missing uuid {new_errdict}")
 
   def find_error(self, error_id: str) -> Optional[ErrDict]:
-    finder = lambda errdict: errdict.get('uuid') == error_id
-    return next(filter(finder, self.errors), None)
+    for errdict in self.errdicts:
+      if errdict.get('uuid') == error_id:
+        return errdict
+    return None
 
 
 errors_man = ActionErrorsMan()

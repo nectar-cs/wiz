@@ -51,12 +51,11 @@ def run_hook(hook_id):
 def job_progress(job_id):
   progress = job_client.job_progress(job_id)
   status = job_client.ternary_job_status(job_id)
-  error = job_client.job_error(job_id)
+  errdicts = job_client.job_errdicts(job_id)
   result = None
   if status == 'positive':
     result = job_client.job_result(job_id)
-  if error:
-    errors_man.push_error(error)
+  errors_man.add_errors(errdicts)
   return jsonify(
     data=dict(
       status=status,

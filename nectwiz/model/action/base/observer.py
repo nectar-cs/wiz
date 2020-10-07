@@ -16,12 +16,11 @@ class Observer:
     self.blame_item_id = None
     self.errdicts = []
 
-  def notify_job(self, errdict=None):
+  def notify_job(self):
     job: Job = get_current_job()
     if job:
       job.meta['progress'] = json.dumps(self.progress)
-      if errdict:
-        job.meta['error'] = json.dumps(errdict)
+      job.meta['errdicts'] = json.dumps(self.errdicts)
       job.save_meta()
 
   def set_items(self, items: List[ProgressItem]):
@@ -86,7 +85,8 @@ class Observer:
 
   def on_failed(self, errdict: ErrDict = None):
     self.progress['status'] = 'negative'
-    self.notify_job(errdict)
+    if errdict:
+      self.process_error(**errdict)
 
   def on_ended(self, success: bool):
     if success:

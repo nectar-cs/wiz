@@ -50,18 +50,10 @@ def find_handler(errdict: Dict) -> Optional[ErrorHandler]:
   return winner
 
 
-def compute_diagnoses_ids(handler_id: str) -> str:
+def compute_diagnoses_ids(handler_id: str) -> List[str]:
   error_handler: ErrorHandler = ErrorHandler.inflate(handler_id)
   diagnosis_ids = []
   for diagnosis in error_handler.diagnoses():
     if diagnosis.compute_is_suitable():
       diagnosis_ids.append(diagnosis.id())
-  return ",".join(diagnosis_ids)
-
-
-def async_compute_diagnoses_ids(*args):
-  result = compute_diagnoses_ids(*args)
-  job: Job = get_current_job()
-  if job:
-    job.meta['result'] = result
-  return result
+  return diagnosis_ids

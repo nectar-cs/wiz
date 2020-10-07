@@ -28,7 +28,7 @@ class RunPredicatesAction(Action):
           fatal=False,
           event_type='predicate_eval',
           predicate_id=predicate.id(),
-          predicate_kind=predicate.kind,
+          predicate_kind=predicate.kind(),
           tone=predicate.tone,
           reason=predicate.reason,
           **predicate.error_extras()

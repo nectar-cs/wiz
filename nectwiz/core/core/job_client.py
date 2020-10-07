@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 from rq import Queue
 from rq.job import Job
@@ -49,10 +49,10 @@ def job_result(job_id: str) -> Optional[Any]:
   return json.loads(blob) if blob else {}
 
 
-def job_error(job_id: str) -> ErrDict:
+def job_errdicts(job_id: str) -> List[ErrDict]:
   job: Job = find_job(job_id)
-  blob = job.meta.get('error')
-  return json.loads(blob) if blob else None
+  blob = job.meta.get('errdicts')
+  return json.loads(blob) if blob else []
 
 
 def load_and_perform_action(key_or_dict, **kwargs):
