@@ -59,6 +59,8 @@ class ApplyManifestActionPart:
     if kao_culprit is not None:
       observer.process_error(
         fatal=True,
+        tone='error',
+        reason='kubectl apply failed for one or more resources.',
         event_type='apply_manifest',
         resource=dict(
           name=kao_culprit.get('name'),

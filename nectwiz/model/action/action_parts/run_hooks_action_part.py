@@ -38,6 +38,8 @@ class RunHookGroupActionPart:
     if not outcome:
       observer.process_error(
         fatal=hook.abort_on_fail,
+        tone='warning',
+        reason=f'Hook {hook.title} failed',
         event_type='run_hooks',
         which_hook=which,
         hook_id=hook.id()

@@ -57,6 +57,8 @@ def comparator(name) -> Callable[[any, any], bool]:
     return lambda a, b: a != b
   elif name in ['is-in', 'in']:
     return lambda a, b: a in b
+  elif name in ['contains']:
+    return lambda a, b: b in a
   elif name in ['is-greater-than', 'greater-than', 'gt', '>']:
     return lambda a, b: a > float(b)
   elif name in ['gte', '>=']:

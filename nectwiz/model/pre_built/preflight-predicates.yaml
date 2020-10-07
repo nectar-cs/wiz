@@ -1,0 +1,54 @@
+kind: ResourcePropertyPredicate
+id: nectar.predicate.all-nodes-linux
+title: Ensure nodes run Linux
+info: "This application is untested for non-linux-based clusters."
+tone: error
+selector: "nodes:*"
+property: raw.status.node_info.operating_system
+check_against: linux
+
+---
+
+kind: ResourcePropertyPredicate
+id: nectar.predicate.all-node-containers-docker
+title: Ensure container runtime is docker-based
+info: "This application makes use of docker-specific features."
+tone: error
+selector: "Node:*"
+property: raw.status.node_info.container_runtime_version
+operator: contains
+check_against: docker
+
+---
+
+kind: ResourcePropertyPredicate
+id: nectar.predicate.metrics-server-running
+title: Ensure the Metrics Server is running
+info: "Most telemetry requires the metrics server to be running."
+tone: error
+selector:
+  namespace: kube-system
+  k8s_kind: Deployment
+  label_selector:
+    k8s-app: metrics-server
+check_against: positive
+
+---
+
+kind: ResourceCountPredicate
+id: nectar.predicate.calico-pods-present-for-netpol
+title: Ensure Calico pods for Network Policies exist
+info: Network Policies most often use Calico pods as a backend. This verification
+  scans for such pods.
+tone: warning
+reason: "This check was performed by scanning for Calico pods in
+the kube-system namespace. If you know that Network Policies have
+a different backend, you can ignore this check. Otherwise, start
+the remediation wizard."
+selector:
+  k8s_kind: Pod
+  namespace: kube-system
+  label_selector:
+    app: calico
+operator: greater-than
+check_against: 0

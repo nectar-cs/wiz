@@ -82,6 +82,8 @@ class AwaitSettledActionPart:
           original_res_sel = culprit_pred.selector()
           observer.process_error(
             fatal=False,
+            tone='error',
+            reason='One or more resources failed to settle',
             event_type=key_await_settled,
             predicate_id=culprit_pred.id(),
             predicate_kind=culprit_pred.kind(),

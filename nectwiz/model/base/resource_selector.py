@@ -20,6 +20,7 @@ class ResourceSelector(WizModel):
     self.label_selector: Dict = config.get('label_selector') or {}
     self.field_selector: Dict = config.get('field_selector') or {}
     self.kat_prop_selector: Dict = config.get('prop_selector') or {}
+    self.explicit_ns: str = config.get('namespace')
 
   @classmethod
   def inflate_with_key(cls, _id: str) -> T:
@@ -33,9 +34,11 @@ class ResourceSelector(WizModel):
       return super().inflate_with_key(_id)
 
   def query_cluster(self, context: Dict) -> List[KatRes]:
-    kat_class = KatRes.class_for(self.k8s_kind)
+    kat_class: KatRes = KatRes.class_for(self.k8s_kind)
     if kat_class:
       query_params = self.build_k8kat_query(context)
+      if not kat_class.is_namespaced():
+        del query_params['ns']
       return kat_class.list(**query_params)
     else:
       print(f"[nectwiz::resourceselector] DANGER no kat for {self.k8s_kind}")
@@ -68,9 +71,10 @@ class ResourceSelector(WizModel):
 
     field_selector = interp_dict_vals(field_selector, context)
     label_selector = interp_dict_vals(self.label_selector, context)
+    namespace = self.explicit_ns or config_man.ns()
 
     return dict(
-      ns=config_man.ns(),
+      ns=namespace,
       labels=label_selector,
       fields=field_selector
     )

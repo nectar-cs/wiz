@@ -10,18 +10,9 @@ from nectwiz.model.predicate.predicate import Predicate
 class RunPredicatesAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.observer = Observer(fail_fast=False)
+    self.observer = Observer()
     self.predicates = self.load_children('predicates', Predicate)
-    for predicate in self.predicates:
-      self.observer.progress['sub_items'].append(
-        ProgressItem(
-          id=predicate.id(),
-          title=predicate.title,
-          info=predicate.info,
-          status='idle',
-          sub_items=[]
-        )
-      )
+    self.observer.set_items(list(map(pred2subitem, self.predicates)))
 
   def perform(self):
     context = dict(resolvers=config_man.resolvers())
@@ -37,10 +28,20 @@ class RunPredicatesAction(Action):
       if not result:
         error_count += 1
         self.observer.process_error(
+          fatal=False,
           event_type='predicate_eval',
           predicate_id=predicate.id(),
           predicate_kind=predicate.kind,
           **predicate.error_extras()
         )
-
     self.observer.on_ended(error_count == 0)
+
+
+def pred2subitem(predicate: Predicate) -> ProgressItem:
+  return ProgressItem(
+    id=predicate.id(),
+    title=predicate.title,
+    info=predicate.info,
+    status='idle',
+    sub_items=[]
+  )
