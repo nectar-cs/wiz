@@ -4,7 +4,7 @@ from typing import List
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem, KAO, PredEval
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.operation import status_computer
 from nectwiz.model.operation.step_state import StepState
 from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate

@@ -1,6 +1,6 @@
 from k8kat.auth.kube_broker import broker
 
-from nectwiz import server, worker, opsim
+from nectwiz import worker, opsim, server
 from nectwiz.core.core import utils
 from nectwiz.model.base.wiz_model import models_man
 

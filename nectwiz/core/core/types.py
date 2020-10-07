@@ -10,6 +10,7 @@ class ProgressItem(TypedDict, total=False):
   status: str
   sub_items: List['ProgressItem']
   data: Dict
+  error: Dict
   error_id: str
 
 

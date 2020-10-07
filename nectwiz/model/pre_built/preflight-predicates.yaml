@@ -1,3 +1,21 @@
+kind: ErrorHandler
+selector:
+  property_selector:
+    predicate_id: nectar.predicate.calico-pods-present-for-netpol
+diagnoses:
+  - id: bullshit-diagnosis
+    title: The bullshit diagnosis
+    predicate: TruePredicate
+    actionables:
+      - id: brush-teeth
+        title: Brush your teeth
+        info: "This check was performed by scanning for Calico pods in
+               the kube-system namespace. If you know that Network Policies have
+               a different backend, you can ignore this check. Otherwise, start
+               the remediation wizard."
+
+---
+
 kind: ResourcePropertyPredicate
 id: nectar.predicate.all-nodes-linux
 title: Ensure nodes run Linux

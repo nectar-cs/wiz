@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, Any
 
 from rq import Queue
 from rq.job import Job
@@ -40,6 +40,12 @@ def ternary_job_status(job_id: str) -> Optional[str]:
 def job_progress(job_id: str) -> Optional[ProgressItem]:
   job: Job = find_job(job_id)
   blob = job.meta.get('progress')
+  return json.loads(blob) if blob else {}
+
+
+def job_result(job_id: str) -> Optional[Any]:
+  job: Job = find_job(job_id)
+  blob = job.meta.get('result')
   return json.loads(blob) if blob else {}
 
 

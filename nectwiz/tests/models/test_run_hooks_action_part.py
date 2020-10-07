@@ -1,5 +1,5 @@
 from nectwiz.model.action.action_parts.run_hooks_action_part import RunHookGroupActionPart
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.error.controller_error import ActionHalt
 from nectwiz.model.hook.hook import Hook

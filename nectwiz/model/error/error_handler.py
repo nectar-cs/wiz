@@ -1,5 +1,9 @@
+import json
 from functools import lru_cache
 from typing import Dict, List, Optional
+
+from rq import get_current_job
+from rq.job import Job
 
 from nectwiz.core.core.types import KoD, ErrDict
 from nectwiz.model.base.wiz_model import WizModel
@@ -31,6 +35,10 @@ class ErrorHandler(WizModel):
     return self.load_children('diagnoses', ErrorDiagnosis)
 
 
+def is_err_diagnosable(errdict: Dict) -> bool:
+  return find_handler(errdict) is not None
+
+
 def find_handler(errdict: Dict) -> Optional[ErrorHandler]:
   candidates: List[ErrorHandler] = ErrorHandler.inflate_all()
   errctx = ErrCtx(errdict)
@@ -49,3 +57,11 @@ def compute_diagnoses_ids(handler_id: str) -> str:
     if diagnosis.compute_is_suitable():
       diagnosis_ids.append(diagnosis.id())
   return ",".join(diagnosis_ids)
+
+
+def async_compute_diagnoses_ids(*args):
+  result = compute_diagnoses_ids(*args)
+  job: Job = get_current_job()
+  if job:
+    job.meta['result'] = result
+  return result

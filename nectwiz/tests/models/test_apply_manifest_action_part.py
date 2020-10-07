@@ -7,7 +7,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KAOs
 from nectwiz.core.tam.tam_client import TamClient
 from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.error.controller_error import ActionHalt
 from nectwiz.model.operation import status_computer
 from nectwiz.model.operation.step_state import StepState

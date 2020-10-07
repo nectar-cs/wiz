@@ -5,6 +5,7 @@ from rq.job import Job, get_current_job
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem, ErrDict
+from nectwiz.model.error import error_handler
 from nectwiz.model.error.controller_error import ActionHalt
 
 
@@ -39,11 +40,12 @@ class Observer:
     else:
       print(f"[nectwiz::observer] danger no item {item_id}")
 
-  def merge_prop(self, item_id, prop_name, merged: Dict):
+  # noinspection PyTypedDict
+  def merge_prop(self, item_id: str, prop_name: str, patch: Dict):
     item = self.item(item_id)
     if item:
-      # noinspection PyTypedDict
-      item[prop_name] = dict(**(item[prop_name] or {}), **merged)
+      current_value = item.get(prop_name, {}) or {}
+      item[prop_name] = dict(**current_value, **patch)
     else:
       print(f"[nectwiz::observer] danger no item {item_id}")
 
@@ -94,15 +96,18 @@ class Observer:
 
   def process_error(self, **errdict):
     errdict['uuid'] = utils.rand_str(20)
-    tone, reason = errdict.pop('tone'), errdict.pop('reason')
+    tone, reason = errdict.pop('tone', None), errdict.pop('reason', None)
     self.errdicts.append(errdict)
     if self.blame_item_id and self.item(self.blame_item_id):
-      self.set_prop(self.blame_item_id, 'error_id', errdict['uuid'])
+      diagnosable = error_handler.is_err_diagnosable(errdict)
       self.set_item_status(self.blame_item_id, 'negative')
-      if tone:
-        self.merge_prop(self.blame_item_id, 'data', dict(tone=tone))
-      if reason:
-        self.merge_prop(self.blame_item_id, 'data', dict(reason=reason))
+      self.merge_prop(self.blame_item_id, 'error', dict(
+        id=errdict['uuid'] if diagnosable else None,
+        tone=tone,
+        reason=reason,
+      ))
+    else:
+      print(f"[nectwiz::observer] critical no blame id for {errdict}")
     if errdict.get('fatal'):
       raise ActionHalt(errdict)
     else:

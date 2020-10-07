@@ -3,7 +3,7 @@ from typing import Optional
 
 from nectwiz.core.core.types import ProgressItem, KAOs, TamDict
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 
 key_load_manifest = 'load_manifest'
 key_apply_manifest = 'apply_manifest'

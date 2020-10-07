@@ -10,7 +10,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, UpdateDict
 from nectwiz.core.telem import updates_man, telem_man
 from nectwiz.model.action.action_parts.update_manifest_defaults_action_part import UpdateManifestDefaultsActionPart
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.base.wiz_model import models_man
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest

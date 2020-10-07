@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.error.controller_error import ActionHalt
 
@@ -18,7 +18,7 @@ class Action(WizModel):
       self.observer.on_failed(err.errdict)
       return False
     except Exception as err:
-      print(f"Fatal uncaught exception {err}")
+      print(f"[nectwiz::action] fatal uncaught exception {err}")
       return False
 
   def perform(self, *args, **kwargs) -> Dict:

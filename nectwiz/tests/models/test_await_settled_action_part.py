@@ -2,7 +2,7 @@ from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.action.action_parts.await_settled_action_part import AwaitSettledActionPart
-from nectwiz.model.action.base.action_observer import Observer
+from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.error.controller_error import ActionHalt
 from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
 from nectwiz.tests.models.helpers import bad_pod_kao, good_cmap_kao

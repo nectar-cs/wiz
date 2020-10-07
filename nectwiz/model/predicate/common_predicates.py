@@ -6,6 +6,11 @@ from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.predicate.predicate import Predicate
 
 
+class TruePredicate(Predicate):
+  def evaluate(self, context: Dict) -> bool:
+    return True
+
+
 class PodShellPredicate(Predicate):
   def __init__(self, config: Dict):
     super().__init__(config)

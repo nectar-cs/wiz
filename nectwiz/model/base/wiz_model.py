@@ -251,6 +251,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
   from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
 
+  from nectwiz.model.predicate.common_predicates import TruePredicate
   return [
     Operation,
     Stage,
@@ -279,6 +280,7 @@ def default_model_classes() -> List[Type[T]]:
     ResourcePropertyPredicate,
     ResourceCountPredicate,
     ManifestVariablePredicate,
+    TruePredicate,
 
     MultiAction,
     CmdExecAction,
