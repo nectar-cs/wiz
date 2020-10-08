@@ -9,7 +9,7 @@ from nectwiz.model.action.base.action import Action
 class ApplyManifestAction(Action):
   def __init__(self, config):
     super().__init__(config)
-    self.progress = ProgressItem(
+    self.observer.progress = ProgressItem(
       id=None,
       status='running',
       title="Apply Resources",

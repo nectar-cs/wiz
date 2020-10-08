@@ -30,11 +30,10 @@ def diagnose_status(error_id: str, job_id: str):
   if job.is_finished:
     errdict = errors_man.find_error(error_id)
     handler = find_handler(errdict)
-    diagnoses_ids = job.result
-    finder = lambda d: d.id() in diagnoses_ids
+    finder = lambda d: d.id() in job.result
     diagnoses = list(filter(finder, handler.diagnoses()))
     serialized = list(map(ser_err_diagnosis, diagnoses))
-    return jsonify(status='ready', diagnosis=serialized)
+    return jsonify(status='ready', diagnoses=serialized)
   elif job.is_failed:
     return jsonify(status='error')
   else:

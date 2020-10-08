@@ -1,11 +1,7 @@
-import json
 from functools import lru_cache
 from typing import Dict, List, Optional
 
-from rq import get_current_job
-from rq.job import Job
-
-from nectwiz.core.core.types import KoD, ErrDict
+from nectwiz.core.core.types import KoD
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.error.error_context import ErrCtx
 from nectwiz.model.error.error_diagnosis import ErrorDiagnosis
