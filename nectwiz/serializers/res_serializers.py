@@ -1,5 +1,6 @@
 from typing import Dict
 
+from k8kat.res.config_map.kat_map import KatMap
 from k8kat.res.rbac.rbac import KatRole
 
 from k8kat.res.quotas.kat_quota import KatQuota

@@ -18,7 +18,7 @@ class AwaitSettledActionPart:
       ProgressItem(
         id=key_await_settled,
         status='idle',
-        title='Await Resources Settled',
+        title='Wait for Changed Resource to Settle',
         info='Wait until all changed resources are in a settled state',
         sub_items=[]
       )

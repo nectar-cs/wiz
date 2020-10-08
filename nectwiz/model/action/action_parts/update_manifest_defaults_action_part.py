@@ -8,6 +8,8 @@ from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 
 
+update_defaults_key = 'update_defaults'
+
 class UpdateManifestDefaultsActionPart:
 
   @staticmethod
@@ -24,6 +26,7 @@ class UpdateManifestDefaultsActionPart:
 
   @classmethod
   def perform(cls, observer: Observer, update_dict: UpdateDict):
+    observer.set_item_status(update_defaults_key, 'running')
     update_type = update_dict.get('type')
     if update_type in ['release', 'update']:
       if update_type == 'release':
@@ -34,7 +37,7 @@ class UpdateManifestDefaultsActionPart:
     else:
       observer.process_error(
         fatal=True,
-        event_type='update_defaults',
+        event_type=update_defaults_key,
         code='unrecognized-update-type',
         update_type=update_dict.get('type'),
       )

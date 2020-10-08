@@ -19,11 +19,9 @@ TYPE_UPDATE = 'update'
 class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.update: UpdateDict = config.get('update')
-    self.progress = ProgressItem(
+    self.observer.progress = ProgressItem(
       id=None,
       status='running',
-      title=f"{self.update.get('type')} to {self.update.get('version')}",
       info="Updates the variable manifest and waits for a settled state",
       sub_items=[
         *RunHookGroupActionPart.progress_items('before'),
@@ -34,15 +32,16 @@ class UpdateAction(Action):
       ]
     )
 
-  def perform(self, *args, **kwargs):
+  def perform(self, **kwargs):
+    update: UpdateDict = kwargs.get('update')
     RunHookGroupActionPart.perform(
       self.observer,
       'before',
-      find_hooks('before', self.update['type'])
+      find_hooks('before', update['type'])
     )
     UpdateManifestDefaultsActionPart.perform(
       self.observer,
-      self.update,
+      update,
     )
     outcomes = ApplyManifestActionPart.perform(
       self.observer,
@@ -57,7 +56,7 @@ class UpdateAction(Action):
     RunHookGroupActionPart.perform(
       self.observer,
       'after',
-      find_hooks('after', self.update['type'])
+      find_hooks('after', update['type'])
     )
 
   # def tel(self):

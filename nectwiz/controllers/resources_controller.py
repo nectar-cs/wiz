@@ -1,3 +1,5 @@
+from typing import Type
+
 from flask import Blueprint, jsonify, request
 from k8kat.res.base.kat_res import KatRes
 
@@ -46,15 +48,15 @@ def resource_detail(kind: str, name: str):
   :param name: name of resource.
   :return: serialized resource KatRes instance.
   """
-  kat_class = KatRes.class_for(kind)
+  kat_class: Type[KatRes] = KatRes.class_for(kind)
   res = kat_class.find(name, config_man.ns())
-  serializer = kind_serializer_mapping.get(kind)
+  serializer = kind_serializer_mapping.get(kat_class.kind)
   serialized = serializer(res) if res and serializer else None
   return jsonify(data=serialized)
 
 
 kind_serializer_mapping = dict(
-  deployment=res_serializers.deployment,
-  resource_quota=res_serializers.resource_quota,
-  role=res_serializers.role
+  Deployment=res_serializers.deployment,
+  ResourceQuota=res_serializers.resource_quota,
+  Role=res_serializers.role
 )

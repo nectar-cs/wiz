@@ -250,8 +250,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
   from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
   from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
-
   from nectwiz.model.predicate.common_predicates import TruePredicate
+  from nectwiz.core.telem.updates_man import UpdateAction
+
   return [
     Operation,
     Stage,
@@ -288,6 +289,7 @@ def default_model_classes() -> List[Type[T]]:
     FlushTelemAction,
     DeleteResourcesAction,
     RunPredicatesAction,
+    UpdateAction,
 
     ResourceQueryAdapter,
     DeletionSpec,

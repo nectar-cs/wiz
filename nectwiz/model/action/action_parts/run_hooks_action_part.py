@@ -13,7 +13,7 @@ class RunHookGroupActionPart:
       ProgressItem(
         id=f'{which}_hooks',
         status='idle',
-        title=f'{which}-update Hooks'.title(),
+        title=f'Run {which}-update Hooks',
         info='Run vendor-provided hooks, halt on fatal error',
         sub_items=[]
       ),
