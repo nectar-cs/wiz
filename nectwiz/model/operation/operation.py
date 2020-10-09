@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from nectwiz.core.core.types import KoD
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.action.actions.run_predicates_action import RunPredicatesAction
@@ -13,27 +14,23 @@ class Operation(WizModel):
     super().__init__(config)
     self.synopsis: str = self.asset_attr(config.get('synopsis'))
     self.is_system: bool = self.id() in ['installation', 'uninstall']
+    self.preflight_descs: List[KoD] = config.get('preflight_predicates', [])
 
   def preflight_action_config(self) -> Dict:
     return dict(
       kind=RunPredicatesAction.__name__,
-      predicates=self.config.get('preflight_predicates', [])
+      predicates=self.preflight_descs
     )
 
-  def is_state_owner(self, op_state: OperationState) -> bool:
-    """
-    Checks if the passed OperationState belongs to current operation.
-    :param op_state: OperationState instance.
-    :return: True if belongs, False otherwise.
-    """
-    return op_state.op_id == self.id()
+  def has_preflight_checks(self) -> bool:
+    return len(self.preflight_descs) > 0
 
   def stages(self) -> List[Stage]:
     """
     Loads the Stages associated with the Operation.
     :return: list of Stage instances.
     """
-    return self.load_children('stages', Stage)
+    return self.inflate_children('stages', Stage)
 
   def stage(self, key) -> Stage:
     """
@@ -42,10 +39,3 @@ class Operation(WizModel):
     :return: Stage instance.
     """
     return self.load_list_child('stages', Stage, key)
-
-  def preflight_predicates(self) -> List[Predicate]:
-    """
-    Loads the Prerequisites associated with the Operation.
-    :return: list of Predicate instances.
-    """
-    return self.load_children('preflight', Predicate)

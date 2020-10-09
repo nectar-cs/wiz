@@ -19,7 +19,7 @@ class GenericVariable(WizModel):
     return GenericInput.inflate(kod)
 
   def validators(self) -> List[Predicate]:
-    return self.load_children('validation', Predicate)
+    return self.inflate_children('validation', Predicate)
 
   def default_value(self) -> str:
     return self.explicit_default

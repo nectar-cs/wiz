@@ -80,7 +80,7 @@ class ResourceSelector(WizModel):
     )
 
 
-def fluff_resdict(resdict: Dict):
+def fluff_resdict(resdict: Dict) -> Dict:
   if 'metadata' not in resdict.keys():
     if 'name' in resdict.keys():
       return dict(

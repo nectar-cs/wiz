@@ -24,4 +24,4 @@ class ErrorDiagnosis(WizModel):
       return Predicate.inflate(self.predicate_kod)
 
   def actionables(self) -> List[DiagnosisActionable]:
-    return self.load_children('actionables', DiagnosisActionable)
+    return self.inflate_children('actionables', DiagnosisActionable)

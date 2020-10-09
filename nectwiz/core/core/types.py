@@ -12,6 +12,7 @@ class ProgressItem(TypedDict, total=False):
   data: Dict
   error: Dict
   error_id: str
+  logs: List[str]
 
 
 class UpdateDict(TypedDict):

@@ -1,6 +1,10 @@
+import json
 import time
 from typing import Optional
 
+import yaml
+
+from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem, KAOs, TamDict
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.base.observer import Observer
@@ -37,10 +41,12 @@ class ApplyManifestActionPart:
     manifestds = client.load_templated_manifest(inlines)
     manifestds = client.filter_res(manifestds, selectors)
     observer.set_item_status(key_load_manifest, 'positive')
+    observer.log(list(map(yaml.dump, manifestds)))
 
     observer.set_item_status(key_apply_manifest, 'running')
     apply_outcomes = client.kubectl_apply(manifestds)
     cls.on_apply_finished(observer, apply_outcomes)
+    observer.log(list(map(utils.kao2log, apply_outcomes)))
     cls.check_kao_failures(observer, apply_outcomes)
 
     time.sleep(2)
@@ -64,7 +70,7 @@ class ApplyManifestActionPart:
         event_type='apply_manifest',
         resource=dict(
           name=kao_culprit.get('name'),
-          kind=kao_culprit.get('kind'),
+          kind=kao_culprit.get('kind')
         ),
-        error=kao_culprit.get('error')
+        logs=[kao_culprit.get('error')]
       )

@@ -1,3 +1,21 @@
+kind: SystemCheck
+id: system-check
+predicates:
+  - nectar.predicate.is-tam-in-sync
+
+---
+
+kind: Predicate
+id: nectar.predicate.is-tam-in-sync
+title: Ensure manifest image belongs to vendor
+info: A non-vendor manifest image could mean that your application is compormised.
+check_against: gcr.io/nectar-bazaar/ice-cream-tami
+challenge: "{tam_config/uri}"
+tone: error
+reason: The manifest image should be gcr.io/nectar-bazaar/ice-cream-tami but it is not.
+
+---
+
 kind: ActionTermPredicate
 id: predicate.telem-storage-working
 

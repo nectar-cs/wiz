@@ -19,13 +19,15 @@ class OperationState:
     return next(filter(matcher, self.step_states), None)
 
   def gen_step_state(self, step, keep=True) -> StepState:
-    if not self.find_step_state(step):
-      new_ss = StepState(step.sig(), self)
-      if keep:
-        self.step_states.append(new_ss)
-      return new_ss
-    else:
-      raise RuntimeError("Step with same signature exists!")
+    self.del_step_state(step)
+    new_ss = StepState(step.sig(), self)
+    if keep:
+      self.step_states.append(new_ss)
+    return new_ss
+
+  def del_step_state(self, step):
+    matcher = lambda ss: not ss.step_sig == step.sig()
+    self.step_states = list(filter(matcher, self.step_states))
 
   def all_assigns(self) -> Dict:
     merged = {}

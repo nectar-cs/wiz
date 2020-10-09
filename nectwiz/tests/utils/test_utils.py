@@ -58,6 +58,27 @@ class TestUtils(unittest.TestCase):
     expected = [('foo.bar', 'baz'), ('bar.foo', 'zab')]
     self.assertEqual(expected, actual)
 
+  def test_kao2log(self):
+    self.assertEqual("apps.deployment/foo created", utils.kao2log(dict(
+      api_group='apps',
+      kind='deployment',
+      name='foo',
+      verb='created'
+    )))
+
+    self.assertEqual("pod/bar unchanged", utils.kao2log(dict(
+      api_group='',
+      kind='pod',
+      name='bar',
+      verb='unchanged'
+    )))
+
+    self.assertEqual("pod/baz error text", utils.kao2log(dict(
+      kind='pod',
+      name='baz',
+      error='error text'
+    )))
+
   def test_log2ktlapplyoutcome(self):
     log = "pod/foo created"
     result = utils.log2kao(log)

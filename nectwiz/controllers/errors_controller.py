@@ -19,9 +19,9 @@ def start_diagnose_search(error_id: str):
       job_id = job_client.enqueue_func(compute_diagnoses_ids, handler.id())
       return jsonify(status='running', job_id=job_id)
     else:
-      return jsonify(status='not-found')
+      return jsonify(status='handler-not-found')
   else:
-    return jsonify(status='not-found')
+    return jsonify(status='err-not-found')
 
 
 @controller.route(f'{BASE_PATH}/<error_id>/diagnoses/<job_id>')

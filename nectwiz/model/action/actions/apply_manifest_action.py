@@ -36,4 +36,5 @@ class ApplyManifestAction(Action):
       outcomes
     )
     self.observer.on_succeeded()
-    return dict()
+
+    return dict(success=True)

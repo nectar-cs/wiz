@@ -59,6 +59,8 @@ class UpdateAction(Action):
       find_hooks('after', update['type'])
     )
 
+    return dict(success=True)
+
   # def tel(self):
   #   telem_man.store_update_outcome(UpdateOutcome(
   #     status="negative" if fatal_err else 'positive',

@@ -49,6 +49,9 @@ class StepState:
     self.chart_assigns = chart_assigns
     self.state_assigns = state_assigns
 
+  def notify_terminated(self, success: bool):
+    self.status = SETTLED_POS if success else SETTLED_NEG
+
   def notify_succeeded(self):
     self.status = SETTLED_POS
 

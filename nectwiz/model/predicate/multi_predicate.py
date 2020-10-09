@@ -9,7 +9,7 @@ class MultiPredicate(Predicate):
     self.operator = config.get('operator', 'and')
 
   def evaluate(self, context: Dict) -> bool:
-    sub_preds = self.load_children('sub_predicates', Predicate)
+    sub_preds = self.inflate_children('sub_predicates', Predicate)
     for sub_pred in sub_preds:
       evaluated_to_true = sub_pred.evaluate(context)
       if self.operator == 'or':

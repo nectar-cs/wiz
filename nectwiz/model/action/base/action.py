@@ -15,8 +15,8 @@ class Action(WizModel):
     try:
       return self.perform(**kwargs)
     except ActionHalt as err:
-      print(f"CAUGHT MY ERR {err.errdict}")
-      self.observer.on_failed(err.errdict)
+      print(f"[nectwiz::action] halt sig {err.errdict}")
+      self.observer.on_failed()
       return False
     except Exception as err:
       print(f"[nectwiz::action] fatal uncaught exception {err}")

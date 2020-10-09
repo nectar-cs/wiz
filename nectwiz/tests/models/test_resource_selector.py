@@ -16,6 +16,10 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertEqual("Pod", selector.k8s_kind)
     self.assertEqual("nginx", selector.name)
 
+  def test_kind_conversion(self):
+
+    ResourceSelector.inflate("deployments:foo")
+
   def test_selects_res(self):
     res = dict(
       kind='Pod',

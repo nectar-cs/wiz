@@ -6,10 +6,22 @@ from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
+from nectwiz.model.predicate.system_check import SystemCheck, master_syscheck_id
 
 controller = Blueprint('app_controller', __name__)
 
 BASE_PATH = '/api/app'
+
+
+@controller.route(f'{BASE_PATH}/start-system-check', methods=['POST'])
+def run_system_check():
+  sys_check: SystemCheck = SystemCheck.inflate(master_syscheck_id)
+  if sys_check and sys_check.is_non_empty():
+    preflight_action = sys_check.multi_predicate_action_config()
+    job_id = job_client.enqueue_action(preflight_action)
+    return jsonify(status='running', data=dict(job_id=job_id))
+  else:
+    return jsonify(status='positive')
 
 
 @controller.route(f'{BASE_PATH}/install-hooks')

@@ -1,12 +1,23 @@
+from typing import List, Dict
+
+from nectwiz.model.action.actions.run_predicates_action import RunPredicatesAction
 from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.predicate.predicate import Predicate
 
 
 class SystemCheck(WizModel):
 
-  def predicate(self):
-    pass
+  def predicates(self) -> List[Predicate]:
+    return self.inflate_children('predicates', Predicate)
 
-  # all deps have > 0 green pods
-  # traffic between two arbitrary points work
-  # can curl publicly
-  # no pods have suspicious restart rates
+  def multi_predicate_action_config(self) -> Dict:
+    return dict(
+      kind=RunPredicatesAction.__name__,
+      predicates=self.config.get('predicates', [])
+    )
+
+  def is_non_empty(self) -> bool:
+    return len(self.predicates()) > 0
+
+
+master_syscheck_id = 'system-check'

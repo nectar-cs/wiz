@@ -10,7 +10,7 @@ class HealthChecksAdapter(WizModel):
     self.use_liveness = config.get('use_liveness', True)
 
   def predicates(self) -> List[Predicate]:
-    expl_children = self.load_children('predicates', Predicate)
+    expl_children = self.inflate_children('predicates', Predicate)
     return [
       *self.gen_liveness_predicates(),
       expl_children

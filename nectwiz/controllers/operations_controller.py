@@ -78,9 +78,12 @@ def eval_preflight(operation_id):
   :return: dict containing results of evaluation.
   """
   operation = find_operation(operation_id)
-  preflight_action = operation.preflight_action_config()
-  job_id = job_client.enqueue_action(preflight_action)
-  return jsonify(data=dict(job_id=job_id))
+  if operation.has_preflight_checks():
+    preflight_action = operation.preflight_action_config()
+    job_id = job_client.enqueue_action(preflight_action)
+    return jsonify(status='running', data=dict(job_id=job_id))
+  else:
+    return jsonify(status='positive')
 
 
 @controller.route(f"{STEP_PATH}/refresh", methods=['POST'])

@@ -11,7 +11,7 @@ fields:
       kind: SelectInput
       options:
         false: "Statically - Estimate an amount and keep it the same"
-        true: "Dynamically - Vary the amount based on current usage"
+        true: "Dynamically - Let Kubernetes scale according to demand"
   - id: deployment.replicas
     title: Pod replica fixed count
     default: 4
@@ -22,7 +22,7 @@ fields:
       max: 30
     value_decorator:
       kind: FixedReplicasDecorator
-      template: "<p>Suitable for a {size} distribution. Expect:</p>
+      template: "<p>Suitable for a <b>{size}</b> distribution. Expect:</p>
       <ul>
         <li><p>Tolerance for ~{volume} concurrent application users</p></li>
         <li><p>An increase of ~${cost} in cloud provider cost</p></li>

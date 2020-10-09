@@ -151,7 +151,7 @@ class Base:
       models_man.add_classes([ChildClass])
       parent_inst = self.model_class().inflate('parent')
       sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
-      result = parent_inst.load_children('children', ChildClass)
+      result = parent_inst.inflate_children('children', ChildClass)
       exp = [
         {'id': 'independent-child', 'cls': ChildClass},
         {'id': 'embedded-child', 'cls': ChildClass}

@@ -70,7 +70,7 @@ class WizModel:
   def kind(cls):
     return cls.__name__
 
-  def load_children(self, config_key: str, child_class: Type[T]) -> List[T]:
+  def inflate_children(self, config_key: str, child_class: Type[T]) -> List[T]:
     descriptor_list = self.config.get(config_key, [])
     return self.load_related(descriptor_list, child_class)
 

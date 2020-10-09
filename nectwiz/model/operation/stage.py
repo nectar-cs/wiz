@@ -40,7 +40,7 @@ class Stage(WizModel):
     Loads the Steps associated with the Stage.
     :return: List of Step instances.
     """
-    return self.load_children('steps', Step)
+    return self.inflate_children('steps', Step)
 
   def step(self, _id: str) -> Step:
     """

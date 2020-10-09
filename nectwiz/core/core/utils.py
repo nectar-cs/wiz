@@ -298,6 +298,19 @@ def log2kao(log: str) -> Optional[KAO]:
     return None
 
 
+def kao2log(kao: KAO) -> str:
+  group_and_kind = ''
+  if kao.get('api_group'):
+    group_and_kind = f"{kao.get('api_group')}."
+  group_and_kind = f"{group_and_kind}{kao.get('kind')}"
+  identity = f"{group_and_kind}/{kao.get('name')}"
+
+  if not kao.get('error'):
+    return f"{identity} {kao.get('verb')}"
+  else:
+    return f"{identity} {kao.get('error')}"
+
+
 def logs2outkomes(logs: List[str]) -> List[KAO]:
   outcomes = list(map(log2kao, logs))
   return [o for o in outcomes if o is not None]

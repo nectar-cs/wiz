@@ -21,6 +21,12 @@ class ResourcePropertyPredicate(Predicate):
     compare_challenge = lambda v: self._common_compare(v)
     cond_met_evals = list(map(compare_challenge, resolved_values))
 
+    print(resolved_values)
+    print("---VS---")
+    print(compare_challenge)
+    print("---EQ---")
+    print(cond_met_evals)
+
     if self.match_type == 'all':
       return set(cond_met_evals) == {True}
 

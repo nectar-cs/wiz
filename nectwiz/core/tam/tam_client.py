@@ -79,7 +79,6 @@ class TamClient:
       return res_list
 
 
-
 def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
   raw_log = output.decode('utf-8') if output else ''
   parts = raw_log.split("\n")

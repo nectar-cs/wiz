@@ -73,6 +73,7 @@ class AwaitSettledActionPart:
   @classmethod
   def scan_settle_failures(cls, observer: Observer, state: StepState, predicates):
     if state.did_fail():
+      observer.blame_item_id = key_await_settled
       finder = lambda es: es.get('met')
       culprit = next(filter(finder, state.exit_statuses['negative']), None)
       if culprit:
@@ -81,7 +82,7 @@ class AwaitSettledActionPart:
         if culprit_pred and hasattr(culprit_pred, 'selector'):
           original_res_sel = culprit_pred.selector()
           observer.process_error(
-            fatal=False,
+            fatal=True,
             tone='error',
             reason='One or more resources failed to settle',
             event_type=key_await_settled,

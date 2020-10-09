@@ -28,7 +28,7 @@ class ErrorHandler(WizModel):
 
   @lru_cache(maxsize=1)
   def diagnoses(self) -> List[ErrorDiagnosis]:
-    return self.load_children('diagnoses', ErrorDiagnosis)
+    return self.inflate_children('diagnoses', ErrorDiagnosis)
 
 
 def is_err_diagnosable(errdict: Dict) -> bool:

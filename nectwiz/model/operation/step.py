@@ -1,8 +1,10 @@
 from typing import List, Dict, Optional
 
+from nectwiz.model.error.errors_man import errors_man
+
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.job_client import enqueue_action, find_job
+from nectwiz.core.core.job_client import enqueue_action
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
@@ -48,7 +50,7 @@ class Step(WizModel):
     return self.field(field_id).validate(value, context)
 
   def fields(self) -> List[Field]:
-    return self.load_children('fields', Field)
+    return self.inflate_children('fields', Field)
 
   def field(self, _id) -> Field:
     finder = lambda field: field.id() == _id
@@ -89,40 +91,20 @@ class Step(WizModel):
     recalled_from_state = self.comp_recalled_asgs(TARGET_STATE, prev_state)
     return {**recalled_from_state, **assigns}
 
-  def run(self, assigns: Dict, prev_state: StepState):
-    buckets = self.partition_user_asgs(assigns, prev_state)
-    mfst_vars, state_vars = buckets[TARGET_CHART], buckets[TARGET_STATE]
-    prev_state.notify_vars_assigned(mfst_vars, state_vars)
+  def run(self, assigns: Dict, state: StepState):
+    buckets = self.partition_user_asgs(assigns, state)
+    manifest_vars, state_vars = buckets[TARGET_CHART], buckets[TARGET_STATE]
+    state.notify_vars_assigned(manifest_vars, state_vars)
 
-    if len(mfst_vars):
-      keyed_tuples = list(mfst_vars.items())
+    if len(manifest_vars):
+      keyed_tuples = list(manifest_vars.items())
       config_man.patch_keyed_manifest_vars(keyed_tuples)
 
     if self.runs_action():
       job_id = enqueue_action(self.action_kod, **buckets)
-      prev_state.notify_action_started(job_id)
+      state.notify_action_started(job_id)
     else:
-      prev_state.notify_succeeded()
-
-  # noinspection PyMethodMayBeStatic
-  def compute_status(self, prev_state: TSS = None) -> Dict:
-    if prev_state.is_running():
-      action_job = find_job(prev_state.job_id)
-      if action_job:
-        status = job_client.ternary_job_status(prev_state.job_id)
-        progress = job_client.job_progress(prev_state.job_id)
-        if action_job.is_finished:
-          prev_state.notify_succeeded()
-        elif action_job.is_failed:
-          prev_state.notify_failed()
-        return dict(status=status, progress=progress)
-      else:
-        print(f"[nectwiz::step] DANGER job {prev_state.job_id} lost!")
-        return dict(status='negative', progress={})
-    else:
-      print(f"[nectwiz::step] DANGER compute_status called when not running")
-      prev_state.notify_succeeded()
-      return dict(status='positive', progress={})
+      state.notify_succeeded()
 
   def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
     fields = self.visible_fields(assigns, ps.parent_op)
@@ -140,6 +122,30 @@ class Step(WizModel):
         TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
         TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
       }
+
+  @staticmethod
+  def compute_status(state: TSS = None) -> Dict:
+    if state.is_running():
+      action_job = job_client.find_job(state.job_id)
+      errdicts = job_client.job_errdicts(state.job_id)
+      errors_man.add_errors(errdicts)
+      if action_job:
+        progress = job_client.job_progress(state.job_id)
+        if action_job.is_finished or action_job.is_failed:
+          if action_job.is_finished:
+            state.notify_terminated(action_job.result)
+          else:
+            state.notify_failed()
+          return dict(status=state.status, progress=progress)
+        else:
+          return dict(status='running', progress=progress)
+      else:
+        print(f"[nectwiz::step] danger job {state.job_id} lost!")
+        return dict(status='negative', progress={})
+    else:
+      print(f"[nectwiz::step] danger compute_status called when not running")
+      state.notify_succeeded()
+      return dict(status='negative', progress={})
 
 
 def resolution_context(op_state: OperationState):

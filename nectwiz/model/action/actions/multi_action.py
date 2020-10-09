@@ -10,7 +10,7 @@ class MultiAction(Action):
     # self.observer = ReluctantObserver()
 
   def load_sub_actions(self) -> List[Action]:
-    return self.load_children('sub_actions', Action)
+    return self.inflate_children('sub_actions', Action)
 
   def perform(self, *args, **kwargs) -> Dict:
     for action in self.load_sub_actions():

@@ -12,9 +12,10 @@ from nectwiz.model.error.controller_error import ActionHalt
 class Observer:
   def __init__(self):
     self.progress = ProgressItem()
-    self.progress['sub_items'] = []
-    self.blame_item_id = None
-    self.errdicts = []
+    self.progress['logs']: List[str] = []
+    self.progress['sub_items']: List[ProgressItem] = []
+    self.blame_item_id: Optional[str] = None
+    self.errdicts: List[ErrDict] = []
 
   def notify_job(self):
     job: Job = get_current_job()
@@ -22,6 +23,12 @@ class Observer:
       job.meta['progress'] = json.dumps(self.progress)
       job.meta['errdicts'] = json.dumps(self.errdicts)
       job.save_meta()
+
+  def log(self, logs: List[str]):
+    if not self.progress.get('logs'):
+      self.progress['logs'] = []
+    self.progress['logs'] += logs
+    self.notify_job()
 
   def set_items(self, items: List[ProgressItem]):
     self.progress['sub_items'] = items
@@ -44,7 +51,11 @@ class Observer:
     item = self.item(item_id)
     if item:
       current_value = item.get(prop_name, {}) or {}
-      item[prop_name] = dict(**current_value, **patch)
+      if type(current_value) == dict:
+        item[prop_name] = dict(**current_value, **patch)
+        self.notify_job()
+      else:
+        print(f"[nectwiz::observer] danger unmergeable {current_value}")
     else:
       print(f"[nectwiz::observer] danger no item {item_id}")
 
@@ -101,14 +112,23 @@ class Observer:
     if self.blame_item_id and self.item(self.blame_item_id):
       diagnosable = error_handler.is_err_diagnosable(errdict)
       self.set_item_status(self.blame_item_id, 'negative')
+      self.cancel_blamed_subitems()
       self.merge_prop(self.blame_item_id, 'error', dict(
         id=errdict['uuid'] if diagnosable else None,
         tone=tone,
-        reason=reason,
+        reason=reason
       ))
     else:
       print(f"[nectwiz::observer] critical no blame id for {errdict}")
+
     if errdict.get('fatal'):
       raise ActionHalt(errdict)
     else:
       self.notify_job()
+
+  def cancel_blamed_subitems(self):
+    item = self.item(self.blame_item_id)
+    subitems = item.get('sub_items', [])
+    for subitem in subitems:
+      if subitem.get('status') == 'running':
+        subitem['status'] = 'negative'
