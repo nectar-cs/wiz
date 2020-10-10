@@ -25,12 +25,6 @@ def document():
   """
 
 
-  Field.requires_decoration.__doc__ = """
-  Checks if the Field is of type "slider" and thus needs decorating.
-  :return: True if does, False otherwise.
-  """
-
-
   Field.options.__doc__ = """
   If the Field has an option source, prepares the options list which consists
   of k8s resources.

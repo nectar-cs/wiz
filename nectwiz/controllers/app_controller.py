@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify
 from nectwiz.core.core import job_client
 from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
+from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
 from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
@@ -83,9 +84,9 @@ def app_resource_usage():
   Returns the Base Consumption adapter.
   :return: serialized adapter object.
   """
-  # adapter = wiz_app.find_adapter_subclass(BaseConsumptionAdapter, True)
-  # output = adapter().serialize()
-  # return jsonify(data=output)
+  adapter = ResourceConsumptionAdapter.descendent_or_self()
+  output = adapter.serialize()
+  return jsonify(data=output)
   pass
 
 

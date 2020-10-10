@@ -13,7 +13,8 @@ def standard(cv: ManifestVariable):
     mode=cv.mode,
     description=cv.info,
     default_value=cv.default_value(),
-    value=cv.read_crt_value(force_reload=False)    
+    value=cv.read_crt_value(force_reload=False),
+    is_valid=cv.is_currently_valid(force_reload=False)
   )
 
 

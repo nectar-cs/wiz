@@ -1,5 +1,7 @@
 from typing import Optional, List, TypeVar
 
+from nectwiz.core.core.types import PredEval
+
 from nectwiz.core.core import config_man, utils, hub_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
@@ -30,6 +32,15 @@ class ManifestVariable(GenericVariable):
     root = config_man.flat_manifest_vars(force_reload)
     return root.get(self.id())
 
+  def is_currently_valid(self, force_reload=False) -> bool:
+    if len(self.validators()) > 0:
+      crt_val = self.read_crt_value(force_reload)
+      context = dict(resolvers=config_man.resolvers())
+      pred_eval: PredEval = self.validate(crt_val, context)
+      return pred_eval['met']
+    else:
+      return True
+
   @classmethod
   def all_vars(cls) -> List[T]:
     raw = config_man.manifest_variables(force_reload=True)
@@ -39,7 +50,7 @@ class ManifestVariable(GenericVariable):
     for committed_var in committed_vars:
       key = committed_var[0]
       if not pres(key):
-        models.append(ManifestVariable(dict(id=key)))
+        models.append(cls.synthesize_var_model(key))
     return models
 
   @classmethod
@@ -59,3 +70,20 @@ class ManifestVariable(GenericVariable):
           config_man.commit_mfst_vars(injections)
           return True
     return False
+
+  # noinspection PyBroadException
+  @classmethod
+  def find_or_synthesize(cls, key):
+    try:
+      return cls.inflate(key)
+    except:
+      return cls.synthesize_var_model(key)
+
+  @staticmethod
+  def synthesize_var_model(key: str):
+    return ManifestVariable.inflate(dict(
+      id=key,
+      mode='unlisted',
+      title=f'Undocumented Variable {key}',
+      info=f'Undocumented Variable {key}'
+    ))

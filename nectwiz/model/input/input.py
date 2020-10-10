@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import WizModel
@@ -27,5 +27,6 @@ class GenericInput(WizModel):
     provider = ResourceSelector.inflate(self.provider_desc)
     return provider.as_options()
 
-  def requires_decoration(self) -> bool:
-    return False
+  @staticmethod
+  def sanitize_for_validation(value: Any) -> Any:
+    return value

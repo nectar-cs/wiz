@@ -182,22 +182,6 @@ def step_field_validate(operation_id, stage_id, step_id, field_id):
   return jsonify(data=dict(status=status, message=message))
 
 
-@controller.route(f'{FIELD_PATH}/decorate', methods=['POST'])
-def fields_decorate(operation_id, stage_id, step_id, field_id):
-  """
-  Decorates the field wit the passed values. Decorating refers to displaying
-  values next to the field in question.
-  :param operation_id: operation id to locate the right field.
-  :param stage_id: stage id to locate the right field.
-  :param step_id: step id to locate the right field.
-  :param field_id: field id to locate the right field.
-  :return: dict with decorations.
-  """
-  field = find_field(operation_id, stage_id, step_id, field_id)
-  value = jparse()['value']
-  return jsonify(data=field.decorate_value(value))
-
-
 @controller.route(f'{OPERATIONS_PATH}/mark-finished', methods=['POST'])
 def mark_finished():
   """

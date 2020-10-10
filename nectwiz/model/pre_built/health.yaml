@@ -1,38 +1,3 @@
-kind: SystemCheck
-id: system-check
-predicates:
-  - nectar.predicate.is-tam-in-sync
-
----
-
-kind: Predicate
-id: nectar.predicate.is-tam-in-sync
-title: Ensure manifest image belongs to vendor
-info: A non-vendor manifest image could mean that your application is compormised.
-check_against: gcr.io/nectar-bazaar/ice-cream-tami
-challenge: "{tam_config/uri}"
-tone: error
-reason: The manifest image should be gcr.io/nectar-bazaar/ice-cream-tami but it is not.
-
----
-
-kind: ActionTermPredicate
-id: predicate.telem-storage-working
-
-
----
-
-kind: ErrorTriggerSelector
-property_selector:
-  event_type: ['await_settled', 'apply_resources', 'predicate']
-  action_id: vt
-  predicate_id: [this one, that one]
-  verb: [create, delete]
-resource_selector:
-  kind: "*"
-
----
-
 kind: ErrorHandler
 id: telem-redis-connection-down
 trigger_selector:
@@ -81,8 +46,3 @@ diagnoses:
       property: status.available_replicas
       operator: ">"
       check_against: 0
-
----
-
-kind: GenericDepCreateFailedHandler
-id: generic-pod-broken

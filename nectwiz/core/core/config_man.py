@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Callable
 
 from k8kat.auth.kube_broker import broker
 from k8kat.res.config_map.kat_map import KatMap
@@ -89,7 +89,7 @@ class ConfigMan:
       return None
 
   # noinspection PyTypedDict
-  def resolvers(self) -> Dict:
+  def resolvers(self) -> Dict[str, Callable]:
     def app_cont(n: str) -> str:
       return dict(
         install_uuid=self.install_uuid(),

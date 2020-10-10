@@ -56,9 +56,6 @@ class Field(WizModel):
   def is_state_var(self) -> bool:
     return self.target == TARGET_STATE
 
-  def requires_decoration(self) -> bool:
-    return self.input_spec().requires_decoration()
-
   def current_or_default(self) -> Optional[str]:
     current = config_man.manifest_variables().get(self.id())
     return current or self.default_value()
@@ -73,9 +70,3 @@ class Field(WizModel):
       return predicate.evaluate(context)
     else:
       return True
-
-  def sanitize_value(self, value):
-    return value
-
-  def decorate_value(self, value: str) -> Optional[any]:
-    return None
