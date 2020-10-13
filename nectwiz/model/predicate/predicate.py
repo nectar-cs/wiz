@@ -15,7 +15,7 @@ class Predicate(WizModel):
     self.check_against: Any = config.get('check_against')
 
   def evaluate(self, context: Dict) -> bool:
-    fresher_challenge = context.get('value')
+    fresher_challenge = (context or {}).get('value')
     challenge = fresher_challenge or self.challenge
     challenge = subs.interp(challenge, context)
     return self._common_compare(challenge)
@@ -52,22 +52,29 @@ def build_comparator(name) -> Callable[[any, any], bool]:
   :param name: vendor-defined operator name.
   :return: actual operation to be performed.
   """
+
+  def false_on_raise(actual_pred: Callable):
+    try:
+      return actual_pred()
+    except:
+      return False
+
   if name in ['equals', 'equal', 'eq', '==', '=']:
     return lambda a, b: a == b
   elif name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
     return lambda a, b: a != b
   elif name in ['is-in', 'in']:
-    return lambda a, b: a in b
+    return lambda a, b: false_on_raise(lambda: a in b)
   elif name in ['contains']:
-    return lambda a, b: b in a
+    return lambda a, b: false_on_raise(lambda: b in a)
   elif name in ['is-greater-than', 'greater-than', 'gt', '>']:
-    return lambda a, b: a > float(b)
+    return lambda a, b: false_on_raise(lambda: a > float(b))
   elif name in ['gte', '>=']:
-    return lambda a, b: float(a) >= float(b)
+    return lambda a, b: false_on_raise(lambda: float(a) >= float(b))
   elif name in ['is-less-than', 'less-than', 'lt', '<']:
-    return lambda a, b: float(a) < float(b)
+    return lambda a, b: false_on_raise(lambda: float(a) < float(b))
   elif name in ['lte', '<=']:
-    return lambda a, b: float(a) <= float(b)
+    return lambda a, b: false_on_raise(lambda: float(a) <= float(b))
   elif name in ['presence', 'defined', 'is-defined']:
     return lambda a, b: bool(a)
   elif name in ['undefined', 'is-undefined']:

@@ -33,13 +33,18 @@ class ManifestVariable(GenericVariable):
     return root.get(self.id())
 
   def is_currently_valid(self, force_reload=False) -> bool:
-    if len(self.validators()) > 0:
-      crt_val = self.read_crt_value(force_reload)
+    self.read_crt_value(force_reload)
+    if self.is_defined() and len(self.validators()) > 0:
+      crt_val = self.read_crt_value()
       context = dict(resolvers=config_man.resolvers())
       pred_eval: PredEval = self.validate(crt_val, context)
       return pred_eval['met']
     else:
       return True
+
+  def is_defined(self) -> bool:
+    root = config_man.flat_manifest_vars()
+    return self.id() in root.keys()
 
   @classmethod
   def all_vars(cls) -> List[T]:

@@ -76,17 +76,14 @@ class Step(WizModel):
 
     return new_assigns
 
-  # noinspection PyUnusedLocal
   def finalize_chart_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     recalled_from_state = self.comp_recalled_asgs(TARGET_CHART, prev_state)
     return {**recalled_from_state, **assigns}
 
-  # noinspection PyUnusedLocal
   def finalize_inline_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     recalled_from_state = self.comp_recalled_asgs(TARGET_INLIN, prev_state)
     return {**recalled_from_state, **assigns}
 
-  # noinspection PyUnusedLocal
   def finalize_state_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
     recalled_from_state = self.comp_recalled_asgs(TARGET_STATE, prev_state)
     return {**recalled_from_state, **assigns}
@@ -113,9 +110,8 @@ class Step(WizModel):
       return next(filter(lambda f: f.id() == _id, fields), None)
 
     def seg(_type: str):
-      transv = lambda k, v: find_field(k) and find_field(k).sanitize_value(v)
       gate = lambda k: find_field(k) and find_field(k).target == _type
-      return {k: transv(k, v) for (k, v) in assigns.items() if gate(k)}
+      return {k: v for (k, v) in assigns.items() if gate(k)}
 
     return {
         TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),

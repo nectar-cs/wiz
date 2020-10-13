@@ -47,6 +47,20 @@ class TestPredicate(Base.TestWizModel):
     )).evaluate(dict(value='x'))
     self.assertTrue(actual)
 
+    actual = Predicate(dict(
+      check_against=['x', 'y'],
+      challenge='y',
+      operator='in'
+    )).evaluate(dict())
+    self.assertTrue(actual)
+
+    actual = Predicate(dict(
+      check_against=None,
+      challenge='y',
+      operator='in'
+    )).evaluate(dict())
+    self.assertFalse(actual)
+
   def test_chart_value_compare(self):
     ns, = ns_factory.request(1)
     coerce_ns(ns)
@@ -55,9 +69,12 @@ class TestPredicate(Base.TestWizModel):
 
     self.assertTrue(mk_pred3('foo', None, 'defined'))
     self.assertTrue(mk_pred3('foo', 'bar'))
+    self.assertTrue(mk_pred3('foo', 'bigbar', 'in'))
+    self.assertTrue(mk_pred3('foo', ['bar', 'baz'], 'in'))
     self.assertTrue(mk_pred3('x', '1'))
     self.assertTrue(mk_pred3('x', 1))
     self.assertTrue(mk_pred3('x', 0, 'gt'))
+    self.assertFalse(mk_pred3('x', None, 'gt'))
     self.assertTrue(mk_pred3('x', '2', 'lt'))
     self.assertTrue(mk_pred3('nope', None, 'undefined'))
     self.assertFalse(mk_pred3('nope', None, 'is-defined'))

@@ -43,7 +43,7 @@ class DeleteResourcesAction(Action):
       self.observer.subitem(key_main, item['id'])['status'] = 'positive'
     self.observer.set_item_status(key_main, 'positive')
 
-    return {}
+    return dict(success=True)
 
 def make_item(res: KatRes):
   return dict(
