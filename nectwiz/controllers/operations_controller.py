@@ -81,7 +81,7 @@ def eval_preflight(operation_id):
   if operation.has_preflight_checks():
     preflight_action = operation.preflight_action_config()
     job_id = job_client.enqueue_action(preflight_action)
-    return jsonify(status='running', data=dict(job_id=job_id))
+    return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')
 
