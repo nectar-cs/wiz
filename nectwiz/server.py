@@ -5,7 +5,8 @@ from flask_cors import CORS
 from k8kat.auth.kube_broker import BrokerConnException
 
 from nectwiz.controllers import operations_controller, status_controller, \
-  app_controller, manifest_variables_controller, resources_controller, updates_controller, errors_controller
+  app_controller, manifest_variables_controller, resources_controller, updates_controller, errors_controller, \
+  telem_controller
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import coerce_ns
 
@@ -17,6 +18,7 @@ controllers = [
   operations_controller,
   app_controller,
   resources_controller,
+  telem_controller,
   updates_controller,
   manifest_variables_controller,
   errors_controller

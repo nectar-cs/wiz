@@ -94,19 +94,6 @@ class KAO(TypedDict):
   error: Optional[str]
 
 
-class UpdateOutcome(TypedDict, total=False):
-  status: str
-  update_id: str
-  type: str
-  version_pre: str
-  fatal_err: Dict
-  version: str
-  manifest_vars_pre: Dict
-  manifest_vars_post: Dict
-  kaos: List[KAO]
-  timestamp: str
-
-
 class ErrDict(TypedDict, total=False):
   uuid: str
   event_type: str

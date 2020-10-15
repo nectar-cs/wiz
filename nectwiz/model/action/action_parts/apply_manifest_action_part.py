@@ -43,13 +43,13 @@ class ApplyManifestActionPart:
     observer.log(list(map(yaml.dump, manifestds)))
 
     observer.set_item_status(key_apply_manifest, 'running')
-    apply_outcomes = client.kubectl_apply(manifestds)
-    cls.on_apply_finished(observer, apply_outcomes)
-    observer.log(list(map(utils.kao2log, apply_outcomes)))
-    cls.check_kao_failures(observer, apply_outcomes)
+    k_apply_outcomes = client.kubectl_apply(manifestds)
+    cls.on_apply_finished(observer, k_apply_outcomes)
+    observer.log(list(map(utils.kao2log, k_apply_outcomes)))
+    cls.check_kao_failures(observer, k_apply_outcomes)
 
     time.sleep(2)
-    return apply_outcomes
+    return k_apply_outcomes
 
   @classmethod
   def on_apply_finished(cls, observer: Observer, outcomes: KAOs):

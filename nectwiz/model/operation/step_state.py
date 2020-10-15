@@ -18,6 +18,7 @@ class StepState:
     self.chart_assigns: Dict = {}
     self.state_assigns: Dict = {}
     self.action_outcome: Optional[ActionOutcome] = None
+    self.action_telem = None
     self.exit_statuses: ExitStatuses = default_exit_statuses()
     self.committed_at = None
     self.terminated_at = None
@@ -28,12 +29,6 @@ class StepState:
 
   def has_settled(self):
     return self.status in [SETTLED_POS, SETTLED_NEG]
-
-  def action_was(self, cls_name) -> bool:
-    if self.action_outcome:
-      return self.action_outcome['cls_name'] == cls_name
-    else:
-      return False
 
   def did_succeed(self):
     return self.status == SETTLED_POS
@@ -49,8 +44,9 @@ class StepState:
     self.chart_assigns = chart_assigns
     self.state_assigns = state_assigns
 
-  def notify_terminated(self, success: bool):
+  def notify_terminated(self, success: bool, telem):
     self.status = SETTLED_POS if success else SETTLED_NEG
+    self.action_telem = telem
 
   def notify_succeeded(self):
     self.status = SETTLED_POS

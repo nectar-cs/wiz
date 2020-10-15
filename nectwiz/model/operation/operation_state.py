@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional, Dict
 
 from nectwiz.core.core import utils
@@ -10,9 +11,23 @@ class OperationState:
     self.op_id: str = operation_id
     self.step_states: List[StepState] = []
     self.status = 'running'
+    self.preflight_telem = None
 
-  def notify_succeeded(self):
-    self.status = 'positive'
+  def notify_preflight_performed(self, telem):
+    self.preflight_telem = telem
+
+  def notify_ended(self, status):
+    self.status = status
+
+  def serialize_telem(self) -> Dict:
+    return dict(
+      status=self.status,
+      occurred_at=str(datetime.now()),
+      tasks=[
+        self.preflight_telem,
+        *[s.action_telem for s in self.step_states]
+      ]
+    )
 
   def find_step_state(self, step) -> StepState:
     matcher = lambda ss: ss.step_sig == step.sig()

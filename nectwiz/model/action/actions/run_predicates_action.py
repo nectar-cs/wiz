@@ -10,7 +10,6 @@ from nectwiz.model.predicate.predicate import Predicate
 class RunPredicatesAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.observer = Observer()
     self.predicates = self.inflate_children('predicates', Predicate)
     self.observer.set_items(list(map(pred2subitem, self.predicates)))
 

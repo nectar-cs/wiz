@@ -129,7 +129,8 @@ class Step(WizModel):
         progress = job_client.job_progress(state.job_id)
         if action_job.is_finished or action_job.is_failed:
           if action_job.is_finished:
-            state.notify_terminated(action_job.result)
+            telem = job_client.job_telem(state.job_id)
+            state.notify_terminated(action_job.result, telem)
           else:
             state.notify_failed()
           return dict(status=state.status, progress=progress)

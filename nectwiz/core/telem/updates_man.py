@@ -61,20 +61,6 @@ class UpdateAction(Action):
 
     return dict(success=True)
 
-  # def tel(self):
-  #   telem_man.store_update_outcome(UpdateOutcome(
-  #     status="negative" if fatal_err else 'positive',
-  #     update_id=self.update.get('id'),
-  #     type=self.update.get('type'),
-  #     version_pre=version_pre,
-  #     fatal_err={'coming': 'soon!'},
-  #     version=self.update.get('version'),
-  #     kaos=self.get_ktl_apply_outcomes(),
-  #     manifest_vars_pre=manifest_vars_pre,
-  #     manifest_vars_post=config_man.manifest_vars(True),
-  #     timestamp=str(datetime.now())
-  #   ))
-
 
 def find_hooks(which: str, update_type: str) -> List[Hook]:
   return Hook.by_trigger(

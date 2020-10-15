@@ -5,10 +5,6 @@ from nectwiz.model.action.base.action import Action
 
 class MultiAction(Action):
 
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    # self.observer = ReluctantObserver()
-
   def load_sub_actions(self) -> List[Action]:
     return self.inflate_children('sub_actions', Action)
 

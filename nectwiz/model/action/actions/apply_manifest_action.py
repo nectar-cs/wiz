@@ -10,7 +10,7 @@ class ApplyManifestAction(Action):
   def __init__(self, config):
     super().__init__(config)
     self.observer.progress = ProgressItem(
-      id=None,
+      id='apply_manifest',
       status='running',
       title="Apply Resources",
       info="Updates the manifest and waits for a settled state",

@@ -1,15 +1,17 @@
 import json
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Dict
 
 from k8kat.auth.kube_broker import broker
 from redis import Redis
 
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import UpdateOutcome
+from nectwiz.model.operation.operation_state import OperationState
 
 STRATEGY_DISABLED = 'disabled'
 key_var_assign = 'variable_assignment'
 key_update_outcomes = 'update_outcomes'
+key_operation_outcomes = 'operation_outcomes'
 
 connection_obj = dict(
   redis=None
@@ -47,15 +49,33 @@ def connected_and_enabled(func, backup=None):
 
 
 @connected_and_enabled(backup=None)
-def store_update_outcome(outcome: UpdateOutcome):
-  stored_outcomes = list_update_outcomes()
-  stored_outcomes.append(outcome)
-  redis().set(key_update_outcomes, json.dumps(stored_outcomes))
+def store_operation_outcome(op_telem: Dict):
+  store_list_element(key_operation_outcomes, op_telem)
+
+
+@connected_and_enabled(backup=None)
+def store_update_outcome(outcome: Dict):
+  store_list_element(key_update_outcomes, outcome)
+
+
+@connected_and_enabled(backup=None)
+def store_list_element(list_key: str, item: Dict):
+  stored_records = list_records(list_key)
+  stored_records.append(item)
+  redis().set(list_key, json.dumps(stored_records))
+
+
+def list_update_outcomes():
+  return list_records(key_update_outcomes)
+
+
+def list_operation_outcomes():
+  return list_records(key_operation_outcomes)
 
 
 @connected_and_enabled(backup=[])
-def list_update_outcomes():
-  return json.loads(redis().get(key_update_outcomes) or '[]')
+def list_records(key: str):
+  return json.loads(redis().get(key) or '[]')
 
 
 @connected_and_enabled(backup=[])
@@ -64,7 +84,7 @@ def clear_update_outcomes():
 
 
 @connected_and_enabled(backup=None)
-def get_update_outcome(_id: str) -> Optional[UpdateOutcome]:
+def get_update_outcome(_id: str) -> Optional[Dict]:
   stored_outcomes = list_update_outcomes()
   finder = lambda o: o.get('update_id') == _id
   return next(filter(finder, stored_outcomes), None)

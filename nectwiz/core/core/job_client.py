@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Dict
 
 from rq import Queue
 from rq.job import Job
@@ -37,22 +37,31 @@ def ternary_job_status(job_id: str) -> Optional[str]:
   return None
 
 
-def job_progress(job_id: str) -> Optional[ProgressItem]:
+def job_meta(job_id: str) -> Dict:
   job: Job = find_job(job_id)
-  blob = job.meta.get('progress')
+  return job.meta if job else {}
+
+
+def job_meta_part(job_id: str, part_key: str) -> Dict:
+  blob = job_meta(job_id).get(part_key)
   return json.loads(blob) if blob else {}
+
+
+def job_progress(job_id: str) -> Optional[ProgressItem]:
+  return job_meta_part(job_id, 'progress')
 
 
 def job_result(job_id: str) -> Optional[Any]:
-  job: Job = find_job(job_id)
-  blob = job.meta.get('result')
-  return json.loads(blob) if blob else {}
+  return job_meta_part(job_id, 'result')
+
+
+def job_telem(job_id: str) -> Optional[Any]:
+  return job_meta_part(job_id, 'telem')
 
 
 def job_errdicts(job_id: str) -> List[ErrDict]:
-  job: Job = find_job(job_id)
-  blob = job.meta.get('errdicts')
-  return json.loads(blob) if blob else []
+  blob = job_meta(job_id).get('errdicts')
+  return json.loads(blob) if blob else {}
 
 
 def load_and_perform_action(key_or_dict, **kwargs):

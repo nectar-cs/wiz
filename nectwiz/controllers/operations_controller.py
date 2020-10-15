@@ -4,14 +4,14 @@ from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
-from nectwiz.core.telem import telem_sync
+from nectwiz.core.telem import telem_man
 from nectwiz.model.field import field
 from nectwiz.model.field.field import Field, TARGET_CHART
-from nectwiz.serializers import operation_serial as operation_serial, step_serial
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState, operation_states
 from nectwiz.model.operation.stage import Stage
 from nectwiz.model.operation.step import Step
+from nectwiz.serializers import operation_serial as operation_serial, step_serial
 
 OPERATIONS_PATH = '/api/operations'
 OPERATION_PATH = f'/{OPERATIONS_PATH}/<operation_id>'
@@ -84,6 +84,16 @@ def eval_preflight(operation_id):
     return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')
+
+
+@controller.route(f"{OPERATION_PATH}/record-preflight-ended", methods=['POST'])
+def record_preflight_finished(operation_id):
+  op_state = find_op_state()
+  telem = job_client.job_telem(jparse()['job_id'])
+  print("STORING TELEM")
+  print(telem)
+  op_state.notify_preflight_performed(telem)
+  return jsonify(status='positive')
 
 
 @controller.route(f"{STEP_PATH}/refresh", methods=['POST'])
@@ -190,13 +200,18 @@ def mark_finished():
   :return: success or failure status depending if managed to find and delete
   the appropriate operation.
   """
-  find_op_state().notify_succeeded()
+  status = jparse().get('status', 'positive')
+  operation_state = find_op_state()
+  operation_state.notify_ended(status)
+  telem = operation_state.serialize_telem()
+  telem_man.store_operation_outcome(telem)
   return jsonify(data=dict(success='yeah'))
 
 
 @controller.route(f'{OPERATIONS_PATH}/flush-telem', methods=['POST'])
 def flush_telem():
-  telem_sync.upload_operation_outcomes()
+  # telem_sync.upload_operation_outcomes()
+  print("flush telem actually doing nothing lol")
   return jsonify(status='success')
 
 

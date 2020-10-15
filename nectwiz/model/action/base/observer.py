@@ -1,6 +1,7 @@
 import json
 from typing import Optional, Any, List, Dict
 
+from inflection import underscore
 from rq.job import Job, get_current_job
 
 from nectwiz.core.core import utils
@@ -12,8 +13,9 @@ from nectwiz.model.error.controller_error import ActionHalt
 class Observer:
   def __init__(self):
     self.progress = ProgressItem()
-    self.progress['logs']: List[str] = []
-    self.progress['sub_items']: List[ProgressItem] = []
+    self.progress['id'] = underscore(self.__class__.__name__)
+    self.progress['logs'] = []
+    self.progress['sub_items'] = []
     self.blame_item_id: Optional[str] = None
     self.errdicts: List[ErrDict] = []
 
