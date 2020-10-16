@@ -26,7 +26,7 @@ class AwaitSettledActionPart:
 
   @classmethod
   def perform(cls, observer: Observer, kaos: List[KAO]):
-    observer.set_item_status(key_await_settled, 'running')
+    observer.set_item_running(key_await_settled)
     predicate_tree = ResourcePropertyPredicate.from_apply_outcome(kaos)
     predicates = utils.flatten(predicate_tree.values())
     state = StepState('synthetic', None)
@@ -73,7 +73,6 @@ class AwaitSettledActionPart:
   @classmethod
   def scan_settle_failures(cls, observer: Observer, state: StepState, predicates):
     if state.did_fail():
-      observer.blame_item_id = key_await_settled
       finder = lambda es: es.get('met')
       culprit = next(filter(finder, state.exit_statuses['negative']), None)
       if culprit:

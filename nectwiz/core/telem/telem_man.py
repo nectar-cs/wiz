@@ -1,17 +1,15 @@
 import json
-from datetime import datetime
 from typing import Optional, Dict
 
 from k8kat.auth.kube_broker import broker
 from redis import Redis
 
+from nectwiz.core.core import hub_client
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.operation.operation_state import OperationState
 
 STRATEGY_DISABLED = 'disabled'
-key_var_assign = 'variable_assignment'
-key_update_outcomes = 'update_outcomes'
-key_operation_outcomes = 'operation_outcomes'
+key_outcomes_list = 'update_outcomes'
+key_config_backups_list = 'config_backups'
 
 connection_obj = dict(
   redis=None
@@ -48,14 +46,20 @@ def connected_and_enabled(func, backup=None):
   return aux
 
 
-@connected_and_enabled(backup=None)
-def store_operation_outcome(op_telem: Dict):
-  store_list_element(key_operation_outcomes, op_telem)
+def store_outcome(outcome: Dict):
+  store_list_element(key_outcomes_list, outcome)
 
 
-@connected_and_enabled(backup=None)
-def store_update_outcome(outcome: Dict):
-  store_list_element(key_update_outcomes, outcome)
+def store_config_backup(outcome: Dict):
+  store_list_element(key_config_backups_list, outcome)
+
+
+def list_outcomes():
+  return list_records(key_outcomes_list)
+
+
+def list_config_backups():
+  return list_records(key_outcomes_list)
 
 
 @connected_and_enabled(backup=None)
@@ -65,14 +69,6 @@ def store_list_element(list_key: str, item: Dict):
   redis().set(list_key, json.dumps(stored_records))
 
 
-def list_update_outcomes():
-  return list_records(key_update_outcomes)
-
-
-def list_operation_outcomes():
-  return list_records(key_operation_outcomes)
-
-
 @connected_and_enabled(backup=[])
 def list_records(key: str):
   return json.loads(redis().get(key) or '[]')
@@ -80,12 +76,12 @@ def list_records(key: str):
 
 @connected_and_enabled(backup=[])
 def clear_update_outcomes():
-  redis().delete(key_update_outcomes)
+  redis().delete(key_outcomes_list)
 
 
 @connected_and_enabled(backup=None)
 def get_update_outcome(_id: str) -> Optional[Dict]:
-  stored_outcomes = list_update_outcomes()
+  stored_outcomes = list_outcomes()
   finder = lambda o: o.get('update_id') == _id
   return next(filter(finder, stored_outcomes), None)
 
@@ -94,6 +90,20 @@ def get_update_outcome(_id: str) -> Optional[Dict]:
 def store_mfst_var_assign():
   pass
 
+def upload_meta():
+  tam = config_man.tam(force_reload=True)
+  last_updated = config_man.last_updated(force_reload=True)
+  install_uuid = config_man.install_uuid(force_reload=True)
+
+  payload = {
+    'tam_type': tam.get('type'),
+    'tam_uri': tam.get('uri'),
+    'tam_ver': tam.get('version'),
+    'last_updated': last_updated
+  }
+
+  endpoint = f'/installs/{install_uuid}'
+  hub_client.patch(endpoint, payload)
 
 def connect() -> Optional[Redis]:
   if broker.is_in_cluster_auth():

@@ -1,0 +1,15 @@
+kind: Hook
+id: nectar.hooks.backup-configs-before-update
+trigger_selector:
+  event: software-update
+  timing: before
+action: BackupConfigAction
+
+---
+
+kind: Hook
+id: nectar.hooks.write-last-updated-after-update
+trigger_selector:
+  event: software-update
+  timing: after
+action: UpdateLastChecked

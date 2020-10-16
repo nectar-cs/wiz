@@ -252,6 +252,8 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
   from nectwiz.model.predicate.common_predicates import TruePredicate
   from nectwiz.core.telem.updates_man import UpdateAction
+  from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
+  from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
 
   return [
     Operation,
@@ -290,6 +292,8 @@ def default_model_classes() -> List[Type[T]]:
     DeleteResourcesAction,
     RunPredicatesAction,
     UpdateAction,
+    BackupConfigAction,
+    UpdateLastCheckedAction,
 
     ResourceQueryAdapter,
     DeletionSpec,

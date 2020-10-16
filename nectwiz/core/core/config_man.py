@@ -1,5 +1,6 @@
 import base64
 import json
+from datetime import datetime
 from typing import Optional, Dict, List, Tuple, Callable
 
 from k8kat.auth.kube_broker import broker
@@ -14,11 +15,13 @@ cmap_name = 'master'
 install_uuid_path = '/etc/sec/install_uuid'
 tam_config_key = 'tam'
 prefs_config_key = 'prefs'
+key_last_updated = 'last_updated'
 tam_vars_key = 'manifest_variables'
 tam_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
 ns_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
 dev_ns_path = '/tmp/nectwiz-dev-ns'
+iso8601_time_fmt = '%Y-%m-%d %H:%M:%S.%f'
 
 
 class ConfigMan:
@@ -30,6 +33,7 @@ class ConfigMan:
     self._manifest_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
     self._prefs: Optional[Dict] = None
+    self._last_updated: Optional[datetime] = None
 
   def ns(self, force_reload=False):
     if force_reload or utils.is_worker() or not self._ns:
@@ -61,6 +65,12 @@ class ConfigMan:
 
   def flat_manifest_vars(self, force_reload=False) -> Dict:
     return utils.dict2flat(self.manifest_variables(force_reload))
+
+  def last_updated(self, force_reload=False) -> datetime:
+    if not self._last_updated or force_reload:
+      raw = self.read_config_map_primitive(key_last_updated)
+      self._last_updated = datetime.strptime(raw, iso8601_time_fmt)
+    return self._last_updated or distant_past_timestamp()
 
   def manifest_var(self, deep_key: str, reload=False) -> Optional[str]:
     """
@@ -103,6 +113,9 @@ class ConfigMan:
       app=app_cont
     )
 
+  def serialize(self):
+    config_map = self.master_config_map()
+
   def read_config_map_dict(self, outer_key: str) -> Dict:
     config_map = self.master_config_map()
     return config_map.jget(outer_key, {}) if config_map else {}
@@ -115,6 +128,10 @@ class ConfigMan:
     config_map = self.master_config_map()
     config_map.raw.data[outer_key] = value
     config_map.touch(save=True)
+
+  def set_last_updated(self, timestamp: datetime):
+    self.patch_config_map(key_last_updated, str(timestamp))
+    self._last_updated = None
 
   def patch_cmap_with_dict(self, outer_key: str, value: Dict):
     self.patch_config_map(outer_key, json.dumps(value))
@@ -146,12 +163,6 @@ class ConfigMan:
 
   def read_manifest_defaults(self) -> Dict:
     return self.read_config_map_dict(tam_defaults_key)
-
-  def read_last_update_checked(self) -> str:
-    return self.read_config_map_primitive(update_checked_at_key)
-
-  def write_last_update_checked(self, new_value):
-    return self.patch_config_map(update_checked_at_key, new_value)
 
   def read_install_uuid(self):
     if utils.is_dev():
@@ -198,6 +209,13 @@ def coerce_ns(new_ns):
   config_man._install_uuid = None
   config_man._tam_defaults = None
   config_man._tam_vars = None
+  config_man._last_updated = None
   if utils.is_dev():
     with open(dev_ns_path, 'w') as file:
       file.write(new_ns)
+
+
+def distant_past_timestamp() -> datetime:
+  date_time_str = '2000-01-01 00:00:00.000000'
+  fmt = '%Y-%m-%d %H:%M:%S.%f'
+  return datetime.strptime(date_time_str, fmt)

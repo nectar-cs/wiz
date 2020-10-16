@@ -64,8 +64,9 @@ class Observer:
   def set_item_status(self, _id, status):
     self.set_prop(_id, 'status', status)
 
-  def set_item_running(self, _id: str):
-    self.set_item_status(_id, 'running')
+  def set_item_running(self, item_id: str):
+    self.blame_item_id = item_id
+    self.set_item_status(item_id, 'running')
 
   def set_item_outcome(self, _id: str, outcome: bool):
     self.set_item_status(_id, 'positive' if outcome else 'negative')
@@ -80,6 +81,9 @@ class Observer:
 
   def set_subitem_status(self, item_id:  str, sub_item_id: str, status: str):
     self.set_subitem_prop(item_id, sub_item_id, 'status', status)
+
+  def set_crt_subitem_status(self, sub_item_id: str, status: str):
+    self.set_subitem_prop(self.blame_item_id, sub_item_id, 'status', status)
 
   def set_subitem_prop(self, item_id:  str, sub_item_id: str, prop, value: str):
     subitem = self.subitem(item_id, sub_item_id)

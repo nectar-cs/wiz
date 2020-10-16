@@ -32,5 +32,5 @@ def install_update(update_id):
 
 @controller.route(f'{BASE_PATH}/outcomes')
 def list_past_updates():
-  outcomes = telem_man.list_update_outcomes()
+  outcomes = telem_man.list_outcomes()
   return jsonify(data=outcomes)

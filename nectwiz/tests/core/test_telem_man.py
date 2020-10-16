@@ -8,6 +8,6 @@ class TestTelemMan(ClusterTest):
   def test_store_update_outcome(self):
     mock_outcome = UpdateOutcome(update_id='1')
     telem_man.store_update_outcome(mock_outcome)
-    out = telem_man.list_update_outcomes()
+    out = telem_man.list_outcomes()
     print(out)
 

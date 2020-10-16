@@ -22,6 +22,7 @@ class OperationState:
   def serialize_telem(self) -> Dict:
     return dict(
       status=self.status,
+      type='operation_outcome',
       occurred_at=str(datetime.now()),
       tasks=[
         self.preflight_telem,

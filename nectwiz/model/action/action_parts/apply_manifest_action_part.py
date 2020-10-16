@@ -36,13 +36,13 @@ class ApplyManifestActionPart:
   def perform(cls, observer: Observer, tam: Optional[TamDict], selectors, inlines):
     client = tam_client(tam)
 
-    observer.set_item_status(key_load_manifest, 'running')
+    observer.set_item_running(key_load_manifest)
     manifestds = client.load_templated_manifest(inlines)
     manifestds = client.filter_res(manifestds, selectors)
     observer.set_item_status(key_load_manifest, 'positive')
     observer.log(list(map(yaml.dump, manifestds)))
 
-    observer.set_item_status(key_apply_manifest, 'running')
+    observer.set_item_running(key_apply_manifest)
     k_apply_outcomes = client.kubectl_apply(manifestds)
     cls.on_apply_finished(observer, k_apply_outcomes)
     observer.log(list(map(utils.kao2log, k_apply_outcomes)))
@@ -58,7 +58,6 @@ class ApplyManifestActionPart:
 
   @classmethod
   def check_kao_failures(cls, observer: Observer, outcomes: KAOs):
-    observer.blame_item_id = key_apply_manifest
     fail_finder = lambda kao: kao.get('error') is not None
     kao_culprit = next(filter(fail_finder, outcomes), None)
     if kao_culprit is not None:

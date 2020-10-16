@@ -87,7 +87,7 @@ def eval_preflight(operation_id):
 
 
 @controller.route(f"{OPERATION_PATH}/record-preflight-ended", methods=['POST'])
-def record_preflight_finished(operation_id):
+def record_preflight_finished(_):
   op_state = find_op_state()
   telem = job_client.job_telem(jparse()['job_id'])
   print("STORING TELEM")
@@ -204,7 +204,7 @@ def mark_finished():
   operation_state = find_op_state()
   operation_state.notify_ended(status)
   telem = operation_state.serialize_telem()
-  telem_man.store_operation_outcome(telem)
+  telem_man.store_outcome(telem)
   return jsonify(data=dict(success='yeah'))
 
 

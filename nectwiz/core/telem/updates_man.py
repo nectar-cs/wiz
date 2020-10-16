@@ -20,25 +20,33 @@ class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.observer.progress = ProgressItem(
-      id=None,
+      id='software-update-action',
       status='running',
       info="Updates the variable manifest and waits for a settled state",
       sub_items=[
-        *RunHookGroupActionPart.progress_items('before'),
         *UpdateManifestDefaultsActionPart.progress_items(),
         *ApplyManifestActionPart.progress_items(),
         *AwaitSettledActionPart.progress_items(),
-        *RunHookGroupActionPart.progress_items('after'),
       ]
     )
 
   def perform(self, **kwargs):
     update: UpdateDict = kwargs.get('update')
-    RunHookGroupActionPart.perform(
-      self.observer,
-      'before',
-      find_hooks('before', update['type'])
+
+    before_hooks = find_hooks('before', update['type'])
+    after_hooks = find_hooks('after', update['type'])
+    progress_items = self.observer.progress['sub_items']
+
+    self.observer.progress['sub_items'] = (
+      RunHookGroupActionPart.progress_items(before_hooks) +
+      progress_items +
+      RunHookGroupActionPart.progress_items(after_hooks)
     )
+
+    RunHookGroupActionPart.perform(
+      self.observer, before_hooks
+    )
+
     UpdateManifestDefaultsActionPart.perform(
       self.observer,
       update,
@@ -49,17 +57,23 @@ class UpdateAction(Action):
       None,
       []
     )
+
     AwaitSettledActionPart.perform(
       self.observer,
       outcomes
     )
+
     RunHookGroupActionPart.perform(
-      self.observer,
-      'after',
-      find_hooks('after', update['type'])
+      self.observer, after_hooks
     )
 
     return dict(success=True)
+
+  def telem_bundle(self) -> Dict:
+    return dict(
+      type='update_outcome',
+      **super().telem_bundle()
+    )
 
 
 def find_hooks(which: str, update_type: str) -> List[Hook]:
