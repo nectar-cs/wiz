@@ -12,4 +12,4 @@ id: nectar.hooks.write-last-updated-after-update
 trigger_selector:
   event: software-update
   timing: after
-action: UpdateLastChecked
+action: UpdateLastCheckedAction

@@ -115,6 +115,7 @@ class ConfigMan:
 
   def serialize(self):
     config_map = self.master_config_map()
+    return config_map.raw.data if config_map else {}
 
   def read_config_map_dict(self, outer_key: str) -> Dict:
     config_map = self.master_config_map()

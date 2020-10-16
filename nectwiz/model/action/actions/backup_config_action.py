@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from typing import Dict
 
@@ -12,6 +13,7 @@ class BackupConfigAction(Action):
     self.observer.progress['sub_items'] = [
       dict(
         id='backup_config',
+        status='idle',
         title='Backup master config',
         info='Writes to current configuration to telem database'
       )
@@ -19,11 +21,10 @@ class BackupConfigAction(Action):
 
   def perform(self):
     self.observer.set_item_running('backup_config')
-    if telem_man.redis():
-      raw = config_man.serialize()
+    if telem_man.get_redis():
       telem_man.store_config_backup(dict(
         timestamp=str(datetime.now()),
-        raw=raw
+        raw=config_man.serialize()
       ))
       self.observer.set_item_status('backup_config', 'positive')
     else:
@@ -31,7 +32,7 @@ class BackupConfigAction(Action):
         fatal=False,
         tone='warning',
         reason='Could not save backup because Telem database not found',
-        event_type='apply_manifest'
+        event_type='backup_config'
       )
 
 
@@ -41,16 +42,21 @@ class UpdateLastCheckedAction(Action):
     self.observer.progress['sub_items'] = [
       dict(
         id='update_last_checked',
+        title='Record successful update',
+        info='Record event locally and sync status with Nectar Cloud',
+        status='idle',
         sub_items=[
           dict(
             id='update_config',
             title='Record successful update timestamp',
-            info='Commit timestamp to master configmap'
+            info='Commit timestamp to master configmap',
+            status='idle'
           ),
           dict(
             id='sync_last_checked',
             title='Sync status with Nectar Cloud',
-            info='Upload TAM/Wiz metadata'
+            info='Upload TAM/Wiz metadata',
+            status='idle'
           )
         ]
       )
@@ -65,7 +71,12 @@ class UpdateLastCheckedAction(Action):
     set_sub('update_config', 'positive')
 
     set_sub('sync_last_checked', 'running')
-    sync_result = telem_man.upload_meta()
+    sync_result = False
+    try:
+      telem_man.upload_meta()
+    except:
+      print("[nectwiz::update_last_checked_action] hub rejected sync")
+      print(traceback.format_exc())
 
     if sync_result:
       set_sub('sync_last_checked', 'positive')
@@ -74,5 +85,6 @@ class UpdateLastCheckedAction(Action):
       self.observer.process_error(
         fatal=False,
         tone='warning',
+        status='idle',
         reason='Failed sync status with Nectar Cloud'
       )

@@ -30,6 +30,7 @@ class Action(WizModel):
       self.observer.process_error(
         id='internal-error',
         fatal=True,
+        tone='error',
         reason='Internal error',
         logs=[traceback.format_exc()]
       )

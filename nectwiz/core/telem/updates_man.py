@@ -38,9 +38,9 @@ class UpdateAction(Action):
     progress_items = self.observer.progress['sub_items']
 
     self.observer.progress['sub_items'] = (
-      RunHookGroupActionPart.progress_items(before_hooks) +
+      RunHookGroupActionPart.progress_items('before', before_hooks) +
       progress_items +
-      RunHookGroupActionPart.progress_items(after_hooks)
+      RunHookGroupActionPart.progress_items('after', after_hooks)
     )
 
     RunHookGroupActionPart.perform(

@@ -20,6 +20,12 @@ def redis() -> Optional[Redis]:
   return connection_obj['redis']
 
 
+def get_redis():
+  if not redis():
+    connection_obj['redis'] = connect()
+  return redis()
+
+
 def parametrized(dec):
   def layer(*args, **kwargs):
     def repl(f):
@@ -35,9 +41,7 @@ def connected_and_enabled(func, backup=None):
     manifest_vars = config_man.flat_manifest_vars()
     strategy = manifest_vars.get('telem_storage.strategy')
     if is_local_dev or (not strategy == STRATEGY_DISABLED):
-      if not redis():
-        connection_obj['redis'] = connect()
-      if redis():
+      if get_redis():
         return func(*xs, **kws)
       else:
         return backup
@@ -59,7 +63,7 @@ def list_outcomes():
 
 
 def list_config_backups():
-  return list_records(key_outcomes_list)
+  return list_records(key_config_backups_list)
 
 
 @connected_and_enabled(backup=None)
@@ -99,11 +103,12 @@ def upload_meta():
     'tam_type': tam.get('type'),
     'tam_uri': tam.get('uri'),
     'tam_ver': tam.get('version'),
-    'last_updated': last_updated
+    'last_updated': str(last_updated)
   }
 
   endpoint = f'/installs/{install_uuid}'
-  hub_client.patch(endpoint, payload)
+  response = hub_client.patch(endpoint, payload)
+  return response.status_code < 205
 
 def connect() -> Optional[Redis]:
   if broker.is_in_cluster_auth():
