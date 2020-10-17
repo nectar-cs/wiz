@@ -12,7 +12,7 @@ class ActionErrorsMan:
       new_err_id = new_errdict.get('uuid')
       if new_err_id:
         if not self.find_error(new_err_id):
-          self.errdicts.append(*errdicts)
+          self.errdicts.append(new_errdict)
           print(f"added err {new_errdict}")
       else:
         print(f"[nectwiz::push_error] errdict missing uuid {new_errdict}")

@@ -1,11 +1,9 @@
-import base64
 import json
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple, Callable
 
 from k8kat.auth.kube_broker import broker
 from k8kat.res.config_map.kat_map import KatMap
-from k8kat.res.secret.kat_secret import KatSecret
 from k8kat.utils.main.utils import deep_merge
 
 from nectwiz.core.core import utils
@@ -124,7 +122,7 @@ class ConfigMan:
     config_map.raw.data[outer_key] = value
     config_map.touch(save=True)
 
-  def set_last_updated(self, timestamp: datetime):
+  def write_last_synced(self, timestamp: datetime):
     self.patch_config_map(key_last_updated, str(timestamp))
     self._last_updated = None
 

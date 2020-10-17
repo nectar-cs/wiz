@@ -67,13 +67,14 @@ class UpdateLastCheckedAction(Action):
     self.observer.set_item_running('update_last_checked')
 
     set_sub('update_config', 'running')
-    config_man.set_last_updated(datetime.now())
+    config_man.write_last_synced(datetime.now())
     set_sub('update_config', 'positive')
 
     set_sub('sync_last_checked', 'running')
     sync_result = False
     try:
       telem_man.upload_meta()
+      sync_result = True
     except:
       print("[nectwiz::update_last_checked_action] hub rejected sync")
       print(traceback.format_exc())
