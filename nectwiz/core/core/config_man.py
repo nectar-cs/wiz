@@ -28,7 +28,6 @@ class ConfigMan:
   def __init__(self):
     self._ns: Optional[str] = None
     self._tam: Optional[TamDict] = None
-    self._install_uuid: Optional[str] = None
     self._tam_defaults: Optional[Dict] = None
     self._manifest_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
@@ -86,11 +85,6 @@ class ConfigMan:
     if force_reload or utils.is_worker() or not self._manifest_defaults:
       self._manifest_defaults = self.read_manifest_defaults()
     return self._manifest_defaults
-
-  def install_uuid(self, force_reload=False) -> str:
-    if self.ns() and (utils.is_worker() or force_reload or not self.install_uuid):
-      self._install_uuid = self.read_install_uuid()
-    return self._install_uuid
 
   def master_config_map(self) -> Optional[KatMap]:
     if config_man.ns():
@@ -165,20 +159,13 @@ class ConfigMan:
   def read_manifest_defaults(self) -> Dict:
     return self.read_config_map_dict(tam_defaults_key)
 
-  def read_install_uuid(self):
-    if utils.is_dev():
-      secret = KatSecret.find('master', self.ns()) if self.ns() else None
-      if secret:
-        raw_enc = secret.raw.data.get('install_uuid')
-        raw_enc_bytes = bytes(raw_enc, 'utf-8')
-        return base64.b64decode(raw_enc_bytes).decode()
+  @staticmethod
+  def install_uuid():
+    try:
+      with open(install_uuid_path, 'r') as file:
+        return file.read()
+    except FileNotFoundError:
       return None
-    else:
-      try:
-        with open(install_uuid_path, 'r') as file:
-          return file.read()
-      except FileNotFoundError:
-        return None
 
   def patch_keyed_manifest_vars(self, assignments: List[Tuple[str, any]]):
     self.patch_manifest_vars(utils.keyed2dict(assignments))

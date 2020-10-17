@@ -89,22 +89,20 @@ def fetch_next_update() -> Optional[UpdateDict]:
   return None
 
 
-def fetch_update(_id: str) -> Optional[UpdateDict]:
+def fetch_update(update_id: str) -> Optional[UpdateDict]:
   if utils.is_prod():
-    uuid = config_man.install_uuid()
-    resp = hub_client.get(f'/api/cli/{uuid}/app_updates/{_id}')
-    data = resp.json()['data'] if resp.status_code < 205 else None
+    resp = hub_client.get(f'/app_updates/{update_id}')
+    data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
-    model = MockUpdate.inflate_with_key(_id)
+    model = MockUpdate.inflate_with_key(update_id)
     return model.as_bundle()
 
 
 def next_available() -> Optional[UpdateDict]:
   if utils.is_prod():
-    uuid = config_man.install_uuid()
-    resp = hub_client.get(f'/api/cli/{uuid}/app_updates/available')
-    data = resp.json()['data'] if resp.status_code < 205 else None
+    resp = hub_client.get(f'/app_updates/available')
+    data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
     model = MockUpdate.inflate_with_key(next_mock_update_id)

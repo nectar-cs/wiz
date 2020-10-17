@@ -94,6 +94,7 @@ def get_update_outcome(_id: str) -> Optional[Dict]:
 def store_mfst_var_assign():
   pass
 
+
 def upload_meta():
   tam = config_man.tam(force_reload=True)
   last_updated = config_man.last_updated(force_reload=True)
@@ -102,13 +103,14 @@ def upload_meta():
   payload = {
     'tam_type': tam.get('type'),
     'tam_uri': tam.get('uri'),
-    'tam_ver': tam.get('version'),
-    'last_updated': str(last_updated)
+    'tam_version': tam.get('version'),
+    'synced_at': str(last_updated)
   }
 
-  endpoint = f'/installs/{install_uuid}'
-  response = hub_client.patch(endpoint, payload)
+  endpoint = f'/installs/{install_uuid}/sync'
+  response = hub_client.post(endpoint, dict(data=payload))
   return response.status_code < 205
+
 
 def connect() -> Optional[Redis]:
   if broker.is_in_cluster_auth():
@@ -118,6 +120,7 @@ def connect() -> Optional[Redis]:
   else:
     host = 'localhost'
     port = 6379
+
   if host:
     return Redis(host=host, port=int(port or 6379))
   else:
