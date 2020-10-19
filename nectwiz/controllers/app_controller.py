@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
+from nectwiz.core.telem import telem_man
 from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
@@ -23,6 +24,12 @@ def run_system_check():
     return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')
+
+
+@controller.route(f'{BASE_PATH}/sync-hub')
+def sync_hub():
+  success = telem_man.upload_meta()
+  return jsonify(success=success)
 
 
 @controller.route(f'{BASE_PATH}/install-hooks')

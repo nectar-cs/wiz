@@ -12,10 +12,7 @@ strategy_disabled = 'disabled'
 strategy_internal = 'managed_pvc'
 key_outcomes_list = 'update_outcomes'
 key_config_backups_list = 'config_backups'
-
-connection_obj = dict(
-  redis=None
-)
+connection_obj = dict(redis=None)
 
 
 def redis() -> Optional[Redis]:
@@ -93,17 +90,22 @@ def store_mfst_var_assign():
 
 def upload_meta():
   tam = config_man.tam(force_reload=True)
+  wiz = config_man.tam(force_reload=True)
   last_updated = config_man.last_updated(force_reload=True)
 
   payload = {
     'tam_type': tam.get('type'),
     'tam_uri': tam.get('uri'),
     'tam_version': tam.get('version'),
+    'wiz_version': wiz.get('version'),
     'synced_at': str(last_updated)
   }
-
+  print("SEND")
+  print(payload)
   endpoint = f'/installs/sync'
   response = hub_client.post(endpoint, dict(data=payload))
+  print("GET")
+  print(response.json())
   return response.status_code < 205
 
 

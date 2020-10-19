@@ -21,6 +21,8 @@ class UpdateDict(TypedDict):
   version: str
   tam_type: Optional[str]
   tam_uri: Optional[str]
+  wiz_type: Optional[str]
+  wiz_uri: Optional[str]
   note: str
   injections: Dict[str, str]
   manual: bool
@@ -70,6 +72,12 @@ class TamDict(TypedDict, total=False):
   type: str
   uri: str
   args: Optional[List[str]]
+  version: str
+
+
+class WizDict(TypedDict, total=False):
+  type: str
+  uri: str
   version: str
 
 

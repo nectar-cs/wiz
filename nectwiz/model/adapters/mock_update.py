@@ -19,6 +19,8 @@ class MockUpdate(WizModel):
     self.injections = config.get('injections')
     self.tam_type = config.get('tam_type')
     self.tam_uri = config.get('tam_uri')
+    self.wiz_type = config.get('wiz_type')
+    self.wiz_uri = config.get('wiz_uri')
     if not self.note and config.get('note_url'):
       remote_note = requests.get(config.get('note_url'))
       self.note = remote_note.text
@@ -30,6 +32,8 @@ class MockUpdate(WizModel):
       version=self.version,
       tam_type=self.tam_type,
       tam_uri=self.tam_uri,
+      wiz_type=self.wiz_type,
+      wiz_uri=self.wiz_uri,
       injections=self.injections,
       note=self.note,
       manual=False

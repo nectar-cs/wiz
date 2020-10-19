@@ -7,11 +7,12 @@ from k8kat.res.config_map.kat_map import KatMap
 from k8kat.utils.main.utils import deep_merge
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import TamDict
+from nectwiz.core.core.types import TamDict, WizDict
 
 cmap_name = 'master'
 install_uuid_path = '/etc/sec/install_uuid'
 tam_config_key = 'tam'
+wiz_config_key = 'wiz'
 prefs_config_key = 'prefs'
 key_last_updated = 'last_updated'
 tam_vars_key = 'manifest_variables'
@@ -26,6 +27,7 @@ class ConfigMan:
   def __init__(self):
     self._ns: Optional[str] = None
     self._tam: Optional[TamDict] = None
+    self._wiz: Optional[WizDict] = None
     self._tam_defaults: Optional[Dict] = None
     self._manifest_defaults: Optional[Dict] = None
     self._tam_vars: Optional[Dict] = None
@@ -49,6 +51,11 @@ class ConfigMan:
     if force_reload or utils.is_worker() or not self._tam:
       self._tam = self.read_tam()
     return self._tam
+
+  def wiz(self, force_reload=False) -> TamDict:
+    if force_reload or utils.is_worker() or not self._wiz:
+      self._wiz = self.read_wiz()
+    return self._wiz
 
   def tam_defaults(self, force_reload=False) -> Dict:
     if force_reload or utils.is_worker() or not self._tam_defaults:
@@ -131,6 +138,9 @@ class ConfigMan:
 
   def read_tam(self) -> TamDict:
     return self.read_config_map_dict(tam_config_key)
+
+  def read_wiz(self) -> TamDict:
+    return self.read_config_map_dict(wiz_config_key)
 
   def read_prefs(self) -> TamDict:
     return self.read_config_map_dict(prefs_config_key)

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import updates_man, telem_man
-from nectwiz.core.telem.updates_man import UpdateAction
+from nectwiz.core.telem.updates_man import UpdateAction, WizUpdateAction
 
 controller = Blueprint('updates_controller', __name__)
 
@@ -24,9 +24,19 @@ def show_update(update_id):
 @controller.route(f'{BASE_PATH}/<update_id>/install', methods=['POST'])
 def install_update(update_id):
   bundle = updates_man.fetch_update(update_id)
-  print("BUNDLE")
-  print(bundle)
   job_id = job_client.enqueue_action(UpdateAction.__name__, update=bundle)
+  return jsonify(data=(dict(job_id=job_id)))
+
+
+@controller.route(f'{BASE_PATH}/run-pre-wiz-update-hooks', methods=['POST'])
+def run_pre_wiz_update_hooks():
+  job_id = job_client.enqueue_action(mk_update_action('before'))
+  return jsonify(data=(dict(job_id=job_id)))
+
+
+@controller.route(f'{BASE_PATH}/run-post-wiz-update-hooks', methods=['POST'])
+def run_post_wiz_update_hooks():
+  job_id = job_client.enqueue_action(mk_update_action('after'))
   return jsonify(data=(dict(job_id=job_id)))
 
 
@@ -34,3 +44,10 @@ def install_update(update_id):
 def list_past_updates():
   outcomes = telem_man.list_outcomes()
   return jsonify(data=outcomes)
+
+
+def mk_update_action(timing:  str):
+  return dict(
+    kind=WizUpdateAction.__name__,
+    when=timing
+  )

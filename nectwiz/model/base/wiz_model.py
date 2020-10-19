@@ -255,6 +255,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
 
+  from nectwiz.core.telem.updates_man import WizUpdateAction
   return [
     Operation,
     Stage,
@@ -294,6 +295,7 @@ def default_model_classes() -> List[Type[T]]:
     UpdateAction,
     BackupConfigAction,
     UpdateLastCheckedAction,
+    WizUpdateAction,
 
     ResourceQueryAdapter,
     DeletionSpec,

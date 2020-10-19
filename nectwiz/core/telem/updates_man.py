@@ -16,11 +16,30 @@ TYPE_RELEASE = 'release'
 TYPE_UPDATE = 'update'
 
 
+class WizUpdateAction(Action):
+  def __init__(self, config: Dict):
+    super().__init__(config)
+    self.timing = config['when']
+    self.observer.progress = ProgressItem(
+      id=f'wiz-{self.timing}-update-action',
+      status='running',
+      info=f"Runs {self.timing}-installation hooks",
+      sub_items=[]
+    )
+
+  def perform(self, **kwargs):
+    hooks = find_hooks(self.timing, 'wiz_update')
+    progress_items = RunHookGroupActionPart.progress_items(self.timing, hooks)
+    self.observer.progress['sub_items'] = progress_items
+    RunHookGroupActionPart.perform(self.observer, hooks)
+    return dict(success=True)
+
+
 class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.observer.progress = ProgressItem(
-      id='software-update-action',
+      id='app-update-action',
       status='running',
       info="Updates the variable manifest and waits for a settled state",
       sub_items=[
@@ -107,21 +126,6 @@ def next_available() -> Optional[UpdateDict]:
   else:
     model = MockUpdate.inflate_with_key(next_mock_update_id)
     return model.as_bundle()
-
-
-def notify_hub_checked() -> bool:
-  uuid = config_man.install_uuid()
-  if uuid:
-    url = f'/{uuid}/app_updates/notify_checked_update'
-    resp = hub_client.post(url, dict(data=dict(
-      tam_type=config_man.tam().get('type'),
-      tam_uri=config_man.tam().get('uri'),
-      tam_version=config_man.tam().get('version'),
-    )))
-    print(f"[updates_man::notify_checked] resp: {resp}")
-    return resp.status_code < 205
-  else:
-    return True
 
 
 def _gen_injection_telem(keys: List[str]):

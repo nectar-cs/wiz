@@ -11,3 +11,12 @@ id: vendor.mock-updates.partial
 type: release
 version: ''
 note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
+
+---
+
+kind: MockUpdate
+id: vendor.mock-updates.wiz-update
+type: wiz_update
+wiz_type: image
+version: ''
+note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md

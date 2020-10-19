@@ -1,3 +1,4 @@
+import time
 import traceback
 from datetime import datetime
 from typing import Dict
@@ -21,6 +22,7 @@ class BackupConfigAction(Action):
 
   def perform(self):
     self.observer.set_item_running('backup_config')
+    time.sleep(2)
     if telem_man.get_redis():
       telem_man.store_config_backup(dict(
         timestamp=str(datetime.now()),
@@ -67,11 +69,13 @@ class UpdateLastCheckedAction(Action):
     self.observer.set_item_running('update_last_checked')
 
     set_sub('update_config', 'running')
+    time.sleep(1)
     config_man.write_last_synced(datetime.now())
     set_sub('update_config', 'positive')
 
     set_sub('sync_last_checked', 'running')
     sync_result = False
+    time.sleep(1)
     try:
       telem_man.upload_meta()
       sync_result = True

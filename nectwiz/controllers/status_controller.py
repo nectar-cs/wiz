@@ -58,6 +58,7 @@ def status():
     ),
     ns=config_man.ns(),
     tam_config=config_man.tam(),
+    wiz_config=config_man.wiz(),
     tam_defaults=config_man.tam_defaults(),
     tam_variables=config_man.read_manifest_vars()
   )
