@@ -62,7 +62,7 @@ def manifest_variables_commit_apply():
 s  Updates the chart variable with new value.
   :return: status of the update.
   """
-  assignments = list(request.json['assignments'].items())
+  assignments = list(jparse()['assignments'].items())
   config_man.patch_keyed_manifest_vars(assignments)
   job_id = job_client.enqueue_action(ApplyManifestAction.__name__)
   return jsonify(data=dict(job_id=job_id))

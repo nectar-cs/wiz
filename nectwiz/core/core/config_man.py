@@ -73,7 +73,8 @@ class ConfigMan:
   def last_updated(self, force_reload=False) -> datetime:
     if not self._last_updated or force_reload:
       raw = self.read_config_map_primitive(key_last_updated)
-      self._last_updated = datetime.strptime(raw, iso8601_time_fmt)
+      if raw:
+        self._last_updated = datetime.strptime(raw, iso8601_time_fmt)
     return self._last_updated or distant_past_timestamp()
 
   def manifest_var(self, deep_key: str, reload=False) -> Optional[str]:

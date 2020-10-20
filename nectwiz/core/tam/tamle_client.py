@@ -32,7 +32,7 @@ def write_values_to_tmpfile():
 
 def exec_cmd(tam: TamDict, cmd):
   uri, ver = tam['uri'], tam['version']
-  exec_name = f"{uri}-{ver}" if ver else uri
+  exec_name = f"{uri}:{ver}" if ver else uri
   full_cmd = f"{exec_name} {cmd}".split(" ")
   output = subprocess.check_output(full_cmd).decode('utf-8')
   return output

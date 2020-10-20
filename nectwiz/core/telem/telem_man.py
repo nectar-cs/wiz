@@ -90,7 +90,7 @@ def store_mfst_var_assign():
 
 def upload_meta():
   tam = config_man.tam(force_reload=True)
-  wiz = config_man.tam(force_reload=True)
+  wiz = config_man.wiz(force_reload=True)
   last_updated = config_man.last_updated(force_reload=True)
 
   payload = {
@@ -100,12 +100,16 @@ def upload_meta():
     'wiz_version': wiz.get('version'),
     'synced_at': str(last_updated)
   }
+
   print("SEND")
   print(payload)
   endpoint = f'/installs/sync'
   response = hub_client.post(endpoint, dict(data=payload))
-  print("GET")
-  print(response.json())
+  try:
+    print("GET")
+    print(response.json())
+  except:
+    print('telem sync non-json response')
   return response.status_code < 205
 
 

@@ -11,6 +11,7 @@ BASE_PATH = '/api/updates'
 
 @controller.route(f'{BASE_PATH}/next-available')
 def fetch_next_available():
+  telem_man.upload_meta()
   bundle = updates_man.next_available()
   return jsonify(data=bundle)
 

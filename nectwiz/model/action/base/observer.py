@@ -126,7 +126,6 @@ class Observer:
       ))
     else:
       print(f"[nectwiz::observer] critical no blame id for {errdict}")
-
     if errdict.get('fatal'):
       raise ActionHalt(errdict)
     else:
