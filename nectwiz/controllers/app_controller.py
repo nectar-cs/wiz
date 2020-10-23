@@ -19,8 +19,8 @@ BASE_PATH = '/api/app'
 def run_system_check():
   sys_check: SystemCheck = SystemCheck.inflate(master_syscheck_id)
   if sys_check and sys_check.is_non_empty():
-    preflight_action = sys_check.multi_predicate_action_config()
-    job_id = job_client.enqueue_action(preflight_action)
+    action_config = sys_check.multi_predicate_action_config()
+    job_id = job_client.enqueue_action(action_config)
     return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')

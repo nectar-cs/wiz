@@ -8,7 +8,6 @@ reason: "It seems that telemetry storage is already enabled. Instead
     of proceeding, disable it safely using the appropriate operation."
 tone: error
 
-
 ---
 
 id: nectar.predicate.check-telem-is-pvc
@@ -52,7 +51,7 @@ steps:
           options:
             managed_pvc: "Managed PVC: in-cluster storage managed by Nectar"
             nectar_cloud: "Nectar cloud storage: secure remote database"
-            self_managed: "Own storage: you supply a Redis database"
+            self_managed: "Own storage: you supply a MongoDB database"
             disabled: "Disabled: telemetry will not be persisted"
         validation:
           - check_against: disabled
@@ -68,7 +67,7 @@ steps:
             tone: error
             reason: "Not available for your current plan"
       - id: telem_storage.host
-        title: Redis database host
+        title: MongoDB database host
         validation:
           - kind: FormatPredicate
             check_against: domain
@@ -76,7 +75,7 @@ steps:
           challenge: "{telem_storage.strategy}"
           check_against: self_managed
       - id: telem_storage.port
-        title: Telem Redis database host
+        title: MongoDB database host
         default: 6379
         validation:
           - kind: FormatPredicate
@@ -127,15 +126,9 @@ stages:
           sub_actions:
             - kind: DeleteResourcesAction
               resource_selectors:
-                - "deployments:telem-redis"
-                - "services:telem-redis"
-                - "persistentvolumeclaims:telem-redis-pvc"
-                - "secrets:telem-redis-secret"
-            # - kind: ApplyManifestAction
-            #   tam:
-            #     type: image
-            #     uri: gcr.io/nectar-bazaar/telem-tami
-            #     version: 1.0.0
+                - "deployments:telem-db"
+                - "services:telem-db"
+                - "persistentvolumeclaims:telem-db-pvc"
         fields:
           - id: nectar.fields.delete-telem-confirm
             title: I have read and understood the above.

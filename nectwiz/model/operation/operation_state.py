@@ -19,15 +19,11 @@ class OperationState:
   def notify_ended(self, status):
     self.status = status
 
-  def serialize_telem(self) -> Dict:
+  def gen_event_record(self) -> Dict:
     return dict(
       status=self.status,
       type='operation_outcome',
-      occurred_at=str(datetime.now()),
-      tasks=[
-        self.preflight_telem,
-        *[s.action_telem for s in self.step_states]
-      ]
+      occurred_at=str(datetime.now())
     )
 
   def find_step_state(self, step) -> StepState:

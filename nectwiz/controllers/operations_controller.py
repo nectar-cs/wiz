@@ -79,21 +79,13 @@ def eval_preflight(operation_id):
   """
   operation = find_operation(operation_id)
   if operation.has_preflight_checks():
-    preflight_action = operation.preflight_action_config()
-    job_id = job_client.enqueue_action(preflight_action)
+    event_uuid = find_op_state().uuid
+    action_config = operation.preflight_action_config()
+    action_config = {**action_config, 'event_uuid': event_uuid}
+    job_id = job_client.enqueue_action(action_config)
     return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')
-
-
-@controller.route(f"{OPERATION_PATH}/record-preflight-ended", methods=['POST'])
-def record_preflight_finished(_):
-  op_state = find_op_state()
-  telem = job_client.job_telem(jparse()['job_id'])
-  print("STORING TELEM")
-  print(telem)
-  op_state.notify_preflight_performed(telem)
-  return jsonify(status='positive')
 
 
 @controller.route(f"{STEP_PATH}/refresh", methods=['POST'])
@@ -193,7 +185,7 @@ def step_field_validate(operation_id, stage_id, step_id, field_id):
 
 
 @controller.route(f'{OPERATIONS_PATH}/mark-finished', methods=['POST'])
-def mark_finished():
+def operation_mark_finished():
   """
   Syncs telemetry information with the database if permissions allow to do so.
   Deletes OperationState after its done.
@@ -203,8 +195,8 @@ def mark_finished():
   status = jparse().get('status', 'positive')
   operation_state = find_op_state()
   operation_state.notify_ended(status)
-  telem = operation_state.serialize_telem()
-  telem_man.store_outcome(telem)
+  telem = operation_state.gen_event_record()
+  telem_man.store_event(telem)
   return jsonify(data=dict(success='yeah'))
 
 

@@ -104,6 +104,7 @@ class KAO(TypedDict):
 
 class ErrDict(TypedDict, total=False):
   uuid: str
+  event_id: Optional[str]
   event_type: str
   resource: Dict
 

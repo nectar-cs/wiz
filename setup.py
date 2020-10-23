@@ -24,6 +24,7 @@ setuptools.setup(
     'flask-cors',
     'k8kat>=0.0.212',
     'requests',
+    'pymongo',
     'cachetools>=3.1',
     'redis>=3',
     'rq',

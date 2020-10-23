@@ -13,7 +13,9 @@ class SystemCheck(WizModel):
   def multi_predicate_action_config(self) -> Dict:
     return dict(
       kind=RunPredicatesAction.__name__,
-      predicates=self.config.get('predicates', [])
+      predicates=self.config.get('predicates', []),
+      event_type='system_check',
+      store_telem=True
     )
 
   def is_non_empty(self) -> bool:

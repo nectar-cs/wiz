@@ -32,12 +32,14 @@ class WizUpdateAction(Action):
     progress_items = RunHookGroupActionPart.progress_items(self.timing, hooks)
     self.observer.progress['sub_items'] = progress_items
     RunHookGroupActionPart.perform(self.observer, hooks)
-    return dict(success=True)
+    return True
 
 
 class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
+    self.store_telem = True
+    self.event_type = 'update'
     self.observer.progress = ProgressItem(
       id='app-update-action',
       status='running',
@@ -63,13 +65,15 @@ class UpdateAction(Action):
     )
 
     RunHookGroupActionPart.perform(
-      self.observer, before_hooks
+      self.observer,
+      before_hooks
     )
 
     UpdateManifestDefaultsActionPart.perform(
       self.observer,
-      update,
+      update
     )
+
     outcomes = ApplyManifestActionPart.perform(
       self.observer,
       None,
@@ -83,23 +87,18 @@ class UpdateAction(Action):
     )
 
     RunHookGroupActionPart.perform(
-      self.observer, after_hooks
+      self.observer,
+      after_hooks
     )
 
-    return dict(success=True)
-
-  def telem_bundle(self) -> Dict:
-    return dict(
-      type='update_outcome',
-      **super().telem_bundle()
-    )
+    return True
 
 
 def find_hooks(which: str, update_type: str) -> List[Hook]:
   return Hook.by_trigger(
     event='software-update',
     update_type=update_type,
-    timing=which,
+    timing=which
   )
 
 

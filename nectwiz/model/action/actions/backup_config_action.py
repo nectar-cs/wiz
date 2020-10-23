@@ -23,7 +23,7 @@ class BackupConfigAction(Action):
   def perform(self):
     self.observer.set_item_running('backup_config')
     time.sleep(2)
-    if telem_man.get_redis():
+    if telem_man.get_db():
       telem_man.store_config_backup(dict(
         timestamp=str(datetime.now()),
         raw=config_man.serialize()

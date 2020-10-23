@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
-from nectwiz.core.core import job_client
+from nectwiz.core.core import job_client, utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
@@ -64,7 +64,13 @@ s  Updates the chart variable with new value.
   """
   assignments = list(jparse()['assignments'].items())
   config_man.patch_keyed_manifest_vars(assignments)
-  job_id = job_client.enqueue_action(ApplyManifestAction.__name__)
+  action_config = dict(
+    kind=ApplyManifestAction.__name__,
+    event_type='change_variables',
+
+    event_uuid=utils.rand_str(20)
+  )
+  job_id = job_client.enqueue_action(action_config)
   return jsonify(data=dict(job_id=job_id))
 
 
