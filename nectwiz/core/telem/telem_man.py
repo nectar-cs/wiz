@@ -53,6 +53,8 @@ def connected_and_enabled(func, backup=None):
 
 
 def store_error(error: Dict) -> Dict:
+  print("REQUESTING TO STORE EVENT")
+  print(error)
   return store_list_element(key_errors, error)
 
 
@@ -81,7 +83,7 @@ def list_config_backups():
 @connected_and_enabled(backup=None)
 def store_list_element(list_key: str, item: Dict) -> Dict:
   item = {**item, key_synced: False}
-  return _database()[list_key].insert_one(list_key, item)
+  return _database()[list_key].insert_one(item)
 
 
 @connected_and_enabled(backup=[])

@@ -38,15 +38,17 @@ class Action(WizModel):
       self.outcome = False
     finally:
       if telem_man.is_on():
-        event_id = None
+        event_id = self.event_id
         if self.store_telem:
-          event_id = self.event_id or utils.rand_str(20)
+          print(f"[nectwiz::action] {self.id()} self-storing telem[{event_id}]")
           stored_event = telem_man.store_event(dict(
-            _id=event_id,
+            _id=event_id or utils.rand_str(20),
             event_type=self.event_type,
             occurred_at=str(datetime.now())
           ))
           event_id = stored_event['_id']
+        else:
+          print(f"[nectwiz::action] SKIP {self.id()} self-storing telem[{event_id}]")
 
         for error in self.observer.errdicts:
           error['event_id'] = event_id
