@@ -13,9 +13,10 @@ class Action(WizModel):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.observer = Observer()
-    self.event_type = config.get('event_type')
+    self.event_id = config.get('event_id')
+    self.store_telem = config.get('store_telem', False)
+    self.event_type = config.get('event_type', self.__class__.__name__)
     self.outcome = None
-    self.store_telem: bool = config.get('store_telem')
 
   def run(self, **kwargs) -> Any:
     try:
@@ -37,15 +38,20 @@ class Action(WizModel):
       self.outcome = False
     finally:
       if telem_man.is_on():
-        event_uuid = utils.rand_str(20)
-        for error in self.observer.errdicts:
-          error['event_id'] = event_uuid
-          telem_man.store_error(error)
+        event_id = None
         if self.store_telem:
-          telem_man.store_event(dict(
+          event_id = self.event_id or utils.rand_str(20)
+          stored_event = telem_man.store_event(dict(
+            _id=event_id,
             event_type=self.event_type,
             occurred_at=str(datetime.now())
           ))
+          event_id = stored_event['_id']
+
+        for error in self.observer.errdicts:
+          error['event_id'] = event_id
+          telem_man.store_error(error)
+
       return self.outcome
 
   def perform(self, *args, **kwargs) -> bool:

@@ -168,13 +168,16 @@ class ConfigMan:
   def read_manifest_defaults(self) -> Dict:
     return self.read_config_map_dict(tam_defaults_key)
 
-  @staticmethod
-  def install_uuid():
-    try:
-      with open(install_uuid_path, 'r') as file:
-        return file.read()
-    except FileNotFoundError:
-      return None
+  def install_uuid(self):
+    if utils.is_prod() or broker.is_in_cluster_auth():
+      try:
+        with open(install_uuid_path, 'r') as file:
+          return file.read()
+      except FileNotFoundError:
+        print(f"[nectwiz::config_man::install_uuid] {install_uuid_path} fnf")
+        return None
+    else:
+      return self.prefs().get('install_uuid')
 
   def patch_keyed_manifest_vars(self, assignments: List[Tuple[str, any]]):
     self.patch_manifest_vars(utils.keyed2dict(assignments))

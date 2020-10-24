@@ -6,7 +6,7 @@ import yaml
 from nectwiz.core.core.types import K8sResDict, TamDict
 from nectwiz.core.core.config_man import config_man
 
-from nectwiz.core.tam.tam_client import TamClient, fmt_inline_assigns, gen_template_args
+from nectwiz.core.tam.tam_client import TamClient, gen_template_args
 
 tmp_vars_path = '/tmp/necwiz-tmp-values.yaml'
 

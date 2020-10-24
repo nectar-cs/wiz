@@ -8,6 +8,7 @@ from pymongo.errors import ServerSelectionTimeoutError
 from nectwiz.core.core import hub_client
 from nectwiz.core.core.config_man import config_man
 
+key_conn_obj_db = 'db'
 key_events = 'events'
 key_config_backups = 'config_backups'
 key_errors = 'errors'
@@ -16,11 +17,11 @@ key_synced = 'synced'
 key_telem_strategy = 'telem_storage.strategy'
 strategy_disabled = 'disabled'
 strategy_internal = 'managed_pvc'
-connection_obj = dict(database=None)
+connection_obj = {key_conn_obj_db: None}
 
 
 def _database() -> Optional[Database]:
-  return connection_obj['db']
+  return connection_obj[key_conn_obj_db]
 
 
 def get_db() -> Optional[Database]:
@@ -28,7 +29,7 @@ def get_db() -> Optional[Database]:
     is_local_dev = not broker.is_in_cluster_auth()
     strategy = config_man.manifest_var(key_telem_strategy)
     if is_local_dev or not strategy == strategy_disabled:
-      connection_obj['db'] = connect()
+      connection_obj[key_conn_obj_db] = connect()
   return _database()
 
 
@@ -55,8 +56,10 @@ def store_error(error: Dict) -> Dict:
   return store_list_element(key_errors, error)
 
 
-def store_event(outcome: Dict) -> Dict:
-  return store_list_element(key_events, outcome)
+def store_event(event: Dict) -> Dict:
+  print("REQUESTING TO STORE EVENT")
+  print(event)
+  return store_list_element(key_events, event)
 
 
 def store_config_backup(outcome: Dict):
@@ -103,7 +106,12 @@ def store_mfst_var_assign():
   pass
 
 
-def upload_meta() -> bool:
+def upload_all_meta():
+  upload_status()
+  upload_events_and_errors()
+
+
+def upload_status() -> bool:
   tam = config_man.tam(force_reload=True)
   wiz = config_man.wiz(force_reload=True)
   last_updated = config_man.last_updated(force_reload=True)
@@ -157,8 +165,9 @@ def connect() -> Optional[Database]:
       client = MongoClient(
         host=host,
         port=port or 27017,
-        serverSelectionTimeoutMS=5_000
+        serverSelectionTimeoutMS=1_000
       )
+      client.server_info()
       return client['database']
     except ServerSelectionTimeoutError:
       print(f"[nectwiz::telem_man] MongoDB conn({host}, {port}) failed")

@@ -66,6 +66,10 @@ class WizModel:
       info=self.info
     )
 
+  def update_attrs(self, config: Dict):
+    for key, value in config.items():
+      setattr(self, key, value)
+
   @classmethod
   def kind(cls):
     return cls.__name__

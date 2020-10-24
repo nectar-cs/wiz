@@ -2,7 +2,7 @@ id: nectar.predicate.check-telem-is-disabled
 kind: ManifestVariablePredicate
 title: Ensure telemetry storage is currently disabled
 info: "Ensure that telemetry storage is disabled before enabling it."
-variable: telem_storage.strategy
+variable: telem_db.strategy
 check_against: disabled
 reason: "It seems that telemetry storage is already enabled. Instead
     of proceeding, disable it safely using the appropriate operation."
@@ -15,7 +15,7 @@ kind: ManifestVariablePredicate
 title: Telemetry is currently stored in-cluster?
 info: "Ensure it makes sense to perform this operation by checking
 the current configurations."
-variable: telem_storage.strategy
+variable: telem_db.strategy
 check_against: managed_pvc
 reason: "It seems that telemetry is not
 currently saved to an internal PVC. Proceeding will not do harm but
@@ -43,7 +43,7 @@ steps:
         uri: gcr.io/nectar-bazaar/telem-tami
         version: 1.0.0
     fields:
-      - id: telem_storage.strategy
+      - id: telem_db.strategy
         title: Database Strategy
         default: managed_pvc
         input:
@@ -66,22 +66,22 @@ steps:
             operator: =/=
             tone: error
             reason: "Not available for your current plan"
-      - id: telem_storage.host
+      - id: telem_db.host
         title: MongoDB database host
         validation:
           - kind: FormatPredicate
             check_against: domain
         show_condition:
-          challenge: "{telem_storage.strategy}"
+          challenge: "{telem_db.strategy}"
           check_against: self_managed
-      - id: telem_storage.port
+      - id: telem_db.port
         title: MongoDB database host
         default: 6379
         validation:
           - kind: FormatPredicate
             check_against: integer
         show_condition:
-          challenge: "{telem_storage.strategy}"
+          challenge: "{telem_db.strategy}"
           check_against: self_managed
 
 ---
@@ -117,7 +117,7 @@ stages:
          to updates, variable assignments, and operations."
         reassignments:
           - to: chart
-            id: telem_storage.strategy
+            id: telem_db.strategy
             value: disabled
         action:
           kind: MultiAction

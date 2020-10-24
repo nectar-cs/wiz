@@ -26,10 +26,10 @@ def run_system_check():
     return jsonify(status='positive')
 
 
-@controller.route(f'{BASE_PATH}/sync-hub')
+@controller.route(f'{BASE_PATH}/sync-hub', methods=['POST'])
 def sync_hub():
-  success = telem_man.upload_meta()
-  return jsonify(success=success)
+  job_id = job_client.enqueue_func(telem_man.upload_all_meta)
+  return jsonify(job_id=job_id)
 
 
 @controller.route(f'{BASE_PATH}/install-hooks')

@@ -19,8 +19,9 @@ class OperationState:
   def notify_ended(self, status):
     self.status = status
 
-  def gen_event_record(self) -> Dict:
+  def gen_event_telem(self) -> Dict:
     return dict(
+      _id=self.uuid,
       status=self.status,
       type='operation_outcome',
       occurred_at=str(datetime.now())

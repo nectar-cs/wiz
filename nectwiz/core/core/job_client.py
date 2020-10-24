@@ -67,4 +67,13 @@ def job_errdicts(job_id: str) -> List[ErrDict]:
 def load_and_perform_action(key_or_dict, **kwargs):
   from nectwiz.model.action.base.action import Action
   model: Action = Action.inflate(key_or_dict)
+  print("COMING HOT ACTION KWARGS")
+  print(kwargs)
+  if kwargs.get('lmc'):
+    print("INTERCEPTED AN LMC")
+    print(kwargs.get('lmc'))
+    model.update_attrs(kwargs.get('lmc'))
+    del kwargs['lmc']
+    print("REMAINING KWARGS")
+    print(kwargs)
   return model.run(**kwargs)

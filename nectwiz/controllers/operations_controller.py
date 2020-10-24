@@ -79,9 +79,10 @@ def eval_preflight(operation_id):
   """
   operation = find_operation(operation_id)
   if operation.has_preflight_checks():
-    event_uuid = find_op_state().uuid
+    state = find_op_state(raise_on_fail=False)
+    event_uuid = state.uuid if state else None
     action_config = operation.preflight_action_config()
-    action_config = {**action_config, 'event_uuid': event_uuid}
+    action_config = {**action_config, 'event_id': event_uuid}
     job_id = job_client.enqueue_action(action_config)
     return jsonify(status='running', job_id=job_id)
   else:
@@ -195,16 +196,9 @@ def operation_mark_finished():
   status = jparse().get('status', 'positive')
   operation_state = find_op_state()
   operation_state.notify_ended(status)
-  telem = operation_state.gen_event_record()
-  telem_man.store_event(telem)
+  event_telem = operation_state.gen_event_telem()
+  telem_man.store_event(event_telem)
   return jsonify(data=dict(success='yeah'))
-
-
-@controller.route(f'{OPERATIONS_PATH}/flush-telem', methods=['POST'])
-def flush_telem():
-  # telem_sync.upload_operation_outcomes()
-  print("flush telem actually doing nothing lol")
-  return jsonify(status='success')
 
 
 def find_operation(operation_id: str) -> Operation:
@@ -252,8 +246,8 @@ def find_field(operation_id, stage_id, step_id, field_id) -> Field:
   return step.field(field_id)
 
 
-def find_op_state() -> OperationState:
+def find_op_state(raise_on_fail=True) -> OperationState:
   token = request.headers.get('Ostid')
-  if not token:
+  if not token and raise_on_fail:
     raise RuntimeError('OST ID not provided in headers!')
-  return OperationState.find(token)
+  return OperationState.find(token) if token else None

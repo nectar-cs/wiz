@@ -98,7 +98,10 @@ class Step(WizModel):
       config_man.patch_keyed_manifest_vars(keyed_tuples)
 
     if self.runs_action():
-      job_id = enqueue_action(self.action_kod, **buckets)
+      last_minute_config = dict(lmc=dict(store_telem=False))
+      if state and state.parent_op:
+        last_minute_config['lmc']['event_id'] = state.parent_op.uuid
+      job_id = enqueue_action(self.action_kod, **buckets, **last_minute_config)
       state.notify_action_started(job_id)
     else:
       state.notify_succeeded()

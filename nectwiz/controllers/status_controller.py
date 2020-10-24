@@ -2,6 +2,8 @@ from typing import Dict
 
 from flask import Blueprint, jsonify
 from k8kat.auth.kube_broker import broker
+
+from nectwiz.core.telem import telem_man
 from nectwiz.model.base.wiz_model import models_man, default_descriptors, configs_for_kinds, WizModel
 
 from nectwiz.controllers.ctrl_utils import jparse
@@ -49,9 +51,10 @@ def status():
     broker.connect()
 
   return jsonify(
-    sanity='1',
+    sanity='2',
     is_healthy=is_healthy(),
-    uuid=config_man.install_uuid(),
+    telem_connected=telem_man.is_on(),
+    install_uuid=config_man.install_uuid(),
     cluster_connection=dict(
       is_k8kat_connected=broker.is_connected,
       connect_config=broker.connect_config
