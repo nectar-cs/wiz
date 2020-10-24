@@ -109,8 +109,11 @@ def store_mfst_var_assign():
 
 
 def upload_all_meta():
-  upload_status()
-  upload_events_and_errors()
+  if is_on():
+    upload_status()
+    upload_events_and_errors()
+  else:
+    print("[nectwiz::telem_man] db unavailable, skip upload_all")
 
 
 def upload_status() -> bool:
@@ -126,30 +129,26 @@ def upload_status() -> bool:
     'synced_at': str(last_updated)
   }
 
-  print("SEND")
-  print(payload)
   endpoint = f'/installs/sync'
   response = hub_client.post(endpoint, dict(data=payload))
-  try:
-    print("GET")
-    print(response.json())
-  except:
-    print('telem sync non-json response')
   return response.status_code < 205
 
 
 def upload_events_and_errors():
-  events = _database()[key_events].find({key_synced: False})
-  errors = _database()[key_errors].find({key_synced: False})
-  item_sets = [('events', events), ('errors', errors)]
-
-  for _set in item_sets:
-    for set_name, item in _set:
-      resp = hub_client.post(f'/telem/{set_name}', item)
+  for collection_name in [key_errors, key_events]:
+    items = get_db()[collection_name].find({key_synced: False})
+    for item in items:
+      raw_id = item['_id']
+      item['original_id'] = str(raw_id)
+      hub_key = f'wiz_{collection_name}'[0:-1]
+      payload = {hub_key: item}
+      resp = hub_client.post(f'/{hub_key}s', payload)
       if resp.ok:
-        _database()[set_name].update_one({'$set': {key_synced: True}})
+        query = {'_id': raw_id}
+        patch = {'$set': {key_synced: True}}
+        get_db()[collection_name].update_one(query, patch)
       else:
-        print(f"[nectwiz::telem_man] failed ${set_name} ${item}: ")
+        print(f"[nectwiz::telem_man] failed ${collection_name} ${item}: ")
         print(resp)
 
 
