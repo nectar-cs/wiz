@@ -62,13 +62,14 @@ def manifest_variables_commit_apply():
 s  Updates the chart variable with new value.
   :return: status of the update.
   """
-  assignments = list(jparse()['assignments'].items())
+  assignments_dict = jparse()['assignments']
+  assignments = list(assignments_dict.items())
   config_man.patch_keyed_manifest_vars(assignments)
   action_config = dict(
     kind=ApplyManifestAction.__name__,
-    event_type='change_variables',
-
-    event_uuid=utils.rand_str(20)
+    event_type='update_variables',
+    store_telem=True,
+    telem_extras=assignments
   )
   job_id = job_client.enqueue_action(action_config)
   return jsonify(data=dict(job_id=job_id))

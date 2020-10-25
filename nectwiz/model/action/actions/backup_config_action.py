@@ -77,7 +77,7 @@ class UpdateLastCheckedAction(Action):
     sync_result = False
     time.sleep(1)
     try:
-      telem_man.upload_status()
+      telem_man.upload_all_meta()
       sync_result = True
     except:
       print("[nectwiz::update_last_checked_action] hub rejected sync")

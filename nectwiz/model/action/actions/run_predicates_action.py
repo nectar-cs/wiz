@@ -33,6 +33,7 @@ class RunPredicatesAction(Action):
           **predicate.error_extras()
         )
     self.observer.on_ended(error_count == 0)
+    return error_count == 0
 
 
 def pred2subitem(predicate: Predicate) -> ProgressItem:

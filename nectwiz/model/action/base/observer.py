@@ -6,7 +6,6 @@ from rq.job import Job, get_current_job
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem, ErrDict
-from nectwiz.core.telem import telem_man
 from nectwiz.model.error import error_handler
 from nectwiz.model.error.controller_error import ActionHalt
 

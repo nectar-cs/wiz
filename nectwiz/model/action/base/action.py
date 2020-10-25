@@ -14,6 +14,7 @@ class Action(WizModel):
     super().__init__(config)
     self.observer = Observer()
     self.event_id = config.get('event_id')
+    self.static_telem_extras = config.get('telem_extras', {})
     self.store_telem = config.get('store_telem', False)
     self.event_type = config.get('event_type', self.__class__.__name__)
     self.outcome = None
@@ -22,7 +23,7 @@ class Action(WizModel):
     try:
       self.outcome = self.perform(**kwargs)
     except ActionHalt as err:
-      print(f"[nectwiz::action] controlled failure halt sig {err.errdict}")
+      print(f"[nectwiz::action] controlled err halt signal {err.errdict}")
       self.observer.on_failed()
       self.outcome = False
     except Exception as err:
@@ -37,24 +38,38 @@ class Action(WizModel):
       )
       self.outcome = False
     finally:
-      if telem_man.is_on():
-        event_id = self.event_id
-        if self.store_telem:
-          print(f"[nectwiz::action] {self.id()} self-storing telem[{event_id}]")
-          insertion_result = telem_man.store_event(dict(
-            _id=event_id or utils.rand_str(20),
-            type=self.event_type,
-            occurred_at=str(datetime.now())
-          ))
-          event_id = str(insertion_result.inserted_id)
-        else:
-          print(f"[nectwiz::action] SKIP {self.id()} self-storing telem[{event_id}]")
-
-        for error in self.observer.errdicts:
-          error['event_id'] = event_id
-          telem_man.store_error(error)
-
+      # noinspection PyBroadException
+      try:
+        self.handle_telem()
+      except:
+        print("[nectwiz::action] telem handling failed")
+        print(traceback.format_exc())
       return self.outcome
+
+  def handle_telem(self):
+    if telem_man.is_storage_ready():
+      event_id = self.event_id
+      if self.store_telem:
+        event_bundle = self.gen_own_telem_bundle(event_id)
+        insertion_result = telem_man.store_event(event_bundle)
+        event_id = str(insertion_result.inserted_id)
+      else:
+        print(f"[nectwiz::action] SKIP {self.id()} self-storing telem[{event_id}]")
+      for error in self.observer.errdicts:
+        error['event_id'] = event_id
+        telem_man.store_error(error)
+
+  def gen_own_telem_bundle(self, event_id):
+    return dict(
+      _id=event_id or utils.rand_str(20),
+      type=self.event_type,
+      status='positive' if self.outcome else 'negative',
+      extras=self.telem_extras(),
+      occurred_at=str(datetime.now())
+    )
 
   def perform(self, *args, **kwargs) -> bool:
     raise NotImplemented
+
+  def telem_extras(self) -> Dict:
+    return self.static_telem_extras

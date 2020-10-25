@@ -34,7 +34,7 @@ def get_db() -> Optional[Database]:
   return _database()
 
 
-def is_on() -> bool:
+def is_storage_ready() -> bool:
   return True if get_db() else False
 
 
@@ -53,15 +53,11 @@ def connected_and_enabled(func, backup=None):
   return aux
 
 
-def store_error(error: Dict) -> Dict:
-  print("REQUESTING TO STORE EVENT")
-  print(error)
+def store_error(error: Dict) -> InsertOneResult:
   return store_list_element(key_errors, error)
 
 
 def store_event(event: Dict) -> InsertOneResult:
-  print("REQUESTING TO STORE EVENT")
-  print(event)
   return store_list_element(key_events, event)
 
 
@@ -110,7 +106,7 @@ def store_mfst_var_assign():
 
 
 def upload_all_meta():
-  if is_on():
+  if is_storage_ready():
     upload_status()
     upload_events_and_errors()
   else:

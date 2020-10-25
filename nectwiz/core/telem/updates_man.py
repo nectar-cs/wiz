@@ -20,6 +20,8 @@ class WizUpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.timing = config['when']
+    self.store_telem = True
+    self.event_type = f'{self.timing}_wiz_update'
     self.observer.progress = ProgressItem(
       id=f'wiz-{self.timing}-update-action',
       status='running',
@@ -39,7 +41,8 @@ class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.store_telem = True
-    self.event_type = 'update'
+    self.event_type = 'app_update'
+    self.update_dict = {}
     self.observer.progress = ProgressItem(
       id='app-update-action',
       status='running',
@@ -51,8 +54,15 @@ class UpdateAction(Action):
       ]
     )
 
+  def telem_extras(self):
+    return dict(
+      **super().telem_extras(),
+      **self.update_dict
+    )
+
   def perform(self, **kwargs):
     update: UpdateDict = kwargs.get('update')
+    self.update_dict = update
 
     before_hooks = find_hooks('before', update['type'])
     after_hooks = find_hooks('after', update['type'])

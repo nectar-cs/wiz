@@ -53,7 +53,7 @@ def status():
   return jsonify(
     sanity='2',
     is_healthy=is_healthy(),
-    telem_connected=telem_man.is_on(),
+    telem_connected=telem_man.is_storage_ready(),
     install_uuid=config_man.install_uuid(),
     cluster_connection=dict(
       is_k8kat_connected=broker.is_connected,
