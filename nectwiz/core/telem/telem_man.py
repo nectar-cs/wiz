@@ -4,6 +4,7 @@ from k8kat.auth.kube_broker import broker
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import ServerSelectionTimeoutError
+from pymongo.results import InsertOneResult
 
 from nectwiz.core.core import hub_client
 from nectwiz.core.core.config_man import config_man
@@ -58,7 +59,7 @@ def store_error(error: Dict) -> Dict:
   return store_list_element(key_errors, error)
 
 
-def store_event(event: Dict) -> Dict:
+def store_event(event: Dict) -> InsertOneResult:
   print("REQUESTING TO STORE EVENT")
   print(event)
   return store_list_element(key_events, event)
@@ -81,7 +82,7 @@ def list_config_backups():
 
 
 @connected_and_enabled(backup=None)
-def store_list_element(list_key: str, item: Dict) -> Dict:
+def store_list_element(list_key: str, item: Dict) -> InsertOneResult:
   item = {**item, key_synced: False}
   return _database()[list_key].insert_one(item)
 
@@ -139,6 +140,7 @@ def upload_events_and_errors():
     items = get_db()[collection_name].find({key_synced: False})
     for item in items:
       raw_id = item['_id']
+      del item['_id']
       item['original_id'] = str(raw_id)
       hub_key = f'wiz_{collection_name}'[0:-1]
       payload = {hub_key: item}
