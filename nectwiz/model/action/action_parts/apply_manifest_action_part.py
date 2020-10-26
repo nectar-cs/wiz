@@ -65,7 +65,7 @@ class ApplyManifestActionPart:
         fatal=True,
         tone='error',
         reason='kubectl apply failed for one or more resources.',
-        event_type='apply_manifest',
+        type='manifest_apply_failed',
         resource=dict(
           name=kao_culprit.get('name'),
           kind=kao_culprit.get('kind')

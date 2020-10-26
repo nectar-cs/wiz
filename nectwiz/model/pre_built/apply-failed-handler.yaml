@@ -14,7 +14,7 @@ kind: ErrorHandler
 id: nectar.error-handler.apply-failed
 selector:
   property_selector:
-    event_type: ['apply_manifest']
+    type: ['manifest_apply_failed']
 diagnoses:
   - id: nectar.diagnoses.apply-failed-no-insight
     title: "kubectl apply failed"
@@ -31,7 +31,7 @@ kind: ErrorHandler
 id: nectar.error-handler.await-failed
 selector:
   property_selector:
-    event_type: ['await_settled']
+    type: ['res_settle_failed']
 diagnoses:
   - id: nectar.diagnoses.await-failed-no-insight
     title: "Resources failed to settle"

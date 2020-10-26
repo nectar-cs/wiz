@@ -84,11 +84,13 @@ class AwaitSettledActionPart:
             fatal=True,
             tone='error',
             reason='One or more resources failed to settle',
-            event_type=key_await_settled,
-            predicate_id=culprit_pred.id(),
-            predicate_kind=culprit_pred.kind(),
+            type='res_settle_failed',
             resource=dict(
               name=original_res_sel.name,
               kind=original_res_sel.k8s_kind
+            ),
+            extras=dict(
+              predicate_id=culprit_pred.id(),
+              predicate_kind=culprit_pred.kind(),
             )
           )

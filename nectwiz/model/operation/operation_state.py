@@ -24,6 +24,7 @@ class OperationState:
       _id=self.uuid,
       status=self.status,
       type='operation_outcome',
+      name=self.op_id,
       occurred_at=str(datetime.now())
     )
 

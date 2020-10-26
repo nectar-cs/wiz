@@ -107,6 +107,7 @@ class ErrDict(TypedDict, total=False):
   event_id: Optional[str]
   event_type: str
   resource: Dict
+  extras: Dict
 
 
 KAOs = List[KAO]

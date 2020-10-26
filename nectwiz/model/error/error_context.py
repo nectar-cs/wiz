@@ -9,14 +9,16 @@ from nectwiz.core.core.types import ErrDict
 
 class ErrCtx:
   def __init__(self, errdict: ErrDict):
-    self._errdict: ErrDict = errdict
+    self._errdict: Dict = errdict
 
   @lru_cache(maxsize=1)
   def selectable_properties(self) -> Dict:
     all_keys = self._errdict.keys()
     avoid_keys = ['uuid', 'resource']
     good_keys = list(set(all_keys) - set(avoid_keys))
-    return {k: self._errdict[k] for k in good_keys}
+    base_level = {k: self._errdict[k] for k in good_keys}
+    extras_level = self._errdict.get('extras', {})
+    return {**base_level, **extras_level}
 
   @lru_cache(maxsize=1)
   def event_type(self):

@@ -17,6 +17,7 @@ class Action(WizModel):
     self.static_telem_extras = config.get('telem_extras', {})
     self.store_telem = config.get('store_telem', False)
     self.event_type = config.get('event_type', self.__class__.__name__)
+    self.event_name = config.get('event_name')
     self.outcome = None
 
   def run(self, **kwargs) -> Any:
@@ -31,6 +32,7 @@ class Action(WizModel):
       print(traceback.format_exc())
       self.observer.process_error(
         id='internal-error',
+        type='internal_error',
         fatal=False,
         tone='error',
         reason='Internal error',
@@ -50,6 +52,7 @@ class Action(WizModel):
     if telem_man.is_storage_ready():
       event_id = self.event_id
       if self.store_telem:
+        print(f"[nectwiz::action] danger event_id and store_event")
         event_bundle = self.gen_own_telem_bundle(event_id)
         insertion_result = telem_man.store_event(event_bundle)
         event_id = str(insertion_result.inserted_id)
@@ -63,6 +66,7 @@ class Action(WizModel):
     return dict(
       _id=event_id or utils.rand_str(20),
       type=self.event_type,
+      name=self.event_name,
       status='positive' if self.outcome else 'negative',
       extras=self.telem_extras(),
       occurred_at=str(datetime.now())

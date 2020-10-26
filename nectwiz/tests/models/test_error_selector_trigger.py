@@ -22,7 +22,15 @@ class TestErrorTriggerSelector(ClusterTest):
     actual = selector.prop_match_score(ErrCtx(dict(foo='bar')))
     self.assertEqual(1, actual)
 
+    actual = selector.prop_match_score(ErrCtx(dict(extras=dict(foo='bar'))))
+    self.assertEqual(1, actual)
+
     actual = selector.prop_match_score(ErrCtx(dict(foo='bar', bar='baz')))
+    self.assertEqual(2, actual)
+
+    actual = selector.prop_match_score(
+      ErrCtx(dict(foo='bar', extras=dict(bar='baz')))
+    )
     self.assertEqual(2, actual)
 
     actual = selector.prop_match_score(ErrCtx(dict(foo='baz')))

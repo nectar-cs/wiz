@@ -37,9 +37,12 @@ class UpdateManifestDefaultsActionPart:
     else:
       observer.process_error(
         fatal=True,
-        event_type=update_defaults_key,
-        code='unrecognized-update-type',
-        update_type=update_dict.get('type'),
+        tone='error',
+        reason=f'Update bundle unrecognized type {update_type}',
+        type='bad_update_type',
+        extras=dict(
+          update_type=update_dict.get('type')
+        )
       )
 
   @classmethod

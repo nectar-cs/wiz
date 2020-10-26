@@ -98,10 +98,8 @@ class Step(WizModel):
       config_man.patch_keyed_manifest_vars(keyed_tuples)
 
     if self.runs_action():
-      last_minute_config = dict(lmc=dict(store_telem=False))
-      if state and state.parent_op:
-        last_minute_config['lmc']['event_id'] = state.parent_op.uuid
-      job_id = enqueue_action(self.action_kod, **buckets, **last_minute_config)
+      lmc = gen_last_minute_action_config(state)
+      job_id = enqueue_action(self.action_kod, **buckets, lmc=lmc)
       state.notify_action_started(job_id)
     else:
       state.notify_succeeded()
@@ -146,6 +144,15 @@ class Step(WizModel):
       print(f"[nectwiz::step] danger compute_status called when not running")
       state.notify_succeeded()
       return dict(status='negative', progress={})
+
+
+def gen_last_minute_action_config(state: StepState) -> Dict:
+  return dict(
+    store_telem=False,
+    event_type='operation_step',
+    event_name=state.step_sig if state else None,
+    event_id=state.parent_op.uuid if state and state.parent_op else None
+  )
 
 
 def resolution_context(op_state: OperationState):

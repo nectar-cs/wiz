@@ -63,6 +63,7 @@ class UpdateAction(Action):
   def perform(self, **kwargs):
     update: UpdateDict = kwargs.get('update')
     self.update_dict = update
+    self.event_name = f"{update.get('type')}:{update.get('version')}"
 
     before_hooks = find_hooks('before', update['type'])
     after_hooks = find_hooks('after', update['type'])
