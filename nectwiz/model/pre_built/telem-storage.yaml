@@ -12,7 +12,7 @@ tone: error
 
 id: nectar.predicate.check-telem-is-pvc
 kind: ManifestVariablePredicate
-title: Telemetry is currently stored in-cluster?
+title: Ensure Telemetry is currently stored in-cluster
 info: "Ensure it makes sense to perform this operation by checking
 the current configurations."
 variable: telem_db.strategy

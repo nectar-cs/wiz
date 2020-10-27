@@ -121,8 +121,10 @@ def fetch_next_update() -> Optional[UpdateDict]:
 def fetch_update(update_id: str) -> Optional[UpdateDict]:
   if utils.is_prod():
     resp = hub_client.get(f'/app_updates/{update_id}')
-    data = resp.json() if resp.status_code < 205 else None
-    return data['bundle'] if data else None
+    if resp.ok:
+      return resp.json()['bundle']
+    else:
+      print(f"[nectwiz::updates_man] err requesting update {resp.status_code}")
   else:
     model = MockUpdate.inflate_with_key(update_id)
     return model.as_bundle()

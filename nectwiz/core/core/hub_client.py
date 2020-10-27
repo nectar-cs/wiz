@@ -1,26 +1,27 @@
 import os
 
 import requests
+from k8kat.auth.kube_broker import broker
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 
 api_path = '/cli'
 
+
 def backend_host() -> str:
-  expl_value = os.environ.get('HUB_HOST')
-  if expl_value:
-    return expl_value
-  else:
-    print(f"[nectwiz::hub_client] danger $HUB_HOST not defined")
     if utils.is_dev():
-      return 'http://localhost:3000'
+      if broker.is_in_cluster_auth():
+        return "http://necthub.com.ngrok.io"
+      else:
+        return 'http://localhost:3000'
     else:
       return 'https://api.codenectar.com'
 
 
 def post(endpoint, payload):
   url = f'{backend_host()}{api_path}{endpoint}'
+  print(f"[nectwiz:hub_client] post {url}")
   return requests.post(
     url,
     json=payload,
@@ -30,6 +31,7 @@ def post(endpoint, payload):
 
 def patch(endpoint, payload):
   url = f'{backend_host()}{api_path}{endpoint}'
+  print(f"[nectwiz:hub_client] patch {url}")
   return requests.patch(
     url,
     json=payload,
@@ -39,6 +41,7 @@ def patch(endpoint, payload):
 
 def get(endpoint):
   url = f'{backend_host()}{api_path}{endpoint}'
+  print(f"[nectwiz:hub_client] get {url}")
   return requests.get(
     url,
     headers={'Installuuid': config_man.install_uuid()}

@@ -106,11 +106,11 @@ def store_mfst_var_assign():
 
 
 def upload_all_meta():
+  upload_status()
   if is_storage_ready():
-    upload_status()
     upload_events_and_errors()
   else:
-    print("[nectwiz::telem_man] db unavailable, skip upload_all")
+    print("[nectwiz::telem_man] db unavailable, skip upload events/errors")
 
 
 def upload_status() -> bool:
@@ -126,8 +126,10 @@ def upload_status() -> bool:
     'synced_at': str(last_updated)
   }
 
+  print(f"[nectwiz::telem_man] stat -> {hub_client.backend_host()} {payload}")
   endpoint = f'/installs/sync'
   response = hub_client.post(endpoint, dict(data=payload))
+  print(f"[nectwiz::telem_man] upload status resp {response}")
   return response.status_code < 205
 
 
@@ -159,25 +161,23 @@ def connect() -> Optional[Database]:
   else:
     host = 'localhost'
     port = 27017
-  if host:
-    try:
-      client = MongoClient(
-        host=host,
-        port=port or 27017,
-        serverSelectionTimeoutMS=1_000
-      )
-      client.server_info()
-      return client['database']
-    except ServerSelectionTimeoutError:
-      print(f"[nectwiz::telem_man] MongoDB conn({host}, {port}) failed")
-      return None
-  else:
+
+  try:
+    client = MongoClient(
+      host=host,
+      port=port or 27017,
+      serverSelectionTimeoutMS=1_000
+    )
+    client.server_info()
+    return client['database']
+  except ServerSelectionTimeoutError:
+    print(f"[nectwiz::telem_man] MongoDB conn({host}, {port}) failed")
     return None
 
 
 def in_cluster_conn_defaults() -> Dict:
-  strategy = config_man.manifest_var(key_telem_strategy)
-  if strategy == strategy_internal:
-    return dict(host='telem-db', port=6379)
-  else:
-    return dict(host=None, port=None)
+  # strategy = config_man.manifest_var(key_telem_strategy)
+  # if strategy == strategy_internal:
+  return dict(host='telem-db', port=27017)
+  # else:
+  #   return dict(host=None, port=None)

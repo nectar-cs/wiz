@@ -10,6 +10,7 @@ def standard(cv: ManifestVariable):
   """
   return dict(
     id=cv.id(),
+    title=cv.title,
     mode=cv.mode,
     description=cv.info,
     default_value=cv.default_value(),
