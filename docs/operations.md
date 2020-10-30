@@ -5,9 +5,9 @@ The `Operation` model holds the information and logic
 used to present users with the interactive sequences
 they [see on on screen](features.md).
 
-Operations can be written to perform any task, but the API's
-configuration scheme is biased to facilitate common Kubernetes
-tasks, like updating a variable then reapplying the manifest,
+While Operations can be written to perform any task, the API's
+configuration schema is biased to facilitate common Kubernetes
+tasks, like updating a variable, reapplying the manifest,
 deleting resources, and starting Jobs.
 
 
@@ -23,6 +23,8 @@ preflight_checks:
 	- kind: ResourcePropertyCountPredicate
 	  id: demo.check-svc-exists-preflight
 	  title: "Ensure there exists a service to change"
+	  tone: warning
+	  reason: "It looks like the service you want to change does not exist."
 	  selector:
 	  	k8s_kind: services
 	  	label_selector:
@@ -32,11 +34,21 @@ preflight_checks:
 stages:
 	- id: demo.stage1
 	  title: "Stage One"
-	  info: "Perform one step and exit"
+	  info: "Single-Step Stage"
 	  steps:
-	  	- id: demo.stage1.step1
-	  	  action
-
+			- id: demo.stage1.step1
+		  	title: "Choose the new type for your chatbot Service"
+	  	  	fields:
+	  	  		- variable_id: networking.service_type
+	  	  	action: 
+		  	  	kind: MultiAction
+		  	  	parts:
+	  		  		- kind: DeleteResourcesAction
+					  selector:
+					  	k8s_kind: services
+				  		label_selector:
+				  			app: chatbot
+			  		- ApplyManifestAction
 
 ```
 
