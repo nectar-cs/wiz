@@ -59,10 +59,7 @@ as follows:
 
 ## Operation
 
-The Operation model only holds static information, namely 
-- `title`
-- `info`
-- `synopsis`
+The Operation model only holds static information, namely `title`, `info`, and `synopsis`.
 
 Note that the `synopsis` field supports asset loading, e.g
 ```yaml
@@ -74,7 +71,7 @@ synopsis: file::my-long-synopsis.html
 ## Preflight Check Predicates
 
 Preflight checks are validations performed before an operations starts.
-Their purpose is to assure the user that the system is in the required
+Their purpose is to assure the user that the application is in the required
 state for this operation to be carried out.
 
 

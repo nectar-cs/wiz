@@ -166,6 +166,7 @@ def connect() -> Optional[Database]:
     client = MongoClient(
       host=host,
       port=port or 27017,
+      connectTimeoutMS=1_000,
       serverSelectionTimeoutMS=1_000
     )
     client.server_info()
