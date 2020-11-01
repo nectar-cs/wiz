@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict
 
 from nectwiz.core.core.config_man import config_man
@@ -18,7 +19,22 @@ class RunPredicatesAction(Action):
     error_count = 0
     for predicate in self.predicates:
       self.observer.set_item_running(predicate.id())
-      result = predicate.evaluate(context)
+      result = None
+      # noinspection PyBroadException
+      try:
+        result = predicate.evaluate(context)
+      except:
+        print("[nectwiz::predicate_action] internal error:")
+        print(traceback.format_exc())
+        self.observer.process_error(
+          id='internal-error',
+          type='internal_error',
+          fatal=False,
+          tone='error',
+          reason='Internal error',
+          logs=[traceback.format_exc()]
+        )
+
       self.observer.set_item_outcome(predicate.id(), result)
       if not result:
         self.observer.blame_item_id = predicate.id()

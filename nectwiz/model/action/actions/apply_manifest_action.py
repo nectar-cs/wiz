@@ -23,7 +23,7 @@ class ApplyManifestAction(Action):
     self.res_selectors = config.get('apply_filters', [])
     self.tam: Optional[TamDict] = config.get('tam')
 
-  def perform(self, **kwargs: StepActionKwargs) -> Dict:
+  def perform(self, **kwargs: StepActionKwargs) -> bool:
     inlines = (kwargs.get('inline') or {}).items()
     outcomes = ApplyManifestActionPart.perform(
       self.observer,
@@ -36,5 +36,4 @@ class ApplyManifestAction(Action):
       outcomes
     )
     self.observer.on_succeeded()
-
     return True

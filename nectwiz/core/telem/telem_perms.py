@@ -18,7 +18,7 @@ class TelemPerms:
     Uses Tami client to return the ConfigMap.
     :return: ConfigMap object.
     """
-    return config_man.master_config_map()
+    return config_man.read_master_config_map()
 
   def user_perms(self) -> Dict:
     """

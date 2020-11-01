@@ -66,7 +66,7 @@ def status():
     ns=config_man.ns(),
     tam_config=config_man.tam(),
     wiz_config=config_man.wiz(),
-    tam_defaults=config_man.tam_defaults(),
+    tam_defaults=config_man.manifest_defaults(),
     tam_variables=config_man.read_manifest_vars()
   )
 
@@ -107,7 +107,7 @@ def dump_default_descriptors():
 
 def is_healthy() -> bool:
   if broker.is_connected:
-    return config_man.master_config_map() is not None
+    return config_man.read_master_config_map() is not None
   else:
     return False
 

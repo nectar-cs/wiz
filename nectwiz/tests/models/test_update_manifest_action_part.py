@@ -55,8 +55,8 @@ class TestUpdateManifestDefaultsActionPart(ClusterTest):
     subject.perform(observer, update_package)
 
     tam = config_man.tam(True)
-    manifest_defaults = config_man.tam_defaults(True)
-    manifest_variables = config_man.manifest_variables(True)
+    manifest_defaults = config_man.manifest_defaults(True)
+    manifest_variables = config_man.manifest_vars(True)
 
     self.assertEqual("2.0.0", tam.get('version'))
     self.assertEqual(ci_tami_name(), tam.get('uri'))

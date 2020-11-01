@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
 import yaml
+from k8kat.auth.kube_broker import broker
 from yaml import scanner
 
 from nectwiz.core.core.types import KAO
@@ -192,6 +193,14 @@ def is_prod() -> bool:
 
 def is_dev() -> bool:
   return run_env() == 'development'
+
+
+def is_in_cluster_dev():
+  return is_dev() and broker.is_in_cluster_auth()
+
+
+def is_local_dev_server():
+  return is_dev() and not broker.is_in_cluster_auth()
 
 
 def is_test() -> bool:

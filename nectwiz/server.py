@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from k8kat.auth.kube_broker import BrokerConnException
+from k8kat.auth.kube_broker import BrokerConnException, broker
 
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, manifest_variables_controller, resources_controller, updates_controller, errors_controller, \
@@ -43,10 +43,10 @@ def all_exception_handler(error):
 def read_dev_ns():
   coerced_ns = request.headers.get('Wizns')
   if coerced_ns:
-    if utils.is_dev():
+    if utils.is_local_dev_server():
       coerce_ns(coerced_ns)
     else:
-      print("[nectwiz::server] *danger* tried set-ns from header")
+      print(f"[nectwiz::server] set-ns from header env={utils.run_env()}!")
 
 
 def start():

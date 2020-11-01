@@ -13,7 +13,7 @@ class TamsClient(TamClient):
     return http_get('/values')
 
   def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
-    payload = dict(values=config_man.manifest_variables(force_reload=True))
+    payload = dict(values=config_man.manifest_vars(force_reload=True))
     return http_post('/template', payload)
 
 

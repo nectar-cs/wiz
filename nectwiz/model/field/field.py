@@ -57,7 +57,7 @@ class Field(WizModel):
     return self.target == TARGET_STATE
 
   def current_or_default(self) -> Optional[str]:
-    current = config_man.manifest_variables().get(self.id())
+    current = config_man.manifest_vars().get(self.id())
     return current or self.default_value()
 
   def default_value(self) -> Optional[str]:
