@@ -16,6 +16,7 @@ app_id_key = 'app_id'
 install_uuid_path = '/etc/sec/install_uuid'
 tam_config_key = 'tam'
 wiz_config_key = 'wiz'
+status_key = 'status'
 prefs_config_key = 'prefs'
 key_last_updated = 'last_updated'
 tam_vars_key = 'manifest_variables'
@@ -69,6 +70,9 @@ class ConfigMan:
 
   def app_id(self) -> str:
     return self.read_entry(app_id_key)
+
+  def application_status(self) -> str:
+    return self.read_entry(status_key)
 
   def prefs(self) -> Dict:
     return self.read_dict(prefs_config_key)
@@ -128,6 +132,9 @@ class ConfigMan:
 
   def write_tam(self, new_tam: TamDict):
     self.patch_cmap_with_dict(tam_config_key, new_tam)
+
+  def write_application_status(self, new_status: str):
+    self.patch_master_cmap(status_key, new_status)
 
   def patch_tam(self, partial_tam: TamDict):
     new_tam = {**self.tam(), **partial_tam}

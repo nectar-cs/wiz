@@ -115,16 +115,20 @@ def upload_status() -> bool:
   if config_man.is_training_mode():
     return False
 
+  from nectwiz.model.adapters.status_adapter import StatusAdapter
+  status_computer: StatusAdapter = StatusAdapter.descendent_or_self()
+  status_computer.compute_and_commit_status()
+
   tam = config_man.tam()
   wiz = config_man.wiz()
-  last_updated = config_man.last_updated()
 
   payload = {
+    'status': config_man.application_status(),
     'tam_type': tam.get('type'),
     'tam_uri': tam.get('uri'),
     'tam_version': tam.get('version'),
     'wiz_version': wiz.get('version'),
-    'synced_at': str(last_updated)
+    'synced_at': str(config_man.last_updated())
   }
 
   print(f"[nectwiz:telem_man] stat -> {hub_client.backend_host()} {payload}")

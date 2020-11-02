@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.telem import telem_man
 from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
+from nectwiz.model.adapters.status_adapter import StatusAdapter
 from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
@@ -24,6 +26,13 @@ def run_system_check():
     return jsonify(status='running', job_id=job_id)
   else:
     return jsonify(status='positive')
+
+
+@controller.route(f'{BASE_PATH}/compute-status', methods=['POST'])
+def run_status_compute():
+  computer: StatusAdapter = StatusAdapter.descendent_or_self()
+  application_status = computer.compute_and_commit_status()
+  return jsonify(app_status=application_status)
 
 
 @controller.route(f'{BASE_PATH}/sync-hub', methods=['POST'])

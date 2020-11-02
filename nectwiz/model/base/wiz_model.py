@@ -260,6 +260,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
 
   from nectwiz.core.telem.updates_man import WizUpdateAction
+  from nectwiz.model.adapters.status_adapter import StatusAdapter
   return [
     Operation,
     Stage,
@@ -295,6 +296,7 @@ def default_model_classes() -> List[Type[T]]:
     ApplyManifestAction,
     FlushTelemAction,
     DeleteResourcesAction,
+    StatusAdapter,
     RunPredicatesAction,
     UpdateAction,
     BackupConfigAction,
