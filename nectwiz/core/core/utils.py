@@ -25,6 +25,14 @@ def exec_mode() -> str:
   return from_argv or from_env or 'server'
 
 
+def is_in_cluster() -> bool:
+  return broker.is_in_cluster_auth()
+
+
+def is_out_of_cluster() -> bool:
+  return not is_in_cluster()
+
+
 def is_server() -> bool:
   return exec_mode() == 'server'
 
@@ -200,7 +208,7 @@ def is_in_cluster_dev():
 
 
 def is_local_dev_server():
-  return is_dev() and not broker.is_in_cluster_auth()
+  return not broker.is_in_cluster_auth()
 
 
 def is_test() -> bool:

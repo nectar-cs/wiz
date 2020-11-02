@@ -20,25 +20,25 @@ class TestVariablesMan(ClusterTest):
   def test_commit_tam_assigns(self):
     assignments = dict(foo=dict(bar='baz'))
     config_man.patch_manifest_vars(assignments)
-    self.assertEqual(assignments, config_man.read_manifest_vars())
+    self.assertEqual(assignments, config_man.manifest_vars())
 
     config_man.patch_manifest_vars(dict(bar='baz'))
     expectation = dict(bar='baz', foo=dict(bar='baz'))
-    self.assertEqual(expectation, config_man.read_manifest_vars())
+    self.assertEqual(expectation, config_man.manifest_vars())
 
     config_man.patch_manifest_vars(dict(foo=dict(baz='bar')))
     expectation = dict(bar='baz', foo=dict(bar='baz', baz='bar'))
-    self.assertEqual(expectation, config_man.read_manifest_vars())
+    self.assertEqual(expectation, config_man.manifest_vars())
 
   def test_commit_keyed_tam_assigns(self):
     expectation = dict(foo=dict(bar='baz'))
     config_man.patch_keyed_manifest_vars([('foo.bar', 'baz')])
-    self.assertEqual(expectation, config_man.read_manifest_vars())
+    self.assertEqual(expectation, config_man.manifest_vars())
 
     config_man.patch_keyed_manifest_vars([('bar', 'baz')])
     expectation = dict(bar='baz', foo=dict(bar='baz'))
-    self.assertEqual(expectation, config_man.read_manifest_vars())
+    self.assertEqual(expectation, config_man.manifest_vars())
 
     config_man.patch_keyed_manifest_vars([('foo.baz', 'bar')])
     expectation = dict(bar='baz', foo=dict(bar='baz', baz='bar'))
-    self.assertEqual(expectation, config_man.read_manifest_vars())
+    self.assertEqual(expectation, config_man.manifest_vars())

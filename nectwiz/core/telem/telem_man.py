@@ -1,12 +1,11 @@
 from typing import Optional, Dict
 
-from k8kat.auth.kube_broker import broker
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import ServerSelectionTimeoutError
 from pymongo.results import InsertOneResult
 
-from nectwiz.core.core import hub_client
+from nectwiz.core.core import hub_client, utils
 from nectwiz.core.core.config_man import config_man
 
 key_conn_obj_db = 'db'
@@ -27,9 +26,8 @@ def _database() -> Optional[Database]:
 
 def get_db() -> Optional[Database]:
   if not _database():
-    is_local_dev = not broker.is_in_cluster_auth()
     strategy = config_man.manifest_var(key_telem_strategy)
-    if is_local_dev or not strategy == strategy_disabled:
+    if utils.is_out_of_cluster() or not strategy == strategy_disabled:
       connection_obj[key_conn_obj_db] = connect()
   return _database()
 
@@ -110,13 +108,16 @@ def upload_all_meta():
   if is_storage_ready():
     upload_events_and_errors()
   else:
-    print("[nectwiz::telem_man] db unavailable, skip upload events/errors")
+    print("[nectwiz:telem_man] db unavailable, skip upload events/errors")
 
 
 def upload_status() -> bool:
-  tam = config_man.tam(force_reload=True)
-  wiz = config_man.wiz(force_reload=True)
-  last_updated = config_man.last_updated(force_reload=True)
+  if config_man.is_training_mode():
+    return False
+
+  tam = config_man.tam()
+  wiz = config_man.wiz()
+  last_updated = config_man.last_updated()
 
   payload = {
     'tam_type': tam.get('type'),
@@ -126,14 +127,17 @@ def upload_status() -> bool:
     'synced_at': str(last_updated)
   }
 
-  print(f"[nectwiz::telem_man] stat -> {hub_client.backend_host()} {payload}")
+  print(f"[nectwiz:telem_man] stat -> {hub_client.backend_host()} {payload}")
   endpoint = f'/installs/sync'
   response = hub_client.post(endpoint, dict(data=payload))
-  print(f"[nectwiz::telem_man] upload status resp {response}")
+  print(f"[nectwiz:telem_man] upload status resp {response}")
   return response.status_code < 205
 
 
 def upload_events_and_errors():
+  if config_man.is_training_mode():
+    return False
+
   for collection_name in [key_errors, key_events]:
     items = get_db()[collection_name].find({key_synced: False})
     for item in items:
@@ -148,37 +152,28 @@ def upload_events_and_errors():
         patch = {'$set': {key_synced: True}}
         get_db()[collection_name].update_one(query, patch)
       else:
-        print(f"[nectwiz::telem_man] failed ${collection_name} ${item}: ")
+        print(f"[nectwiz:telem_man] failed ${collection_name} ${item}: ")
         print(resp)
 
 
 def connect() -> Optional[Database]:
-  if broker.is_in_cluster_auth():
+  host = 'localhost'
+  port = 27017
+  if utils.is_in_cluster():
     manifest_vars = config_man.flat_manifest_vars()
-    defaults = in_cluster_conn_defaults()
-    host = manifest_vars.get('telem_db.host', defaults['host'])
-    port = manifest_vars.get('telem_db.port', defaults['port'])
-  else:
-    host = 'localhost'
-    port = 27017
-
+    host = manifest_vars.get('telem_db.host', 'telem-db')
+    port = manifest_vars.get('telem_db.port', 27017)
   try:
     client = MongoClient(
       host=host,
-      port=port or 27017,
+      port=int(port),
       connectTimeoutMS=1_000,
       serverSelectionTimeoutMS=1_000
     )
     client.server_info()
     return client['database']
   except ServerSelectionTimeoutError:
-    print(f"[nectwiz::telem_man] MongoDB conn({host}, {port}) failed")
+    print(f"[nectwiz:telem_man] MongoDB[{host}, {port}] conn failed")
+    if utils.is_out_of_cluster():
+      print("For local dev server, run MongoDB on localhost:27017")
     return None
-
-
-def in_cluster_conn_defaults() -> Dict:
-  # strategy = config_man.manifest_var(key_telem_strategy)
-  # if strategy == strategy_internal:
-  return dict(host='telem-db', port=27017)
-  # else:
-  #   return dict(host=None, port=None)

@@ -27,7 +27,7 @@ def manifest_variables_index():
 
 @controller.route(f"{BASE}/defaults")
 def manifest_variables_defaults():
-  as_dict = config_man.read_manifest_defaults()
+  as_dict = config_man.manifest_defaults()
   return jsonify(data=as_dict)
 
 

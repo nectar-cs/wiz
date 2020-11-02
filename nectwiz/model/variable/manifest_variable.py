@@ -28,12 +28,12 @@ class ManifestVariable(GenericVariable):
   def is_safe_to_set(self) -> bool:
     return self.mode == 'public'
 
-  def read_crt_value(self, force_reload=False) -> Optional[str]:
-    root = config_man.flat_manifest_vars(force_reload)
+  def read_crt_value(self) -> Optional[str]:
+    root = config_man.flat_manifest_vars()
     return root.get(self.id())
 
-  def is_currently_valid(self, force_reload=False) -> bool:
-    self.read_crt_value(force_reload)
+  def is_currently_valid(self) -> bool:
+    self.read_crt_value()
     if self.is_defined() and len(self.validators()) > 0:
       crt_val = self.read_crt_value()
       context = dict(resolvers=config_man.resolvers())
@@ -48,7 +48,7 @@ class ManifestVariable(GenericVariable):
 
   @classmethod
   def all_vars(cls) -> List[T]:
-    raw = config_man.manifest_variables(force_reload=True)
+    raw = config_man.manifest_vars()
     committed_vars = dict2keyed(raw)
     models = cls.inflate_all()
     pres = lambda k: len([cv for cv in models if cv.id() == k]) > 0
@@ -65,7 +65,7 @@ class ManifestVariable(GenericVariable):
 
   @classmethod
   def inject_server_defaults(cls) -> bool:
-    install_uuid = config_man.install_uuid(force_reload=True)
+    install_uuid = config_man.install_uuid()
     if install_uuid:
       route = f'/installs/{install_uuid}/injections'
       resp = hub_client.get(route)

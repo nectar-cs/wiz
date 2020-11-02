@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="nectwiz",
-  version="0.0.265",
+  version="0.0.266",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
   description="App Wizard",
@@ -13,7 +13,8 @@ setuptools.setup(
   long_description_content_type="text/markdown",
   url="https://github.com/nectar-cs/nectwiz",
   packages=setuptools.find_packages(exclude=[
-    "nectwiz.tests.*", "nectwiz.tests"
+    "nectwiz.tests.*",
+    "nectwiz.tests"
   ]),
   package_data={
     'nectwiz': ['model/pre_built/*.yaml']

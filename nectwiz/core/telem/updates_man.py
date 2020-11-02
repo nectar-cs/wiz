@@ -119,7 +119,7 @@ def fetch_next_update() -> Optional[UpdateDict]:
 
 
 def fetch_update(update_id: str) -> Optional[UpdateDict]:
-  if utils.is_prod():
+  if config_man.is_real_deployment():
     resp = hub_client.get(f'/app_updates/{update_id}')
     if resp.ok:
       return resp.json()['bundle']
@@ -131,7 +131,7 @@ def fetch_update(update_id: str) -> Optional[UpdateDict]:
 
 
 def next_available() -> Optional[UpdateDict]:
-  if utils.is_prod():
+  if config_man.is_real_deployment():
     resp = hub_client.get(f'/app_updates/available')
     data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
@@ -141,5 +141,5 @@ def next_available() -> Optional[UpdateDict]:
 
 
 def _gen_injection_telem(keys: List[str]):
-  all_vars = config_man.read_manifest_vars()
+  all_vars = config_man.manifest_vars()
   return {k: all_vars[k] for k in keys}

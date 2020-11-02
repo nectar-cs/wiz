@@ -118,7 +118,7 @@ class short_lived_resfile:
 
 def ktl_apply_cmd() -> str:
   final_cmd = ktl_apply_cmd_base
-  if not broker.is_in_cluster_auth():
+  if utils.is_out_of_cluster():
     if broker.connect_config.get('context'):
       context_part = f"--context={broker.connect_config['context']}"
       final_cmd = f"{final_cmd} {context_part}"

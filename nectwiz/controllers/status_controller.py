@@ -3,6 +3,7 @@ from typing import Dict
 from flask import Blueprint, jsonify
 from k8kat.auth.kube_broker import broker
 
+from nectwiz.core.core import utils
 from nectwiz.core.telem import telem_man
 from nectwiz.model.base.wiz_model import models_man, default_descriptors, configs_for_kinds, WizModel
 
@@ -57,6 +58,9 @@ def status():
 
   return jsonify(
     sanity='2',
+    app_id=config_man.app_id(),
+    nectwiz_env=utils.run_env(),
+    is_training_mode=config_man.is_training_mode(),
     is_healthy=is_healthy(),
     install_uuid=config_man.install_uuid(),
     cluster_connection=dict(
@@ -67,7 +71,7 @@ def status():
     tam_config=config_man.tam(),
     wiz_config=config_man.wiz(),
     tam_defaults=config_man.manifest_defaults(),
-    tam_variables=config_man.read_manifest_vars()
+    tam_variables=config_man.manifest_vars()
   )
 
 
@@ -107,8 +111,6 @@ def dump_default_descriptors():
 
 def is_healthy() -> bool:
   if broker.is_connected:
-    return config_man.read_master_config_map() is not None
+    return config_man.load_master_cmap() is not None
   else:
     return False
-
-

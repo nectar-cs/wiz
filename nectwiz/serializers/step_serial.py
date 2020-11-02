@@ -33,7 +33,7 @@ def ser_refreshed(step: Step, values: Dict, state: OperationState) -> Dict:
   :param state: current operation state
   :return: serialized Step in dict form.
   """
-  config_man.read_manifest_vars()
+  config_man.manifest_vars()
   visible_fields = step.visible_fields(values, state)
   serialize_field = lambda field: ser_embedded_field(
     field=field,

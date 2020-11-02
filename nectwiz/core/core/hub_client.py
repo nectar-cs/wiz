@@ -1,7 +1,6 @@
-import os
+from typing import Optional
 
 import requests
-from k8kat.auth.kube_broker import broker
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
@@ -9,17 +8,17 @@ from nectwiz.core.core.config_man import config_man
 api_path = '/cli'
 
 
-def backend_host() -> str:
-    if utils.is_dev():
-      if broker.is_in_cluster_auth():
-        return "http://necthub.com.ngrok.io"
-      else:
-        return 'http://localhost:3000'
-    else:
-      return 'https://api.codenectar.com'
+def backend_host() -> Optional[str]:
+  if config_man.is_training_mode():
+    print("[nectwiz:hub_client] illegal call while training mode")
+    return None
+  if utils.is_dev():
+    return "http://necthub.com.ngrok.io"
+  else:
+    return 'https://api.codenectar.com'
 
 
-def post(endpoint, payload):
+def post(endpoint, payload) -> requests.Response:
   url = f'{backend_host()}{api_path}{endpoint}'
   print(f"[nectwiz:hub_client] post {url}")
   return requests.post(
@@ -29,7 +28,7 @@ def post(endpoint, payload):
   )
 
 
-def patch(endpoint, payload):
+def patch(endpoint, payload) -> requests.Response:
   url = f'{backend_host()}{api_path}{endpoint}'
   print(f"[nectwiz:hub_client] patch {url}")
   return requests.patch(
@@ -39,7 +38,7 @@ def patch(endpoint, payload):
   )
 
 
-def get(endpoint):
+def get(endpoint) -> requests.Response:
   url = f'{backend_host()}{api_path}{endpoint}'
   print(f"[nectwiz:hub_client] get {url}")
   return requests.get(
