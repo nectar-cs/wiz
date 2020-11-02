@@ -30,19 +30,21 @@ class ConfigMan:
   def __init__(self):
     self._ns: Optional[str] = None
 
-  def ns(self, force_reload=False):
-    if force_reload or utils.is_worker() or not self._ns:
+  def ns(self):
+    if utils.is_worker() or not self._ns:
       self._ns = read_ns()
+      if not self._ns:
+        print("[nectwiz:config_man:ns] failed to read new NS")
     return self._ns
 
   def load_master_cmap(self) -> Optional[KatMap]:
     if self.ns():
       cmap = KatMap.find(cmap_name, self.ns())
       if not cmap:
-        print("[nectwiz::read_master_config_map] fatal: cmap is nil")
+        print("[nectwiz:config_man:load_cmap] fatal: cmap is nil")
       return cmap
     else:
-      print("[nectwiz::read_master_config_map] fatal: ns is nil")
+      print("[nectwiz:config_man:load_cmap] fatal: ns is nil")
       return None
 
   def read_entry(self, key: str) -> any:
@@ -171,7 +173,7 @@ def read_ns() -> Optional[str]:
       value = file.read()
       if not value:
         print(f"[nectwiz::configmap] FATAL ns empty at {path}")
-      return file.read()
+      return value
   except FileNotFoundError:
     print(f"[nectwiz::configmap] FATAL read failed")
     print(traceback.format_exc())
@@ -179,8 +181,8 @@ def read_ns() -> Optional[str]:
 
 
 def coerce_ns(new_ns):
-  config_man._ns = new_ns
   if utils.is_out_of_cluster():
+    config_man._ns = new_ns
     with open(dev_ns_path, 'w') as file:
       file.write(new_ns)
   else:

@@ -43,7 +43,7 @@ def all_exception_handler(error):
 def read_dev_ns():
   coerced_ns = request.headers.get('Wizns')
   if coerced_ns:
-    if utils.is_local_dev_server():
+    if utils.is_out_of_cluster():
       coerce_ns(coerced_ns)
     else:
       print(f"[nectwiz::server] set-ns from header env={utils.run_env()}!")
