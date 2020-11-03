@@ -4,12 +4,13 @@ from datetime import datetime
 from typing import Optional, Dict, List, Tuple, Callable
 
 from k8kat.res.config_map.kat_map import KatMap
+from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.main.utils import deep_merge
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import TamDict, WizDict
 
-cmap_path = 'master_config'
+mounted_cmap_root_path = '/etc/master_config'
 cmap_name = 'master'
 is_training_key = 'is_dev'
 app_id_key = 'app_id'
@@ -20,7 +21,7 @@ status_key = 'status'
 prefs_config_key = 'prefs'
 key_last_updated = 'last_updated'
 tam_vars_key = 'manifest_variables'
-tam_defaults_key = 'manifest_defaults'
+manifest_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
 ns_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
 dev_ns_path = '/tmp/nectwiz-dev-ns'
@@ -29,7 +30,11 @@ iso8601_time_fmt = '%Y-%m-%d %H:%M:%S.%f'
 
 class ConfigMan:
   def __init__(self):
+    self._cmap: Optional[KatMap] = None
     self._ns: Optional[str] = None
+
+  def invalidate_cmap(self):
+    self._cmap = None
 
   def ns(self):
     if utils.is_worker() or not self._ns:
@@ -38,26 +43,31 @@ class ConfigMan:
         print("[nectwiz:config_man:ns] failed to read new NS")
     return self._ns
 
-  def load_master_cmap(self) -> Optional[KatMap]:
+  def load_master_cmap(self, reload=True) -> Optional[KatMap]:
     if self.ns():
-      cmap = KatMap.find(cmap_name, self.ns())
-      if not cmap:
+      if reload:
+        self._cmap = KatMap.find(cmap_name, self.ns())
+      if not self._cmap:
         print("[nectwiz:config_man:load_cmap] fatal: cmap is nil")
-      return cmap
+      return self._cmap
     else:
       print("[nectwiz:config_man:load_cmap] fatal: ns is nil")
       return None
 
-  def read_entry(self, key: str) -> any:
-    if utils.is_in_cluster():
-      with open(cmap_path, 'r') as file:
-        return file.read()
-    else:
-      cmap = self.load_master_cmap()
-      return cmap.raw.data.get(key) if cmap else None
+  def read_entry(self, key: str, reload=True) -> any:
+    # if utils.is_in_cluster():
+    #   fname = f"{mounted_cmap_root_path}/{key}"
+    #   try:
+    #     with open(fname, 'r') as file:
+    #       return file.read()
+    #   except FileNotFoundError:
+    #     return None
+    # else:
+    cmap = self.load_master_cmap(reload)
+    return cmap.raw.data.get(key) if cmap else None
 
-  def read_dict(self, outer_key: str) -> Dict:
-    raw_val = self.read_entry(outer_key) or '{}'
+  def read_dict(self, outer_key: str, reload=True) -> Dict:
+    raw_val = self.read_entry(outer_key, reload) or '{}'
     return json.loads(raw_val)
 
   def patch_master_cmap(self, outer_key: str, value: any):
@@ -86,20 +96,20 @@ class ConfigMan:
   def wiz(self) -> WizDict:
     return self.read_dict(wiz_config_key)
 
-  def manifest_defaults(self) -> Dict:
-    return self.read_dict(tam_defaults_key)
+  def manifest_defaults(self, reload=True) -> Dict:
+    return self.read_dict(manifest_defaults_key, reload)
 
-  def manifest_vars(self) -> Dict:
-    return self.read_dict(tam_vars_key)
+  def manifest_vars(self, reload=True) -> Dict:
+    return self.read_dict(tam_vars_key, reload)
 
-  def flat_manifest_vars(self) -> Dict:
-    return utils.dict2flat(self.manifest_vars())
+  def flat_manifest_vars(self, reload=True) -> Dict:
+    return utils.dict2flat(self.manifest_vars(reload))
 
   def last_updated(self) -> datetime:
     return self.read_entry(key_last_updated)
 
-  def manifest_var(self, deep_key: str) -> Optional[str]:
-    return utils.deep_get2(self.manifest_vars(), deep_key)
+  def manifest_var(self, deep_key: str, reload=True) -> Optional[str]:
+    return utils.deep_get2(self.manifest_vars(reload), deep_key)
 
   # noinspection PyTypedDict
   def resolvers(self) -> Dict[str, Callable]:
@@ -141,7 +151,7 @@ class ConfigMan:
     self.write_tam(new_tam)
 
   def write_manifest_defaults(self, assigns: Dict):
-    self.patch_cmap_with_dict(tam_defaults_key, assigns)
+    self.patch_cmap_with_dict(manifest_defaults_key, assigns)
 
   def is_training_mode(self) -> bool:
     raw_val = self.read_entry(is_training_key)

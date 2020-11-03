@@ -2,19 +2,14 @@ from nectwiz.model.input import input_serializer
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 
 
-def standard(cv: ManifestVariable):
-  """
-  Standard serializer for the ChartVariable instance.
-  :param cv: ChartVariable class instance.
-  :return: serialized ChartVariable object (dict).
-  """
+def standard(cv: ManifestVariable, reload=True):
   return dict(
     id=cv.id(),
     title=cv.title,
     mode=cv.mode,
     description=cv.info,
-    default_value=cv.default_value(),
-    value=cv.read_crt_value(),
+    default_value=cv.default_value(reload),
+    value=cv.read_crt_value(reload),
     is_valid=cv.is_currently_valid()
   )
 

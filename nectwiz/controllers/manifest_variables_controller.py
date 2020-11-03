@@ -19,8 +19,9 @@ def manifest_variables_index():
   Inflates and serializes the current list of chart variable.
   :return: serialized list of chart variable.
   """
+  config_man.invalidate_cmap()
   manifest_var_models = ManifestVariable.all_vars()
-  serialize = lambda cv: manifest_vars_serial.standard(cv=cv)
+  serialize = lambda cv: manifest_vars_serial.standard(cv=cv, reload=False)
   serialized = list(map(serialize, manifest_var_models))
   return jsonify(data=serialized)
 

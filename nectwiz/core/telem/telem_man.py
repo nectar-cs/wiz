@@ -9,10 +9,11 @@ from nectwiz.core.core import hub_client, utils
 from nectwiz.core.core.config_man import config_man
 
 key_conn_obj_db = 'db'
+key_synced = 'synced'
+
 key_events = 'events'
 key_config_backups = 'config_backups'
 key_errors = 'errors'
-key_synced = 'synced'
 
 key_telem_strategy = 'telem_storage.strategy'
 strategy_disabled = 'disabled'
@@ -67,7 +68,7 @@ def list_errors():
   return list_records(key_errors)
 
 
-def list_outcomes():
+def list_events():
   return list_records(key_events)
 
 
@@ -93,7 +94,7 @@ def clear_update_outcomes():
 
 @connected_and_enabled(backup=None)
 def get_update_outcome(_id: str) -> Optional[Dict]:
-  stored_outcomes = list_outcomes()
+  stored_outcomes = list_events()
   finder = lambda o: o.get('update_id') == _id
   return next(filter(finder, stored_outcomes), None)
 

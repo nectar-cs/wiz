@@ -43,7 +43,7 @@ def run_post_wiz_update_hooks():
 
 @controller.route(f'{BASE_PATH}/outcomes')
 def list_past_updates():
-  outcomes = telem_man.list_outcomes()
+  outcomes = telem_man.list_events()
   return jsonify(data=outcomes)
 
 

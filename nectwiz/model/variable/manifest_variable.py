@@ -17,20 +17,19 @@ class ManifestVariable(GenericVariable):
     self.mode: str = config.get('mode', 'internal')
     self.release_overridable: bool = config.get('release_overridable', False)
 
-  def default_value(self) -> str:
+  def default_value(self, reload=True) -> str:
     hardcoded = super().default_value()
     if hardcoded:
       return hardcoded
     else:
-      defaults = config_man.manifest_defaults()
+      defaults = config_man.manifest_defaults(reload)
       return utils.deep_get2(defaults, self.id())
 
   def is_safe_to_set(self) -> bool:
     return self.mode == 'public'
 
-  def read_crt_value(self) -> Optional[str]:
-    root = config_man.flat_manifest_vars()
-    return root.get(self.id())
+  def read_crt_value(self, reload=True) -> Optional[str]:
+    return config_man.manifest_var(self.id(), reload)
 
   def is_currently_valid(self) -> bool:
     self.read_crt_value()

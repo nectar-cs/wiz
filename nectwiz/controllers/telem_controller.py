@@ -19,7 +19,7 @@ def prefs_patch():
 
 @controller.route(f'{BASE}/outcomes')
 def list_outcomes():
-  return jsonify(data=telem_man.list_outcomes())
+  return jsonify(data=telem_man.list_events())
 
 
 @controller.route(f'{BASE}/config_backups')
