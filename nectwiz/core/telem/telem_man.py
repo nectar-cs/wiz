@@ -1,5 +1,6 @@
 from typing import Optional, Dict
 
+from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import ServerSelectionTimeoutError
@@ -60,7 +61,7 @@ def store_event(event: Dict) -> InsertOneResult:
   return store_list_element(key_events, event)
 
 
-def store_config_backup(outcome: Dict):
+def store_config_backup(outcome: Dict) -> InsertOneResult:
   return store_list_element(key_config_backups, outcome)
 
 
@@ -74,6 +75,10 @@ def list_events():
 
 def list_config_backups():
   return list_records(key_config_backups)
+
+
+def get_config_backup(record_id) -> Optional[Dict]:
+  return find_record_by_id(key_config_backups, record_id)
 
 
 @connected_and_enabled(backup=None)
@@ -93,15 +98,9 @@ def clear_update_outcomes():
 
 
 @connected_and_enabled(backup=None)
-def get_update_outcome(_id: str) -> Optional[Dict]:
-  stored_outcomes = list_events()
-  finder = lambda o: o.get('update_id') == _id
-  return next(filter(finder, stored_outcomes), None)
-
-
-@connected_and_enabled
-def store_mfst_var_assign():
-  pass
+def find_record_by_id(list_key,  record_id):
+  collection = _database()[list_key]
+  return collection.find_one({'_id': ObjectId(record_id)})
 
 
 def upload_all_meta():

@@ -25,8 +25,10 @@ class BackupConfigAction(Action):
     time.sleep(2)
     if telem_man.get_db():
       telem_man.store_config_backup(dict(
+        name='backup_config',
+        event_type='backup_action',
         timestamp=str(datetime.now()),
-        raw=config_man.serialize()
+        data=config_man.serialize()
       ))
       self.observer.set_item_status('backup_config', 'positive')
     else:

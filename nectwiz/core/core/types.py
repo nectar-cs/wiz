@@ -81,6 +81,12 @@ class WizDict(TypedDict, total=False):
   version: str
 
 
+class ConfigBackup(TypedDict, total=False):
+  event_id: str
+  timestamp: str
+  data: Dict
+
+
 class ActionOutcome(TypedDict):
   cls_name: str
   id: str
