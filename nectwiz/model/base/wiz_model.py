@@ -71,6 +71,14 @@ class WizModel:
       setattr(self, key, value)
 
   @classmethod
+  def singleton_id(cls):
+    raise NotImplemented
+
+  @classmethod
+  def inflate_singleton(cls) -> T:
+    return cls.inflate_with_key(cls.singleton_id())
+
+  @classmethod
   def kind(cls):
     return cls.__name__
 
@@ -258,9 +266,9 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.core.telem.updates_man import UpdateAction
   from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
-
   from nectwiz.core.telem.updates_man import WizUpdateAction
-  from nectwiz.model.adapters.status_adapter import StatusAdapter
+  from nectwiz.model.adapters.app_status_computer import AppStatusComputer
+
   return [
     Operation,
     Stage,
@@ -296,7 +304,7 @@ def default_model_classes() -> List[Type[T]]:
     ApplyManifestAction,
     FlushTelemAction,
     DeleteResourcesAction,
-    StatusAdapter,
+    AppStatusComputer,
     RunPredicatesAction,
     UpdateAction,
     BackupConfigAction,

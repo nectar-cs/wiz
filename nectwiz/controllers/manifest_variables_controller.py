@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 
 from nectwiz.controllers.ctrl_utils import jparse
-from nectwiz.core.core import job_client, utils
+from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
@@ -65,7 +65,8 @@ s  Updates the chart variable with new value.
   """
   assignments_dict = jparse()['assignments']
   assignments = list(assignments_dict.items())
-  config_man.patch_keyed_manifest_vars(assignments)
+  if len(assignments) > 0:
+    config_man.patch_keyed_manifest_vars(assignments)
   action_config = dict(
     kind=ApplyManifestAction.__name__,
     event_type='update_variables',

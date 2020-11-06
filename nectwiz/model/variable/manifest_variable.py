@@ -16,6 +16,7 @@ class ManifestVariable(GenericVariable):
     super().__init__(config)
     self.mode: str = config.get('mode', 'internal')
     self.release_overridable: bool = config.get('release_overridable', False)
+    self.category = config.get('category')
 
   def default_value(self, reload=True) -> str:
     hardcoded = super().default_value()

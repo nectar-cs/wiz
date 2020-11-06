@@ -29,7 +29,7 @@ def ternary_job_status(job_id: str) -> Optional[str]:
     if job.is_failed:
       return 'negative'
     elif job.is_finished:
-      return 'positive'
+      return 'positive' if job.result else 'negative'
     elif job.is_started or job.is_queued:
       return 'running'
     else:

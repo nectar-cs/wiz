@@ -24,11 +24,12 @@ class BackupConfigAction(Action):
     self.observer.set_item_running('backup_config')
     time.sleep(2)
     if telem_man.get_db():
+      cmap_contents = config_man.serialize()
+      print(f"[nectwiz:backup_config_action] saving {cmap_contents}")
       telem_man.store_config_backup(dict(
-        name='backup_config',
         event_type='backup_action',
-        timestamp=str(datetime.now()),
-        data=config_man.serialize()
+        data=cmap_contents,
+        timestamp=str(datetime.now())
       ))
       self.observer.set_item_status('backup_config', 'positive')
     else:

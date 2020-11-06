@@ -115,8 +115,8 @@ def upload_status() -> bool:
   if config_man.is_training_mode():
     return False
 
-  from nectwiz.model.adapters.status_adapter import StatusAdapter
-  status_computer: StatusAdapter = StatusAdapter.descendent_or_self()
+  from nectwiz.model.adapters.app_status_computer import AppStatusComputer
+  status_computer: AppStatusComputer = AppStatusComputer.descendent_or_self()
   status_computer.compute_and_commit_status()
 
   tam = config_man.tam()

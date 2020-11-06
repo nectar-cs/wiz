@@ -18,6 +18,7 @@ class ResourceSelector(WizModel):
     self.k8s_kind = config.get('k8s_kind')
     self.name: str = config.get('name')
     self.label_selector: Dict = config.get('label_selector') or {}
+    self.not_label_selector: Dict = config.get('not_label_selector') or {}
     self.field_selector: Dict = config.get('field_selector') or {}
     self.kat_prop_selector: Dict = config.get('prop_selector') or {}
     self.explicit_ns: str = config.get('namespace')
@@ -71,11 +72,13 @@ class ResourceSelector(WizModel):
 
     field_selector = interp_dict_vals(field_selector, context)
     label_selector = interp_dict_vals(self.label_selector, context)
+    not_label_selector = interp_dict_vals(self.not_label_selector, context)
     namespace = self.explicit_ns or config_man.ns()
 
     return dict(
       ns=namespace,
       labels=label_selector,
+      not_labels=not_label_selector,
       fields=field_selector
     )
 
