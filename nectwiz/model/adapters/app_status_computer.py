@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict
 
 from nectwiz.core.core.config_man import config_man
@@ -23,6 +24,7 @@ class AppStatusComputer(WizModel):
       return 'running' if eval_result else 'broken'
     except:
       print("[nectwiz:app_status_computer] no predicate or override!")
+      print(traceback.format_exc())
       return 'error'
 
   def compute_and_commit_status(self) -> str:

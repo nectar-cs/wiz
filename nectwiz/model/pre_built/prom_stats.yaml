@@ -1,0 +1,15 @@
+kind: PromSingleValueStatsAdapter
+id: nectar.current_memory_usage_bytes
+query: sum(container_memory_usage_bytes\{namespace={app/ns}\})
+
+---
+
+kind: PromSingleValueStatsAdapter
+id: nectar.current_cpu_usage_bytes
+query: sum(container_cpu_usage_seconds_total\{namespace={app/ns}\})
+
+---
+
+kind: PromSingleValueStatsAdapter
+id: nectar.current_cpu_usage_bytes
+query: sum(container_cpu_usage_seconds_total\{namespace={app/ns}\})

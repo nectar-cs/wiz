@@ -23,7 +23,7 @@ setuptools.setup(
   install_requires=[
     'flask>=1.1',
     'flask-cors',
-    'k8kat>=0.0.212',
+    'k8kat>=0.0.215',
     'requests',
     'pymongo',
     'cachetools>=3.1',

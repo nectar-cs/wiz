@@ -25,10 +25,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3",
-                "sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"
+                "sha256:1f422849db327d534e3d0c5f02a263458c3955ec0aae4ff09b95f195c59f4edd",
+                "sha256:f05def092c44fbf25834a51509ef6e631dc19765ab8a57b4e7ab85531f0a9cf4"
             ],
-            "version": "==2020.6.20"
+            "version": "==2020.11.8"
         },
         "chardet": {
             "hashes": [
@@ -67,10 +67,10 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:712dd7d140a9a1ea218e5688c7fcb04af71b431a29ec9ce433e384c60e387b98",
-                "sha256:9c0f71789438d703f77b94aad4ea545afaec9a65f10e6cc1bc8b89ce242244bb"
+                "sha256:5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440",
+                "sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b"
             ],
-            "version": "==1.22.1"
+            "version": "==1.23.0"
         },
         "idna": {
             "hashes": [
@@ -102,10 +102,10 @@
         },
         "k8kat": {
             "hashes": [
-                "sha256:a1ace5de443db8b020b6b7f67c966137d699ff0d78fe38eec366d60dff6152d6",
-                "sha256:ca7656eae20296ed67a133dd33ee076bbc63df3865955e3d85c3ca755a362fe6"
+                "sha256:82a6b7cd7ca7c961466d3415790ca37da582027a14516620a504a15737eebf3a",
+                "sha256:bc047f411aa35dda8e8a85d0357e4f535d82c3ea987ec9b350babd54a37cf1b9"
             ],
-            "version": "==0.0.212"
+            "version": "==0.0.215"
         },
         "kubernetes": {
             "hashes": [
@@ -244,10 +244,10 @@
         },
         "python-dotenv": {
             "hashes": [
-                "sha256:8c10c99a1b25d9a68058a1ad6f90381a62ba68230ca93966882a4dbc3bc9c33d",
-                "sha256:c10863aee750ad720f4f43436565e4c1698798d763b63234fb5021b6c616e423"
+                "sha256:0c8d1b80d1a1e91717ea7d526178e3882732420b03f08afea0406db6402e220e",
+                "sha256:587825ed60b1711daea4832cf37524dfd404325b7db5e25ebe88c495c9f807a0"
             ],
-            "version": "==0.14.0"
+            "version": "==0.15.0"
         },
         "pyyaml": {
             "hashes": [
@@ -288,10 +288,10 @@
         },
         "rq": {
             "hashes": [
-                "sha256:6e32a39d467ffc56fc18f0f0f10abd6aa258895dbac03af31e38fe0c2337aab8",
-                "sha256:fc23788eedc39cad3c10630af1694a550eba2f8519e57e396fd91b1dba0a7d99"
+                "sha256:023c75993d932fab9cbdc82bbcb819f8b5f677f4b0aeeeecc1270ef6b0918074",
+                "sha256:efa9b1b187e618609fc6b47ae5a51613c67c85e0b862509af7d330acba0d1dff"
             ],
-            "version": "==1.5.2"
+            "version": "==1.6.1"
         },
         "rsa": {
             "hashes": [

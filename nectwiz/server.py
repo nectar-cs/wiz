@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from k8kat.auth.kube_broker import BrokerConnException
+from k8kat.auth.kube_broker import BrokerConnException, broker
 
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, manifest_variables_controller, resources_controller, updates_controller, errors_controller, \
@@ -37,6 +37,20 @@ def all_exception_handler(error):
     error='could not connect to Kubernetes API',
     reason=str(error)
   )), 500
+
+
+@app.before_request
+def set_dev_context():
+  crt_conf = broker.connect_config
+  new_ktx = request.headers.get('Ktx')
+  if utils.is_out_of_cluster():
+    if new_ktx and not crt_conf.get('context') == new_ktx:
+      print(f"[nectwiz:server] coercing kontext {new_ktx}")
+      new_conf = {**crt_conf, 'context': new_ktx}
+      print(f"[nectwiz:server] new config {new_conf}")
+      broker.connect(new_conf)
+  else:
+    print("[nectwiz:server] danger - tried coerce kontext while in-cluster")
 
 
 @app.before_request

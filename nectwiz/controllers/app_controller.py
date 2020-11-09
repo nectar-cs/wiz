@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.telem import telem_man
 from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
+from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
-from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook

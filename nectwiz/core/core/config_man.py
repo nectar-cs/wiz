@@ -3,6 +3,7 @@ import traceback
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple, Callable
 
+from k8kat.auth.kube_broker import broker
 from k8kat.res.config_map.kat_map import KatMap
 from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.main.utils import deep_merge
@@ -48,7 +49,8 @@ class ConfigMan:
       if reload:
         self._cmap = KatMap.find(cmap_name, self.ns())
       if not self._cmap:
-        print("[nectwiz:config_man:load_cmap] fatal: cmap is nil")
+        cmap_id = f"[{self.ns()}/{cmap_name}]"
+        print(f"[nectwiz:config_man:load_cmap] fatal: {cmap_id} nil")
       return self._cmap
     else:
       print("[nectwiz:config_man:load_cmap] fatal: ns is nil")
