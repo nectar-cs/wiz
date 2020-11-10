@@ -11,7 +11,7 @@ class NumAndChartStatsProvider(MetricsComputer):
     self.number_computer_kod = config.get('number')
     self.series_computer_kod = config.get('series')
 
-  def compute(self):
+  def _do_compute(self):
     return {
       'number': self.compute_number(),
       'series': self.compute_series()

@@ -1,12 +1,21 @@
+
+
+kind: PrometheusSingleValueComputer
+id: foo
+query: sum(container_memory_usage_bytes)
+
+---
+
 kind: MemCpuStatsProvider
 memory:
   cpu_limit_now:
     x: y
   cpu_usage_now:
-    kind: PrometheusComputer
+    kind: PrometheusSingleValueComputer
+    type: single_value
     query: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
   series_usage:
-    kind: PromAdapter
+    kind: PrometheusSingleValueComputer
     expr: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
     time_start: x
     time_end: y

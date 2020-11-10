@@ -1,43 +1,30 @@
+import traceback
+from abc import ABC
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Optional, List
 
-from nectwiz.core.core import prom_client
-from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.stats.metrics_computer import MetricsComputer
 
 
-class PrometheusComputer(MetricsComputer):
+class PrometheusComputer(MetricsComputer, ABC):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self._type = config.get('type', 'series')
     self.query_expr = config.get('query')
     self.step = config.get('step')
     self.t0 = parse_from_now(config.get('t0_offset', {'days': 7}))
+    self.tn = parse_from_now(config.get('tn_offset', {}))
 
-  def compute(self):
-    if self._type == 'series':
-     result = prom_client.compute_series(
-       self.query_expr,
-       self.step,
-       self.t0,
-       datetime.now()
-     )
-    elif self._type == 'instant':
-      result = prom_client.compute_instant(
-        self.query_expr,
-        self.t0
-      )
+  @staticmethod
+  def fetch_server_computed_result(raw) -> Optional[List]:
+    if raw:
+      try:
+        return raw['data']['result']
+      except KeyError:
+        print(traceback.format_exc())
+        print("[nectwiz:prometheus_computer] fmt err ^")
+        return None
     else:
-      print(f"[nectwiz:prom_adapter] illegal type {self._type}")
       return None
-
-    if result:
-      pass
-    else:
-      print(f"[nectwiz:prom_adapter] illegal type {self._type}")
-
-
-# def conv_series_point(point) -> Dict:
 
 
 def parse_from_now(expr: Dict) -> datetime:

@@ -27,6 +27,7 @@ from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
 from nectwiz.model.action.actions.flush_telem_action import FlushTelemAction
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
+from nectwiz.model.stats.prometheus_single_value_computer import PrometheusSingleValueComputer
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.input.select_input import SelectInput
