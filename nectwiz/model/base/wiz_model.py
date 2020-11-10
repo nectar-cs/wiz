@@ -273,6 +273,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.stats.prometheus_computer import PrometheusComputer
   from nectwiz.model.stats.metrics_computer import MetricsComputer
   from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
+  from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
   return [
     Operation,
     Stage,
@@ -321,6 +322,7 @@ def default_model_classes() -> List[Type[T]]:
     MetricsComputer,
     PrometheusScalarComputer,
     PrometheusSeriesComputer,
+    BasicResourceMetricsComputer,
 
     OperationRunSimulator
   ]

@@ -1,42 +1,31 @@
-kind: PrometheusScalarComputer
-id: foo
-query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
-
----
-
-kind: PrometheusSeriesComputer
-id: bar
-query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
-
----
-
-kind: PrometheusSeriesComputer
-id: baz
-query: sum(container_fs_writes_bytes_total<<namespace!="">>) by (namespace)
-step: 1d
-t0_offset:
-  days: 4
-
----
-
-kind: MemCpuMetricsProvider
+kind: BasicResourceMetricsComputer
+id: nectar.metrics.mem-and-cpu-metrics-provider
+cpu:
+  usage_now:
+    kind: PrometheusScalarComputer
+    query: sum(rate(container_cpu_usage_seconds_total<<namespace='{app/ns}', image!=''>>[80m])) * sum(kube_node_status_capacity_cpu_cores)
+  limit_now:
+    kind: PrometheusScalarComputer
+    query: sum(kube_pod_container_resource_limits_cpu_cores<<namespace="{app/ns}">>)
+  usage_series:
+    kind: PrometheusSeriesComputer
+    query: sum(rate(container_cpu_usage_seconds_total<<namespace="{app/ns}", image!="">>[80m])) * sum(kube_node_status_capacity_cpu_cores)
 memory:
   usage_now:
     kind: PrometheusScalarComputer
-    query: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
+    query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
+  limit_now:
+    kind: PrometheusScalarComputer
+    query: sum(kube_pod_container_resource_limits_memory_bytes<<namespace='{app/ns}'>>)
   usage_series:
     kind: PrometheusSeriesComputer
-    query: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
-  series_usage:
-    kind: PrometheusScalarComputer
-    query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
-    time_start: x
-    time_end: y
+    query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
 
 ---
 
 kind: NumAndChartStatsProvider
 view: histogram
+unit: btyes
 number:
   kind: PrometheusComputer
   id: nectar.current_memory_usage_bytes

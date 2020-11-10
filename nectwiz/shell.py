@@ -20,6 +20,7 @@ from nectwiz.model.operation.operation import Operation
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.operation.stage import Stage
+from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
 from nectwiz.model.stats.prometheus_computer import PrometheusComputer
 from nectwiz.model.operation.step import Step
 
