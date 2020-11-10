@@ -7,7 +7,7 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.job_client import enqueue_action
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN
+from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN, TARGET_PREFS
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation import step_expr_helpers
 from nectwiz.model.operation.step_state import StepState
@@ -88,14 +88,21 @@ class Step(WizModel):
     recalled_from_state = self.comp_recalled_asgs(TARGET_STATE, prev_state)
     return {**recalled_from_state, **assigns}
 
+  def finalize_prefs_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(TARGET_PREFS, prev_state)
+    return {**recalled_from_state, **assigns}
+
   def run(self, assigns: Dict, state: StepState):
     buckets = self.partition_user_asgs(assigns, state)
     manifest_vars, state_vars = buckets[TARGET_CHART], buckets[TARGET_STATE]
+    pref_vars = buckets[TARGET_PREFS]
     state.notify_vars_assigned(manifest_vars, state_vars)
 
     if len(manifest_vars):
-      keyed_tuples = list(manifest_vars.items())
-      config_man.patch_keyed_manifest_vars(keyed_tuples)
+      config_man.patch_keyed_manifest_vars(list(manifest_vars.items()))
+
+    if len(pref_vars):
+      config_man.patch_keyed_prefs(list(pref_vars.items()))
 
     if self.runs_action():
       lmc = gen_last_minute_action_config(state)
@@ -118,6 +125,7 @@ class Step(WizModel):
         TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),
         TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
         TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
+        TARGET_PREFS: self.finalize_state_asgs(seg(TARGET_PREFS), ps),
       }
 
   @staticmethod

@@ -9,7 +9,8 @@ from nectwiz.model.variable.generic_variable import GenericVariable
 TARGET_CHART = 'chart'
 TARGET_INLIN = 'inline'
 TARGET_STATE = 'state'
-TARGET_TYPES = [TARGET_CHART, TARGET_INLIN, TARGET_STATE]
+TARGET_PREFS = 'prefs'
+TARGET_TYPES = [TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS]
 
 T = TypeVar('T', bound='Field')
 

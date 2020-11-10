@@ -1,8 +1,6 @@
-# noinspection PyUnresolvedReferences
 import dotenv
 
 
-# noinspection PyUnresolvedReferences
 
 
 from k8kat.res.rbac.rbac import KatClusterRole, KatRole, \
@@ -13,6 +11,7 @@ from k8kat.res.node.kat_node import KatNode
 from k8kat.auth.kube_broker import broker
 from k8kat.res.ns.kat_ns import KatNs
 
+from nectwiz.core.core import prom_client
 from nectwiz.model.base import wiz_model
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import models_man
@@ -21,6 +20,7 @@ from nectwiz.model.operation.operation import Operation
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.operation.stage import Stage
+from nectwiz.model.stats.prometheus_computer import PrometheusComputer
 from nectwiz.model.operation.step import Step
 
 from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
@@ -57,8 +57,11 @@ from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredic
 from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
 
 
-broker.connect()
-models_man.add_defaults()
+broker.connect(dict(
+  auth_type='kube-config',
+  context='wear'
+))
 
+models_man.add_defaults()
 
 print("[nectwiz::shell] loaded packages for shell mode")

@@ -139,6 +139,13 @@ class ConfigMan:
     merged = deep_merge(self.manifest_vars(), assignments)
     self.patch_cmap_with_dict(tam_vars_key, merged)
 
+  def patch_keyed_prefs(self, assignments: List[Tuple[str, any]]):
+    self.patch_prefs(utils.keyed2dict(assignments))
+
+  def patch_prefs(self, assignments: Dict[str, any]):
+    merged = deep_merge(self.prefs(), assignments)
+    self.patch_cmap_with_dict(prefs_config_key, merged)
+
   def write_last_synced(self, timestamp: datetime):
     self.patch_master_cmap(key_last_updated, str(timestamp))
 
