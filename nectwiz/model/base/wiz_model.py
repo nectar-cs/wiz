@@ -268,10 +268,11 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
   from nectwiz.core.telem.updates_man import WizUpdateAction
   from nectwiz.model.adapters.app_status_computer import AppStatusComputer
-  from nectwiz.model.stats.prometheus_single_value_computer import PrometheusSingleValueComputer
+  from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
 
   from nectwiz.model.stats.prometheus_computer import PrometheusComputer
   from nectwiz.model.stats.metrics_computer import MetricsComputer
+  from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
   return [
     Operation,
     Stage,
@@ -318,7 +319,8 @@ def default_model_classes() -> List[Type[T]]:
     DeletionSpec,
     PrometheusComputer,
     MetricsComputer,
-    PrometheusSingleValueComputer,
+    PrometheusScalarComputer,
+    PrometheusSeriesComputer,
 
     OperationRunSimulator
   ]

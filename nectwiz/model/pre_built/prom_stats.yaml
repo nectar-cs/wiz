@@ -1,22 +1,35 @@
-
-
-kind: PrometheusSingleValueComputer
+kind: PrometheusScalarComputer
 id: foo
-query: sum(container_memory_usage_bytes)
+query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
 
 ---
 
-kind: MemCpuStatsProvider
+kind: PrometheusSeriesComputer
+id: bar
+query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
+
+---
+
+kind: PrometheusSeriesComputer
+id: baz
+query: sum(container_fs_writes_bytes_total<<namespace!="">>) by (namespace)
+step: 1d
+t0_offset:
+  days: 4
+
+---
+
+kind: MemCpuMetricsProvider
 memory:
-  cpu_limit_now:
-    x: y
-  cpu_usage_now:
-    kind: PrometheusSingleValueComputer
-    type: single_value
+  usage_now:
+    kind: PrometheusScalarComputer
+    query: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
+  usage_series:
+    kind: PrometheusSeriesComputer
     query: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
   series_usage:
-    kind: PrometheusSingleValueComputer
-    expr: sum(container_memory_usage_bytes<<namespace={app/ns}>>)
+    kind: PrometheusScalarComputer
+    query: sum(container_memory_usage_bytes<<namespace="{app/ns}">>)
     time_start: x
     time_end: y
 

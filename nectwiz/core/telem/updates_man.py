@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from nectwiz.core.core import utils, hub_client
+from nectwiz.core.core import utils, hub_api_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict, ProgressItem
 from nectwiz.model.action.base.action import Action
@@ -120,7 +120,7 @@ def fetch_next_update() -> Optional[UpdateDict]:
 
 def fetch_update(update_id: str) -> Optional[UpdateDict]:
   if config_man.is_real_deployment():
-    resp = hub_client.get(f'/app_updates/{update_id}')
+    resp = hub_api_client.get(f'/app_updates/{update_id}')
     if resp.ok:
       return resp.json()['bundle']
     else:
@@ -132,7 +132,7 @@ def fetch_update(update_id: str) -> Optional[UpdateDict]:
 
 def next_available() -> Optional[UpdateDict]:
   if config_man.is_real_deployment():
-    resp = hub_client.get(f'/app_updates/available')
+    resp = hub_api_client.get(f'/app_updates/available')
     data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:

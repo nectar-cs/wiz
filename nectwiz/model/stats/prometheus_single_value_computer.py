@@ -1,11 +1,11 @@
 import traceback
 from typing import Dict, Optional
 
-from nectwiz.core.core import prom_client
+from nectwiz.core.core import prom_api_client
 from nectwiz.model.stats.prometheus_computer import PrometheusComputer
 
 
-class PrometheusSingleValueComputer(PrometheusComputer):
+class PrometheusScalarComputer(PrometheusComputer):
 
   def _do_compute(self):
     result = self.fetch_value()
@@ -15,5 +15,5 @@ class PrometheusSingleValueComputer(PrometheusComputer):
       return None
 
   def fetch_value(self):
-    raw = prom_client.compute_instant(self.query_expr, self.tn)
+    raw = prom_api_client.compute_instant(self.query_expr, self.tn)
     return self.fetch_server_computed_result(raw)

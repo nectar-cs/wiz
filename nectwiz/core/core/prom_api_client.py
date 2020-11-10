@@ -38,6 +38,7 @@ def do_invoke(path: str, args: Dict) -> Optional[Dict]:
 
 def invoke_svc(svc, path, args, prefs) -> Optional[Dict]:
   resp = svc.proxy_get(path, args, prefs.get('port')) or {}
+  print(args)
   if resp.get('status', 500) < 300:
     try:
       return json.loads(resp.get('body'))

@@ -2,7 +2,7 @@ from typing import Optional, List, TypeVar
 
 from nectwiz.core.core.types import PredEval
 
-from nectwiz.core.core import config_man, utils, hub_client
+from nectwiz.core.core import config_man, utils, hub_api_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.model.variable.generic_variable import GenericVariable
@@ -68,7 +68,7 @@ class ManifestVariable(GenericVariable):
     install_uuid = config_man.install_uuid()
     if install_uuid:
       route = f'/installs/{install_uuid}/injections'
-      resp = hub_client.get(route)
+      resp = hub_api_client.get(route)
       if resp.status_code < 300:
         injections = resp.json().get('data')
         if injections:

@@ -6,7 +6,7 @@ from pymongo.database import Database
 from pymongo.errors import ServerSelectionTimeoutError
 from pymongo.results import InsertOneResult
 
-from nectwiz.core.core import hub_client, utils
+from nectwiz.core.core import hub_api_client, utils
 from nectwiz.core.core.config_man import config_man
 
 key_conn_obj_db = 'db'
@@ -131,9 +131,9 @@ def upload_status() -> bool:
     'synced_at': str(config_man.last_updated())
   }
 
-  print(f"[nectwiz:telem_man] stat -> {hub_client.backend_host()} {payload}")
+  print(f"[nectwiz:telem_man] stat -> {hub_api_client.backend_host()} {payload}")
   endpoint = f'/installs/sync'
-  response = hub_client.post(endpoint, dict(data=payload))
+  response = hub_api_client.post(endpoint, dict(data=payload))
   print(f"[nectwiz:telem_man] upload status resp {response}")
   return response.status_code < 205
 
@@ -150,7 +150,7 @@ def upload_events_and_errors():
       item['original_id'] = str(raw_id)
       hub_key = f'wiz_{collection_name}'[0:-1]
       payload = {hub_key: item}
-      resp = hub_client.post(f'/{hub_key}s', payload)
+      resp = hub_api_client.post(f'/{hub_key}s', payload)
       if resp.ok:
         query = {'_id': raw_id}
         patch = {'$set': {key_synced: True}}

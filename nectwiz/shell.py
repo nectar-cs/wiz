@@ -11,7 +11,7 @@ from k8kat.res.node.kat_node import KatNode
 from k8kat.auth.kube_broker import broker
 from k8kat.res.ns.kat_ns import KatNs
 
-from nectwiz.core.core import prom_client
+from nectwiz.core.core import prom_api_client
 from nectwiz.model.base import wiz_model
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import models_man
@@ -27,7 +27,8 @@ from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
 from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
 from nectwiz.model.action.actions.flush_telem_action import FlushTelemAction
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
-from nectwiz.model.stats.prometheus_single_value_computer import PrometheusSingleValueComputer
+from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
+from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
 from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.model.input.input import GenericInput
 from nectwiz.model.input.select_input import SelectInput
@@ -56,7 +57,6 @@ from nectwiz.model.predicate.multi_predicate import MultiPredicate
 from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
 from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
 from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
-
 
 broker.connect(dict(
   auth_type='kube-config',
