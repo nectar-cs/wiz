@@ -65,10 +65,10 @@ def warn_agg_series(query_result: List[Dict]):
 
 def find_or_create_entry(output: List, epoch: int) -> Dict:
   for datapoint in output:
-    if datapoint['ts'] == epoch:
+    if datapoint['epoch'] == epoch:
       return datapoint
 
-  datapoint = {'ts': epoch}
+  datapoint = {'epoch': epoch}
   output.append(datapoint)
   return datapoint
 

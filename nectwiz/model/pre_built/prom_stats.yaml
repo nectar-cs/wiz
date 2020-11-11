@@ -3,13 +3,13 @@ id: nectar.metrics.mem-and-cpu-metrics-provider
 cpu:
   usage_now:
     kind: PrometheusScalarComputer
-    query: sum(rate(container_cpu_usage_seconds_total<<namespace='{app/ns}', image!=''>>[80m])) * sum(kube_node_status_capacity_cpu_cores)
+    query: sum(rate(container_cpu_usage_seconds_total<<namespace='{app/ns}', image!=''>>[60m])) * sum(kube_node_status_capacity_cpu_cores)
   limit_now:
     kind: PrometheusScalarComputer
     query: sum(kube_pod_container_resource_limits_cpu_cores<<namespace="{app/ns}">>)
   usage_series:
     kind: PrometheusSeriesComputer
-    query: sum(rate(container_cpu_usage_seconds_total<<namespace="{app/ns}", image!="">>[80m])) * sum(kube_node_status_capacity_cpu_cores)
+    query: sum(rate(container_cpu_usage_seconds_total<<namespace="{app/ns}", image!="">>[60m])) * sum(kube_node_status_capacity_cpu_cores)
 memory:
   usage_now:
     kind: PrometheusScalarComputer

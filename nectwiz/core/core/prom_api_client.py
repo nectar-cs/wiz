@@ -1,16 +1,18 @@
 import json
 import time
 import traceback
-
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from typing import Optional, Dict, Tuple
-import urllib.parse
 
 import requests
 from k8kat.res.svc.kat_svc import KatSvc
 
 from nectwiz.core.core.config_man import config_man
+
+_cache_obj = dict(
+  svc=None
+)
 
 
 def compute_instant(*args):
@@ -24,20 +26,15 @@ def compute_series(*args):
 
 
 def do_invoke(path: str, args: Dict) -> Optional[Dict]:
-  prefs = config_man.prefs().get('prom') or {}
-  if prefs.get('type', 'svc') == 'svc':
-    svc = find_prom_svc(prefs)
-    if svc:
-      return invoke_svc(svc, path, args, prefs)
-    else:
-      print(f"[nectwiz:prom_client] svc[{prefs}] not found")
-      return None
+  svc = find_prom_svc()
+  if svc:
+    return invoke_svc(svc, path, args)
   else:
-    return invoke_pure_http(path, args)
+    return None
 
 
-def invoke_svc(svc, path, args, prefs) -> Optional[Dict]:
-  resp = svc.proxy_get(path, args, prefs.get('port')) or {}
+def invoke_svc(svc, path, args) -> Optional[Dict]:
+  resp = svc.proxy_get(path, args) or {}
   print(args)
   if resp.get('status', 500) < 300:
     try:
@@ -93,11 +90,24 @@ def sanitize_params(args: Dict) -> Dict:
   return args
 
 
-def find_prom_svc(prefs: Dict = None) -> Optional[KatSvc]:
-  prefs = prefs or config_man.prefs().get('prom') or {}
-  prom_ns = prefs.get('ns', def_svc_ns)
-  prom_name = prefs.get('name', def_svc_name)
-  return KatSvc.find(prom_name, prom_ns)
+def find_prom_svc() -> Optional[KatSvc]:
+  if not _cache_obj['svc']:
+    prefs = config_man.prefs().get('prom') or {}
+    prom_ns = prefs.get('ns', def_svc_ns)
+    prom_name = prefs.get('name', def_svc_name)
+    _cache_obj['svc'] = KatSvc.find(prom_name, prom_ns)
+    if not _cache_obj['svc']:
+      print(f"[nectwiz:prom_client] svc [{prefs}] not found")
+
+  return _cache_obj['svc']
+
+
+def conn_type():
+  if not _cache_obj['type']:
+    prefs = config_man.prefs().get('prom') or {}
+    if prefs.get('type'):
+      _cache_obj['type'] = prefs.get('type')
+  return _cache_obj['type'] or 'svc'
 
 
 def_svc_ns = "monitoring"

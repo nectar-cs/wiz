@@ -19,7 +19,7 @@ class AppStatusComputer(WizModel):
   def compute_status(self) -> str:
     # noinspection PyBroadException
     try:
-      predicate = self.load_child(Predicate, self.predicate_desc)
+      predicate = self.inflate_child(Predicate, self.predicate_desc)
       eval_result = predicate.evaluate({})
       return 'running' if eval_result else 'broken'
     except:

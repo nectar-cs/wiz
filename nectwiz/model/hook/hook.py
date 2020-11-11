@@ -22,7 +22,7 @@ class Hook(WizModel):
       return False
 
   def action(self) -> Action:
-    return super().load_child(Action, self.action_desc)
+    return super().inflate_child(Action, self.action_desc)
 
   def run(self):
     return self.action().run()

@@ -26,7 +26,7 @@ class BasicResourceMetricsComputer(MetricsComputer):
       cpu_usage_now_cores=self.compute_cpu_usage_now_cores(),
       mem_usage_now_bytes=self.compute_mem_usage_now_bytes(),
       cpu_limit_now_cores=self.compute_cpu_limit_now_cores(),
-      mem_limit_now_cores=self.compute_mem_limit_now_bytes(),
+      mem_limit_now_bytes=self.compute_mem_limit_now_bytes(),
       cpu_usage_series_cores=self.compute_cpu_usage_series_cores(),
       mem_usage_series_bytes=self.compute_mem_usage_series_bytes()
     )
@@ -51,7 +51,7 @@ class BasicResourceMetricsComputer(MetricsComputer):
 
   def _compute_child(self, kod: KoD) -> Optional[Any]:
     if kod:
-      computer = self.load_child(MetricsComputer, kod)
+      computer = self.inflate_child(MetricsComputer, kod)
       computer.update_attrs(dict(step='1h', t0_offset=dict(days=1)))
       return computer.compute()
     else:

@@ -19,8 +19,8 @@ class NumAndChartStatsProvider(MetricsComputer):
 
   def compute_number(self):
     if self.number_computer_kod:
-      self.load_child(MetricsComputer, self.number_computer_kod)
+      self.inflate_child(MetricsComputer, self.number_computer_kod)
 
   def compute_series(self):
     if self.number_computer_kod:
-      self.load_child(MetricsComputer, self.series_computer_kod)
+      self.inflate_child(MetricsComputer, self.series_computer_kod)

@@ -2,6 +2,8 @@ kind: SystemCheck
 id: system-check
 predicates:
   - nectar.predicate.is-tam-in-sync
+  - nectar.predicate.all-deployments-green
+  - nectar.predicate.metrics-server-running
 
 ---
 
@@ -13,3 +15,19 @@ check_against: gcr.io/nectar-bazaar/ice-cream-tami
 challenge: "{tam_config/uri}"
 tone: error
 reason: The manifest image should be gcr.io/nectar-bazaar/ice-cream-tami but it is not.
+
+---
+
+kind: ResourcePropertyPredicate
+id: nectar.predicate.all-deployments-green
+title: Ensure all deployments are green
+info: "Ensure no pods are pending morbidly or unschedulable"
+property: ternary_status
+check_against: positive
+tone: error
+reason: "One or more pending morbidly or unschedulable
+  (e.g crash loop, image pull err, insufficient CPU)."
+selector:
+  k8s_kind: deployments
+  not_label_selector:
+    app: nectar-wiz

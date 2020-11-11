@@ -19,6 +19,9 @@ def basic(res: KatRes) -> Dict:
     status=res.ternary_status()
   )
 
+def intel(res: KatRes) -> Dict:
+  pass
+
 
 def _embedded_pod(pod: KatPod) -> Dict:
   return dict(

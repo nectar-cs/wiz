@@ -86,11 +86,11 @@ class ConfigMan:
   def application_status(self) -> str:
     return self.read_entry(status_key)
 
-  def prefs(self) -> Dict:
-    return self.read_dict(prefs_config_key)
+  def prefs(self, reload=True) -> Dict:
+    return self.read_dict(prefs_config_key, reload)
 
-  def flat_prefs(self) -> Dict:
-    return utils.dict2flat(self.prefs())
+  def flat_prefs(self, reload=True) -> Dict:
+    return utils.dict2flat(self.prefs(reload))
 
   def tam(self) -> TamDict:
     return self.read_dict(tam_config_key)

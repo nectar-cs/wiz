@@ -96,9 +96,9 @@ class WizModel:
     descriptor_list = self.config.get(key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
-    return self.load_child(child_cls, match) if match else None
+    return self.inflate_child(child_cls, match) if match else None
 
-  def load_child(self, child_cls: Type[T], key_or_dict: KoD) -> T:
+  def inflate_child(self, child_cls: Type[T], key_or_dict: KoD) -> T:
     return key_or_dict_to_child(key_or_dict, child_cls, self)
 
   @classmethod
