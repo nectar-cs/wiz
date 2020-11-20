@@ -4,6 +4,7 @@ import traceback
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 from typing import Optional, Dict, Tuple
+from urllib.parse import quote
 
 import requests
 from k8kat.res.svc.kat_svc import KatSvc
@@ -11,6 +12,7 @@ from k8kat.res.svc.kat_svc import KatSvc
 from nectwiz.core.core.config_man import config_man
 
 _cache_obj = dict(
+  prom_config={},
   svc=None
 )
 
@@ -26,11 +28,33 @@ def compute_series(*args):
 
 
 def do_invoke(path: str, args: Dict) -> Optional[Dict]:
-  svc = find_prom_svc()
-  if svc:
-    return invoke_svc(svc, path, args)
+  _conn_type = conn_type()
+  if _conn_type == 'proxy':
+    svc = find_prom_svc()
+    return invoke_svc(svc, path, args) if svc else None
+  elif _conn_type == 'url':
+    return invoke_url(path, args)
   else:
     return None
+
+
+def invoke_url(path, args: Dict) -> Optional[Dict]:
+  base_url = prom_config().get('url')
+  full_url = f"{base_url}{path}?{dict_args2str(args)}"
+  resp = requests.get(full_url)
+  if resp.ok:
+    try:
+      return resp.json()
+    except JSONDecodeError:
+      print(traceback.format_exc())
+      print(resp)
+      print(f"[nectwiz:prom_client] svc resp decode ^^ fail")
+      return None
+
+
+def dict_args2str(args: Dict) -> str:
+  as_list = [f"{k}={quote(v)}" for k, v in list(args.items())]
+  return "&".join(as_list)
 
 
 def invoke_svc(svc, path, args) -> Optional[Dict]:
@@ -65,7 +89,7 @@ def instant_path_and_args(query: str, ts: datetime = None) -> Tuple:
     'query': query,
     'time': fmt_time(ts)
   }
-  return base, sanitize_params(args)
+  return base, args
 
 
 def gen_series_args(query: str, step=None, t0=None, tn=None) -> Tuple:
@@ -78,36 +102,33 @@ def gen_series_args(query: str, step=None, t0=None, tn=None) -> Tuple:
     'end': fmt_time(t_end),
     'step': step or '1h'
   }
-  return base, sanitize_params(args)
+  return base, args
 
 
 def fmt_time(timestamp: datetime):
   return int(time.mktime(timestamp.timetuple()))
 
 
-def sanitize_params(args: Dict) -> Dict:
-  # return {k: urllib.parse.quote(v) for k, v in args.items()}
-  return args
-
-
 def find_prom_svc() -> Optional[KatSvc]:
   if not _cache_obj['svc']:
-    prefs = config_man.prefs().get('prom') or {}
+    prefs = prom_config()
     prom_ns = prefs.get('ns', def_svc_ns)
     prom_name = prefs.get('name', def_svc_name)
     _cache_obj['svc'] = KatSvc.find(prom_name, prom_ns)
     if not _cache_obj['svc']:
       print(f"[nectwiz:prom_client] svc [{prefs}] not found")
-
   return _cache_obj['svc']
 
 
-def conn_type():
-  if not _cache_obj['type']:
-    prefs = config_man.prefs().get('prom') or {}
-    if prefs.get('type'):
-      _cache_obj['type'] = prefs.get('type')
-  return _cache_obj['type'] or 'svc'
+def prom_config() -> Dict:
+  if not _cache_obj['prom_config']:
+    root = config_man.prefs().get('prom_config') or {}
+    _cache_obj['prom_config'] = root
+  return _cache_obj['prom_config'] or {}
+
+
+def conn_type() -> str:
+  return prom_config().get('type')
 
 
 def_svc_ns = "monitoring"

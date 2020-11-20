@@ -173,10 +173,11 @@ class ConfigMan:
     new_defaults = {**self.manifest_defaults(), **assigns}
     self.write_manifest_defaults(new_defaults)
 
-  def install_uuid(self) -> Optional[str]:
+  def install_uuid(self, insist: bool = False) -> Optional[str]:
     if self.is_training_mode():
-      print("[nectwiz:config_man:install_uuid] illegal req in training mode")
-      return None
+      if insist:
+        print("[nectwiz:config_man:install_uuid] illegal req in training mode")
+        return None
 
     if utils.is_in_cluster():
       try:

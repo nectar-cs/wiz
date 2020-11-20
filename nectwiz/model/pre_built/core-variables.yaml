@@ -2,6 +2,7 @@ kind: ManifestVariable
 id: telem_db.strategy
 title: Telemetry Storage Stratgy
 mode: internal
+tags: ['telem']
 info: "Storage strategy for the <b>telemetry database</b>. You
 should <i>not</i> change this variable manually. To change
 the behavior run chose the appropriate <b>operation</b> instead."
@@ -17,6 +18,7 @@ kind: ManifestVariable
 id: telem_db.host
 title: Telemetry Database MongoDB host
 mode: public
+tags: ['telem', 'network']
 info: "Database host for telemetry database. Must point to
 a MongoDB database. This variable will be ignored
  if <i>telem_db.strategy</i> is set to 'internal_storage'."
@@ -31,6 +33,7 @@ kind: ManifestVariable
 id: telem_db.port
 title: Telemetry Database MongoDB port
 mode: public
+tags: ['telem', 'network']
 info: "Database port for telemetry database. Must point to
 a MongoDB database. This variable will be ignored
  if <i>telem_db.strategy</i> is set to 'internal_storage'."

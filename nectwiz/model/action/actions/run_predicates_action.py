@@ -4,7 +4,6 @@ from typing import Dict
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem
 from nectwiz.model.action.base.action import Action
-from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.predicate.predicate import Predicate
 
 
@@ -20,20 +19,14 @@ class RunPredicatesAction(Action):
     for predicate in self.predicates:
       self.observer.set_item_running(predicate.id())
       result = None
+      exc_dump = None
       # noinspection PyBroadException
       try:
         result = predicate.evaluate(context)
       except:
-        print("[nectwiz::predicate_action] internal error:")
+        exc_dump = traceback.format_exc()
         print(traceback.format_exc())
-        self.observer.process_error(
-          id='internal-error',
-          type='internal_error',
-          fatal=False,
-          tone='error',
-          reason='Internal error',
-          logs=[traceback.format_exc()]
-        )
+        print("[nectwiz::predicate_action] count internal error as fail ^^")
 
       self.observer.set_item_outcome(predicate.id(), result)
       if not result:
@@ -41,11 +34,13 @@ class RunPredicatesAction(Action):
         error_count += 1
         self.observer.process_error(
           fatal=False,
+          type='internal_error' if exc_dump else 'negative_predicate',
           event_type='predicate_eval',
           predicate_id=predicate.id(),
           predicate_kind=predicate.kind(),
           tone=predicate.tone,
           reason=predicate.reason,
+          logs=[exc_dump] if exc_dump else [],
           **predicate.error_extras()
         )
     self.observer.on_ended(error_count == 0)

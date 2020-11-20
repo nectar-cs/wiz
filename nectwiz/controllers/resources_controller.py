@@ -58,5 +58,6 @@ def resource_detail(kind: str, name: str):
 kind_serializer_mapping = dict(
   Deployment=res_serializers.deployment,
   ResourceQuota=res_serializers.resource_quota,
-  Role=res_serializers.role
+  Role=res_serializers.role,
+  ConfigMap=res_serializers.config_map
 )

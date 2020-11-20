@@ -3,7 +3,6 @@ import os
 import redis
 from rq import Worker, Queue, Connection
 
-from nectwiz.core.core.config_man import config_man
 
 redis_url = os.getenv('WORK_REDIS_URL', 'redis://localhost:6379')
 

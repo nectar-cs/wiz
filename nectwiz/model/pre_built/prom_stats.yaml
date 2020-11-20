@@ -8,8 +8,10 @@ cpu:
     kind: PrometheusScalarComputer
     query: sum(kube_pod_container_resource_limits_cpu_cores<<namespace="{app/ns}">>)
   usage_series:
+    t0_offset:
+      days: 1
     kind: PrometheusSeriesComputer
-    query: sum(rate(container_cpu_usage_seconds_total<<namespace="{app/ns}", image!="">>[60m])) * sum(kube_node_status_capacity_cpu_cores)
+    query: sum(rate(container_cpu_usage_seconds_total<<namespace="{app/ns}", image!="">>[60m])) by (pod) * scalar(sum(kube_node_status_capacity_cpu_cores))
 memory:
   usage_now:
     kind: PrometheusScalarComputer
@@ -18,8 +20,10 @@ memory:
     kind: PrometheusScalarComputer
     query: sum(kube_pod_container_resource_limits_memory_bytes<<namespace='{app/ns}'>>)
   usage_series:
+    t0_offset:
+      days: 1
     kind: PrometheusSeriesComputer
-    query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
+    query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>) by (pod)
 
 ---
 

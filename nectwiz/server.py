@@ -44,14 +44,15 @@ def all_exception_handler(error):
 def set_dev_context():
   crt_conf = broker.connect_config
   new_ktx = request.headers.get('Ktx')
-  if utils.is_out_of_cluster():
-    if new_ktx and not crt_conf.get('context') == new_ktx:
-      print(f"[nectwiz:server] coercing kontext {new_ktx}")
-      new_conf = {**crt_conf, 'context': new_ktx}
-      print(f"[nectwiz:server] new config {new_conf}")
-      broker.connect(new_conf)
-  else:
-    print("[nectwiz:server] danger - tried coerce kontext while in-cluster")
+  if new_ktx:
+    if utils.is_out_of_cluster():
+      if not crt_conf.get('context') == new_ktx:
+        print(f"[nectwiz:server] coercing kontext {new_ktx}")
+        new_conf = {**crt_conf, 'context': new_ktx}
+        print(f"[nectwiz:server] new config {new_conf}")
+        broker.connect(new_conf)
+    else:
+      print("[nectwiz:server] danger - tried coerce kontext while in-cluster")
 
 
 @app.before_request

@@ -125,7 +125,7 @@ class Step(WizModel):
         TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),
         TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
         TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
-        TARGET_PREFS: self.finalize_state_asgs(seg(TARGET_PREFS), ps),
+        TARGET_PREFS: self.finalize_prefs_asgs(seg(TARGET_PREFS), ps),
       }
 
   @staticmethod

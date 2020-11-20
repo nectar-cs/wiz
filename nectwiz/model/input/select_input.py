@@ -1,6 +1,5 @@
 from typing import Optional, List, Dict
 
-from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
 
 

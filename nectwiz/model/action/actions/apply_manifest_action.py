@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from nectwiz.core.core.types import StepActionKwargs, TamDict, ProgressItem
 from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
@@ -22,6 +22,7 @@ class ApplyManifestAction(Action):
 
     self.res_selectors = config.get('apply_filters', [])
     self.tam: Optional[TamDict] = config.get('tam')
+    self.var_root = Optional[str] = config.get('var_root')
 
   def perform(self, **kwargs: StepActionKwargs) -> bool:
     inlines = (kwargs.get('inline') or {}).items()

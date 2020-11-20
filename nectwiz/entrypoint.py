@@ -17,7 +17,5 @@ def start():
     opsim.start()
   elif utils.is_shell():
     print("Make sure you run python with -i")
-    print("Then run")
-    print("from nectwiz import shell")
   else:
     print(f"Unrecognized exec mode {utils.exec_mode()}")

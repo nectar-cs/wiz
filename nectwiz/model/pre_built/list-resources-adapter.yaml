@@ -16,4 +16,3 @@ category_resources:
   policy:
     - roles
     - rolebindings
-    - serviceaccounts

@@ -28,6 +28,6 @@ tone: error
 reason: "One or more pending morbidly or unschedulable
   (e.g crash loop, image pull err, insufficient CPU)."
 selector:
-  k8s_kind: deployments
+  k8s_kind: Deployment
   not_label_selector:
     app: nectar-wiz

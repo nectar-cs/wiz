@@ -10,6 +10,7 @@ def standard(cv: ManifestVariable, reload=True):
     description=cv.info,
     default_value=cv.default_value(reload),
     value=cv.read_crt_value(reload),
+    tags=cv.tags,
     is_valid=cv.is_currently_valid()
   )
 

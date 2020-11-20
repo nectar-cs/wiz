@@ -22,7 +22,6 @@ legal_envs = ['production', 'development', 'test']
 def exec_mode() -> str:
   from_argv = sys.argv[1] if len(sys.argv) >= 2 else None
   from_env = os.environ.get('WIZ_EXEC_MODE')
-  print(from_argv)
   return from_argv or from_env or 'server'
 
 

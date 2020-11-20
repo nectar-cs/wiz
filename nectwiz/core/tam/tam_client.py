@@ -1,5 +1,6 @@
 import os
 import subprocess
+import traceback
 from typing import List, Tuple, Optional
 
 import yaml
@@ -7,7 +8,7 @@ from k8kat.auth.kube_broker import broker
 from k8kat.utils.main.api_defs_man import api_defs_man
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.config_man import config_man
+from nectwiz.core.core.config_man import config_man, tam_vars_key
 from nectwiz.core.core.types import K8sResDict, TamDict, KAO
 from nectwiz.model.base.resource_selector import ResourceSelector
 
@@ -21,8 +22,10 @@ SELs = List[ResourceSelector]
 
 class TamClient:
 
-  def __init__(self, tam: TamDict):
+  def __init__(self, tam: TamDict, values_key=None, values_root=None):
     self.tam: TamDict = tam
+    self.values_key = values_key or tam_vars_key
+    self.values_root = values_root or ''
 
   def load_manifest_defaults(self):
     raise NotImplemented
@@ -52,11 +55,19 @@ class TamClient:
     for res_dict in res_dicts:
       with short_lived_resfile(res_dict):
         command_parts = ktl_apply_cmd().split(" ")
+        # noinspection PyBroadException
         try:
           result = subprocess.check_output(command_parts, stderr=subprocess.STDOUT)
+          print(f"[nectwiz:tam_client] {command_parts} -----> {result}")
           outcomes.append(log2outcome(True, res_dict, result))
         except subprocess.CalledProcessError as e:
+          print(traceback.format_exc())
+          print(f"[nectwiz:tam_client] CalledProcessError {command_parts} ^^")
           outcomes.append(log2outcome(False, res_dict, e.output))
+        except:
+          print(traceback.format_exc())
+          print(f"[nectwiz:tam_client] Unknown error {command_parts} ^^")
+          outcomes.append(log2outcome(False, res_dict, traceback.format_exc()))
     return [o for o in outcomes if o]
 
   @staticmethod
@@ -99,7 +110,7 @@ def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
         error=raw_log
       )
   else:
-    print(f"[nectwiz::tamclient] panic log fmt unknown: {raw_log}")
+    print(f"[nectwiz::tam_client] panic log fmt unknown: {raw_log}")
     return None
 
 
@@ -147,10 +158,10 @@ def gen_template_args(inline_assigns, vars_full_path) -> List[str]:
   :param vars_full_path: pointer to values file
   :return: list of flags to pass to Tami image.
   """
-  default_inlines = [('namespace', config_man.ns())]
-  inlines = default_inlines + (inline_assigns or [])
+  inlines = inline_assigns or []
   values_flag: str = f"-f {vars_full_path}"
   vendor_flags: str = config_man.tam().get('args')
   inline_flags: str = fmt_inline_assigns(inlines)
-  all_flags: str = f"{values_flag} {inline_flags} {vendor_flags}"
+  ns = config_man.ns()
+  all_flags: str = f"{ns} {values_flag} {inline_flags} {vendor_flags}"
   return [w for w in all_flags.split(" ") if w]

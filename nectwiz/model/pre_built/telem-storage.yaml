@@ -38,6 +38,8 @@ steps:
      is required. This step helps you decide where and how to host it."
     action:
       kind: ApplyManifestAction
+      values_key: prefs
+      values_root: telem_db
       tam:
         type: image
         uri: gcr.io/nectar-bazaar/telem-tami

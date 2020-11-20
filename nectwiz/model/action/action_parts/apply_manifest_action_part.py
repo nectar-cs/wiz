@@ -1,4 +1,3 @@
-import time
 from typing import Optional
 
 import yaml
@@ -48,7 +47,7 @@ class ApplyManifestActionPart:
     observer.log(list(map(utils.kao2log, k_apply_outcomes)))
     cls.check_kao_failures(observer, k_apply_outcomes)
 
-    time.sleep(2)
+    # time.sleep(2) #todo source of safety?
     return k_apply_outcomes
 
   @classmethod

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="nectwiz",
-  version="0.0.281",
+  version="0.0.299",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
   description="App Wizard",
@@ -17,13 +17,13 @@ setuptools.setup(
     "nectwiz.tests"
   ]),
   package_data={
-    'nectwiz': ['model/pre_built/*.yaml']
+    'nectwiz': ['model/pre_built/*.*']
   },
   include_package_data=True,
   install_requires=[
     'flask>=1.1',
     'flask-cors',
-    'k8kat>=0.0.218',
+    'k8kat>=0.0.225',
     'requests',
     'pymongo',
     'cachetools>=3.1',
