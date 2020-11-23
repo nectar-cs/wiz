@@ -1,7 +1,7 @@
 import os
 import subprocess
 import traceback
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 
 import yaml
 from k8kat.auth.kube_broker import broker
@@ -22,10 +22,14 @@ SELs = List[ResourceSelector]
 
 class TamClient:
 
-  def __init__(self, tam: TamDict, values_key=None, values_root=None):
-    self.tam: TamDict = tam
-    self.values_key = values_key or tam_vars_key
-    self.values_root = values_root or ''
+  def __init__(self, **kwargs):
+    self.tam: TamDict = kwargs.get('tam')
+    self.values_key: str = kwargs.get('values_source_key') or tam_vars_key
+    self.values_root: str = kwargs.get('values_root_key')
+
+  def compute_values(self) -> Dict:
+    root = config_man.read_dict(self.values_key)
+    return utils.deep_get2(root, self.values_root)
 
   def load_manifest_defaults(self):
     raise NotImplemented

@@ -1,12 +1,12 @@
 import os
 from os.path import isfile
-from typing import Type, Optional, Dict, Union, List, TypeVar
+from typing import Type, Optional, Dict, Union, List, TypeVar, Any
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import KoD
 
-
 T = TypeVar('T', bound='WizModel')
+
 
 class ModelsMan:
   def __init__(self):
@@ -54,6 +54,7 @@ class WizModel:
     self._id: str = config.get('id')
     self.title: str = config.get('title')
     self.info: str = config.get('info')
+    self.choice_items: List[Dict] = config.get('items', [])
     self.parent = None
 
   def id(self):
@@ -69,6 +70,13 @@ class WizModel:
   def update_attrs(self, config: Dict):
     for key, value in config.items():
       setattr(self, key, value)
+
+  def get_prop(self, key, backup):
+    value = self.config.get(key, backup)
+    if value and type(value) in [str, dict]:
+      return self.try_as_iftt(value, {})
+    else:
+      return value
 
   @classmethod
   def singleton_id(cls):
@@ -108,7 +116,11 @@ class WizModel:
     return [cls.inflate_with_config(config) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: KoD) -> Optional[T]:
+  def inflate(cls: T, key_or_dict: KoD, **kwargs) -> Optional[T]:
+    context, skip_iftt = kwargs.get('context'), kwargs.get('__skip_iftt')
+    if not skip_iftt:
+      key_or_dict = cls.try_as_iftt(key_or_dict, context)
+
     try:
       if isinstance(key_or_dict, str):
         return cls.inflate_with_key(key_or_dict)
@@ -116,7 +128,8 @@ class WizModel:
         return cls.inflate_with_config(key_or_dict)
       raise RuntimeError(f"Bad input {key_or_dict}")
     except Exception as err:
-      print(f"Inflate failed for {key_or_dict}")
+      # print(traceback.format_exc())
+      # print(f"Inflate failed for {key_or_dict} ^^")
       raise err
 
   @classmethod
@@ -146,7 +159,7 @@ class WizModel:
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
 
-    if expl_kind and not expl_kind == cls.__name__:
+    if expl_kind and not expl_kind == host_class.__name__:
       host_class = cls.kind2cls(expl_kind)
 
     if inherit_id:
@@ -155,6 +168,22 @@ class WizModel:
       config = {**other.config, **config}
 
     return host_class(config)
+
+  @classmethod
+  def try_as_iftt(cls, kod, context) -> Any:
+    from nectwiz.model.predicate.iftt import Iftt
+    if type(kod) == dict:
+      if kod.get('kind') == Iftt.__name__:
+        iftt_matrix = Iftt.inflate(kod, __skip_iftt=True)
+        return iftt_matrix.resolve_item(context)
+      else:
+        return kod
+    else:
+      try:
+        iftt_matrix = Iftt.inflate(kod, __skip_iftt=True)
+        return iftt_matrix.resolve_item(context)
+      except:
+        return kod
 
   @classmethod
   def lteq_classes(cls, classes: List[Type]) -> List[Type[T]]:
@@ -274,6 +303,10 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.stats.metrics_computer import MetricsComputer
   from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
   from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
+  from nectwiz.model.predicate.prefs_variable_predicate import PrefsVariablePredicate
+
+  from nectwiz.model.predicate.iftt import Iftt
+  from nectwiz.model.predicate.common_predicates import FalsePredicate
   return [
     Operation,
     Stage,
@@ -303,6 +336,9 @@ def default_model_classes() -> List[Type[T]]:
     ResourceCountPredicate,
     ManifestVariablePredicate,
     TruePredicate,
+    FalsePredicate,
+    PrefsVariablePredicate,
+    Iftt,
 
     MultiAction,
     CmdExecAction,

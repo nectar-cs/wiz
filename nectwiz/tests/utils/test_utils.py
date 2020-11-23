@@ -8,6 +8,9 @@ class TestUtils(unittest.TestCase):
   
   def test_deep_get2(self):
     src = {'x': 'y'}
+    self.assertEqual(src, utils.deep_get2(src, ''))
+
+    src = {'x': 'y'}
     self.assertEqual('y', utils.deep_get2(src, 'x'))
 
     src = {'x': 'y'}
@@ -15,6 +18,9 @@ class TestUtils(unittest.TestCase):
 
     src = {'x': {'x': 'y'}}
     self.assertEqual('y', utils.deep_get2(src, 'x.x'))
+
+    src = {'x': {'x': 'y'}}
+    self.assertEqual({'x': 'y'}, utils.deep_get2(src, 'x'))
 
     src = {'x': {'x': 'y'}}
     self.assertEqual(None, utils.deep_get2(src, 'x.x2'))

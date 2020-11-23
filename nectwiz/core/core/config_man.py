@@ -113,6 +113,9 @@ class ConfigMan:
   def manifest_var(self, deep_key: str, reload=True) -> Optional[str]:
     return utils.deep_get2(self.manifest_vars(reload), deep_key)
 
+  def pref_var(self, deep_key: str, reload=True) -> Optional[str]:
+    return utils.deep_get2(self.prefs(reload), deep_key)
+
   # noinspection PyTypedDict
   def resolvers(self) -> Dict[str, Callable]:
     def app_cont(n: str) -> str:

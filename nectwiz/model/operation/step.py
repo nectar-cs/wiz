@@ -34,7 +34,7 @@ class Step(WizModel):
     return f"{parent_id}::{self.id()}"
 
   def runs_action(self) -> bool:
-    return self.action_kod is not None
+    return self.action_kod
 
   def next_step_id(self, op_state: OperationState) -> str:
     root = self.next_step_desc

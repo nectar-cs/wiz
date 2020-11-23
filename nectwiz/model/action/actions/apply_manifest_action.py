@@ -22,19 +22,23 @@ class ApplyManifestAction(Action):
 
     self.res_selectors = config.get('apply_filters', [])
     self.tam: Optional[TamDict] = config.get('tam')
-    self.var_root: Optional[str] = config.get('var_root')
+    self.values_source_key = config.get('values_source_key')
+    self.values_root_key = config.get('values_root_key')
 
   def perform(self, **kwargs: StepActionKwargs) -> bool:
-    inlines = (kwargs.get('inline') or {}).items()
     outcomes = ApplyManifestActionPart.perform(
-      self.observer,
-      self.tam,
-      self.res_selectors,
-      inlines
+      observer=self.observer,
+      tam=self.tam,
+      selectors=self.res_selectors,
+      inlines=(kwargs.get('inlines') or {}).items(),
+      values_source_key=self.values_source_key,
+      values_root_key=self.values_root_key
     )
+
     AwaitSettledActionPart.perform(
       self.observer,
       outcomes
     )
+
     self.observer.on_succeeded()
     return True

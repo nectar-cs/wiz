@@ -64,7 +64,7 @@ def build_comparator(name) -> Callable[[any, any], bool]:
   elif name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
     return lambda a, b: a != b
   elif name in ['is-in', 'in']:
-    return lambda a, b: false_on_raise(lambda: a in b)
+    return lambda a, b: false_on_raise(lambda: a in undefined_alias(b))
   elif name in ['contains']:
     return lambda a, b: false_on_raise(lambda: b in a)
   elif name in ['is-greater-than', 'greater-than', 'gt', '>']:
@@ -82,3 +82,12 @@ def build_comparator(name) -> Callable[[any, any], bool]:
   else:
     print(f"Don't know operator {name}")
     return lambda a, b: False
+
+
+def undefined_alias(values):
+  pimped = []
+  for value in values or []:
+    if not value or value == '':
+      pimped.append('__undefined__')
+    pimped.append(value)
+  return pimped

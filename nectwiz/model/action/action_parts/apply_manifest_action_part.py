@@ -1,9 +1,7 @@
-from typing import Optional
-
 import yaml
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.types import ProgressItem, KAOs, TamDict
+from nectwiz.core.core.types import ProgressItem, KAOs
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.base.observer import Observer
 
@@ -32,8 +30,13 @@ class ApplyManifestActionPart:
     ]
 
   @classmethod
-  def perform(cls, observer: Observer, tam: Optional[TamDict], selectors, inlines):
-    client = tam_client(tam)
+  def perform(cls, **kwargs):
+    observer: Observer = kwargs.get('observer')
+
+    inlines = kwargs.pop('inlines', None)
+    selectors = kwargs.pop('selectors', None)
+
+    client = tam_client(**kwargs)
 
     observer.set_item_running(key_load_manifest)
     manifestds = client.load_templated_manifest(inlines)

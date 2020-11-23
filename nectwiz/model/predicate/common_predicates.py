@@ -11,6 +11,11 @@ class TruePredicate(Predicate):
     return True
 
 
+class FalsePredicate(Predicate):
+  def evaluate(self, context: Dict) -> bool:
+    return False
+
+
 class PodShellPredicate(Predicate):
   def __init__(self, config: Dict):
     super().__init__(config)

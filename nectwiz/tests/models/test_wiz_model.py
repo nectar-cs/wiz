@@ -4,6 +4,8 @@ from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.field.field import Field
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.step import Step
+from nectwiz.model.predicate.common_predicates import TruePredicate, FalsePredicate
+from nectwiz.model.predicate.iftt import Iftt
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
@@ -23,6 +25,23 @@ class Base:
     @property
     def kind(self) -> str:
       return self.model_class().__name__
+
+    def test_try_as_iftt_when_not_iftt(self):
+      config = dict(kind=self.model_class().kind(), id='foo')
+      result = self.model_class().try_as_iftt(config, {})
+      self.assertEqual(config, result)
+
+    def test_try_as_iftt_iftt_dict(self):
+      models_man.clear(restore_defaults=True)
+      config = dict(
+        kind=Iftt.__name__,
+        items=[
+          dict(predicate=FalsePredicate.__name__, value='incorrect'),
+          dict(predicate=TruePredicate.__name__, value='correct')
+        ]
+      )
+      result = self.model_class().try_as_iftt(config, {})
+      self.assertEqual('correct', result)
 
     def test_inflate_with_id_key(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]

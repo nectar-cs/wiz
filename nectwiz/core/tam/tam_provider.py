@@ -6,8 +6,8 @@ from nectwiz.core.tam.tami_client import TamiClient
 from nectwiz.core.tam.tams_client import TamsClient
 
 
-def tam_client(tam: TamDict = None) -> TamClient:
-  tam = tam or config_man.tam()
+def tam_client(**kwargs) -> TamClient:
+  tam = kwargs.get('tam') or config_man.tam()
   tam_type = tam['type']
 
   if tam_type == 'image':

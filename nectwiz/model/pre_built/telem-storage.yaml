@@ -1,17 +1,58 @@
+kind: DeleteResourcesAction
+id: nectar.actions.delete-telem-db-resources
+resource_selectors:
+  - "deployments:telem-db"
+  - "services:telem-db"
+  - "persistentvolumeclaims:telem-db-pvc"
+
+---
+
+kind: ApplyManifestAction
+id: nectar.actions.apply-telem-db-manifest
+tam:
+  type: server
+  uri: https://api.codenectar.com/manifest_servers/nectar/nectarine-telem-database
+  version: 1.0.0
+values_source_key: prefs
+values_root_key: telem_db
+
+---
+
+kind: MultiAction
+id: nectar.actions.delete-telem-db-resources-then-apply
+sub_actions:
+  - nectar.actions.delete-telem-db-resources
+  - nectar.actions.apply-telem-db-manifest
+
+---
+
+kind: Iftt
+id: nectar.iftts.telem-db-action-iftt
+items:
+  - predicate:
+      challenge: "{step/telem_db.strategy}"
+      check_against: managed_pvc
+    value: nectar.actions.delete-telem-db-resources-then-apply
+  - predicate: TruePredicate
+    value: nectar.actions.delete-telem-db-resources
+
+---
+
+kind: PrefsVariablePredicate
 id: nectar.predicate.check-telem-is-disabled
-kind: ManifestVariablePredicate
 title: Ensure telemetry storage is currently disabled
 info: "Ensure that telemetry storage is disabled before enabling it."
 variable: telem_db.strategy
-check_against: disabled
+operator: in
+check_against: [disabled, __undefined__]
 reason: "It seems that telemetry storage is already enabled. Instead
     of proceeding, disable it safely using the appropriate operation."
 tone: error
 
 ---
 
+kind: PrefsVariablePredicate
 id: nectar.predicate.check-telem-is-pvc
-kind: ManifestVariablePredicate
 title: Ensure Telemetry is currently stored in-cluster
 info: "Ensure it makes sense to perform this operation by checking
 the current configurations."
@@ -36,14 +77,7 @@ steps:
     info: "Nectar saves telemetry for important events so that users
      can later audit their application. For this, a persistent database
      is required. This step helps you decide where and how to host it."
-    action:
-      kind: ApplyManifestAction
-      values_key: prefs
-      values_root: telem_db
-      tam:
-        type: image
-        uri: gcr.io/nectar-bazaar/telem-tami
-        version: 1.0.0
+    action: nectar.iftts.telem-db-action-iftt
     fields:
       - id: telem_db.strategy
         title: Database Strategy
@@ -101,7 +135,7 @@ stages:
 ---
 
 kind: Operation
-title: Disable local telemetry storage
+title: Disable In-Cluster Telemetry Storage
 info: If using in-cluster storage for telemetry, destroys all related storage resources
 synopsis: file::delete-telem-storage-info.html
 id: nectar.operations.delete-telem-pvc
@@ -115,10 +149,10 @@ stages:
       - id: nectar.steps.delete-telem-confirm
         title: Confirm Consent
         info: "I understand that proceeding will irreversibly
-        delete the local telemetry database, erasing all telemetry related
+        delete the local telemetry database, erasing all data related
          to updates, variable assignments, and operations."
         reassignments:
-          - to: chart
+          - to: prefs
             id: telem_db.strategy
             value: disabled
         action:

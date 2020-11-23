@@ -101,11 +101,11 @@ def deep_set(dict_root: Dict, names: List[str], value: any):
     deep_set(dict_root[names[0]], names[1:], value)
 
 
-def deep_get2(dict_root: Dict, deep_key) -> str:
+def deep_get2(dict_root: Dict, deep_key) -> Any:
   return deep_get(dict_root, deep_key.split('.'))
 
 
-def deep_get(dict_root: Dict, keys: List[str]) -> str:
+def deep_get(dict_root: Dict, keys: List[str]) -> Any:
   """
   Iterates over items in keys list, using them as keys to go deeper into the
   dictionary at each iteration. Eventually retrieves the value of the final key.
@@ -113,11 +113,16 @@ def deep_get(dict_root: Dict, keys: List[str]) -> str:
   :param keys: list of keys to be iterated over, to find the right depth.
   :return: value of the final key.
   """
-  return reduce(
-    lambda d, key: d.get(key, None)
-    if isinstance(d, dict)
-    else None, keys, dict_root
-  )
+  keys = [k for k in keys if not k.strip() == '']
+
+  if len(keys) > 0:
+    return reduce(
+      lambda d, key: d.get(key, None)
+      if isinstance(d, dict)
+      else None, keys, dict_root
+    )
+  else:
+    return dict_root
 
 
 def shell_exec(unsplit_cmd: str) -> str:
