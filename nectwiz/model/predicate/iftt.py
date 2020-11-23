@@ -15,7 +15,6 @@ class Iftt(WizModel):
   def resolve_item(self, _context: Dict = None) -> Optional[KoD]:
     from nectwiz.model.predicate.predicate import Predicate
     context = assemble_predicate_context(_context)
-    print(context)
     for it in self.choice_items:
       predicate_kod, value = it.get('predicate'), it.get('value')
       if predicate_kod:

@@ -143,11 +143,24 @@ class TestStep(Base.TestWizModel):
       'fields': [
         {'id': 'f1', 'target': 'chart'},
         {'id': 'f2', 'target': 'inline'},
-        {'id': 'f3', 'target': 'state'}
+        {'id': 'f3', 'target': 'state'},
+        {'id': 'f4', 'target': 'prefs'}
       ]
     })
 
-    assigns = dict(f1='v1', f2='v2', f3='v3')
-    exp = dict(chart={'f1': 'v1'}, inline={'f2': 'v2'}, state={'f3': 'v3'})
+    assigns = dict(
+      f1='v1',
+      f2='v2',
+      f3='v3',
+      f4='v4'
+    )
+
+    expected = dict(
+      chart={'f1': 'v1'},
+      inline={'f2': 'v2'},
+      state={'f3': 'v3'},
+      prefs={'f4': 'v4'}
+    )
+
     actual = step.partition_user_asgs(assigns, one_step_state(step))
-    self.assertEqual(exp, actual)
+    self.assertEqual(expected, actual)
