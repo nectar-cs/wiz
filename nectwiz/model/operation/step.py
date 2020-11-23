@@ -7,9 +7,9 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.job_client import enqueue_action
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.field.field import Field, TARGET_CHART, TARGET_STATE, TARGET_INLIN, TARGET_PREFS
+from nectwiz.model.field.field import Field, TARGET_CHART, \
+  TARGET_STATE, TARGET_INLIN, TARGET_PREFS
 from nectwiz.model.operation.operation_state import OperationState
-from nectwiz.model.operation import step_expr_helpers
 from nectwiz.model.operation.step_state import StepState
 
 TOS = OperationState
@@ -23,7 +23,7 @@ class Step(WizModel):
   def __init__(self, config):
     super().__init__(config)
     self.field_keys = config.get('fields', [])
-    self.next_step_desc = self.config.get('next')
+    self.next_step_kod = self.config.get('next')
     self.reassignment_descs = config.get('reassignments', [])
     self.exit_predicate_descs = self.config.get('exit', {})
     self.expl_applies_manifest = config.get('applies_manifest')
@@ -36,14 +36,17 @@ class Step(WizModel):
   def runs_action(self) -> bool:
     return self.action_kod
 
-  def next_step_id(self, op_state: OperationState) -> str:
-    root = self.next_step_desc
-    context = resolution_context(op_state)
-    return step_expr_helpers.eval_next_expr(root, context)
+  def next_step_id(self, op_state: TOS) -> Optional[str]:
+    return self.get_prop(
+      'next',
+      None,
+      resolution_context(op_state)
+    )
 
   def has_explicit_next(self) -> bool:
-    expr = step_expr_helpers.none_if_default(self.next_step_desc)
-    return expr is not None
+    if self.next_step_kod:
+      return not self.next_step_kod == 'default'
+    return False
 
   def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:
     context = resolution_context(op_state)
@@ -106,7 +109,13 @@ class Step(WizModel):
 
     if self.runs_action():
       lmc = gen_last_minute_action_config(state)
-      job_id = enqueue_action(self.action_kod, **buckets, lmc=lmc)
+      from nectwiz.model.action.base.action import Action
+      resolved_action = self.inflate_child(
+        Action,
+        self.action_kod,
+        context=resolution_context(state.parent_op)
+      )
+      job_id = enqueue_action(resolved_action.config, **buckets, lmc=lmc)
       state.notify_action_started(job_id)
     else:
       state.notify_succeeded()

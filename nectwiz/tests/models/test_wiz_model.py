@@ -31,7 +31,7 @@ class Base:
       result = self.model_class().try_as_iftt(config, {})
       self.assertEqual(config, result)
 
-    def test_try_as_iftt_iftt_dict(self):
+    def test_try_as_iftt_with_iftt_dict(self):
       models_man.clear(restore_defaults=True)
       config = dict(
         kind=Iftt.__name__,
@@ -42,6 +42,37 @@ class Base:
       )
       result = self.model_class().try_as_iftt(config, {})
       self.assertEqual('correct', result)
+
+    def test_try_as_iftt_with_iftt_id(self):
+      models_man.clear(restore_defaults=True)
+      iftt_config = dict(
+        id='my-iftt',
+        kind=Iftt.__name__,
+        items=[
+          dict(predicate=FalsePredicate.__name__, value='incorrect'),
+          dict(predicate=TruePredicate.__name__, value='correct')
+        ]
+      )
+      models_man.add_descriptors([iftt_config])
+
+      result = self.model_class().try_as_iftt('my-iftt', {})
+      self.assertEqual('correct', result)
+
+    def test_inflate_with_iftt(self):
+      models_man.clear(restore_defaults=True)
+      config = dict(
+        kind=Iftt.__name__,
+        items=[
+          dict(predicate=FalsePredicate.__name__, value='incorrect'),
+          dict(predicate=TruePredicate.__name__, value=dict(
+            id='actual',
+            title='Actual'
+          ))
+        ]
+      )
+      result = self.model_class().inflate(config, context={})
+      self.assertEqual('actual', result.id())
+      self.assertEqual('Actual', result.title)
 
     def test_inflate_with_id_key(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]

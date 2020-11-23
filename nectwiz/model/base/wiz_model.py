@@ -71,10 +71,10 @@ class WizModel:
     for key, value in config.items():
       setattr(self, key, value)
 
-  def get_prop(self, key, backup):
+  def get_prop(self, key, backup, context):
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
-      return self.try_as_iftt(value, {})
+      return self.try_as_iftt(value, context)
     else:
       return value
 
@@ -106,8 +106,11 @@ class WizModel:
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
     return self.inflate_child(child_cls, match) if match else None
 
-  def inflate_child(self, child_cls: Type[T], key_or_dict: KoD) -> T:
-    return key_or_dict_to_child(key_or_dict, child_cls, self)
+  def inflate_child(self,
+                    child_cls: Type[T],
+                    key_or_dict: KoD,
+                    **inflate_kwargs) -> T:
+    return key_or_dict_to_child(key_or_dict, child_cls, self, **inflate_kwargs)
 
   @classmethod
   def inflate_all(cls) -> List[T]:
@@ -226,9 +229,11 @@ def key_or_dict_matches(key_or_dict: KoD, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
 
 
-def key_or_dict_to_child(key_or_dict: KoD, child_cls: Type[T],
-                         parent: T = None) -> T:
-  inflated = child_cls.inflate(key_or_dict)
+def key_or_dict_to_child(key_or_dict: KoD,
+                         child_cls: Type[T],
+                         parent: T,
+                         **inflate_kwargs) -> T:
+  inflated = child_cls.inflate(key_or_dict, **inflate_kwargs)
   inflated.parent = parent
   return inflated
 

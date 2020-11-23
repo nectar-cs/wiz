@@ -30,7 +30,7 @@ kind: Iftt
 id: nectar.iftts.telem-db-action-iftt
 items:
   - predicate:
-      challenge: "{step/telem_db.strategy}"
+      challenge: "{operation/telem_db.strategy}"
       check_against: managed_pvc
     value: nectar.actions.delete-telem-db-resources-then-apply
   - predicate: TruePredicate

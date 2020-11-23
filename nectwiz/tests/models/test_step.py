@@ -3,9 +3,11 @@ from typing import Type
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
+from nectwiz.model.predicate.common_predicates import TruePredicate
+from nectwiz.model.predicate.iftt import Iftt
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import one_step_state, create_base_master_map
 
@@ -20,40 +22,59 @@ class TestStep(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return Step
 
-  def test_next_step_trivial(self):
+  def test_next_step_without_iftt(self):
     op_state = OperationState('', '')
     step = Step(dict())
     self.assertIsNone(step.next_step_id(op_state))
+    self.assertFalse(step.has_explicit_next())
 
     step = Step(dict(next=None))
     self.assertIsNone(step.next_step_id(op_state))
+    self.assertFalse(step.has_explicit_next())
 
     step = Step(dict(next='default'))
-    self.assertIsNone(step.next_step_id(op_state))
+    self.assertEqual('default', step.next_step_id(op_state))
+    self.assertFalse(step.has_explicit_next())
 
     step = Step(dict(next='foo'))
     self.assertEqual('foo', step.next_step_id(op_state))
+    self.assertTrue(step.has_explicit_next())
 
   def test_next_step_with_predicate(self):
+    models_man.clear(restore_defaults=True)
     step = Step(dict(
-      next={
-        'if': dict(
-          challenge="{operation/x.y}",
-          check_against='z'
-        ),
-        'then': 'foo',
-        'else': 'bar'
-      }
+      next=dict(
+        kind=Iftt.__name__,
+        items=[
+          dict(
+            predicate=dict(
+              challenge="{operation/x.y}",
+              check_against='z'
+            ),
+            value='foo'
+          ),
+          dict(
+            predicate=TruePredicate.__name__,
+            value='bar'
+          )
+        ]
+      )
     ))
 
     op_state = OperationState('', '')
     op_state.gen_step_state(step)
 
+    self.assertTrue(step.has_explicit_next())
+
     op_state.step_states[0].state_assigns = {"x.y": 'z'}
     actual = step.next_step_id(op_state)
     self.assertEqual('foo', actual)
 
-    op_state.step_states[0].state_assigns = {"x.y": 'z2'}
+    op_state.step_states[0].state_assigns = {"x.y": 'not-z'}
+    actual = step.next_step_id(op_state)
+    self.assertEqual('bar', actual)
+
+    op_state.step_states[0].state_assigns = {}
     actual = step.next_step_id(op_state)
     self.assertEqual('bar', actual)
 
