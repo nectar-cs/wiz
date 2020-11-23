@@ -13,19 +13,23 @@ class TamsClient(TamClient):
     return http_get('/values')
 
   def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
-    payload = dict(values=config_man.manifest_vars())
-    return http_post('/template', payload)
+    payload = config_man.manifest_vars()
+    endpoint = f"/template?release_name={config_man.ns()}"
+    return http_post(endpoint, payload)
 
 
 def base_url():
-  return f"{config_man.tam()['uri']}/{config_man.tam()['version']}"
+  tam = config_man.tam()
+  return f"{tam['uri']}/{tam['version']}"
 
 
 def http_post(endpoint, payload):
   url = f'{base_url()}{endpoint}'
-  return requests.post(url, json=payload).json()
+  response = requests.post(url, json=payload)
+  return response.json().get('data')
 
 
 def http_get(endpoint):
   url = f'{base_url()}{endpoint}'
-  return requests.get(url).json()
+  response = requests.get(url)
+  return response.json().get('data')
