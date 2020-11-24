@@ -17,6 +17,7 @@ class StepState:
     self.started_at = datetime.now()
     self.chart_assigns: Dict = {}
     self.state_assigns: Dict = {}
+    self.pref_assigns: Dict = {}
     self.action_outcome: Optional[ActionOutcome] = None
     self.action_telem = None
     self.exit_statuses: ExitStatuses = default_exit_statuses()
@@ -40,9 +41,10 @@ class StepState:
     self.status = 'running'
     self.job_id = job_id
 
-  def notify_vars_assigned(self, chart_assigns: Dict, state_assigns: Dict):
-    self.chart_assigns = chart_assigns
-    self.state_assigns = state_assigns
+  def notify_vars_assigned(self, bundle: Dict):
+    self.chart_assigns = bundle.get('chart')
+    self.state_assigns = bundle.get('state')
+    self.pref_assigns = bundle.get('prefs')
 
   def notify_terminated(self, success: bool, telem):
     self.status = SETTLED_POS if success else SETTLED_NEG
@@ -75,7 +77,11 @@ class StepState:
     Merges chart assigns and state assigns extracted from the commit outcome.
     :return:
     """
-    return dict(**self.chart_assigns, **self.state_assigns)
+    return dict(
+      **self.chart_assigns,
+      **self.state_assigns,
+      **self.pref_assigns
+    )
 
 
 def default_exit_statuses() -> ExitStatuses:

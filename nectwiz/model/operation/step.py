@@ -1,10 +1,10 @@
 from typing import List, Dict, Optional
 
+from nectwiz.core.core.utils import flat2deep
 from nectwiz.model.error.errors_man import errors_man
 
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.job_client import enqueue_action
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.field.field import Field, TARGET_CHART, \
@@ -96,39 +96,39 @@ class Step(WizModel):
     return {**recalled_from_state, **assigns}
 
   def run(self, assigns: Dict, state: StepState):
-    buckets = self.partition_user_asgs(assigns, state)
-    manifest_vars, state_vars = buckets[TARGET_CHART], buckets[TARGET_STATE]
-    pref_vars = buckets[TARGET_PREFS]
-    state.notify_vars_assigned(manifest_vars, state_vars)
-
-    if len(manifest_vars):
-      config_man.patch_keyed_manifest_vars(list(manifest_vars.items()))
-
-    if len(pref_vars):
-      config_man.patch_keyed_prefs(list(pref_vars.items()))
+    buckets = self.partition_flat_user_asgs(assigns, state)
+    state.notify_vars_assigned(buckets)
+    self.commit_pertinent_assignments(buckets)
 
     if self.runs_action():
-      lmc = gen_last_minute_action_config(state)
-      from nectwiz.model.action.base.action import Action
-      resolved_action = self.inflate_child(
-        Action,
-        self.action_kod,
-        context=resolution_context(state.parent_op)
-      )
-      job_id = enqueue_action(resolved_action.config, **buckets, lmc=lmc)
+      action_config = self.assemble_action_config(state)
+      job_id = job_client.enqueue_action(action_config, **buckets)
       state.notify_action_started(job_id)
     else:
       state.notify_succeeded()
 
-  def partition_user_asgs(self, assigns: Dict, ps: TSS) -> Dict:
-    fields = self.visible_fields(assigns, ps.parent_op)
+  def assemble_action_config(self, state: StepState) -> Dict:
+    from nectwiz.model.action.base.action import Action
+    resolved_action = self.inflate_child(
+      Action,
+      self.action_kod,
+      context=resolution_context(state.parent_op)
+    )
+
+    return dict(
+      **resolved_action.config,
+      **self.last_minute_action_config(state)
+    )
+
+  def partition_flat_user_asgs(self, flat_assigns: Dict, ps: TSS) -> Dict:
+    fields = self.visible_fields(flat_assigns, ps.parent_op)
 
     def find_field(_id):
       return next(filter(lambda f: f.id() == _id, fields), None)
 
     def seg(_type: str):
       gate = lambda k: find_field(k) and find_field(k).target == _type
-      return {k: v for (k, v) in assigns.items() if gate(k)}
+      return {k: v for (k, v) in flat_assigns.items() if gate(k)}
 
     return {
         TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),
@@ -162,14 +162,26 @@ class Step(WizModel):
       state.notify_succeeded()
       return dict(status='negative', progress={})
 
+  @staticmethod
+  def commit_pertinent_assignments(buckets: Dict):
+    flat_manifest_assigns = buckets[TARGET_CHART]
+    flat_pref_assigns = buckets[TARGET_PREFS]
 
-def gen_last_minute_action_config(state: StepState) -> Dict:
-  return dict(
-    store_telem=False,
-    event_type='operation_step',
-    event_name=state.step_sig if state else None,
-    event_id=state.parent_op.uuid if state and state.parent_op else None
-  )
+    if len(flat_manifest_assigns) > 0:
+      config_man.patch_manifest_vars(flat2deep(flat_manifest_assigns))
+
+    if len(flat_pref_assigns) > 0:
+      config_man.patch_prefs(flat2deep(flat_pref_assigns))
+
+  @staticmethod
+  def last_minute_action_config(state: StepState) -> Dict:
+    op_state = state.parent_op if state else None
+    return dict(
+      store_telem=False,
+      event_type='operation_step',
+      event_name=state.step_sig if state else None,
+      event_id=op_state.uuid if op_state else None
+    )
 
 
 def resolution_context(op_state: OperationState):

@@ -21,11 +21,12 @@ class ApplyManifestAction(Action):
     )
 
     self.res_selectors = config.get('apply_filters', [])
+    self.inlines = config.get('inlines')
     self.tam: Optional[TamDict] = config.get('tam')
     self.values_source_key = config.get('values_source_key')
     self.values_root_key = config.get('values_root_key')
 
-  def perform(self, **kwargs: StepActionKwargs) -> bool:
+  def perform(self) -> bool:
     outcomes = ApplyManifestActionPart.perform(
       observer=self.observer,
       constructor_kwargs=dict(
@@ -34,7 +35,7 @@ class ApplyManifestAction(Action):
         values_root_key=self.values_root_key
       ),
       selectors=self.res_selectors,
-      inlines=kwargs.get('inlines')
+      inlines=self.inlines
     )
 
     AwaitSettledActionPart.perform(

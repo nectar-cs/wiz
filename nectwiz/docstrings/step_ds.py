@@ -1,6 +1,6 @@
 from nectwiz.model.operation import step
 
-step.Step.partition_user_asgs.__doc__ = """
+step.Step.partition_flat_user_asgs.__doc__ = """
 Partitions new assigns into 3 buckets (chart, inline, state) and
 merges with existing assigns in each bucket.
 :param assigns: new assigns to be partitioned.

@@ -3,17 +3,15 @@ from typing import Type
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core.config_man import config_man
+from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel, models_man
+from nectwiz.model.field.field import TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
 from nectwiz.model.predicate.common_predicates import TruePredicate
 from nectwiz.model.predicate.iftt import Iftt
 from nectwiz.tests.models.test_wiz_model import Base
 from nectwiz.tests.t_helpers.helper import one_step_state, create_base_master_map
-
-
-def fake_assigns():
-  return True
 
 
 class TestStep(Base.TestWizModel):
@@ -39,6 +37,48 @@ class TestStep(Base.TestWizModel):
     step = Step(dict(next='foo'))
     self.assertEqual('foo', step.next_step_id(op_state))
     self.assertTrue(step.has_explicit_next())
+
+  def test_assemble_action_config(self):
+    models_man.clear(restore_defaults=True)
+    models_man.add_descriptors([
+      dict(id='foo',kind=Action.__name__)
+    ])
+
+    op_state = OperationState('', '')
+
+    step = Step(dict(id='step', action='foo'))
+    state = op_state.gen_step_state(step)
+    result = step.assemble_action_config(state)
+
+    expected_contains = Step.last_minute_action_config(state)
+    for key, value in expected_contains.items():
+      self.assertEqual(value, result.get(key))
+
+  def test_commit_pertinent_assignments(self):
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man.ns())
+
+    config_man.patch_manifest_vars({'prior': 'entry'})
+    config_man.patch_prefs({'prior': 'entry'})
+
+    buckets = {
+      TARGET_CHART: {'one.two': 'three'},
+      TARGET_INLIN: {'four.five': 'six'},
+      TARGET_STATE: {'seven.eight': 'nine'},
+      TARGET_PREFS: {'ten.eleven': 'twelve'}
+    }
+
+    Step.commit_pertinent_assignments(buckets)
+
+    self.assertEqual(dict(
+      prior='entry',
+      one=dict(two='three')
+    ), config_man.manifest_vars())
+
+    self.assertEqual(dict(
+      prior='entry',
+      ten=dict(eleven='twelve')
+    ), config_man.prefs())
 
   def test_next_step_with_predicate(self):
     models_man.clear(restore_defaults=True)
@@ -162,5 +202,5 @@ class TestStep(Base.TestWizModel):
       prefs={'f4': 'v4'}
     )
 
-    actual = step.partition_user_asgs(assigns, one_step_state(step))
+    actual = step.partition_flat_user_asgs(assigns, one_step_state(step))
     self.assertEqual(expected, actual)

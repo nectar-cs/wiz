@@ -29,8 +29,12 @@ class TamClient:
 
   def compute_values(self, merge_with=None) -> Dict:
     root = config_man.read_dict(self.values_key)
-    sub_tree = utils.deep_get2(root, self.values_root)
-    return {**sub_tree, **(merge_with or {})}
+    subtree = utils.deep_get2(root, self.values_root) or {}
+    merged_subtree = {**subtree, **(merge_with or {})}
+    if len(merged_subtree.keys()) == 0:
+      pre = f"[{self.values_key}/{self.values_root}]"
+      print(f"[nectwiz:tam_client] zero values in {pre} + inlines")
+    return {}
 
   def load_manifest_defaults(self):
     raise NotImplemented

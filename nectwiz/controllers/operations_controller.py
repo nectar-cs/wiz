@@ -102,7 +102,7 @@ def step_refresh(operation_id, stage_id, step_id):
   op_state = find_op_state()
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
-  asgs = step.partition_user_asgs(values, synth_step_state)
+  asgs = step.partition_flat_user_asgs(values, synth_step_state)
   serialized = step_serial.ser_refreshed(step, values, op_state)
   return jsonify(data=dict(
     step=serialized,
@@ -123,7 +123,7 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   values = jparse()['values']
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
-  asgs = step.partition_user_asgs(values, synth_step_state)
+  asgs = step.partition_flat_user_asgs(values, synth_step_state)
   return jsonify(data=asgs[TARGET_CHART])
 
 
