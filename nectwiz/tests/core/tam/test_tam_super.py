@@ -1,3 +1,4 @@
+import time
 from typing import Dict
 
 from k8kat.utils.testing import ns_factory
@@ -25,11 +26,13 @@ class Base:
       ns_factory.relinquish(self.ns)
 
     def test_load_manifest_defaults(self):
+      time.sleep(3)
       values = self.client_instance().load_manifest_defaults()
       self.assertEqual(exp_default_values, values)
 
     def test_load_tpd_manifest(self):
-      config_man.patch_manifest_vars(self.manifest_vars())
+      time.sleep(3)
+      config_man.patch_manifest_vars(manifest_vars)
       result = self.client_instance().load_templated_manifest(flat_inlines)
 
       kinds = sorted([r['kind'] for r in result])
@@ -41,16 +44,15 @@ class Base:
       self.assertEqual('inline', svc['metadata']['name'])
       self.assertEqual('updated-pod', pod['metadata']['name'])
 
-    def manifest_vars(self) -> Dict:
-      return {
-        'namespace': self.ns,
-        'pod': {
-          'name': 'updated-pod',
-        },
-        'service': {
-          'port': 81
-        }
-      }
+
+manifest_vars = {
+  'pod': {
+    'name': 'updated-pod',
+  },
+  'service': {
+    'port': 81
+  }
+}
 
 
 flat_inlines = {
@@ -59,7 +61,6 @@ flat_inlines = {
 
 
 exp_default_values = {
-  'namespace': 'default',
   'service': {
     'name': 'service',
     'port': 80

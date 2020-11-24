@@ -3,7 +3,6 @@ from urllib.parse import quote_plus
 
 import requests
 
-from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import flat2deep
 from nectwiz.core.tam.tam_client import TamClient

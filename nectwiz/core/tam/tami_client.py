@@ -14,13 +14,12 @@ vars_full_path = f"{tami_prep.values_mount_dir}/" \
 class TamiClient(TamClient):
 
   def load_manifest_defaults(self) -> Dict[str, str]:
-    pod_args_str = f"show values . {self.any_cmd_args()}"
-    pod_args = [v for v in pod_args_str.split(' ') if v]
+    pod_arglist = f"show values . {self.any_cmd_args()}".split(' ')
     ns, image = config_man.ns(), image_name(self.tam)
     result = tami_prep.consume(
       ns=ns,
       image=image,
-      arglist=pod_args,
+      arglist=pod_arglist,
       values=None
     )
     return yaml.load(result, Loader=yaml.FullLoader)
