@@ -12,9 +12,13 @@ def ci_tami_name():
   return "gcr.io/nectar-bazaar/wiz-ci-tami"
 
 
+def ci_tams_name():
+  return "https://api.codenectar.com/manifest_servers/nectar/wiz-ci-tam"
+
+
 def one_step_state(step, keep=True) -> StepState:
-  opstate = OperationState('123', 'abc')
-  return opstate.gen_step_state(step, keep)
+  op_state = OperationState('123', 'abc')
+  return op_state.gen_step_state(step, keep)
 
 
 def mock_globals(ns):

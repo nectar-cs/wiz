@@ -1,3 +1,5 @@
+from typing import Dict
+
 from k8kat.utils.testing import ns_factory
 
 from nectwiz.core.core.config_man import config_man
@@ -27,25 +29,33 @@ class Base:
       self.assertEqual(exp_default_values, values)
 
     def test_load_tpd_manifest(self):
-      config_man.patch_keyed_manifest_vars(self.mock_tam_vars())
-      inlines = [('service.name', 'inline')]
-      result = self.client_instance().load_templated_manifest(inlines)
+      config_man.patch_manifest_vars(self.manifest_vars())
+      result = self.client_instance().load_templated_manifest(flat_inlines)
 
       kinds = sorted([r['kind'] for r in result])
       svc = [r for r in result if r['kind'] == 'Service'][0]
       pod = [r for r in result if r['kind'] == 'Pod'][0]
 
       self.assertEqual(len(result), 2)
-      self.assertEqual(kinds, sorted(['Pod', 'Service']))
-      self.assertEqual(svc['metadata']['name'], 'inline')
-      self.assertEqual(pod['metadata']['name'], 'updated-pod')
+      self.assertEqual(sorted(['Pod', 'Service']), kinds)
+      self.assertEqual('inline', svc['metadata']['name'])
+      self.assertEqual('updated-pod', pod['metadata']['name'])
 
-    def mock_tam_vars(self):
-      return [
-        ('namespace', self.ns),
-        ('pod.name', 'updated-pod'),
-        ('service.port', 81)
-      ]
+    def manifest_vars(self) -> Dict:
+      return {
+        'namespace': self.ns,
+        'pod': {
+          'name': 'updated-pod',
+        },
+        'service': {
+          'port': 81
+        }
+      }
+
+
+flat_inlines = {
+  'service.name': 'inline'
+}
 
 
 exp_default_values = {

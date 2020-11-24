@@ -25,5 +25,5 @@ action:
   kind: ApplyManifestAction
   tam:
     type: server
-    uri: http://tams.codenectar.com/nectar/something-cool
+    uri: http://my-manifest-hosting-website.com
     version: 1.2.3

@@ -61,6 +61,10 @@ def keyed2dict(keyed_assigns: List[Tuple[str, any]]) -> Dict:
   return root
 
 
+def flat2deep(flat_dict: Dict) -> Dict:
+  return keyed2dict(list(flat_dict.items()))
+
+
 def dict2keyed(assigns: Dict) -> List[Tuple[str, any]]:
   list_keyed_dict = _dict2keyed([], assigns)
   massager = lambda t: (".".join(t[0]), t[1])

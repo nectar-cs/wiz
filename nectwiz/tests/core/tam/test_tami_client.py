@@ -8,7 +8,7 @@ from nectwiz.tests.t_helpers.helper import ci_tami_name
 class TestTamiClient(Base.TestTamSuper):
 
   def client_instance(self) -> TamClient:
-    return TamiClient(config_man.tam())
+    return TamiClient()
 
   def setUp(self) -> None:
     super().setUp()

@@ -71,7 +71,7 @@ class K8sResDict(TypedDict):
 class TamDict(TypedDict, total=False):
   type: str
   uri: str
-  args: Optional[List[str]]
+  args: Optional[str]
   version: str
 
 

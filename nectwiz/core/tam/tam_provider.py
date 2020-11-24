@@ -7,14 +7,14 @@ from nectwiz.core.tam.tams_client import TamsClient
 
 
 def tam_client(**kwargs) -> TamClient:
-  tam = kwargs.get('tam') or config_man.tam()
+  tam = kwargs.pop('tam') or config_man.tam()
   tam_type = tam['type']
 
   if tam_type == 'image':
-    return TamiClient(tam)
+    return TamiClient(tam=tam, **kwargs)
   elif tam_type == 'server':
-    return TamsClient(tam)
+    return TamsClient(tam=tam, **kwargs)
   elif tam_type == 'local_executable':
-    return TamleClient(tam)
+    return TamleClient(tam=tam, **kwargs)
   else:
     raise RuntimeError(f"Illegal TAM type {tam_type}")

@@ -1,7 +1,7 @@
 import os
 import subprocess
 import traceback
-from typing import List, Tuple, Optional, Dict
+from typing import List, Optional, Dict
 
 import yaml
 from k8kat.auth.kube_broker import broker
@@ -23,21 +23,22 @@ SELs = List[ResourceSelector]
 class TamClient:
 
   def __init__(self, **kwargs):
-    self.tam: TamDict = kwargs.get('tam')
+    self.tam: TamDict = kwargs.get('tam') or config_man.tam()
     self.values_key: str = kwargs.get('values_source_key') or tam_vars_key
-    self.values_root: str = kwargs.get('values_root_key')
+    self.values_root: str = kwargs.get('values_root_key') or ''
 
-  def compute_values(self) -> Dict:
+  def compute_values(self, merge_with=None) -> Dict:
     root = config_man.read_dict(self.values_key)
-    return utils.deep_get2(root, self.values_root)
+    sub_tree = utils.deep_get2(root, self.values_root)
+    return {**sub_tree, **(merge_with or {})}
 
   def load_manifest_defaults(self):
     raise NotImplemented
 
-  def load_templated_manifest(self, inlines=None) -> List[K8sResDict]:
+  def load_templated_manifest(self, inlines: Dict) -> List[K8sResDict]:
     raise NotImplemented
 
-  def apply(self, rules: SELs, inlines=None) -> List[KAO]:
+  def apply(self, rules: SELs, inlines: Dict) -> List[KAO]:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local
     file (filtering resources by rules), and runs kubectl apply -f on it.
@@ -48,6 +49,15 @@ class TamClient:
     res_dicts = self.load_templated_manifest(inlines)
     res_dicts = self.filter_res(res_dicts, rules)
     return self.kubectl_apply(res_dicts)
+
+  def any_cmd_args(self) -> str:
+    return self.tam.get('args') or ''
+
+  def template_cmd_args(self, inlines: Dict, vars_path: str) -> str:
+    values_flag: str = f"-f {vars_path}"
+    inline_flags: str = self.fmt_inline_assigns(inlines)
+    ns = config_man.ns()
+    return f"{ns} . {values_flag} {inline_flags} {self.any_cmd_args()}"
 
   @staticmethod
   def kubectl_apply(res_dicts: RESDs) -> List[KAO]:
@@ -92,6 +102,23 @@ class TamClient:
       return list(filter(decide_res, res_list))
     else:
       return res_list
+
+  @staticmethod
+  def fmt_inline_assigns(inlines: Dict) -> str:
+    """
+    Transforms in-memory assignments represented as tuples into a formatted
+    assignment string following the --set = format usable for Tami's command line
+    arguments.
+    :param inlines: desired inline assigns.
+    :return: command for the Tami image to apply inline assigns.
+    """
+    expr_array = []
+    for key_expr, value in list((inlines or {}).items()):
+      if not type(value) in [dict, list]:
+        expr_array.append(f"--set {key_expr}={value}")
+      else:
+        print(f"[nectwiz:tam_client] non-primitive {key_expr} -> {value}")
+    return " ".join(expr_array)
 
 
 def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
@@ -138,34 +165,3 @@ def ktl_apply_cmd() -> str:
       context_part = f"--context={broker.connect_config['context']}"
       final_cmd = f"{final_cmd} {context_part}"
   return final_cmd
-
-
-def fmt_inline_assigns(str_assignments: List[Tuple[str, any]]) -> str:
-  """
-  Transforms in-memory assignments represented as tuples into a formatted
-  assignment string following the --set = format usable for Tami's command line
-  arguments.
-  :param str_assignments: desired inline assigns.
-  :return: command for the Tami image to apply inline assigns.
-  """
-  expr_array = []
-  for str_assignment in str_assignments:
-    key_expr, value = str_assignment
-    expr_array.append(f"--set {key_expr}={value}")
-  return " ".join(expr_array)
-
-
-def gen_template_args(inline_assigns, vars_full_path) -> List[str]:
-  """
-  Generates arguments to pass to the Tami image at startup.
-  :param inline_assigns: desired inline assigns.
-  :param vars_full_path: pointer to values file
-  :return: list of flags to pass to Tami image.
-  """
-  inlines = inline_assigns or []
-  values_flag: str = f"-f {vars_full_path}"
-  vendor_flags: str = config_man.tam().get('args')
-  inline_flags: str = fmt_inline_assigns(inlines)
-  ns = config_man.ns()
-  all_flags: str = f"{ns} {values_flag} {inline_flags} {vendor_flags}"
-  return [w for w in all_flags.split(" ") if w]

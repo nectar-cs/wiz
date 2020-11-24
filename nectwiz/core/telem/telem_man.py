@@ -164,7 +164,7 @@ def connect() -> Optional[Database]:
   host = 'localhost'
   port = 27017
   if utils.is_in_cluster():
-    manifest_vars = config_man.flat_manifest_vars()
+    manifest_vars = config_man.manifest_vars()
     host = manifest_vars.get('telem_db.host', 'telem-db')
     port = manifest_vars.get('telem_db.port', 27017)
   try:

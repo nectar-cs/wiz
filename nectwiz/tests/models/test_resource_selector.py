@@ -123,7 +123,8 @@ class TestResourceSelector(Base.TestWizModel):
       },
       labels=dict(
         app='nectar-peach'
-      )
+      ),
+      not_labels={}
     )
 
     actual = selector.build_k8kat_query(context)
