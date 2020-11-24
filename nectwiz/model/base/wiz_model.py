@@ -312,11 +312,13 @@ def default_model_classes() -> List[Type[T]]:
 
   from nectwiz.model.predicate.iftt import Iftt
   from nectwiz.model.predicate.common_predicates import FalsePredicate
+  from nectwiz.model.hook.hook import Hook
   return [
     Operation,
     Stage,
     Step,
     Field,
+    Hook,
 
     GenericVariable,
     ManifestVariable,

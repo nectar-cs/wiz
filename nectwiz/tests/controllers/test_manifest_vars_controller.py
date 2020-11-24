@@ -65,14 +65,17 @@ class TestManifestVariablesController(ClusterTest):
 
   def test_index(self):
     helper.foo_bar_setup(self.ns)
-    
+    models_man.clear(restore_defaults=False)
+
     models_man.add_descriptors([
       dict(kind=ManifestVariable.__name__, id='foo'),
       dict(kind=ManifestVariable.__name__, id='bar.foo')
     ])
 
     response = app.test_client().get('/api/manifest-variable')
-    cv1, cv2 = body = json.loads(response.data).get('data')
+    body = json.loads(response.data).get('data')
+    print(body)
+    cv1, cv2 = body
     self.assertEqual(2, len(body))
     self.assertEqual('foo', cv1.get('id'))
     self.assertEqual('bar', cv1.get('value'))

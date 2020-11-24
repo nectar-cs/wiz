@@ -92,8 +92,8 @@ class ConfigMan:
   def flat_prefs(self, reload=True) -> Dict:
     return utils.dict2flat(self.prefs(reload))
 
-  def tam(self) -> TamDict:
-    return self.read_dict(tam_config_key)
+  def tam(self, reload=True) -> TamDict:
+    return self.read_dict(tam_config_key, reload)
 
   def wiz(self) -> WizDict:
     return self.read_dict(wiz_config_key)

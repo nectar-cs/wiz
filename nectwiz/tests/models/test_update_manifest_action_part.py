@@ -1,14 +1,7 @@
-import time
-
-from k8kat.auth.kube_broker import broker
-from k8kat.res.pod.kat_pod import KatPod
 from k8kat.utils.testing import ns_factory
-from kubernetes.client import V1Pod, V1ObjectMeta, V1PodSpec, V1Container
 
-from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import TamDict, UpdateDict
-from nectwiz.core.telem import updates_man, telem_man
+from nectwiz.core.core.types import TamDict
 from nectwiz.model.action.action_parts.update_manifest_defaults_action_part import UpdateManifestDefaultsActionPart
 from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.base.wiz_model import models_man
@@ -50,11 +43,9 @@ class TestUpdateManifestDefaultsActionPart(ClusterTest):
       )
     ])
 
-    observer = Observer()
-    subject = UpdateManifestDefaultsActionPart
-    subject.perform(observer, update_package)
+    UpdateManifestDefaultsActionPart.perform(Observer(), update_package)
 
-    tam = config_man.tam(True)
+    tam = config_man.tam(reload=True)
     manifest_defaults = config_man.manifest_defaults(True)
     manifest_variables = config_man.manifest_vars(True)
 
@@ -68,7 +59,7 @@ class TestUpdateManifestDefaultsActionPart(ClusterTest):
     self.assertEqual('pod', manifest_defaults['pod']['name'])
 
 
-update_package = UpdateDict(
+update_package = dict(
   id='foo',
   type='release',
   version='2.0.0',
@@ -78,19 +69,3 @@ update_package = UpdateDict(
   tam_uri=None,
   note='irrelevant'
 )
-
-
-def create_pod(ns):
-  broker.coreV1.create_namespaced_pod(ns, V1Pod(
-    metadata=V1ObjectMeta(
-      name='nginx'
-    ),
-    spec=V1PodSpec(
-      containers=[
-        V1Container(
-          name='nginx',
-          image='nginx'
-        )
-      ]
-    )
-  ))

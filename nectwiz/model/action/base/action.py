@@ -19,6 +19,7 @@ class Action(WizModel):
     self.event_type = config.get('event_type', self.__class__.__name__)
     self.event_name = config.get('event_name')
     self.outcome = None
+    self.halt_on_exc = config.get('treat_exception_as_fatal', True)
 
   def run(self, **kwargs) -> Any:
     try:
@@ -33,7 +34,7 @@ class Action(WizModel):
       self.observer.process_error(
         id='internal-error',
         type='internal_error',
-        fatal=True,
+        fatal=self.halt_on_exc,
         tone='error',
         reason='Internal error',
         logs=[traceback.format_exc()]
