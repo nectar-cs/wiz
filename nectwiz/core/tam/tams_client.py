@@ -27,6 +27,8 @@ class TamsClient(TamClient):
 
   def http_post(self, endpoint, payload):
     url = f'{self.base_url()}{endpoint}'
+    print("FINAL URL")
+    print(url)
     response = requests.post(url, json=payload)
     return response.json().get('data')
 
@@ -43,5 +45,8 @@ class TamsClient(TamClient):
 
   def template_cmd_args(self, *args) -> str:
     std_part = self.any_cmd_args()
-    return f"release_name={config_man.ns()}" \
-           f"&{std_part}" if std_part else ""
+    if not config_man.ns():
+      print("[nectwiz:tams+client] fatal ns is blank")
+    ns_part = f"release_name={config_man.ns()}"
+    std_part = f"&{std_part}" if std_part else ""
+    return f"{ns_part}{std_part}"
