@@ -27,7 +27,7 @@ class DeleteResourcesAction(Action):
       ]
     )
 
-  def perform(self, *args, **kwargs) -> Dict:
+  def perform(self, *args, **kwargs) -> bool:
     self.observer.set_item_status(key_main, 'running')
     context = dict(resolvers=config_man.resolvers())
     victims = []
@@ -43,7 +43,7 @@ class DeleteResourcesAction(Action):
       self.observer.subitem(key_main, item['id'])['status'] = 'positive'
     self.observer.set_item_status(key_main, 'positive')
 
-    return dict(success=True)
+    return True
 
 def make_item(res: KatRes):
   return dict(

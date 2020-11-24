@@ -1,8 +1,10 @@
 from typing import Optional
 
-from nectwiz.core.core.types import StepActionKwargs, TamDict, ProgressItem
-from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.action_parts.await_settled_action_part import AwaitSettledActionPart
+from nectwiz.core.core.types import TamDict, ProgressItem
+from nectwiz.model.action.action_parts.apply_manifest_action_part \
+  import ApplyManifestActionPart
+from nectwiz.model.action.action_parts.await_settled_action_part \
+  import AwaitSettledActionPart
 from nectwiz.model.action.base.action import Action
 
 
@@ -21,12 +23,14 @@ class ApplyManifestAction(Action):
     )
 
     self.res_selectors = config.get('apply_filters', [])
-    self.inlines = config.get('inlines')
     self.tam: Optional[TamDict] = config.get('tam')
     self.values_source_key = config.get('values_source_key')
     self.values_root_key = config.get('values_root_key')
+    self.inlines = {}
 
-  def perform(self) -> bool:
+  def perform(self, **kwargs) -> bool:
+    self.inlines = kwargs.get('inlines')
+
     outcomes = ApplyManifestActionPart.perform(
       observer=self.observer,
       constructor_kwargs=dict(

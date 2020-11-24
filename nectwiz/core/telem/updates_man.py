@@ -29,7 +29,7 @@ class WizUpdateAction(Action):
       sub_items=[]
     )
 
-  def perform(self, **kwargs):
+  def perform(self):
     hooks = find_hooks(self.timing, 'wiz_update')
     progress_items = RunHookGroupActionPart.progress_items(self.timing, hooks)
     self.observer.progress['sub_items'] = progress_items
@@ -41,8 +41,8 @@ class UpdateAction(Action):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.store_telem = True
+    self.update: UpdateDict = config.get('update')
     self.event_type = 'app_update'
-    self.update_dict = {}
     self.observer.progress = ProgressItem(
       id='app-update-action',
       status='running',
@@ -57,12 +57,12 @@ class UpdateAction(Action):
   def telem_extras(self):
     return dict(
       **super().telem_extras(),
-      **self.update_dict
+      **self.update
     )
 
-  def perform(self, **kwargs):
-    update: UpdateDict = kwargs.get('update')
-    self.update_dict = update
+  def perform(self, **config):
+    self.update: UpdateDict = config.get('update')
+    update = self.update
     self.event_name = f"{update.get('type')}:{update.get('version')}"
 
     before_hooks = find_hooks('before', update['type'])

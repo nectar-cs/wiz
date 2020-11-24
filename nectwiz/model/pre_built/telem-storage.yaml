@@ -159,15 +159,13 @@ stages:
             id: telem_db.strategy
             value: disabled
         action:
-          kind: MultiAction
+          kind: DeleteResourcesAction
           title: Delete resources and reload
           info: Delete telem resources and reapply manifest
-          sub_actions:
-            - kind: DeleteResourcesAction
-              resource_selectors:
-                - "deployments:telem-db"
-                - "services:telem-db"
-                - "persistentvolumeclaims:telem-db-pvc"
+          resource_selectors:
+            - "deployments:telem-db"
+            - "services:telem-db"
+            - "persistentvolumeclaims:telem-db-pvc"
         fields:
           - id: nectar.fields.delete-telem-confirm
             title: I have read and understood the above.

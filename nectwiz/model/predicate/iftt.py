@@ -26,7 +26,7 @@ class Iftt(WizModel):
 
 
 def assemble_predicate_context(_context: Optional[Dict]) -> Dict:
-  new_resolvers = _context.pop('resolvers', {})
+  new_resolvers = (_context or {}).pop('resolvers', {})
   return dict(
     **_context,
     resolvers=dict(

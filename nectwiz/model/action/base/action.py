@@ -22,6 +22,8 @@ class Action(WizModel):
     self.halt_on_exc = config.get('treat_exception_as_fatal', True)
 
   def run(self, **kwargs) -> Any:
+    print("HEY ALIVE")
+    print(kwargs)
     try:
       self.outcome = self.perform(**kwargs)
     except ActionHalt as err:
@@ -73,7 +75,7 @@ class Action(WizModel):
       occurred_at=str(datetime.now())
     )
 
-  def perform(self, *args, **kwargs) -> bool:
+  def perform(self, **kwargs) -> bool:
     raise NotImplemented
 
   def telem_extras(self) -> Dict:
