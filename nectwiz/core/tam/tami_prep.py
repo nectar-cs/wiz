@@ -9,7 +9,6 @@ from kubernetes.client import V1Pod, V1ObjectMeta, \
   V1ResourceRequirements, V1KeyToPath, V1ConfigMap
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.config_man import tam_vars_key
 
 values_mount_dir = '/values'
 values_file_path = 'master'
@@ -77,7 +76,7 @@ def volumes(pod_name: str, values: Dict) -> List[V1Volume]:
         name='master',
         config_map=V1ConfigMapVolumeSource(
           name=pod_name,
-          items=[V1KeyToPath(key=tam_vars_key, path='master')]
+          items=[V1KeyToPath(key=values_file_path, path='master')]
         )
       )
     ]
@@ -91,5 +90,7 @@ def volume_mounts(values: Dict) -> List[V1VolumeMount]:
       V1VolumeMount(
         name='master',
         mount_path=values_mount_dir
-      ),
+      )
     ]
+  else:
+    return []

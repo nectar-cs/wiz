@@ -10,7 +10,7 @@ from nectwiz.tests.t_helpers import helper
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 
 
-class TestTamClient(ClusterTest):
+class TestTamClientStatics(ClusterTest):
 
   def setUp(self) -> None:
     super().setUp()
@@ -54,8 +54,8 @@ class TestTamClient(ClusterTest):
         self.assertEqual(dict(foo='bar'), loaded)
 
   def test_fmt_inline_assigns(self):
-    str_assignments = [('foo.bar', 'baz'), ('x', 'y')]
-    actual = tam_client.fmt_inline_assigns(str_assignments)
+    ass = {'foo.bar': 'baz', 'x': 'y'}
+    actual = TamClient.fmt_inline_assigns(ass)
     self.assertEqual(actual, "--set foo.bar=baz --set x=y")
 
   def test_filter_res(self):
@@ -88,5 +88,5 @@ bad_res = lambda ns, ind: dict(
   apiVersion='v1',
   kind='ConfigMap',
   metadata=dict(namespace=ns, name=f'bad-{ind}'),
-  data='a-wrong-datatype'
+  data='an-invalid-datatype'
 )

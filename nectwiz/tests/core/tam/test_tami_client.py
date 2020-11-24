@@ -16,6 +16,9 @@ class TestTamiClient(Base.TestTamSuper):
   def test_load_manifest_defaults(self):
     pass
 
+  # def test_load_tpd_manifest(self):
+  #   pass
+
   def test_image_name(self):
     actual = image_name(dict(uri='foo/bar', version=None))
     self.assertEqual('foo/bar:latest', actual)

@@ -16,6 +16,10 @@ def ci_tams_name():
   return "https://api.codenectar.com/manifest_servers/nectar/wiz-ci-tam"
 
 
+def ci_tamle_name():
+  return "wiz-ci-tam-eval"
+
+
 def one_step_state(step, keep=True) -> StepState:
   op_state = OperationState('123', 'abc')
   return op_state.gen_step_state(step, keep)

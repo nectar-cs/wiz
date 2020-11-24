@@ -4,7 +4,6 @@ from typing import Dict, List
 import yaml
 
 from nectwiz.core.core.types import K8sResDict, TamDict
-from nectwiz.core.core.config_man import config_man
 
 from nectwiz.core.tam.tam_client import TamClient
 
@@ -30,7 +29,7 @@ def write_values_to_tmpfile(values):
 
 
 def exec_cmd(tam: TamDict, cmd):
-  uri, ver = tam['uri'], tam['version']
+  uri, ver = tam['uri'], tam.get('version')
   exec_name = f"{uri}:{ver}" if ver else uri
   full_cmd = f"{exec_name} {cmd}".split(" ")
   output = subprocess.check_output(full_cmd).decode('utf-8')
