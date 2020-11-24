@@ -7,7 +7,7 @@ from nectwiz.core.tam.tams_client import TamsClient
 
 
 def tam_client(**kwargs) -> TamClient:
-  tam = kwargs.pop('tam') or config_man.tam()
+  tam = kwargs.pop('tam', None) or config_man.tam()
   tam_type = tam['type']
 
   if tam_type == 'image':

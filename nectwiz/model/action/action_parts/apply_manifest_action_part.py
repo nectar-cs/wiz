@@ -31,12 +31,13 @@ class ApplyManifestActionPart:
 
   @classmethod
   def perform(cls, **kwargs):
+    constructor_kwargs = kwargs.get('constructor_kwargs', {})
     observer: Observer = kwargs.get('observer')
 
-    inlines = kwargs.pop('inlines', None)
-    selectors = kwargs.pop('selectors', None)
+    inlines = kwargs.get('inlines')
+    selectors = kwargs.get('selectors')
 
-    client = tam_client(**kwargs)
+    client = tam_client(**constructor_kwargs)
 
     observer.set_item_running(key_load_manifest)
     manifestds = client.load_templated_manifest(inlines)

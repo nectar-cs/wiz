@@ -15,7 +15,7 @@ def g_conf(**kwargs):
   )
 
 def good_cmap_kao(ns: str) -> KAOs:
-  return TamClient({}).kubectl_apply([
+  return TamClient.kubectl_apply([
     dict(
       apiVersion='v1',
       kind='ConfigMap',
@@ -25,7 +25,7 @@ def good_cmap_kao(ns: str) -> KAOs:
   ])
 
 def bad_cmap_kao(ns: str) -> KAOs:
-  return TamClient({}).kubectl_apply([
+  return TamClient.kubectl_apply([
     dict(
       apiVersion='v1',
       kind='ConfigMap',
@@ -35,7 +35,7 @@ def bad_cmap_kao(ns: str) -> KAOs:
   ])
 
 def bad_pod_kao(ns: str) -> KAOs:
-  return TamClient({}).kubectl_apply([
+  return TamClient.kubectl_apply([
     dict(
       apiVersion='v1',
       kind='Pod',

@@ -85,12 +85,7 @@ class UpdateAction(Action):
       update
     )
 
-    outcomes = ApplyManifestActionPart.perform(
-      self.observer,
-      None,
-      None,
-      []
-    )
+    outcomes = ApplyManifestActionPart.perform()
 
     AwaitSettledActionPart.perform(
       self.observer,

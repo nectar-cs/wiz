@@ -28,6 +28,7 @@ class ClusterTest(unittest.TestCase):
     super().setUp()
     config_man._ns = None
     models_man.clear()
+    ns_factory.update_max_ns(25)
 
   def tearDown(self) -> None:
     super().setUp()

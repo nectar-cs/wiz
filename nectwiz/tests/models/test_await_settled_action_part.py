@@ -16,11 +16,12 @@ class TestAwaitSettledActionPart(ClusterTest):
     config_man._ns = ns
     outcomes = [*good_cmap_kao(ns), *bad_pod_kao(ns)]
 
-    AwaitSettledActionPart.perform(observer, outcomes)
+    perform = lambda: AwaitSettledActionPart.perform(observer, outcomes)
+    self.assertRaises(ActionHalt, perform)
 
     self.assertEqual(1, len(observer.errdicts))
     errdict = observer.errdicts[0]
-    exp_pred_kind = ResourcePropertyPredicate.__name__
-    self.assertEqual(exp_pred_kind, errdict['predicate_kind'])
+
+    self.assertEqual('res_settle_failed', errdict['type'])
     self.assertEqual('pod', errdict['resource']['kind'])
     self.assertEqual('pod-bad', errdict['resource']['name'])

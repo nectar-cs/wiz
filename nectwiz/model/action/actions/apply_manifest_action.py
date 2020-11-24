@@ -28,11 +28,13 @@ class ApplyManifestAction(Action):
   def perform(self, **kwargs: StepActionKwargs) -> bool:
     outcomes = ApplyManifestActionPart.perform(
       observer=self.observer,
-      tam=self.tam,
+      constructor_kwargs=dict(
+        tam=self.tam,
+        values_source_key=self.values_source_key,
+        values_root_key=self.values_root_key
+      ),
       selectors=self.res_selectors,
-      inlines=(kwargs.get('inlines') or {}).items(),
-      values_source_key=self.values_source_key,
-      values_root_key=self.values_root_key
+      inlines=kwargs.get('inlines')
     )
 
     AwaitSettledActionPart.perform(

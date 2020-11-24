@@ -13,9 +13,3 @@ class TestTamleClient(Base.TestTamSuper):
       uri=ci_tamle_name(),
       version='1.0.0'
     ))
-
-  # def test_load_manifest_defaults(self):
-  #   pass
-  #
-  # def test_load_tpd_manifest(self):
-  #   pass
