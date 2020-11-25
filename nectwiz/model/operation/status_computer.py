@@ -15,7 +15,7 @@ def eval_pred(predicate: Predicate, context: Dict) -> PredEval:
   return PredEval(
     predicate_id=predicate.id(),
     met=eval_result,
-    name=predicate.title,
+    name=predicate._title,
     reason=predicate.reason
   )
 

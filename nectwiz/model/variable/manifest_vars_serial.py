@@ -5,7 +5,7 @@ from nectwiz.model.variable.manifest_variable import ManifestVariable
 def standard(cv: ManifestVariable, reload=True):
   return dict(
     id=cv.id(),
-    title=cv.title,
+    title=cv._title,
     mode=cv.mode,
     description=cv.info,
     default_value=cv.default_value(reload),

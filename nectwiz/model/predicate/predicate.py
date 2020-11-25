@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Any
 
-from nectwiz.core.core import subs, utils
+from nectwiz.core.core import utils
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -11,7 +11,10 @@ class Predicate(WizModel):
     self.tone: str = config.get('tone', 'error')
     self.operator: str = config.get('operator', 'equals')
     self.check_against: Any = config.get('check_against')
-    self.challenge: Any = self.get_prop('challenge')
+
+  @property
+  def challenge(self):
+    return self.get_prop('challenge')
 
   def evaluate(self) -> bool:
     return self._common_compare(self.challenge)

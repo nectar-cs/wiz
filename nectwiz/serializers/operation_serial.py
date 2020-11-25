@@ -10,7 +10,7 @@ def ser_standard(operation: Operation):
   """
   return dict(
     id=operation.id(),
-    title=operation.title,
+    title=operation._title,
     info=operation.info,
     synopsis=operation.synopsis
   )
@@ -24,7 +24,7 @@ def ser_embedded_stage(stage: Stage):
   """
   return dict(
     id=stage.id(),
-    title=stage.title,
+    title=stage._title,
     description=stage.info,
     first_step_id=stage.first_step_key()
   )

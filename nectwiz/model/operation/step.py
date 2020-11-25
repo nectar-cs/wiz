@@ -37,7 +37,7 @@ class Step(WizModel):
     return self.action_kod
 
   def next_step_id(self, op_state: TOS) -> Optional[str]:
-    return self._get_prop(
+    return self.resolve_prop(
       'next',
       None,
       resolution_context(op_state, {})
@@ -57,9 +57,9 @@ class Step(WizModel):
     return self.inflate_children('fields', Field)
 
   def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
-    context = resolution_context(op_state, flat_user_values)
-    result = [f for f in self.fields() if f.compute_visibility(context)]
-    return result
+    patch = dict(context=resolution_context(op_state, flat_user_values))
+    fields = self.inflate_children('fields', Field, patch)
+    return [f for f in fields if f.compute_visibility()]
 
   def state_recall_descriptors(self, target: str):
     predicate = lambda d: d.get('to', TARGET_CHART) == target
@@ -105,11 +105,18 @@ class Step(WizModel):
       state.notify_succeeded()
 
   def assemble_action_config(self, state: StepState) -> Dict:
+    """
+    In case action is wrapped by IFTT, we must resolve it
+    before it runs in the background process. Also merge in
+    event-telem config.
+    @param state: step state that IFTT might use to make resolution
+    @return: un-IFTT'ed config dict for the action
+    """
     from nectwiz.model.action.base.action import Action
     resolved_action = self.inflate_child(
       Action,
       self.action_kod,
-      context=resolution_context(state.parent_op)
+      dict(context=resolution_context(state.parent_op, {}))
     )
 
     return dict(

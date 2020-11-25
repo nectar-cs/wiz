@@ -55,7 +55,7 @@ class WizModel:
   def __init__(self, config: Dict):
     self.config: Dict = config
     self._id: str = config.get('id')
-    self.title: str = config.get('title')
+    self._title: str = config.get('title')
     self.info: str = config.get('info')
     self.context: Dict = config.get('context', {})
     self.choice_items: List[Dict] = config.get('items', [])
@@ -67,7 +67,7 @@ class WizModel:
   def to_dict(self):
     return dict(
       id=self.id(),
-      title=self.title,
+      title=self._title,
       info=self.info
     )
 
@@ -75,10 +75,13 @@ class WizModel:
     for key, value in config.items():
       setattr(self, key, value)
 
-  def get_prop(self, key, backup=None):
-    return self.config.get(key, backup)
+  def get_prop(self, key: str, backup: Any = None) -> Any:
+    return self.resolve_prop(key, backup, {})
 
-  def _get_prop(self, key, backup, extra_context):
+  def resolve_prop(self,
+                   key: str,
+                   backup: Any,
+                   extra_context: Optional[Dict]) -> Any:
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
@@ -245,7 +248,7 @@ class WizModel:
 
   @classmethod
   def try_value_getter_intercept(cls, *args) -> Any:
-    from nectwiz.model.supply.value_getter import ValueSupplier
+    from nectwiz.model.supply.value_supplier import ValueSupplier
     return cls._try_as_interceptor(ValueSupplier, "id::", *args)
 
   @classmethod
@@ -275,7 +278,8 @@ class WizModel:
   @classmethod
   def is_interceptor_candidate(cls, interceptor: Type[T], prefix, kod: KoD):
     if type(kod) == dict:
-      if kod.get('kind') == interceptor.__name__:
+      interceptors = interceptor.lteq_classes(models_man.classes())
+      if kod.get('kind') in [c.__name__ for c in interceptors]:
         return True
     if type(kod) == str:
       return kod.startswith(prefix)

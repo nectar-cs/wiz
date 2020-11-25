@@ -9,7 +9,7 @@ def ser_err_diagnosis(diagnosis: ErrorDiagnosis) -> Dict:
 
   return dict(
     id=diagnosis.id(),
-    title=diagnosis.title,
+    title=diagnosis._title,
     info=diagnosis.info,
     actionables=actionables,
   )
@@ -18,7 +18,7 @@ def ser_err_diagnosis(diagnosis: ErrorDiagnosis) -> Dict:
 def ser_embedded_actionable(actionable: DiagnosisActionable) -> Dict:
   return dict(
     id=actionable.id(),
-    title=actionable.title,
+    title=actionable._title,
     info=actionable.info,
     operation_id=actionable.operation_id,
 

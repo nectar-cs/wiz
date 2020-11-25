@@ -36,8 +36,7 @@ class ManifestVariable(GenericVariable):
     self.read_crt_value()
     if self.is_defined() and len(self.validators()) > 0:
       crt_val = self.read_crt_value()
-      context = dict(resolvers=config_man.resolvers())
-      pred_eval: PredEval = self.validate(crt_val, context)
+      pred_eval: PredEval = self.validate(crt_val)
       return pred_eval['met']
     else:
       return True

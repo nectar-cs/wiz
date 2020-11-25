@@ -50,7 +50,7 @@ class RunPredicatesAction(Action):
 def pred2subitem(predicate: Predicate) -> ProgressItem:
   return ProgressItem(
     id=predicate.id(),
-    title=predicate.title,
+    title=predicate._title,
     info=predicate.info,
     status='idle',
     sub_items=[],

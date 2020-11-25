@@ -86,10 +86,14 @@ steps:
         input:
           kind: SelectInput
           options:
-            managed_pvc: "Managed PVC: in-cluster storage managed by Nectar"
-            nectar_cloud: "Nectar cloud storage: secure remote database"
-            self_managed: "Own storage: you supply a MongoDB database"
-            disabled: "Disabled: telemetry will not be persisted"
+            - id: managed_pvc
+              title: "Managed PVC: in-cluster storage managed by Nectar"
+            - id: nectar_cloud
+              title: "Nectar cloud storage: secure remote database"
+            - id: self_managed
+              title: "Own storage: you supply a MongoDB database"
+            - id: disabled
+              title: "Disabled: telemetry will not be persisted"
         validation:
           - check_against: disabled
             operator: =/=

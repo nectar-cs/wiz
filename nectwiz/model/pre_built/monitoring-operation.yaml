@@ -4,8 +4,8 @@ title: Locate Monitoring Server
 info: The wiz gets better when it can read monitoring data.
 steps:
   - id: nectar.steps.monitoring-step-1
-    fields:
 
+    fields:
       - id: monitoring.type
         target: prefs
         title: Data Source Type

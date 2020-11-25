@@ -19,7 +19,7 @@ class Field(WizModel):
   def __init__(self, config: Dict):
     super().__init__(config)
     self._delegate_variable = self.resolve_variable_spec()
-    self.title = self._delegate_variable.title
+    self.title = self._delegate_variable._title
     self.info = self._delegate_variable.info
     self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
@@ -43,7 +43,7 @@ class Field(WizModel):
     return self._delegate_variable
 
   def options(self) -> List[Dict]:
-    return self.input_spec().options_list()
+    return self.input_spec().serialize_options()
 
   def is_manifest_bound(self) -> bool:
     return self.is_chart_var() or self.is_inline_chart_var()
@@ -64,10 +64,10 @@ class Field(WizModel):
   def default_value(self) -> Optional[str]:
     return self._delegate_variable.default_value()
 
-  def compute_visibility(self, context: Dict) -> bool:
+  def compute_visibility(self) -> bool:
     predicate_kod = self.config.get('show_condition')
     if predicate_kod:
-      predicate: Predicate = Predicate.inflate(predicate_kod)
-      return predicate.evaluate(context)
+      predicate = self.inflate_child(Predicate, predicate_kod)
+      return predicate.evaluate()
     else:
       return True

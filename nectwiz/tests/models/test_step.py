@@ -38,10 +38,53 @@ class TestStep(Base.TestWizModel):
     self.assertEqual('foo', step.next_step_id(op_state))
     self.assertTrue(step.has_explicit_next())
 
+  def test_visible_fields(self):
+    step = Step(dict(
+      id='step',
+      fields=[
+        dict(
+          id='fields.f1'
+        ),
+        dict(
+          id='fields.f2',
+          show_condition=dict(
+            challenge='{input/fields.f1}',
+            check_against='one'
+          )
+        ),
+        dict(
+          id='fields.f3',
+          show_condition=dict(
+            challenge='{operation/fields.f2}',
+            check_against='two'
+          )
+        )
+      ]
+    ))
+
+    op_state = OperationState('xxx', 'yyy')
+    step_state = op_state.gen_step_state(step, keep=True)
+    ids = lambda models: [m.id() for m in models]
+
+    # step_state.state_assigns = {}
+    # result = step.visible_fields({}, op_state)
+    # self.assertEqual(['fields.f1'], ids(result))
+
+    # step_state.state_assigns = {}
+    # result = step.visible_fields({'fields.f1': 'two'}, op_state)
+    # self.assertEqual(['fields.f1'], ids(result))
+
+    step_state.state_assigns = {}
+    result = step.visible_fields({'fields.f1': 'one'}, op_state)
+    self.assertEqual(['fields.f1', 'fields.f2'], ids(result))
+
+  def test_validate_field(self):
+    self.assertEqual(1, 2)  # todo fucking do this
+
   def test_assemble_action_config(self):
     models_man.clear(restore_defaults=True)
     models_man.add_descriptors([
-      dict(id='foo',kind=Action.__name__)
+      dict(id='foo', kind=Action.__name__)
     ])
 
     op_state = OperationState('', '')

@@ -14,6 +14,7 @@ def ser_embedded_field(field: Field, value, state: OperationState) -> Dict:
     if decorator:
       value = field.current_or_default() if value is None else value
       decorated_value = decorator.decorate(value, state)
+
   return dict(
     id=field.id(),
     title=field.title,
@@ -42,7 +43,7 @@ def ser_refreshed(step: Step, values: Dict, state: OperationState) -> Dict:
   )
   return dict(
     id=step.id(),
-    title=step.title,
+    title=step._title,
     info=step.info,
     flags=[],
     fields=list(map(serialize_field, visible_fields))
