@@ -45,6 +45,12 @@ class TestValueSupplier(Base.TestWizModel):
     result = instance.serialize_item('Letter')
     self.assertEqual({'lower_case': 'letter'}, result)
 
+  def test_serialize_item_deep_dict(self):
+    output = 'one.two'
+    instance = ValueSupplier(dict(output=output))
+    result = instance.serialize_item({'one': {'two': 'three'}})
+    self.assertEqual('three', result)
+
   def test_serialize_explicit_many(self):
     instance = ValueSupplier({'many': True})
     result = instance.serialize_computed_value('Letter')

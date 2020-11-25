@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Any, Dict, Union, Optional
 
+from nectwiz.core.core import utils
 from nectwiz.core.core.utils import listlike
 from nectwiz.model.base.wiz_model import WizModel
 
@@ -61,7 +62,7 @@ class ValueSupplier(WizModel):
     if prop_name:
       if item:
         if type(item) == dict:
-          return item.get(prop_name)
+          return utils.deep_get2(item, deep_key=prop_name)
         else:
           # noinspection PyBroadException
           try:

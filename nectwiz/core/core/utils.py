@@ -52,7 +52,7 @@ def is_shell() -> bool:
 
 
 def listlike(value: Any) -> bool:
-  return isinstance(value, Iterable)
+  return isinstance(value, list)
 
 
 def worker_uuid() -> Optional[str]:

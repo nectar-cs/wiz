@@ -19,11 +19,8 @@ class TestResourcesSupplier(Base.TestWizModel):
   def test_produce(self):
     config_man._ns, = ns_factory.request(1)
     create_base_master_map(config_man.ns())
-
     simple_pod.create(name='p1', ns=config_man.ns())
     simple_pod.create(name='p2', ns=config_man.ns())
-
-    time.sleep(4)
 
     inst = ResourcesSupplier(dict(
       output='options_format',

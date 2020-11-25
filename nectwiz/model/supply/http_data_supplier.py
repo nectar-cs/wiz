@@ -5,7 +5,7 @@ import requests
 from nectwiz.model.supply.value_supplier import ValueSupplier
 
 
-class HttpSupplier(ValueSupplier):
+class HttpDataSupplier(ValueSupplier):
 
   def __init__(self, config: Dict):
     super().__init__(config)
