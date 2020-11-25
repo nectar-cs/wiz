@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Union, List, Dict, Any
+from typing import List, Dict
 
 from k8kat.res.base.kat_res import KatRes
 
@@ -23,11 +23,7 @@ class ResourcesSupplier(ValueSupplier):
 
   @lru_cache(maxsize=1)
   def output_format(self):
-    expr: Union[List, str] = self.desired_output_format
-    if type(expr) == str:
-      if expr == 'options_format':
-        return dict(id='name', title='name')
-      else:
-        print(f"[nectwiz:resources_getter] bad format {expr}")
-        return
-    return expr
+    if self.desired_output_format == 'options_format':
+      return dict(id='name', title='name')
+    else:
+      return super(ResourcesSupplier, self).output_format()

@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Any, Dict, Union, Optional
 
+from nectwiz.core.core.utils import listlike
 from nectwiz.model.base.wiz_model import WizModel
 
 
@@ -18,15 +19,15 @@ class ValueSupplier(WizModel):
   def serialize_computed_value(self, computed_value) -> Any:
     treat_as_list = self.treat_as_list
     if treat_as_list in [None, 'auto']:
-      treat_as_list = type(computed_value) == list
+      treat_as_list = listlike(computed_value)
 
     if treat_as_list:
-      if type(computed_value) == list:
+      if listlike(computed_value):
         return [self.serialize_item(item) for item in computed_value]
       else:
         return [self.serialize_item(computed_value)]
     else:
-      if not type(computed_value) == list:
+      if not listlike(computed_value):
         return self.serialize_item(computed_value)
       else:
         item = computed_value[0] if len(computed_value) > 0 else None

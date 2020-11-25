@@ -5,6 +5,7 @@ import random
 import string
 import subprocess
 import sys
+from collections.abc import Iterable
 from functools import reduce
 from os import listdir
 from os.path import isfile, join
@@ -48,6 +49,10 @@ def is_opsim() -> bool:
 
 def is_shell() -> bool:
   return exec_mode() == 'shell'
+
+
+def listlike(value: Any) -> bool:
+  return isinstance(value, Iterable)
 
 
 def worker_uuid() -> Optional[str]:
