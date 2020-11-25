@@ -11,7 +11,7 @@ class Iftt(WizModel):
     super().__init__(config)
     self.choice_items: List[Dict] = config.get('items', [])
 
-  def resolve_item(self) -> Optional[KoD]:
+  def resolve(self) -> Optional[KoD]:
     from nectwiz.model.predicate.predicate import Predicate
     for it in self.choice_items:
       predicate_kod, value = it.get('predicate'), it.get('value')

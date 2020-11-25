@@ -66,17 +66,21 @@ class TestStep(Base.TestWizModel):
     step_state = op_state.gen_step_state(step, keep=True)
     ids = lambda models: [m.id() for m in models]
 
-    # step_state.state_assigns = {}
-    # result = step.visible_fields({}, op_state)
-    # self.assertEqual(['fields.f1'], ids(result))
+    step_state.state_assigns = {}
+    result = step.visible_fields({}, op_state)
+    self.assertEqual(['fields.f1'], ids(result))
 
-    # step_state.state_assigns = {}
-    # result = step.visible_fields({'fields.f1': 'two'}, op_state)
-    # self.assertEqual(['fields.f1'], ids(result))
+    step_state.state_assigns = {}
+    result = step.visible_fields({'fields.f1': 'two'}, op_state)
+    self.assertEqual(['fields.f1'], ids(result))
 
     step_state.state_assigns = {}
     result = step.visible_fields({'fields.f1': 'one'}, op_state)
     self.assertEqual(['fields.f1', 'fields.f2'], ids(result))
+
+    step_state.state_assigns = {'fields.f2': 'two'}
+    result = step.visible_fields({'fields.f1': 'three'}, op_state)
+    self.assertEqual(['fields.f1', 'fields.f3'], ids(result))
 
   def test_validate_field(self):
     self.assertEqual(1, 2)  # todo fucking do this

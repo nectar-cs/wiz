@@ -28,5 +28,5 @@ class TestResourcesSupplier(Base.TestWizModel):
       many=False
     ))
 
-    result = inst.produce()
+    result = inst.resolve()
     self.assertEqual({'id': 'p1', 'title': 'p1'},  result)

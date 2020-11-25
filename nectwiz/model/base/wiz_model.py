@@ -82,6 +82,15 @@ class WizModel:
                    key: str,
                    backup: Any,
                    extra_context: Optional[Dict]) -> Any:
+    """
+    Reading from its config dict, applies all possible
+    transformations to a value: un-IFTT, un-Supply, and
+    interpolate.
+    @param key:
+    @param backup:
+    @param extra_context:
+    @return:
+    """
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
@@ -141,7 +150,7 @@ class WizModel:
     else:
       from nectwiz.model.supply.value_supplier import ValueSupplier
       provider: ValueSupplier = self.inflate(kods_or_provider_kod)
-      actual_kods = provider.produce()
+      actual_kods = provider.resolve()
       return self._inflate_children(
         actual_kods,
         child_class,
@@ -266,7 +275,7 @@ class WizModel:
       patches = {**(patches or {}), '__skip_intercept': True}
       interceptor = intercept_cls.inflate_safely(kod, patches)
       if interceptor:
-        return interceptor.resolve_item()
+        return interceptor.resolve()
     return kod
 
   @staticmethod

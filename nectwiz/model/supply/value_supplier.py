@@ -13,7 +13,7 @@ class ValueSupplier(WizModel):
     self.treat_as_list = self.get_prop('many', None)
     self.desired_output_format = self.get_prop('output', None)
 
-  def produce(self) -> Any:
+  def resolve(self) -> Any:
     computed_value = self._compute()
     return self.serialize_computed_value(computed_value)
 
