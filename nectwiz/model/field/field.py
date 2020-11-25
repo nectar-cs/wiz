@@ -43,7 +43,7 @@ class Field(WizModel):
     return self._delegate_variable
 
   def options(self) -> List[Dict]:
-    return self.input_spec().options()
+    return self.input_spec().options_list()
 
   def is_manifest_bound(self) -> bool:
     return self.is_chart_var() or self.is_inline_chart_var()

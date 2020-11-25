@@ -132,7 +132,7 @@ def deep_get(dict_root: Dict, keys: List[str]) -> Any:
 
 def getattr_deep(obj, attr):
   """
-  Deep attribute value_getter.
+  Deep attribute supply.
   :param obj: Object from which to get the attribute.
   :param attr: attribute to get.
   :return: value of the attribute if found, else None.

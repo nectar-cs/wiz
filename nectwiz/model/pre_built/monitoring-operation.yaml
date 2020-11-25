@@ -5,6 +5,7 @@ info: The wiz gets better when it can read monitoring data.
 steps:
   - id: nectar.steps.monitoring-step-1
     fields:
+
       - id: monitoring.type
         target: prefs
         title: Data Source Type
@@ -61,6 +62,7 @@ steps:
           options:
             kind: ResourcesGetter
             selector: "ns:*"
+            output: options_format
 
       - id: monitoring.service_name
         target: prefs
@@ -72,6 +74,7 @@ steps:
           kind: SelectInput
           options:
             kind: ResourcesGetter
+            output: options_format
             selector:
               k8s_kind: Service
               namespace: "{input/monitoring.service_namespace}"

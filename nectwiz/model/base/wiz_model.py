@@ -76,7 +76,7 @@ class WizModel:
       setattr(self, key, value)
 
   def get_prop(self, key, backup=None):
-    pass
+    return self.config.get(key, backup)
 
   def _get_prop(self, key, backup, extra_context):
     value = self.config.get(key, backup)
@@ -115,16 +115,35 @@ class WizModel:
                        child_class: Type[T],
                        patches: Dict = None) -> List[T]:
     kods = self.config.get(config_key, [])
-    return self.inflate_children_by_kods(kods, child_class, patches)
+    return self._inflate_children(kods, child_class, patches)
 
-  def inflate_children_by_kods(self,
-                               kod_or_kods: List,
-                               child_class: Type[T],
-                               patches: Dict = None) -> List[T]:
-    is_list = isinstance(kod_or_kods, list)
-    kod_or_kods = kod_or_kods if is_list else [kod_or_kods]
-    to_child = lambda obj: self._kod2child(obj, child_class, patches)
-    return list(map(to_child, kod_or_kods))
+  def _inflate_children(self,
+                        kods_or_provider_kod: Union[List[KoD], KoD],
+                        child_class: Type[T],
+                        patches: Dict = None) -> List[T]:
+    """
+    Bottleneck function for a parent model to inflate children.
+    In the normal case, kods_or_provider_kod is a list of WizModels KoDs.
+    In the special case, kods_or_provider_kod is ListGetter model
+    that produces the actual children.
+    case,
+    @param kods_or_provider_kod: list of children KoDs or child-producing KoD
+    @param child_class: class all children must a subclass of
+    @param patches: extra properties to inject into all children
+    @return: resolved list of WizModel children
+    """
+    if type(kods_or_provider_kod) == list:
+      to_child = lambda obj: self._kod2child(obj, child_class, patches)
+      return list(map(to_child, kods_or_provider_kod))
+    else:
+      from nectwiz.model.supply.value_supplier import ValueSupplier
+      provider: ValueSupplier = self.inflate(kods_or_provider_kod)
+      actual_kods = provider.produce()
+      return self._inflate_children(
+        actual_kods,
+        child_class,
+        patches
+      )
 
   def inflate_child_in_list(self,
                             list_id: str,
@@ -226,8 +245,8 @@ class WizModel:
 
   @classmethod
   def try_value_getter_intercept(cls, *args) -> Any:
-    from nectwiz.model.value_getter.value_getter import ValueGetter
-    return cls._try_as_interceptor(ValueGetter, "id::", *args)
+    from nectwiz.model.supply.value_getter import ValueSupplier
+    return cls._try_as_interceptor(ValueSupplier, "id::", *args)
 
   @classmethod
   def try_iftt_intercept(cls, *args) -> Any:

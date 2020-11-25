@@ -1,18 +1,18 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 import requests
 
-from nectwiz.model.value_getter.value_getter import ValueGetter
+from nectwiz.model.supply.value_supplier import ValueSupplier
 
 
-class HttpGetter(ValueGetter):
+class HttpSupplier(ValueSupplier):
 
   def __init__(self, config: Dict):
     super().__init__(config)
     self.endpoint = config.get('endpoint')
     self.return_property = config.get('property', 'status_code')
 
-  def produce(self) -> Optional[Any]:
+  def _compute(self) -> Any:
     # noinspection PyBroadException
     try:
       response = requests.get(self.endpoint)

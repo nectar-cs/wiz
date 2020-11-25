@@ -9,9 +9,8 @@ class GenericInput(WizModel):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.option_descs = config.get('options')
-    self.provider_desc = config.get('options_provider')
 
-  def options(self) -> List:
+  def options_list(self) -> List:
     if self.provider_desc:
       return self.load_provider_options()
     else:
@@ -22,10 +21,6 @@ class GenericInput(WizModel):
 
   def load_options(self) -> List:
     return []
-
-  def load_provider_options(self):
-    provider = ResourceSelector.inflate(self.provider_desc)
-    return provider.as_options()
 
   @staticmethod
   def sanitize_for_validation(value: Any) -> Any:

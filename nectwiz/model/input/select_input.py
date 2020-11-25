@@ -6,7 +6,7 @@ from nectwiz.model.input.input import GenericInput
 class SelectInput(GenericInput):
 
   def implied_default(self) -> Optional[str]:
-    options = self.options()
+    options = self.options_list()
     return options[0].get('id') if len(options) > 0 else None
 
   def load_options(self) -> List[Dict]:
