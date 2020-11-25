@@ -59,8 +59,8 @@ class Step(WizModel):
     finder = lambda field: field.id() == _id
     return next(filter(finder, self.fields()), None)
 
-  def visible_fields(self, user_values, op_state: TOS) -> List[Field]:
-    context = dict(**(user_values or {}), **resolution_context(op_state))
+  def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
+    context = resolution_context(op_state, flat_user_values)
     result = [f for f in self.fields() if f.compute_visibility(context)]
     return result
 
@@ -184,9 +184,10 @@ class Step(WizModel):
     )
 
 
-def resolution_context(op_state: OperationState):
+def resolution_context(op_state: OperationState, user_input: Dict):
   return dict(
     resolvers=dict(
+      input=lambda n: user_input.get(n),
       operation=lambda n: op_state.all_assigns().get(n)
     )
   )

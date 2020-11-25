@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import random
@@ -127,6 +128,22 @@ def deep_get(dict_root: Dict, keys: List[str]) -> Any:
     )
   else:
     return dict_root
+
+
+def getattr_deep(obj, attr):
+  """
+  Deep attribute value_getter.
+  :param obj: Object from which to get the attribute.
+  :param attr: attribute to get.
+  :return: value of the attribute if found, else None.
+  """
+  def _getattr(_obj, _attr):
+    returned = getattr(_obj, _attr)
+    return returned() if callable(returned) else returned
+  try:
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+  except AttributeError:
+    return None
 
 
 def shell_exec(unsplit_cmd: str) -> str:

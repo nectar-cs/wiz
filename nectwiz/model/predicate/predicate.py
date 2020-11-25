@@ -1,4 +1,3 @@
-import functools
 from typing import Callable, Dict, Any
 
 from nectwiz.core.core import subs, utils
@@ -29,22 +28,6 @@ class Predicate(WizModel):
   # noinspection PyMethodMayBeStatic
   def error_extras(self) -> Dict:
     return {}
-
-def getattr_deep(obj, attr):
-  """
-  Deep attribute getter.
-  :param obj: Object from which to get the attribute.
-  :param attr: attribute to get.
-  :return: value of the attribute if found, else None.
-  """
-  def _getattr(_obj, _attr):
-    returned = getattr(_obj, _attr)
-    return returned() if callable(returned) else returned
-  try:
-    return functools.reduce(_getattr, [obj] + attr.split('.'))
-  except AttributeError:
-    return None
-
 
 def build_comparator(name) -> Callable[[any, any], bool]:
   """

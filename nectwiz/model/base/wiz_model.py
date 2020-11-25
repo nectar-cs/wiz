@@ -2,7 +2,8 @@ import os
 from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar, Any
 
-from nectwiz.core.core import utils
+from nectwiz.core.core import utils, subs
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KoD
 
 T = TypeVar('T', bound='WizModel')
@@ -54,6 +55,7 @@ class WizModel:
     self._id: str = config.get('id')
     self.title: str = config.get('title')
     self.info: str = config.get('info')
+    self.context: Dict = config.get('context')
     self.choice_items: List[Dict] = config.get('items', [])
     self.parent = None
 
@@ -71,84 +73,116 @@ class WizModel:
     for key, value in config.items():
       setattr(self, key, value)
 
-  def get_prop(self, key, backup, context):
+  def get_prop(self, key, backup=None):
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
-      return self.try_as_iftt(value, context)
+      patches = dict(context=self.context)
+      value = self.try_iftt_intercept(value, patches)
+      value = self.try_value_getter_intercept(value, patches)
+      return self.try_resolve_with_context(value)
     else:
       return value
+
+  def prep_downstream_patches(self) -> Dict:
+    return dict(context=self.context)
+
+  def try_resolve_with_context(self, value) -> Any:
+    if value and type(value) == str:
+      return subs.interp(value, self.assemble_final_context())
+    return value
+
+  def assemble_final_context(self) -> Dict:
+    _context = self.context or {}
+    new_resolvers = _context.pop('resolvers', {})
+    return dict(
+      **_context,
+      resolvers=dict(
+        **config_man.resolvers(),
+        **new_resolvers
+      )
+    )
 
   @classmethod
   def singleton_id(cls):
     raise NotImplemented
 
   @classmethod
-  def inflate_singleton(cls) -> T:
-    return cls.inflate_with_key(cls.singleton_id())
+  def inflate_singleton(cls, patches=None) -> T:
+    return cls.inflate_with_key(cls.singleton_id(), patches)
 
   @classmethod
   def kind(cls):
     return cls.__name__
 
-  def inflate_children(self, config_key: str, child_class: Type[T]) -> List[T]:
+  def inflate_children(self,
+                       config_key: str,
+                       child_class: Type[T],
+                       patches: Dict = None) -> List[T]:
     descriptor_list = self.config.get(config_key, [])
-    return self.load_related(descriptor_list, child_class)
+    return self.load_related(descriptor_list, child_class, patches)
 
-  def load_related(self, kods: List, child_class: Type[T]) -> List[T]:
-    is_list = isinstance(kods, list)
-    kods = kods if is_list else [kods]
-    to_child = lambda obj: key_or_dict_to_child(obj, child_class, self)
-    return list(map(to_child, kods))
+  def load_related(self,
+                   kod_or_kods: List,
+                   child_class: Type[T],
+                   patches: Dict = None) -> List[T]:
+    is_list = isinstance(kod_or_kods, list)
+    kod_or_kods = kod_or_kods if is_list else [kod_or_kods]
+    to_child = lambda obj: self._kod2child(obj, child_class, patches)
+    return list(map(to_child, kod_or_kods))
 
-  def load_list_child(self, key: str, child_cls: Type[T], child_key: str) -> T:
+  def load_list_child(self,
+                      key: str,
+                      child_cls: Type[T],
+                      child_key: str,
+                      patches: Dict = None) -> T:
     descriptor_list = self.config.get(key, [])
     predicate = lambda obj: key_or_dict_matches(obj, child_key)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
-    return self.inflate_child(child_cls, match) if match else None
+    return self.inflate_child(child_cls, match, patches) if match else None
 
   def inflate_child(self,
                     child_cls: Type[T],
-                    key_or_dict: KoD,
-                    **inflate_kwargs) -> T:
-    return key_or_dict_to_child(key_or_dict, child_cls, self, **inflate_kwargs)
+                    kod: KoD,
+                    patches: Dict = None) -> T:
+    return self._kod2child(kod, child_cls, patches)
+
+  def _kod2child(self,
+                 kod: KoD,
+                 child_cls: Type[T],
+                 patches: Dict = None) -> T:
+    patches = {**self.prep_downstream_patches(), **(patches or {})}
+    inflated = child_cls.inflate(kod, patches)
+    inflated.parent = self
+    return inflated
 
   @classmethod
-  def inflate_all(cls) -> List[T]:
+  def inflate_all(cls, patches: Dict = None) -> List[T]:
     cls_pool = cls.lteq_classes(models_man.classes())
     configs = configs_for_kinds(models_man.descriptors(), cls_pool)
-    return [cls.inflate_with_config(config) for config in configs]
+    return [cls.inflate(config, patches) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: KoD, **kwargs) -> Optional[T]:
-    context, skip_iftt = kwargs.get('context'), kwargs.get('__skip_iftt')
-    if not skip_iftt:
-      key_or_dict = cls.try_as_iftt(key_or_dict, context)
-
+  def inflate(cls: T, key_or_dict: KoD, patches: Dict = None) -> Optional[T]:
+    key_or_dict = cls.try_as_iftt(key_or_dict)
     try:
       if isinstance(key_or_dict, str):
-        return cls.inflate_with_key(key_or_dict)
+        return cls.inflate_with_key(key_or_dict, patches)
       elif isinstance(key_or_dict, Dict):
-        return cls.inflate_with_config(key_or_dict)
+        return cls.inflate_with_config(key_or_dict, patches, None)
       raise RuntimeError(f"Bad input {key_or_dict}")
     except Exception as err:
-      # print(traceback.format_exc())
-      # print(f"Inflate failed for {key_or_dict} ^^")
       raise err
 
   @classmethod
-  def id_exists(cls, _id: str) -> bool:
-    return True
-
-  @classmethod
-  def inflate_with_key(cls, _id: str) -> T:
-    if _id and _id[0].isupper():
+  def inflate_with_key(cls, _id: str, patches: Optional[Dict]) -> T:
+    if _id and _id[0] and _id[0].isupper():
       config = dict(kind=_id)
     else:
       candidate_subclasses = cls.lteq_classes(models_man.classes())
       candidate_kinds = [klass.kind() for klass in candidate_subclasses]
       all_configs = models_man.descriptors()
       config = find_config_by_id(_id, all_configs, candidate_kinds)
-    return cls.inflate_with_config(config)
+    return cls.inflate_with_config(config, patches, None)
 
   @classmethod
   def descendent_or_self(cls) -> T:
@@ -157,7 +191,10 @@ class WizModel:
     return next(filter(not_self, subclasses), cls)({})
 
   @classmethod
-  def inflate_with_config(cls, config: Dict, def_cls=None) -> T:
+  def inflate_with_config(cls,
+                          config: Optional[Dict],
+                          patches: Optional[Dict],
+                          def_cls: Optional[Type]) -> T:
     host_class = cls or def_cls
 
     inherit_id, expl_kind = config.get('inherit'), config.get('kind')
@@ -166,27 +203,50 @@ class WizModel:
       host_class = cls.kind2cls(expl_kind)
 
     if inherit_id:
-      other = cls.inflate_with_key(inherit_id)
+      other = cls.inflate_with_key(inherit_id, patches)
       host_class = other.__class__
       config = {**other.config, **config}
 
-    return host_class(config)
+    return host_class({**config, **(patches or {})})
 
   @classmethod
-  def try_as_iftt(cls, kod, context) -> Any:
+  def inflate_safely(cls, *args):
+    # noinspection PyBroadException
+    try:
+      return cls.inflate(*args)
+    except:
+      return None
+
+  @classmethod
+  def id_exists(cls, _id: str) -> bool:
+    return True
+
+  @classmethod
+  def try_value_getter_intercept(cls, kod, patches) -> Any:
+    from nectwiz.model.value_getter.value_getter import ValueGetter
+    return cls.try_as_interceptor(ValueGetter, kod, patches)
+
+  @classmethod
+  def try_iftt_intercept(cls, kod, patches) -> Any:
     from nectwiz.model.predicate.iftt import Iftt
+    return cls.try_as_interceptor(Iftt, kod, patches)
+
+  @classmethod
+  def try_as_interceptor(cls, intercept_cls: Type[T], kod: KoD, patches) -> Any:
+    if cls.is_kod_interceptor_candidate(intercept_cls, kod):
+      interceptor = intercept_cls.inflate_safely(kod, patches)
+      if interceptor:
+        return interceptor.resolve_item()
+    return kod
+
+  @classmethod
+  def is_kod_interceptor_candidate(cls, interceptor: Type[T], kod: KoD):
     if type(kod) == dict:
-      if kod.get('kind') == Iftt.__name__:
-        iftt_matrix = Iftt.inflate(kod, __skip_iftt=True)
-        return iftt_matrix.resolve_item(context)
-      else:
-        return kod
-    else:
-      try:
-        iftt_matrix = Iftt.inflate(kod, __skip_iftt=True)
-        return iftt_matrix.resolve_item(context)
-      except:
-        return kod
+      if kod.get('kind') == interceptor.__name__:
+        return True
+    if type(kod) == str:
+      return True
+    return False
 
   @classmethod
   def lteq_classes(cls, classes: List[Type]) -> List[Type[T]]:
@@ -227,15 +287,6 @@ def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
 
 def key_or_dict_matches(key_or_dict: KoD, target_key: str) -> bool:
   return key_or_dict_to_key(key_or_dict) == target_key
-
-
-def key_or_dict_to_child(key_or_dict: KoD,
-                         child_cls: Type[T],
-                         parent: T,
-                         **inflate_kwargs) -> T:
-  inflated = child_cls.inflate(key_or_dict, **inflate_kwargs)
-  inflated.parent = parent
-  return inflated
 
 
 def find_class_by_name(name: str, classes) -> Type:

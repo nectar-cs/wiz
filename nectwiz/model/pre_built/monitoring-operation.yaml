@@ -1,0 +1,75 @@
+kind: Stage
+id: nectar.stages.monitoring
+title: Locate Monitoring Server
+info: The wiz gets better when it can read monitoring data.
+steps:
+  - id: nectar.steps.monitoring-step-1
+    fields:
+      - id: monitoring.type
+        target: prefs
+        title: Data Source Type
+        input:
+          kind: SelectInput
+          options:
+            prometheus: Prometheus Server
+            metrics_server: Metrics Server
+            fluentd: fluentd
+            cadvisor: cAdvisor
+        validation:
+          - check_against: prometheus
+            tone: error
+            reason: "Not yet supported"
+
+      - id: monitoring.proxy
+        target: prefs
+        title: Reach via Kubernetes Proxy
+        input:
+          kind: CheckboxInput
+          default: false
+        show_condition:
+          challenge: "{input/monitoring.type}"
+          check_against: prometheus
+
+      - id: monitoring.url
+        target: prefs
+        title: Data Source API's Base URL
+        info: "If in-cluster, use the Kubernetes
+        DNS scheme: http://<svc-name>.<ns>"
+        show_condition:
+          challenge: "{monitoring.proxy}"
+          check_against: false
+        validation:
+          - kind: FormatPredicate
+            check_against: domain
+          - challenge:
+              kind: HttpGetter
+              endpoint: "{input/monitor.url}"
+              property: status_code
+            check_against: 200
+            reason: "Endpoint did not return status code 200"
+
+      - id: monitoring.service_namespace
+        target: prefs
+        title: Namespace containing Prometheus Operator
+        show_condition:
+          challenge: "{input/monitoring.proxy}"
+          check_against: true
+        input:
+          kind: SelectInput
+          options:
+            kind: ResourcesGetter
+            selector: "ns:*"
+
+      - id: monitoring.service_name
+        target: prefs
+        title: Prometheus Operator Service
+        show_condition:
+          challenge: "{input/monitoring.service_namespace}"
+          check_against: defined
+        input:
+          kind: SelectInput
+          options:
+            kind: ResourcesGetter
+            selector:
+              k8s_kind: Service
+              namespace: "{monitoring.service_namespace}"

@@ -4,7 +4,8 @@ from nectwiz.model.base.wiz_model import WizModel, models_man
 from nectwiz.model.field.field import Field
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.step import Step
-from nectwiz.model.predicate.common_predicates import TruePredicate, FalsePredicate
+from nectwiz.model.predicate.common_predicates \
+  import TruePredicate, FalsePredicate
 from nectwiz.model.predicate.iftt import Iftt
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -28,7 +29,7 @@ class Base:
 
     def test_try_as_iftt_when_not_iftt(self):
       config = dict(kind=self.model_class().kind(), id='foo')
-      result = self.model_class().try_as_iftt(config, {})
+      result = self.model_class().try_iftt_intercept(config, {})
       self.assertEqual(config, result)
 
     def test_try_as_iftt_with_iftt_dict(self):
@@ -40,7 +41,7 @@ class Base:
           dict(predicate=TruePredicate.__name__, value='correct')
         ]
       )
-      result = self.model_class().try_as_iftt(config, {})
+      result = self.model_class().try_iftt_intercept(config, {})
       self.assertEqual('correct', result)
 
     def test_try_as_iftt_with_iftt_id(self):
@@ -55,7 +56,7 @@ class Base:
       )
       models_man.add_descriptors([iftt_config])
 
-      result = self.model_class().try_as_iftt('my-iftt', {})
+      result = self.model_class().try_iftt_intercept('my-iftt', {})
       self.assertEqual('correct', result)
 
     def test_inflate_with_iftt(self):
@@ -70,7 +71,7 @@ class Base:
           ))
         ]
       )
-      result = self.model_class().inflate(config, context={})
+      result = self.model_class().inflate(config, None)
       self.assertEqual('actual', result.id())
       self.assertEqual('Actual', result.title)
 
@@ -84,7 +85,7 @@ class Base:
 
     def test_update_attrs(self):
       config = {'title': 'foo'}
-      inflated = self.model_class().inflate_with_config(config)
+      inflated = self.model_class().inflate_with_config(config, None, None)
       self.assertEqual('foo', inflated.title)
       inflated.update_attrs(dict(title='bar'))
       self.assertEqual(inflated.title, 'bar')
@@ -96,13 +97,13 @@ class Base:
           self.info = 'baz'
 
       models_man.add_classes([Custom])
-      result = self.model_class().inflate_with_key(Custom.__name__)
+      result = self.model_class().inflate_with_key(Custom.__name__, None)
       self.assertEqual(Custom, result.__class__)
       self.assertEqual('baz', result.info)
 
     def test_inflate_with_config_simple(self):
       config = {'title': 'foo'}
-      inflated = self.model_class().inflate_with_config(config)
+      inflated = self.model_class().inflate_with_config(config, None, None)
       self.assertEqual('foo', inflated.title)
       self.assertEqual(self.model_class(), inflated.__class__)
 
@@ -114,7 +115,7 @@ class Base:
       }])
 
       inheritor_config = {'id': 'mine', 'inherit': 'parent'}
-      actual = self.model_class().inflate_with_config(inheritor_config)
+      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
       self.assertEqual(self.model_class(), actual.__class__)
       self.assertEqual('mine', actual.id())
       self.assertEqual('yours', actual.title)
@@ -135,7 +136,7 @@ class Base:
 
       inheritor_config = {'id': 'mine', 'inherit': 'parent'}
 
-      actual = self.model_class().inflate_with_config(inheritor_config)
+      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
       self.assertEqual(SubModel, actual.__class__)
       self.assertEqual('mine', actual.id())
       self.assertEqual('yours', actual.title)
@@ -147,7 +148,7 @@ class Base:
 
       models_man.add_classes([SubModel])
       inheritor_config = {'id': 'mine', 'kind': SubModel.__name__}
-      actual = self.model_class().inflate_with_config(inheritor_config)
+      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
       self.assertEqual(SubModel, actual.__class__)
 
     def test_inflate_all(self):

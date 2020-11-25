@@ -7,11 +7,11 @@ from nectwiz.model.predicate.predicate import Predicate
 class ResourceCountPredicate(Predicate):
   def __init__(self, config):
     super().__init__(config)
-    self.selector_config = config.get('selector')
+    self.selector_kod = config.get('selector')
 
   def evaluate(self, context: Dict) -> bool:
     res_list = self.selector().query_cluster(context)
     return self._common_compare(len(res_list))
 
   def selector(self) -> ResourceSelector:
-    return ResourceSelector.inflate(self.selector_config)
+    return ResourceSelector.inflate(self.selector_kod)

@@ -6,7 +6,7 @@ from nectwiz.model.predicate.predicate import Predicate
 class MultiPredicate(Predicate):
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.operator = config.get('operator', 'and')
+    self.operator = self.get_prop('operator', 'and')
 
   def evaluate(self, context: Dict) -> bool:
     sub_preds = self.inflate_children('sub_predicates', Predicate)

@@ -7,7 +7,7 @@ from nectwiz.model.predicate.predicate import Predicate
 class ManifestVariablePredicate(Predicate):
   def __init__(self, config):
     super().__init__(config)
-    self.variable_name = config.get('variable')
+    self.variable_name = self.get_prop('variable')
 
   def evaluate(self, context: Dict) -> bool:
     current_value = config_man.manifest_var(self.variable_name)

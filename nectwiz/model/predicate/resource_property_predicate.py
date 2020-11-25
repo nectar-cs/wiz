@@ -2,15 +2,16 @@ from typing import Dict, List
 
 from nectwiz.core.core import subs
 from nectwiz.core.core.types import KAOs, KAO
+from nectwiz.core.core.utils import getattr_deep
 from nectwiz.model.base.resource_selector import ResourceSelector
-from nectwiz.model.predicate.predicate import Predicate, getattr_deep
+from nectwiz.model.predicate.predicate import Predicate
 
 
 class ResourcePropertyPredicate(Predicate):
   def __init__(self, config):
     super().__init__(config)
-    self.selector_config = config.get('selector')
-    self.prop_name = config.get('property', 'ternary_status')
+    self.selector_kod = config.get('selector')
+    self.prop_name = self.get_prop('property', 'ternary_status')
     self.match_type = config.get('match', 'all')
 
   def evaluate(self, context: Dict) -> bool:
@@ -32,8 +33,7 @@ class ResourcePropertyPredicate(Predicate):
       return False
 
   def selector(self) -> ResourceSelector:
-    expr = self.selector_config
-    return ResourceSelector.inflate(expr)
+    return self.inflate_child(ResourceSelector, self.selector_kod)
 
   @classmethod
   def from_apply_outcome(cls, apply_outcomes: KAOs) -> Dict[str, List[Predicate]]:

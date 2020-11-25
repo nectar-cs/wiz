@@ -12,25 +12,13 @@ class Iftt(WizModel):
     super().__init__(config)
     self.choice_items: List[Dict] = config.get('items', [])
 
-  def resolve_item(self, _context: Dict = None) -> Optional[KoD]:
+  def resolve_item(self) -> Optional[KoD]:
     from nectwiz.model.predicate.predicate import Predicate
-    context = assemble_predicate_context(_context)
     for it in self.choice_items:
       predicate_kod, value = it.get('predicate'), it.get('value')
       if predicate_kod:
         predicate = self.inflate_child(Predicate, predicate_kod)
-        if predicate.evaluate(context):
+        if predicate.evaluate():
           return value
     print(f"[nectwiz:iftt_matrix] {self.config} all predicates negative")
     return None
-
-
-def assemble_predicate_context(_context: Optional[Dict]) -> Dict:
-  new_resolvers = (_context or {}).pop('resolvers', {})
-  return dict(
-    **_context,
-    resolvers=dict(
-      **config_man.resolvers(),
-      **new_resolvers
-    )
-  )
