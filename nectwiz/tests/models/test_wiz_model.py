@@ -32,7 +32,7 @@ class Base:
       result = self.model_class().try_iftt_intercept(config, {})
       self.assertEqual(config, result)
 
-    def test_try_as_iftt_with_iftt_dict(self):
+    def test_try_iftt_intercept_with_iftt_dict(self):
       models_man.clear(restore_defaults=True)
       config = dict(
         kind=Iftt.__name__,
@@ -44,7 +44,7 @@ class Base:
       result = self.model_class().try_iftt_intercept(config, {})
       self.assertEqual('correct', result)
 
-    def test_try_as_iftt_with_iftt_id(self):
+    def test_try_iftt_intercept_with_iftt_id(self):
       models_man.clear(restore_defaults=True)
       iftt_config = dict(
         id='my-iftt',
@@ -75,7 +75,7 @@ class Base:
       self.assertEqual('actual', result.id())
       self.assertEqual('Actual', result.title)
 
-    def test_inflate_with_id_key(self):
+    def test_inflate_with_id(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
       models_man.add_descriptors([a, b])
       inflated = self.model_class().inflate('a')

@@ -55,7 +55,7 @@ class WizModel:
     self._id: str = config.get('id')
     self.title: str = config.get('title')
     self.info: str = config.get('info')
-    self.context: Dict = config.get('context')
+    self.context: Dict = config.get('context', {})
     self.choice_items: List[Dict] = config.get('items', [])
     self.parent = None
 
@@ -163,7 +163,10 @@ class WizModel:
 
   @classmethod
   def inflate(cls: T, key_or_dict: KoD, patches: Dict = None) -> Optional[T]:
-    key_or_dict = cls.try_as_iftt(key_or_dict)
+    skip_intercept = (patches or {}).get('__skip_intercept')
+    if not skip_intercept:
+      key_or_dict = cls.try_iftt_intercept(key_or_dict, patches)
+
     try:
       if isinstance(key_or_dict, str):
         return cls.inflate_with_key(key_or_dict, patches)
@@ -222,18 +225,19 @@ class WizModel:
     return True
 
   @classmethod
-  def try_value_getter_intercept(cls, kod, patches) -> Any:
+  def try_value_getter_intercept(cls, *args) -> Any:
     from nectwiz.model.value_getter.value_getter import ValueGetter
-    return cls.try_as_interceptor(ValueGetter, kod, patches)
+    return cls.try_as_interceptor(ValueGetter, *args)
 
   @classmethod
-  def try_iftt_intercept(cls, kod, patches) -> Any:
+  def try_iftt_intercept(cls, *args) -> Any:
     from nectwiz.model.predicate.iftt import Iftt
-    return cls.try_as_interceptor(Iftt, kod, patches)
+    return cls.try_as_interceptor(Iftt, *args)
 
   @classmethod
   def try_as_interceptor(cls, intercept_cls: Type[T], kod: KoD, patches) -> Any:
     if cls.is_kod_interceptor_candidate(intercept_cls, kod):
+      patches = {**(patches or {}), '__skip_intercept': True}
       interceptor = intercept_cls.inflate_safely(kod, patches)
       if interceptor:
         return interceptor.resolve_item()

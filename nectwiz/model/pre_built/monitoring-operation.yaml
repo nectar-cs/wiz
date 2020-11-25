@@ -36,7 +36,7 @@ steps:
         info: "If in-cluster, use the Kubernetes
         DNS scheme: http://<svc-name>.<ns>"
         show_condition:
-          challenge: "{monitoring.proxy}"
+          challenge: "{input/monitoring.proxy}"
           check_against: false
         validation:
           - kind: FormatPredicate
