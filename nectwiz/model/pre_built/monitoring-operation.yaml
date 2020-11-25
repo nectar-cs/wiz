@@ -11,10 +11,14 @@ steps:
         input:
           kind: SelectInput
           options:
-            prometheus: Prometheus Server
-            metrics_server: Metrics Server
-            fluentd: fluentd
-            cadvisor: cAdvisor
+            - id: prometheus
+              title: Prometheus Server
+            - id: metrics_server
+              title: Metrics Server
+            - id: fluentd
+              title: fluentd
+            - id: cadvisor
+              title: cAdvisor
         validation:
           - check_against: prometheus
             tone: error
@@ -23,11 +27,8 @@ steps:
       - id: monitoring.proxy
         target: prefs
         title: Reach via Kubernetes Proxy
-        input:
-          kind: CheckboxInput
-          default: false
+        input: CheckboxInput
         show_condition:
-          challenge: "{input/monitoring.type}"
           check_against: prometheus
 
       - id: monitoring.url
@@ -43,7 +44,7 @@ steps:
             check_against: domain
           - challenge:
               kind: HttpGetter
-              endpoint: "{input/monitor.url}"
+              endpoint: "{value}"
               property: status_code
             check_against: 200
             reason: "Endpoint did not return status code 200"
@@ -54,6 +55,7 @@ steps:
         show_condition:
           challenge: "{input/monitoring.proxy}"
           check_against: true
+        default: "{app/ns}"
         input:
           kind: SelectInput
           options:
@@ -64,12 +66,12 @@ steps:
         target: prefs
         title: Prometheus Operator Service
         show_condition:
-          challenge: "{input/monitoring.service_namespace}"
-          check_against: defined
+          challenge: "{input/monitoring.proxy}"
+          check_against: true
         input:
           kind: SelectInput
           options:
             kind: ResourcesGetter
             selector:
               k8s_kind: Service
-              namespace: "{monitoring.service_namespace}"
+              namespace: "{input/monitoring.service_namespace}"

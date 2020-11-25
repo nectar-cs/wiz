@@ -29,8 +29,8 @@ class Field(WizModel):
   def input_spec(self) -> Optional[GenericInput]:
     return self._delegate_variable.input_spec()
 
-  def validate(self, value: str, context: Dict):
-    return self._delegate_variable.validate(value, context)
+  def validate(self, value: str):
+    return self._delegate_variable.validate(value)
 
   def resolve_variable_spec(self) -> GenericVariable:
     variable_kod = self.config.get('variable')

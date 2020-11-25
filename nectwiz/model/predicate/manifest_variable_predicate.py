@@ -9,6 +9,6 @@ class ManifestVariablePredicate(Predicate):
     super().__init__(config)
     self.variable_name = self.get_prop('variable')
 
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     current_value = config_man.manifest_var(self.variable_name)
     return self._common_compare(current_value)

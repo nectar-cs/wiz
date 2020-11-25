@@ -1,4 +1,4 @@
-from typing import List, Dict, TypeVar
+from typing import List, Dict, TypeVar, Optional
 
 from k8kat.res.base.kat_res import KatRes
 from k8kat.utils.main.api_defs_man import api_defs_man
@@ -24,20 +24,20 @@ class ResourceSelector(WizModel):
     self.explicit_ns: str = config.get('namespace')
 
   @classmethod
-  def inflate_with_key(cls, _id: str) -> T:
+  def inflate_with_key(cls, _id: str, patches: Optional[Dict]) -> T:
     if ":" in _id:
       parts = _id.split(':')
       return cls.inflate_with_config(dict(
         k8s_kind=parts[len(parts) - 2],
         name=parts[len(parts) - 1],
-      ))
+      ), None, None)
     else:
-      return super().inflate_with_key(_id)
+      return super().inflate_with_key(_id, patches)
 
-  def query_cluster(self, context: Dict) -> List[KatRes]:
+  def query_cluster(self) -> List[KatRes]:
     kat_class: KatRes = KatRes.class_for(self.k8s_kind)
     if kat_class:
-      query_params = self.build_k8kat_query(context)
+      query_params = self.build_k8kat_query()
       if not kat_class.is_namespaced():
         del query_params['ns']
       return kat_class.list(**query_params)
@@ -45,14 +45,14 @@ class ResourceSelector(WizModel):
       print(f"[nectwiz::resourceselector] DANGER no kat for {self.k8s_kind}")
       return []
 
-  def selects_res(self, res: K8sResDict, context: Dict) -> bool:
+  def selects_res(self, res: K8sResDict) -> bool:
     res = fluff_resdict(res)
 
     kinds1 = api_defs_man.kind2plurname(self.k8s_kind)
     kinds2 = api_defs_man.kind2plurname(res['kind'])
 
     if kinds1 == kinds2 or self.k8s_kind == '*':
-      query_dict = self.build_k8kat_query(context)
+      query_dict = self.build_k8kat_query()
       res_labels = (res.get('metadata') or {}).get('labels') or {}
       labels_match = query_dict['labels'].items() <= res_labels.items()
       fields_match = keyed_compare(query_dict['fields'], res)
@@ -61,7 +61,8 @@ class ResourceSelector(WizModel):
     else:
       return False
 
-  def build_k8kat_query(self, context: Dict) -> Dict:
+  def build_k8kat_query(self) -> Dict:
+    context = self.context
     field_selector = self.field_selector
 
     if self.name and self.name != '*':

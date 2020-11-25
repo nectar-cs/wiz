@@ -10,14 +10,11 @@ class Predicate(WizModel):
     self.reason: str = config.get('reason')
     self.tone: str = config.get('tone', 'error')
     self.operator: str = config.get('operator', 'equals')
-    self.challenge: Any = config.get('challenge')
     self.check_against: Any = config.get('check_against')
+    self.challenge: Any = self.get_prop('challenge')
 
-  def evaluate(self, context: Dict) -> bool:
-    fresher_challenge = (context or {}).get('value')
-    challenge = fresher_challenge or self.challenge
-    challenge = subs.interp(challenge, context)
-    return self._common_compare(challenge)
+  def evaluate(self) -> bool:
+    return self._common_compare(self.challenge)
 
   def _common_compare(self, value) -> bool:
     challenge = utils.unmuck_primitives(value)

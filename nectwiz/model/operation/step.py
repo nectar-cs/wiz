@@ -37,10 +37,10 @@ class Step(WizModel):
     return self.action_kod
 
   def next_step_id(self, op_state: TOS) -> Optional[str]:
-    return self.get_prop(
+    return self._get_prop(
       'next',
       None,
-      resolution_context(op_state)
+      resolution_context(op_state, {})
     )
 
   def has_explicit_next(self) -> bool:
@@ -49,15 +49,12 @@ class Step(WizModel):
     return False
 
   def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:
-    context = resolution_context(op_state)
-    return self.field(field_id).validate(value, context)
+    patch = dict(context=resolution_context(op_state, {field_id: value}))
+    field = self.inflate_child_in_list('fields', Field, field_id, patch)
+    return field.validate(value)
 
   def fields(self) -> List[Field]:
     return self.inflate_children('fields', Field)
-
-  def field(self, _id) -> Field:
-    finder = lambda field: field.id() == _id
-    return next(filter(finder, self.fields()), None)
 
   def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
     context = resolution_context(op_state, flat_user_values)

@@ -1,6 +1,5 @@
 from typing import TypeVar, Dict, List, Optional
 
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KoD
 from nectwiz.model.base.wiz_model import WizModel
 

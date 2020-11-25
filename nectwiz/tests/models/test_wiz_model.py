@@ -215,3 +215,52 @@ class Base:
         {'id': 'embedded-child', 'cls': ChildClass}
       ]
       self.assertEqual(exp, list(map(sig, result)))
+
+    def test_context_inheritance(self):
+      class ChildClass(WizModel):
+        pass
+
+      parent_config = dict(
+        kind=self.model_class().__name__,
+        id='parent',
+        context=dict(parent='context'),
+        bar='baz',
+        children=[
+          dict(
+            kind=ChildClass.__name__,
+            id='child',
+          )
+        ]
+      )
+
+      models_man.add_classes([ChildClass])
+      models_man.add_descriptors([parent_config])
+
+      parent_inst: WizModel = self.model_class().inflate('parent')
+      child = parent_inst.inflate_children('children', ChildClass)[0]
+      self.assertEqual(dict(parent='context'), child.context)
+
+      child = parent_inst.inflate_children(
+        'children',
+        ChildClass,
+        dict(more='context')
+      )[0]
+      self.assertEqual('context', child.config.get('more'))
+
+      child = parent_inst.inflate_children(
+        'children',
+        ChildClass,
+        dict(
+          context=dict(
+            resolvers=dict(
+              extra_foo=lambda s: f"{s}-2"
+            )
+          )
+        )
+      )[0]
+
+      child_ctx = child.assemble_eval_context(None)
+      self.assertEqual(
+        'bar-2',
+        child_ctx.get('resolvers').get('extra_foo')('bar')
+      )

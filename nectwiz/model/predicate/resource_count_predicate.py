@@ -9,8 +9,8 @@ class ResourceCountPredicate(Predicate):
     super().__init__(config)
     self.selector_kod = config.get('selector')
 
-  def evaluate(self, context: Dict) -> bool:
-    res_list = self.selector().query_cluster(context)
+  def evaluate(self) -> bool:
+    res_list = self.selector().query_cluster(self.context)
     return self._common_compare(len(res_list))
 
   def selector(self) -> ResourceSelector:

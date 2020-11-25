@@ -11,9 +11,9 @@ class FormatPredicate(Predicate):
     super().__init__(config)
     self.reason = f"Must be a(n) {self.check_against}"
 
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     check = self.check_against
-    challenge = str(context.get('value', self.challenge))
+    challenge = self.challenge
     if check in ['integer', 'int', 'number']:
       return challenge.isdigit()
     elif check in ['boolean', 'bool']:

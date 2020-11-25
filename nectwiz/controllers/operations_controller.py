@@ -233,19 +233,6 @@ def find_step(operation_id, stage_id, step_id) -> Step:
   return stage.step(step_id)
 
 
-def find_field(operation_id, stage_id, step_id, field_id) -> Field:
-  """
-  Finds the Field with a matching operation_id, stage_id, step_id and field_id.
-  :param operation_id: operation id to search by.
-  :param stage_id: stage id to search by.
-  :param step_id: step id to search by.
-  :param field_id: field id to search by.
-  :return: Field class instance.
-  """
-  step = find_step(operation_id, stage_id, step_id)
-  return step.field(field_id)
-
-
 def find_op_state(raise_on_fail=True) -> OperationState:
   token = request.headers.get('Ostid')
   if not token and raise_on_fail:

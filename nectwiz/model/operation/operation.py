@@ -38,4 +38,4 @@ class Operation(WizModel):
     :param key: identifier for desired Stage.
     :return: Stage instance.
     """
-    return self.load_list_child('stages', Stage, key)
+    return self.inflate_child_in_list('stages', Stage, key)

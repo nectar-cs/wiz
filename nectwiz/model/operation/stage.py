@@ -48,7 +48,7 @@ class Stage(WizModel):
     :param _id: identifier for desired Step.
     :return: Step instance.
     """
-    return self.load_list_child('steps', Step, _id)
+    return self.inflate_child_in_list('steps', Step, _id)
 
 
 def step_index(steps: List[Step], step_id: str) -> int:

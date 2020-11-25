@@ -7,12 +7,12 @@ from nectwiz.model.predicate.predicate import Predicate
 
 
 class TruePredicate(Predicate):
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     return True
 
 
 class FalsePredicate(Predicate):
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     return False
 
 
@@ -26,8 +26,8 @@ class PodShellPredicate(Predicate):
     expr = self.selector_config
     return ResourceSelector.inflate(expr)
 
-  def evaluate(self, context: Dict) -> bool:
-    res_list = self.selector().query_cluster(context)
+  def evaluate(self) -> bool:
+    res_list = self.selector().query_cluster(self.context)
     res: Optional[KatPod] = res_list[0] if len(res_list) > 0 else None
     if res and type(res) == KatPod:
       output = res.shell_exec(self.command)
@@ -41,7 +41,7 @@ class PodHttpPredicate(Predicate):
     self.command = config.get('endpoint', '/')
     self.check_type = config.get('check_type')
 
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     pass
 
   def selector(self) -> ResourceSelector:

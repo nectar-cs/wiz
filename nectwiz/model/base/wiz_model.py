@@ -2,6 +2,8 @@ import os
 from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar, Any
 
+from k8kat.utils.main.utils import deep_merge
+
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KoD
@@ -74,33 +76,27 @@ class WizModel:
       setattr(self, key, value)
 
   def get_prop(self, key, backup=None):
+    pass
+
+  def _get_prop(self, key, backup, extra_context):
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
       value = self.try_iftt_intercept(value, patches)
       value = self.try_value_getter_intercept(value, patches)
-      return self.try_resolve_with_context(value)
+      return self.try_resolve_with_context(value, extra_context)
     else:
       return value
 
-  def prep_downstream_patches(self) -> Dict:
-    return dict(context=self.context)
-
-  def try_resolve_with_context(self, value) -> Any:
+  def try_resolve_with_context(self, value, extra_context) -> Any:
     if value and type(value) == str:
-      return subs.interp(value, self.assemble_final_context())
+      return subs.interp(value, self.assemble_eval_context(extra_context))
     return value
 
-  def assemble_final_context(self) -> Dict:
-    _context = self.context or {}
-    new_resolvers = _context.pop('resolvers', {})
-    return dict(
-      **_context,
-      resolvers=dict(
-        **config_man.resolvers(),
-        **new_resolvers
-      )
-    )
+  def assemble_eval_context(self, extra_context) -> Dict:
+    config_man_context = dict(resolvers=config_man.resolvers())
+    merge1 = deep_merge(config_man_context, self.context or {})
+    return deep_merge(merge1, extra_context or {})
 
   @classmethod
   def singleton_id(cls):
@@ -118,25 +114,25 @@ class WizModel:
                        config_key: str,
                        child_class: Type[T],
                        patches: Dict = None) -> List[T]:
-    descriptor_list = self.config.get(config_key, [])
-    return self.load_related(descriptor_list, child_class, patches)
+    kods = self.config.get(config_key, [])
+    return self.inflate_children_by_kods(kods, child_class, patches)
 
-  def load_related(self,
-                   kod_or_kods: List,
-                   child_class: Type[T],
-                   patches: Dict = None) -> List[T]:
+  def inflate_children_by_kods(self,
+                               kod_or_kods: List,
+                               child_class: Type[T],
+                               patches: Dict = None) -> List[T]:
     is_list = isinstance(kod_or_kods, list)
     kod_or_kods = kod_or_kods if is_list else [kod_or_kods]
     to_child = lambda obj: self._kod2child(obj, child_class, patches)
     return list(map(to_child, kod_or_kods))
 
-  def load_list_child(self,
-                      key: str,
-                      child_cls: Type[T],
-                      child_key: str,
-                      patches: Dict = None) -> T:
-    descriptor_list = self.config.get(key, [])
-    predicate = lambda obj: key_or_dict_matches(obj, child_key)
+  def inflate_child_in_list(self,
+                            list_id: str,
+                            child_cls: Type[T],
+                            child_id: str,
+                            patches: Dict = None) -> T:
+    descriptor_list = self.config.get(list_id, [])
+    predicate = lambda obj: key_or_dict_matches(obj, child_id)
     match = next((obj for obj in descriptor_list if predicate(obj)), None)
     return self.inflate_child(child_cls, match, patches) if match else None
 
@@ -150,10 +146,14 @@ class WizModel:
                  kod: KoD,
                  child_cls: Type[T],
                  patches: Dict = None) -> T:
-    patches = {**self.prep_downstream_patches(), **(patches or {})}
+    patches = self.assemble_downstream_patches(patches)
     inflated = child_cls.inflate(kod, patches)
     inflated.parent = self
     return inflated
+
+  def assemble_downstream_patches(self, extra_patches: Dict) -> Dict:
+    default_patch = dict(context=self.context or {})
+    return deep_merge(default_patch, extra_patches or {})
 
   @classmethod
   def inflate_all(cls, patches: Dict = None) -> List[T]:
@@ -227,29 +227,39 @@ class WizModel:
   @classmethod
   def try_value_getter_intercept(cls, *args) -> Any:
     from nectwiz.model.value_getter.value_getter import ValueGetter
-    return cls.try_as_interceptor(ValueGetter, *args)
+    return cls._try_as_interceptor(ValueGetter, "id::", *args)
 
   @classmethod
   def try_iftt_intercept(cls, *args) -> Any:
     from nectwiz.model.predicate.iftt import Iftt
-    return cls.try_as_interceptor(Iftt, *args)
+    return cls._try_as_interceptor(Iftt, "", *args)
 
   @classmethod
-  def try_as_interceptor(cls, intercept_cls: Type[T], kod: KoD, patches) -> Any:
-    if cls.is_kod_interceptor_candidate(intercept_cls, kod):
+  def _try_as_interceptor(cls,
+                          intercept_cls: Type[T],
+                          prefix: str,
+                          kod: KoD,
+                          patches: Optional[Dict]) -> Any:
+    if cls.is_interceptor_candidate(intercept_cls, prefix, kod):
       patches = {**(patches or {}), '__skip_intercept': True}
       interceptor = intercept_cls.inflate_safely(kod, patches)
       if interceptor:
         return interceptor.resolve_item()
     return kod
 
+  @staticmethod
+  def truncate_kod_prefix(kod: KoD, prefix: str) -> KoD:
+    if type(kod) == str and len(kod) >= len(prefix):
+      return kod[len(prefix):len(kod)]
+    return kod
+
   @classmethod
-  def is_kod_interceptor_candidate(cls, interceptor: Type[T], kod: KoD):
+  def is_interceptor_candidate(cls, interceptor: Type[T], prefix, kod: KoD):
     if type(kod) == dict:
       if kod.get('kind') == interceptor.__name__:
         return True
     if type(kod) == str:
-      return True
+      return kod.startswith(prefix)
     return False
 
   @classmethod
