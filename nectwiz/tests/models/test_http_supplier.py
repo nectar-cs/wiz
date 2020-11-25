@@ -12,7 +12,16 @@ class TestHttpSupplier(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return HttpDataSupplier
 
-  def test_produce(self):
+  def test_produce_default(self):
     endpoint = f"{helper.ci_tams_name()}/1.0.0"
     instance = HttpDataSupplier(dict(endpoint=endpoint))
-    print(instance._compute())
+    self.assertEqual(200, instance.produce())
+
+  def test_produce_body(self):
+    endpoint = f"{helper.ci_tams_name()}/1.0.0"
+    instance = HttpDataSupplier(dict(
+      endpoint=endpoint,
+      output='body.'
+    ))
+    self.assertIsNotNone(instance.produce())
+

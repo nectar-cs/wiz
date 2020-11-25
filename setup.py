@@ -24,6 +24,7 @@ setuptools.setup(
     'flask>=1.1',
     'flask-cors',
     'k8kat>=0.0.225',
+    'jsonpath-ng>=1.5.2'
     'requests',
     'pymongo',
     'cachetools>=3.1',

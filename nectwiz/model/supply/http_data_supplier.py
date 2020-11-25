@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 
 import requests
 
@@ -10,17 +10,20 @@ class HttpDataSupplier(ValueSupplier):
   def __init__(self, config: Dict):
     super().__init__(config)
     self.endpoint = config.get('endpoint')
-    self.return_property = config.get('property', 'status_code')
+    self.desired_output_format = self.get_prop('output', 'status_code')
 
+  # noinspection PyBroadException
   def _compute(self) -> Any:
-    # noinspection PyBroadException
     try:
       response = requests.get(self.endpoint)
-      if self.return_property in ['code', 'status', 'status_code']:
-        return response.status_code
-      elif self.return_property == 'json':
-        return response.json()
-      else:
-        print("[nectwiz:http_getter]")
+      body_dict = {}
+      try:
+        body_dict = response.json()
+      except:
+        pass
+      return dict(
+        status_code=response.status_code,
+        body=body_dict
+      )
     except:
       return None
