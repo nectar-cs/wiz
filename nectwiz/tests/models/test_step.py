@@ -5,7 +5,7 @@ from k8kat.utils.testing import ns_factory
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel, models_man
-from nectwiz.model.operation.field import TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS
+from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
 from nectwiz.model.predicate.common_predicates import TruePredicate
@@ -153,10 +153,10 @@ class TestStep(Base.TestWizModel):
     config_man.patch_prefs({'prior': 'entry'})
 
     buckets = {
-      TARGET_CHART: {'one.two': 'three'},
-      TARGET_INLIN: {'four.five': 'six'},
-      TARGET_STATE: {'seven.eight': 'nine'},
-      TARGET_PREFS: {'ten.eleven': 'twelve'}
+      Field.TARGET_CHART: {'one.two': 'three'},
+      Field.TARGET_INLIN: {'four.five': 'six'},
+      Field.TARGET_STATE: {'seven.eight': 'nine'},
+      Field.TARGET_PREFS: {'ten.eleven': 'twelve'}
     }
 
     Step.commit_pertinent_assignments(buckets)

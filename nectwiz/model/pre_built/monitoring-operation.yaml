@@ -30,6 +30,7 @@ steps:
         title: Reach via Kubernetes Proxy
         input: CheckboxInput
         show_condition:
+          challenge: "{input/monitoring.type}"
           check_against: prometheus
 
       - id: monitoring.url

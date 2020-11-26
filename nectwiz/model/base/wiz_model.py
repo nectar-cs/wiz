@@ -172,7 +172,7 @@ class WizModel:
     """
     kods_or_provider_kod: Union[List[KoD], KoD] = kwargs.get('kod')
     if kods_or_provider_kod is None:
-      kods_or_provider_kod = self.config.get(kwargs.get('prop'))
+      kods_or_provider_kod = self.config.get(kwargs.get('prop')) or []
     patches: Optional[Dict] = kwargs.get('patches')
 
     if type(kods_or_provider_kod) == list:
