@@ -58,7 +58,7 @@ class ResourceSelector(WizModel):
       return cls.inflate_with_config(dict(
         res_kind=parts[len(parts) - 2],
         name=parts[len(parts) - 1],
-      ), None, None)
+      ))
     else:
       return super().inflate_with_id(_id, patches)
 

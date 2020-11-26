@@ -29,6 +29,7 @@ class TamsClient(TamClient):
     url = f'{self.base_url()}{endpoint}'
     print("FINAL URL")
     print(url)
+    print(payload)
     response = requests.post(url, json=payload)
     return response.json().get('data')
 

@@ -26,7 +26,10 @@ class TestManifestVariablesController(ClusterTest):
         id='foo',
         input=dict(
           kind=SelectInput.__name__,
-          options=dict(x='X', y='Y')
+          options=[
+            dict(id='x', title='X'),
+            dict(id='y', title='Y')
+          ]
         )
       )
     ])

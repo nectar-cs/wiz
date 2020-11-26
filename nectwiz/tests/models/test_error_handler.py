@@ -1,8 +1,6 @@
 from typing import Type
 
-from nectwiz.core.core.types import ErrDict
 from nectwiz.model.base.wiz_model import models_man, WizModel
-from nectwiz.model.error import error_handler
 from nectwiz.model.error.error_handler import ErrorHandler
 from nectwiz.tests.models.test_wiz_model import Base
 

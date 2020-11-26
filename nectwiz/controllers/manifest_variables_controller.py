@@ -84,10 +84,9 @@ def manifest_variable_validate(key):
   :param key: key to locate the right chart variable.
   :return: validation status, with tone and message if unsuccessful.
   """
-  variable_model = ManifestVariable.find_or_synthesize(key)
   value = jparse()['value']
-  context = dict(resolvers=config_man.resolvers())
-  eval_result = variable_model.validate(value, context)
+  variable_model = ManifestVariable.find_or_synthesize(key)
+  eval_result = variable_model.validate(value)
   status = 'valid' if eval_result['met'] else eval_result['tone']
   message = None if eval_result['met'] else eval_result['reason']
   return jsonify(data=dict(status=status, message=message))

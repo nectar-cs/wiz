@@ -1,5 +1,4 @@
 import time
-from typing import Dict
 
 from k8kat.utils.testing import ns_factory
 

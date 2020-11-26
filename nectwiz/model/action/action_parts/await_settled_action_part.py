@@ -2,7 +2,6 @@ import time
 from typing import List
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem, KAO, PredEval
 from nectwiz.model.action.base.observer import Observer
 from nectwiz.model.factory.predicate_factories import PredicateFactory
@@ -30,10 +29,9 @@ class AwaitSettledActionPart:
     predicate_tree = PredicateFactory.from_apply_outcome(kaos)
     predicates = utils.flatten(predicate_tree.values())
     state = StepState('synthetic', None)
-    context = dict(resolvers=config_man.resolvers())
     did_time_out = True
     for i in range(120):
-      status_computer.compute(predicate_tree, state, context)
+      status_computer.compute(predicate_tree, state)
       cls.on_await_attempted(observer, state, predicates)
       cls.scan_settle_failures(observer, state, predicates)
       if state.has_settled():

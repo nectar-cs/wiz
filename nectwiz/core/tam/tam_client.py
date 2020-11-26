@@ -34,7 +34,7 @@ class TamClient:
     if len(merged_subtree.keys()) == 0:
       pre = f"[{self.values_key}/{self.values_root}]"
       print(f"[nectwiz:tam_client] zero values in {pre} + inlines")
-    return {}
+    return merged_subtree
 
   def load_manifest_defaults(self):
     raise NotImplemented
@@ -99,7 +99,7 @@ class TamClient:
     """
     def decide_res(res):
       for selector in selectors:
-        if selector.selects_res(res, {}):
+        if selector.selects_res(res):
           return True
       return False
     if selectors:

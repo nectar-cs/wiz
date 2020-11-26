@@ -29,7 +29,7 @@ class ManifestVariable(GenericVariable):
     return self.get_prop(self.TAGS_KEY, [])
 
   def default_value(self, reload=True) -> str:
-    hardcoded = super().default_value()
+    hardcoded = super().default_value
     if hardcoded:
       return hardcoded
     else:
@@ -83,17 +83,17 @@ class ManifestVariable(GenericVariable):
 
   # noinspection PyBroadException
   @classmethod
-  def find_or_synthesize(cls, key):
+  def find_or_synthesize(cls, manifest_variable_id) -> T:
     try:
-      return cls.inflate(key)
+      return cls.inflate(manifest_variable_id)
     except:
-      return cls.synthesize_var_model(key)
+      return cls.synthesize_var_model(manifest_variable_id)
 
   @staticmethod
   def synthesize_var_model(key: str):
-    return ManifestVariable.inflate(dict(
-      id=key,
-      mode='unlisted',
-      title=f'Undocumented Variable {key}',
-      info=f'Undocumented Variable {key}'
-    ))
+    return ManifestVariable.inflate({
+      'id': key,
+      ManifestVariable.MODE_KEY: 'unlisted',
+      ManifestVariable.TITLE_KEY: f'Undocumented Variable {key}',
+      ManifestVariable.INFO_KEY: f'Undocumented Variable {key}'
+    })

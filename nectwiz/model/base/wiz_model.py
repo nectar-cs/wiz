@@ -139,7 +139,6 @@ class WizModel:
 
   def assemble_eval_context(self, extra_context) -> Dict:
     """
-
     @param extra_context:
     @return:
     """
@@ -368,10 +367,8 @@ def read_from_asset(descriptor: str) -> str:
 def key_or_dict_to_key(key_or_dict: Union[str, dict]) -> str:
   if isinstance(key_or_dict, str):
     return key_or_dict
-
   elif isinstance(key_or_dict, dict):
     return key_or_dict.get('id')
-
   raise RuntimeError(f"Can't handle {key_or_dict}")
 
 
