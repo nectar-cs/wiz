@@ -24,5 +24,5 @@ def full(cv: ManifestVariable):
   """
   return dict(
     **standard(cv),
-    **input_serializer.in_variable(cv.input_model())
+    **input_serializer.in_variable(cv.input_model)
   )

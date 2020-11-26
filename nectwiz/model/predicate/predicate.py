@@ -7,28 +7,31 @@ from nectwiz.model.base.wiz_model import WizModel
 
 
 class Predicate(WizModel):
+
+  OPERATOR_KEY = 'operator'
+  CHECK_AGAINST_KEY = 'check_against'
+  TONE_KEY = 'tone'
+  REASON_KEY = 'reason'
+
   @cached_property
   def challenge(self):
     return self.get_prop('challenge')
 
   @cached_property
   def check_against(self) -> Optional[Any]:
-    _value = self.get_prop('check_against')
-    if _value is None:
-      print(f"[nectwiz:predicate] check_against is undefined")
-    return _value
+    return self.resolve_prop(self.CHECK_AGAINST_KEY, warn=True)
 
   @cached_property
   def operator(self):
-    return self.get_prop('operator', '==')
+    return self.get_prop(self.OPERATOR_KEY, '==')
 
   @cached_property
   def tone(self):
-    return self.get_prop('tone', 'error')
+    return self.get_prop(self.TONE_KEY, 'error')
 
   @cached_property
   def reason(self):
-    return self.get_prop('reason')
+    return self.get_prop(self.REASON_KEY)
 
   def evaluate(self) -> bool:
     return self.perform_comparison(

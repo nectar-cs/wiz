@@ -112,6 +112,9 @@ class WizModel:
     context_patch: Optional[Dict] = kwargs.get('context_patch')
 
     value = self.config.get(key, backup)
+    if value is None and kwargs.get('warn'):
+      print(f"[nectwiz:{self.__class__.__name__}] undefined prop {key} ")
+
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
       value = self.try_iftt_intercept(value, patches)

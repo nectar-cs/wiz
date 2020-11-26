@@ -28,8 +28,9 @@ class GenericVariable(WizModel):
   def input_model(self) -> GenericInput:
     return self.inflate_child(
       GenericInput,
-      prop=self.INPUT_MODEL_KEY
-    )
+      prop=self.INPUT_MODEL_KEY,
+      safely=True
+    ) or GenericInput({})
 
   @cached_property
   def value_decorator(self) -> VariableValueDecorator:
