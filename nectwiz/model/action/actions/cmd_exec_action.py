@@ -9,7 +9,7 @@ class CmdExecAction(Action):
 
   def __init__(self, config):
     super().__init__(config)
-    self.cmd = self.get_prop('cmd', '', {})
+    self.cmd = self.get_prop('cmd', '')
 
   def perform(self, **kwargs) -> Dict:
     result = subprocess.check_output(self.cmd.split(" "))

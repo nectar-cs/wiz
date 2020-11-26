@@ -16,7 +16,7 @@ class GenericVariable(WizModel):
     super().__init__(config)
     self.explicit_default: str = config.get('default')
     self.decorator_kod: str = config.get('value_decorator')
-    self.validation_predicate_kods: List[str] = config.get('validation')
+    self.validation_predicate_kods: List[str] = config.get('validation', [])
 
   @lru_cache(maxsize=1)
   def input_spec(self) -> GenericInput:
@@ -38,8 +38,8 @@ class GenericVariable(WizModel):
   def validate(self, value: any) -> PredEval:
     value = self.sanitize_for_validation(value)
     patch = dict(challenge=value, context=dict(value=value))
-    for predicate_kod in self.validation_predicate_kods:
-      predicate = self.inflate_child(Predicate, predicate_kod, patch)
+    predicates = self.inflate_children('validation', Predicate, patch)
+    for predicate in predicates:
       if not predicate.evaluate():
         return PredEval(
           predicate_id=predicate.id(),

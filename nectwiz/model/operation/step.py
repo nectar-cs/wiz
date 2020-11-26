@@ -22,7 +22,6 @@ class Step(WizModel):
 
   def __init__(self, config):
     super().__init__(config)
-    self.field_keys = config.get('fields', [])
     self.next_step_kod = self.config.get('next')
     self.reassignment_descs = config.get('reassignments', [])
     self.exit_predicate_descs = self.config.get('exit', {})
@@ -39,8 +38,7 @@ class Step(WizModel):
   def next_step_id(self, op_state: TOS) -> Optional[str]:
     return self.resolve_prop(
       'next',
-      None,
-      resolution_context(op_state, {})
+      context_patch=dict(context=resolution_context(op_state, {}))
     )
 
   def has_explicit_next(self) -> bool:
@@ -52,9 +50,6 @@ class Step(WizModel):
     patch = dict(context=resolution_context(op_state, {field_id: value}))
     field = self.inflate_child_in_list('fields', Field, field_id, patch)
     return field.validate(value)
-
-  def fields(self) -> List[Field]:
-    return self.inflate_children('fields', Field)
 
   def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
     patch = dict(context=resolution_context(op_state, flat_user_values))

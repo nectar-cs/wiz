@@ -43,7 +43,7 @@ class TestResourceSelector(Base.TestWizModel):
         app='nectar'
       )
     ))
-    self.assertFalse(selector.selects_res(res, {}))
+    self.assertFalse(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
       k8s_kind='*',
@@ -51,7 +51,7 @@ class TestResourceSelector(Base.TestWizModel):
         app='nectar'
       )
     ))
-    self.assertTrue(selector.selects_res(res, {}))
+    self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
       k8s_kind='Pod',
@@ -59,7 +59,7 @@ class TestResourceSelector(Base.TestWizModel):
         app='nectar'
       )
     ))
-    self.assertTrue(selector.selects_res(res, {}))
+    self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
       k8s_kind='Pod',
@@ -68,7 +68,7 @@ class TestResourceSelector(Base.TestWizModel):
         tier='backend'
       )
     ))
-    self.assertFalse(selector.selects_res(res, {}))
+    self.assertFalse(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
       k8s_kind='Pod',
@@ -80,7 +80,7 @@ class TestResourceSelector(Base.TestWizModel):
         'spec.imagePullPolicy': 'Never'
       }
     ))
-    self.assertTrue(selector.selects_res(res, {}))
+    self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
       k8s_kind='Pod',
@@ -93,7 +93,7 @@ class TestResourceSelector(Base.TestWizModel):
         'metadata.namespace': 'baz'
       }
     ))
-    self.assertFalse(selector.selects_res(res, {}))
+    self.assertFalse(selector.selects_res(res))
 
   def test_build_k8kat_query(self):
     config_man._ns = 'irrelevant'
@@ -127,5 +127,5 @@ class TestResourceSelector(Base.TestWizModel):
       not_labels={}
     )
 
-    actual = selector.build_k8kat_query(context)
+    actual = selector.build_k8kat_query()
     self.assertEqual(expect, actual)

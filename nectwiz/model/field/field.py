@@ -21,7 +21,6 @@ class Field(WizModel):
     self._delegate_variable = self.resolve_variable_spec()
     self.title = self._delegate_variable._title
     self.info = self._delegate_variable.info
-    self.expl_option_descriptors = config.get('options')
     self.target = config.get('target', TARGET_CHART)
     if not self._id:
       self._id = self._delegate_variable.id()
@@ -33,11 +32,8 @@ class Field(WizModel):
     return self._delegate_variable.validate(value)
 
   def resolve_variable_spec(self) -> GenericVariable:
-    variable_kod = self.config.get('variable')
-    if variable_kod:
-      return GenericVariable.inflate(variable_kod)
-    else:
-      return GenericVariable(self.config)
+    variable_kod = self.config.get('variable') or self.config
+    return self.inflate_child(GenericVariable, variable_kod)
 
   def delegate_variable(self):
     return self._delegate_variable

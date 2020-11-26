@@ -8,10 +8,10 @@ class MultiPredicate(Predicate):
     super().__init__(config)
     self.operator = self.get_prop('operator', 'and')
 
-  def evaluate(self, context: Dict) -> bool:
+  def evaluate(self) -> bool:
     sub_preds = self.inflate_children('sub_predicates', Predicate)
     for sub_pred in sub_preds:
-      evaluated_to_true = sub_pred.evaluate(context)
+      evaluated_to_true = sub_pred.evaluate()
       if self.operator == 'or':
         if evaluated_to_true:
           return True

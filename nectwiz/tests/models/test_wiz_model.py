@@ -36,11 +36,11 @@ class Base:
 
     def test_get_prop_default(self):
       inst = self.model_class()(dict(foo='bar'))
-      result = inst.resolve_prop('foo', 'backup', None)
+      result = inst.get_prop('foo', 'backup')
       self.assertEqual('bar', result)
 
       inst = self.model_class()(dict(foo='bar'))
-      result = inst.resolve_prop('bar', 'backup', None)
+      result = inst.get_prop('bar', 'backup')
       self.assertEqual('backup', result)
 
     def test_get_prop_with_supplier(self):
@@ -53,7 +53,7 @@ class Base:
         foo=dict(kind=SimpleSupplier.__name__)
       ))
 
-      result = inst.resolve_prop('foo', 'backup', None)
+      result = inst.get_prop('foo', 'backup')
       self.assertEqual('simple', result)
 
     def test_get_prop_with_supplier_and_subs(self):
@@ -67,7 +67,7 @@ class Base:
         foo=dict(kind=InterpolationSupplier.__name__)
       ))
 
-      result = inst.resolve_prop('foo', 'backup', None)
+      result = inst.get_prop('foo', 'backup')
       self.assertEqual('mock-ns', result)
 
     def test_try_iftt_intercept_with_iftt_dict(self):

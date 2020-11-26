@@ -7,7 +7,6 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.model.variable.generic_variable import GenericVariable
 
-
 T = TypeVar('T', bound='ManifestVariable')
 
 
@@ -32,7 +31,7 @@ class ManifestVariable(GenericVariable):
   def read_crt_value(self, reload=True) -> Optional[str]:
     return config_man.manifest_var(self.id(), reload)
 
-  def is_currently_valid(self) -> bool:
+  def is_currently_valid(self) -> bool:  # todo cluster fuck burn it
     self.read_crt_value()
     if self.is_defined() and len(self.validators()) > 0:
       crt_val = self.read_crt_value()

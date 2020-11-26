@@ -76,39 +76,59 @@ class WizModel:
       setattr(self, key, value)
 
   def get_prop(self, key: str, backup: Any = None) -> Any:
-    return self.resolve_prop(key, backup, {})
+    """
+    Convenience method for resolve_props
+    @param key: name of desired value in config dict
+    @param backup: value to return if value not in config dict
+    @return: fully resolved property value or backup if given
+    """
+    return self.resolve_prop(key, backup=backup)
 
-  def resolve_prop(self,
-                   key: str,
-                   backup: Any,
-                   extra_context: Optional[Dict]) -> Any:
+  def resolve_prop(self, key: str, **kwargs) -> Any:
     """
-    Reading from its config dict, applies all possible
-    transformations to a value: un-IFTT, un-Supply, and
-    interpolate.
+    Reads a value from the main config dicts, applies all possible
+    resolution transformations to obtain its final value. This includes
+    1) IFTT resolution, 2) ValueSupplier resolution, and
+    3) string substitutions.
     @param key:
-    @param backup:
-    @param extra_context:
-    @return:
+    @param kwargs:
+    @return: fully resolved property value or backup if given
     """
+    backup: Any = kwargs.get('backup')
+    context_patch: Optional[Dict] = kwargs.get('context_patch')
+
     value = self.config.get(key, backup)
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
       value = self.try_iftt_intercept(value, patches)
       value = self.try_value_getter_intercept(value, patches)
-      return self.try_resolve_with_context(value, extra_context)
+      return self.interpolate_prop(value, context_patch)
     else:
       return value
 
-  def try_resolve_with_context(self, value, extra_context) -> Any:
+  def interpolate_prop(self, value: str, extra_ctx: Optional[Dict]) -> Any:
+    """
+    Performs string substitutions on input. Combines substitution context
+    from instance's self.context and any additional context passed as
+    parameters. Returns unchanged input if property is not a string.
+    @param value: value of property to interpolate
+    @param extra_ctx: context-dict to be merged in to perform string subs
+    @return: interpolated string if input is string else unchanged input
+    """
     if value and type(value) == str:
-      return subs.interp(value, self.assemble_eval_context(extra_context))
+      return subs.interp(value, self.assemble_eval_context(extra_ctx))
     return value
 
   def assemble_eval_context(self, extra_context) -> Dict:
+    """
+
+    @param extra_context:
+    @return:
+    """
     config_man_context = dict(resolvers=config_man.resolvers())
-    merge1 = deep_merge(config_man_context, self.context or {})
-    return deep_merge(merge1, extra_context or {})
+    self_ctx_merge = deep_merge(config_man_context, self.context or {})
+    extra_ctx_merge = deep_merge(self_ctx_merge, extra_context or {})
+    return extra_ctx_merge
 
   @classmethod
   def singleton_id(cls):
@@ -390,9 +410,6 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.error.diagnosis_actionable import DiagnosisActionable
   from nectwiz.model.predicate.format_predicate import FormatPredicate
   from nectwiz.model.predicate.multi_predicate import MultiPredicate
-  from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
-  from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
-  from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
   from nectwiz.model.predicate.common_predicates import TruePredicate
   from nectwiz.core.telem.updates_man import UpdateAction
   from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
@@ -405,11 +422,13 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.stats.metrics_computer import MetricsComputer
   from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
   from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
-  from nectwiz.model.predicate.prefs_variable_predicate import PrefsVariablePredicate
 
   from nectwiz.model.predicate.iftt import Iftt
   from nectwiz.model.predicate.common_predicates import FalsePredicate
   from nectwiz.model.hook.hook import Hook
+  from nectwiz.model.supply.value_supplier import ValueSupplier
+  from nectwiz.model.supply.http_data_supplier import HttpDataSupplier
+  from nectwiz.model.supply.resources_supplier import ResourcesSupplier
   return [
     Operation,
     Stage,
@@ -436,13 +455,13 @@ def default_model_classes() -> List[Type[T]]:
     ResourceSelector,
     FormatPredicate,
     MultiPredicate,
-    ResourcePropertyPredicate,
-    ResourceCountPredicate,
-    ManifestVariablePredicate,
     TruePredicate,
     FalsePredicate,
-    PrefsVariablePredicate,
+
     Iftt,
+    ValueSupplier,
+    HttpDataSupplier,
+    ResourcesSupplier,
 
     MultiAction,
     CmdExecAction,

@@ -55,9 +55,6 @@ from nectwiz.model.error.error_diagnosis import ErrorDiagnosis
 from nectwiz.model.error.diagnosis_actionable import DiagnosisActionable
 from nectwiz.model.predicate.format_predicate import FormatPredicate
 from nectwiz.model.predicate.multi_predicate import MultiPredicate
-from nectwiz.model.predicate.resource_property_predicate import ResourcePropertyPredicate
-from nectwiz.model.predicate.resource_count_predicate import ResourceCountPredicate
-from nectwiz.model.predicate.manifest_variable_predicate import ManifestVariablePredicate
 
 broker.connect(dict(
   auth_type='kube-config',

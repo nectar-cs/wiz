@@ -57,20 +57,22 @@ class ValueSupplier(WizModel):
       serialized[key] = self.serialize_item_prop(item, value)
     return serialized
 
+  # noinspection PyBroadException
   @staticmethod
   def serialize_item_prop(item: Any, prop_name: Optional[str]) -> Optional[Any]:
     if prop_name:
-      if item:
-        if type(item) == dict:
-          return utils.deep_get2(item, deep_key=prop_name)
-        else:
-          # noinspection PyBroadException
-          try:
-            attr = getattr(item, prop_name)
-            return attr() if callable(attr) else attr
-          except:
-            return None
+      if prop_name == '__count__':
+        try:
+          return len(item)
+        except:
+          return 0
+      elif type(item) == dict:
+        return utils.deep_get2(item, deep_key=prop_name)
       else:
-        return None
+        try:
+          attr = getattr(item, prop_name)
+          return attr() if callable(attr) else attr
+        except:
+          return None
     else:
       return item

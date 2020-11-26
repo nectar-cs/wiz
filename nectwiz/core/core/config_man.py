@@ -125,7 +125,7 @@ class ConfigMan:
     return dict(
       manifest_variables=lambda n: self.manifest_var(n),
       tam_config=lambda n: self.tam().get(n),
-      prefs=lambda n: self.prefs().get(n),
+      prefs=lambda n: self.pref_var(n),
       app=app_cont
     )
 

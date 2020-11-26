@@ -24,6 +24,16 @@ class TestValueSupplier(Base.TestWizModel):
     result = ValueSupplier.serialize_item_prop('foo', 'lower')
     self.assertEqual('foo', result)
 
+  def test_serialize_item_prop_len(self):
+    result = ValueSupplier.serialize_item_prop(None, '__count__')
+    self.assertEqual(0, result)
+
+    result = ValueSupplier.serialize_item_prop('abc', '__count__')
+    self.assertEqual(3, result)
+
+    result = ValueSupplier.serialize_item_prop(['a'], '__count__')
+    self.assertEqual(1, result)
+
   def test_serialize_item_default(self):
     instance = ValueSupplier(dict())
     result = instance.serialize_item('Letter')

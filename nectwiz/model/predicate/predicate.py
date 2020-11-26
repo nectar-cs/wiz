@@ -1,76 +1,99 @@
-from typing import Callable, Dict, Any
+from typing import Dict, Any, Optional
+
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils
 from nectwiz.model.base.wiz_model import WizModel
 
 
 class Predicate(WizModel):
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.reason: str = config.get('reason')
-    self.tone: str = config.get('tone', 'error')
-    self.operator: str = config.get('operator', 'equals')
-    self.check_against: Any = config.get('check_against')
-
-  @property
+  @cached_property
   def challenge(self):
     return self.get_prop('challenge')
 
-  def evaluate(self) -> bool:
-    return self._common_compare(self.challenge)
+  @cached_property
+  def check_against(self) -> Optional[Any]:
+    _value = self.get_prop('check_against')
+    if _value is None:
+      print(f"[nectwiz:predicate] check_against is undefined")
+    return _value
 
-  def _common_compare(self, value) -> bool:
-    challenge = utils.unmuck_primitives(value)
-    against = utils.unmuck_primitives(self.check_against)
-    comparator = build_comparator(self.operator)
-    return comparator(challenge, against)
+  @cached_property
+  def operator(self):
+    return self.get_prop('operator', '==')
+
+  @cached_property
+  def tone(self):
+    return self.get_prop('tone', 'error')
+
+  @cached_property
+  def reason(self):
+    return self.get_prop('reason')
+
+  def evaluate(self) -> bool:
+    return self.perform_comparison(
+      self.operator,
+      self.challenge,
+      self.check_against
+    )
 
   # noinspection PyMethodMayBeStatic
   def error_extras(self) -> Dict:
     return {}
 
-def build_comparator(name) -> Callable[[any, any], bool]:
-  """
-  Map of operations to all the possible ways they can be named by the vendor.
-  :param name: vendor-defined operator name.
-  :return: actual operation to be performed.
-  """
+  # noinspection PyBroadException
+  @staticmethod
+  def perform_comparison(_name: str, challenge: Any, against: Any) -> bool:
+    challenge = utils.unmuck_primitives(challenge)
+    against = utils.unmuck_primitives(against)
 
-  def false_on_raise(actual_pred: Callable):
     try:
-      return actual_pred()
+      if _name in ['equals', 'equal', 'eq', '==', '=']:
+        return challenge == against
+
+      elif _name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
+        return not challenge == against
+
+      elif _name in ['is-in', 'in']:
+        return challenge in undefined_alias(against)
+
+      elif _name in ['contains']:
+        return against in undefined_alias(challenge)
+
+      elif _name in ['only', 'contains-only']:
+        return set(challenge) == {against}
+
+      elif _name in ['is-greater-than', 'greater-than', 'gt', '>']:
+        return challenge > against
+
+      elif _name in ['gte', '>=']:
+        return challenge >= against
+
+      elif _name in ['is-less-than', 'less-than', 'lt', '<']:
+        return challenge < against
+
+      elif _name in ['lte', '<=']:
+        return challenge <= against
+
+      elif _name in ['presence', 'defined', 'is-defined']:
+        return bool(challenge)
+
+      elif _name in ['undefined', 'is-undefined']:
+        return not challenge
+
+      print(f"Don't know operator {_name}")
+      return False
     except:
       return False
 
-  if name in ['equals', 'equal', 'eq', '==', '=']:
-    return lambda a, b: a == b
-  elif name in ['not-equals', 'not-equal', 'neq', '!=', '=/=']:
-    return lambda a, b: a != b
-  elif name in ['is-in', 'in']:
-    return lambda a, b: false_on_raise(lambda: a in undefined_alias(b))
-  elif name in ['contains']:
-    return lambda a, b: false_on_raise(lambda: b in a)
-  elif name in ['is-greater-than', 'greater-than', 'gt', '>']:
-    return lambda a, b: false_on_raise(lambda: a > float(b))
-  elif name in ['gte', '>=']:
-    return lambda a, b: false_on_raise(lambda: float(a) >= float(b))
-  elif name in ['is-less-than', 'less-than', 'lt', '<']:
-    return lambda a, b: false_on_raise(lambda: float(a) < float(b))
-  elif name in ['lte', '<=']:
-    return lambda a, b: false_on_raise(lambda: float(a) <= float(b))
-  elif name in ['presence', 'defined', 'is-defined']:
-    return lambda a, b: bool(a)
-  elif name in ['undefined', 'is-undefined']:
-    return lambda a, b: not bool(a)
-  else:
-    print(f"Don't know operator {name}")
-    return lambda a, b: False
-
 
 def undefined_alias(values):
-  pimped = []
-  for value in values or []:
-    if not value or value == '':
-      pimped.append('__undefined__')
-    pimped.append(value)
-  return pimped
+  if type(values) == list:
+    new_list = []
+    for value in values or []:
+      if not value:
+        new_list.append('__undefined__')
+      new_list.append(value)
+    return new_list
+  else:
+    return values
