@@ -117,8 +117,8 @@ class WizModel:
 
     if value and type(value) in [str, dict]:
       patches = dict(context=self.context)
-      value = self.try_iftt_intercept(value, patches)
-      value = self.try_value_getter_intercept(value, patches)
+      value = self.try_iftt_intercept(kod=value, patches=patches)
+      value = self.try_value_getter_intercept(kod=value, patches=patches)
       value = self.interpolate_prop(value, context_patch)
       return self.try_read_from_asset(value)
     else:
@@ -154,7 +154,7 @@ class WizModel:
 
   @classmethod
   def inflate_singleton(cls, patches=None) -> T:
-    return cls.inflate_with_key(cls.singleton_id(), patches)
+    return cls.inflate_with_id(cls.singleton_id(), patches)
 
   @classmethod
   def kind(cls):
@@ -230,19 +230,19 @@ class WizModel:
   def inflate(cls: T, key_or_dict: KoD, patches: Dict = None) -> Optional[T]:
     skip_intercept = (patches or {}).get('__skip_intercept')
     if not skip_intercept:
-      key_or_dict = cls.try_iftt_intercept(key_or_dict, patches)
+      key_or_dict = cls.try_iftt_intercept(kod=key_or_dict, patches=patches)
 
     try:
       if isinstance(key_or_dict, str):
-        return cls.inflate_with_key(key_or_dict, patches)
+        return cls.inflate_with_id(key_or_dict, patches)
       elif isinstance(key_or_dict, Dict):
-        return cls.inflate_with_config(key_or_dict, patches, None)
+        return cls.inflate_with_config(key_or_dict, patches=patches)
       raise RuntimeError(f"Bad input {key_or_dict}")
     except Exception as err:
       raise err
 
   @classmethod
-  def inflate_with_key(cls, _id: str, patches: Optional[Dict]) -> T:
+  def inflate_with_id(cls, _id: str, patches: Optional[Dict]) -> T:
     if _id and _id[0] and _id[0].isupper():
       config = dict(kind=_id)
     else:
@@ -250,7 +250,7 @@ class WizModel:
       candidate_kinds = [klass.kind() for klass in candidate_subclasses]
       all_configs = models_man.descriptors()
       config = find_config_by_id(_id, all_configs, candidate_kinds)
-    return cls.inflate_with_config(config, patches, None)
+    return cls.inflate_with_config(config, patches=patches)
 
   @classmethod
   def descendent_or_self(cls) -> T:
@@ -259,10 +259,10 @@ class WizModel:
     return next(filter(not_self, subclasses), cls)({})
 
   @classmethod
-  def inflate_with_config(cls,
-                          config: Optional[Dict],
-                          patches: Optional[Dict],
-                          def_cls: Optional[Type]) -> T:
+  def inflate_with_config(cls, config: Dict, **kwargs) -> T:
+    patches: Optional[Dict] = kwargs.get('patches')
+    def_cls: Optional[Type] = kwargs.get('def_cls')
+
     host_class = cls or def_cls
 
     inherit_id = config.get(cls.INHERIT_KEY)
@@ -272,7 +272,7 @@ class WizModel:
       host_class = cls.kind2cls(explicit_kind)
 
     if inherit_id:
-      other = cls.inflate_with_key(inherit_id, patches)
+      other = cls.inflate_with_id(inherit_id, patches)
       host_class = other.__class__
       config = {**other.config, **config}
 
@@ -291,21 +291,30 @@ class WizModel:
     return True
 
   @classmethod
-  def try_value_getter_intercept(cls, *args) -> Any:
+  def try_value_getter_intercept(cls, **kwargs) -> Any:
     from nectwiz.model.supply.value_supplier import ValueSupplier
-    return cls._try_as_interceptor(ValueSupplier, "id::", *args)
+    return cls._try_as_interceptor(
+      intercept_cls=ValueSupplier,
+      prefix="id::",
+      **kwargs
+    )
 
   @classmethod
-  def try_iftt_intercept(cls, *args) -> Any:
+  def try_iftt_intercept(cls, **kwargs) -> Any:
     from nectwiz.model.predicate.iftt import Iftt
-    return cls._try_as_interceptor(Iftt, "", *args)
+    return cls._try_as_interceptor(
+      intercept_cls=Iftt,
+      prefix="",
+      **kwargs
+    )
 
   @classmethod
-  def _try_as_interceptor(cls,
-                          intercept_cls: Type[T],
-                          prefix: str,
-                          kod: KoD,
-                          patches: Optional[Dict]) -> Any:
+  def _try_as_interceptor(cls, **kwargs) -> Any:
+    intercept_cls: Type[T] = kwargs.get('intercept_cls')
+    prefix: str = kwargs.get('prefix')
+    kod: KoD = kwargs.get('kod')
+    patches: Optional[Dict] = kwargs.get('patches')
+
     if cls.is_interceptor_candidate(intercept_cls, prefix, kod):
       patches = {**(patches or {}), '__skip_intercept': True}
       interceptor = intercept_cls.inflate_safely(kod, patches)

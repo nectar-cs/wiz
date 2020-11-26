@@ -1,6 +1,6 @@
 from typing import Optional, List, TypeVar
 
-from nectwiz.core.core.types import PredEval
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core import config_man, utils, hub_api_client
 from nectwiz.core.core.config_man import config_man
@@ -11,11 +11,22 @@ T = TypeVar('T', bound='ManifestVariable')
 
 
 class ManifestVariable(GenericVariable):
-  def __init__(self, config):
-    super().__init__(config)
-    self.mode: str = config.get('mode', 'internal')
-    self.release_overridable: bool = config.get('release_overridable', False)
-    self.tags = config.get('tags', [])
+
+  RELEASE_OVERRIDE_KEY = 'release_overridable'
+  MODE_KEY = 'mode'
+  TAGS_KEY = 'tags'
+
+  @cached_property
+  def mode(self):
+    return self.get_prop(self.MODE_KEY, 'internal')
+
+  @cached_property
+  def release_overridable(self):
+    return self.get_prop(self.RELEASE_OVERRIDE_KEY, False)
+
+  @cached_property
+  def tags(self):
+    return self.get_prop(self.TAGS_KEY, [])
 
   def default_value(self, reload=True) -> str:
     hardcoded = super().default_value()
@@ -28,21 +39,17 @@ class ManifestVariable(GenericVariable):
   def is_safe_to_set(self) -> bool:
     return self.mode == 'public'
 
-  def read_crt_value(self, reload=True) -> Optional[str]:
+  def current_value(self, reload=True) -> Optional[str]:
     return config_man.manifest_var(self.id(), reload)
 
-  def is_currently_valid(self) -> bool:  # todo cluster fuck burn it
-    self.read_crt_value()
-    if self.is_defined() and len(self.validators()) > 0:
-      crt_val = self.read_crt_value()
-      pred_eval: PredEval = self.validate(crt_val)
-      return pred_eval['met']
-    else:
-      return True
+  def current_or_default_value(self):
+    return self.current_value() or self.default_value
 
-  def is_defined(self) -> bool:
+  def is_currently_valid(self) -> bool:
     root = config_man.flat_manifest_vars()
-    return self.id() in root.keys()
+    is_defined = self.id() in root.keys()
+    crt_val = root.get(self.id())
+    return self.validate(crt_val)['met'] if is_defined else True
 
   @classmethod
   def all_vars(cls) -> List[T]:

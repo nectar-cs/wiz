@@ -52,7 +52,7 @@ class ResourceSelector(WizModel):
     return self.get_prop(self.PROP_SEL_KEY) or {}
 
   @classmethod
-  def inflate_with_key(cls, _id: str, patches: Optional[Dict]) -> T:
+  def inflate_with_id(cls, _id: str, patches: Optional[Dict]) -> T:
     if ":" in _id:
       parts = _id.split(':')
       return cls.inflate_with_config(dict(
@@ -60,7 +60,7 @@ class ResourceSelector(WizModel):
         name=parts[len(parts) - 1],
       ), None, None)
     else:
-      return super().inflate_with_key(_id, patches)
+      return super().inflate_with_id(_id, patches)
 
   def query_cluster(self) -> List[KatRes]:
     kat_class: KatRes = KatRes.class_for(self.res_kind)

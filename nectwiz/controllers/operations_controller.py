@@ -5,8 +5,7 @@ from flask import Blueprint, jsonify, request
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_man
-from nectwiz.model.operation import field
-from nectwiz.model.operation.field import TARGET_CHART
+from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState, operation_states
 from nectwiz.model.operation.stage import Stage
@@ -106,7 +105,7 @@ def step_refresh(operation_id, stage_id, step_id):
   serialized = step_serial.ser_refreshed(step, values, op_state)
   return jsonify(data=dict(
     step=serialized,
-    manifest_assignments=asgs.get(field.TARGET_CHART)
+    manifest_assignments=asgs.get(Field.TARGET_CHART)
   ))
 
 
@@ -124,7 +123,7 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
   asgs = step.partition_flat_user_asgs(values, synth_step_state)
-  return jsonify(data=asgs[TARGET_CHART])
+  return jsonify(data=asgs[Field.TARGET_CHART])
 
 
 @controller.route(f"{STEP_PATH}/run", methods=['POST'])

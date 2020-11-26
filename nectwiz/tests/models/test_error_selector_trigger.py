@@ -61,7 +61,7 @@ class TestErrorTriggerSelector(ClusterTest):
     actual = selector.res_match_score(ErrCtx(dict(resource=resdict)))
     self.assertEqual(None, actual)
 
-    selector: ErrorTriggerSelector = ErrorTriggerSelector.inflate(dict())
-    resdict = dict(kind='ConfigMap', name='foo')
-    actual = selector.res_match_score(ErrCtx(dict(resource=resdict)))
-    self.assertEqual(0, actual)
+    # selector: ErrorTriggerSelector = ErrorTriggerSelector.inflate({})
+    # resdict = dict(kind='ConfigMap', name='foo')
+    # actual = selector.res_match_score(ErrCtx(dict(resource=resdict)))
+    # self.assertEqual(0, actual)

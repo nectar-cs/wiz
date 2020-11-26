@@ -103,7 +103,7 @@ basic_operation_config = dict(
             dict(
               id='field-1.2',
               show_condition=dict(
-                challenge='{field-1.1}',
+                challenge='{operation/field-1.1}',
                 check_against='on'
               )
             )

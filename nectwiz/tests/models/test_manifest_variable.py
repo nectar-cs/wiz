@@ -22,10 +22,10 @@ class TestManifestVariable(Base.TestWizModel):
   def test_read_crt_value(self):
     helper.foo_bar_setup(self.ns)
     cv1 = ManifestVariable(dict(id='foo'))
-    self.assertEqual('bar', cv1.read_crt_value(True))
+    self.assertEqual('bar', cv1.current_value(True))
 
     cv2 = ManifestVariable(dict(id='bar.foo'))
-    self.assertEqual('baz', cv2.read_crt_value(True))
+    self.assertEqual('baz', cv2.current_value(True))
 
     cv3 = ManifestVariable(dict(id='missing'))
-    self.assertIsNone(cv3.read_crt_value(True))
+    self.assertIsNone(cv3.current_value(True))

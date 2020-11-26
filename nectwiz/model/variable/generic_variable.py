@@ -9,9 +9,7 @@ from nectwiz.model.input.input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 
-T = TypeVar('T', bound='ManifestVariable')
-
-validations_key = 'validation'
+T = TypeVar('T', bound='GenericVariable')
 
 class GenericVariable(WizModel):
 
@@ -36,11 +34,12 @@ class GenericVariable(WizModel):
   def value_decorator(self) -> VariableValueDecorator:
     return self.inflate_child(
       VariableValueDecorator,
-      prop=self.DECORATOR_KEY
+      prop=self.DECORATOR_KEY,
+      safely=True
     )
 
   @lru_cache(maxsize=5)
-  def value_injected_validators(self, value) -> List[Predicate]:
+  def value_injected_validators(self, value: Any) -> List[Predicate]:
     value = self.sanitize_for_validation(value)
     patch = dict(challenge=value, context=dict(value=value))
 
@@ -65,5 +64,15 @@ class GenericVariable(WizModel):
       reason=''
     )
 
+  def current_or_default_value(self):
+    return self.default_value
+
   def sanitize_for_validation(self, value: Any) -> Any:
     return self.input_model.sanitize_for_validation(value)
+
+  COPYABLE_KEYS = [
+    DEFAULT_VALUE_KEY,
+    DECORATOR_KEY,
+    INPUT_MODEL_KEY,
+    VALIDATION_PREDS_KEY
+  ]

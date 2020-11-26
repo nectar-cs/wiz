@@ -40,7 +40,7 @@ class Base:
 
     def test_try_as_iftt_when_not_iftt(self):
       config = dict(kind=self.model_class().kind(), id='foo')
-      result = self.model_class().try_iftt_intercept(config, {})
+      result = self.model_class().try_iftt_intercept(kod=config)
       self.assertEqual(config, result)
 
     def test_get_prop_default(self):
@@ -88,7 +88,7 @@ class Base:
           dict(predicate=TruePredicate.__name__, value='correct')
         ]
       )
-      result = self.model_class().try_iftt_intercept(config, {})
+      result = self.model_class().try_iftt_intercept(kod=config)
       self.assertEqual('correct', result)
 
     def test_try_iftt_intercept_with_iftt_id(self):
@@ -103,7 +103,7 @@ class Base:
       )
       models_man.add_descriptors([iftt_config])
 
-      result = self.model_class().try_iftt_intercept('my-iftt', {})
+      result = self.model_class().try_iftt_intercept(kod='my-iftt')
       self.assertEqual('correct', result)
 
     def test_inflate_with_iftt(self):
@@ -132,7 +132,7 @@ class Base:
 
     def test_update_attrs(self):
       config = {'title': 'foo'}
-      inflated = self.model_class().inflate_with_config(config, None, None)
+      inflated = self.model_class().inflate(config)
       self.assertEqual('foo', inflated.title)
       inflated.update_attrs(dict(title='bar'))
       self.assertEqual(inflated.title, 'bar')
@@ -144,13 +144,12 @@ class Base:
           return 'baz'
 
       models_man.add_classes([Custom])
-      result = self.model_class().inflate_with_key(Custom.__name__, None)
+      result = self.model_class().inflate_with_id(Custom.__name__, None)
       self.assertEqual(Custom, result.__class__)
       self.assertEqual('baz', result.info)
 
     def test_inflate_with_config_simple(self):
-      config = {'title': 'foo'}
-      inflated = self.model_class().inflate_with_config(config, None, None)
+      inflated = self.model_class().inflate({'title': 'foo'})
       self.assertEqual('foo', inflated.title)
       self.assertEqual(self.model_class(), inflated.__class__)
 
@@ -162,7 +161,7 @@ class Base:
       }])
 
       inheritor_config = {'id': 'mine', 'inherit': 'parent'}
-      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
+      actual = self.model_class().inflate(inheritor_config)
       self.assertEqual(self.model_class(), actual.__class__)
       self.assertEqual('mine', actual.id())
       self.assertEqual('yours', actual.title)
@@ -199,7 +198,7 @@ class Base:
 
       models_man.add_classes([SubModel])
       inheritor_config = {'id': 'mine', 'kind': SubModel.__name__}
-      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
+      actual = self.model_class().inflate(inheritor_config)
       self.assertEqual(SubModel, actual.__class__)
 
     def test_inflate_all(self):

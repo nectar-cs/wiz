@@ -8,6 +8,7 @@ from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem, ErrDict
 from nectwiz.model.error import error_handler
 from nectwiz.model.error.controller_error import ActionHalt
+from nectwiz.model.error.errors_man import errors_man
 
 
 class Observer:
@@ -22,8 +23,8 @@ class Observer:
   def notify_job(self):
     job: Job = get_current_job()
     if job:
+      errors_man.add_errors(self.errdicts)
       job.meta['progress'] = json.dumps(self.progress)
-      job.meta['errdicts'] = json.dumps(self.errdicts)
       job.save_meta()
 
   def log(self, logs: List[str]):
@@ -112,11 +113,12 @@ class Observer:
       self.on_failed()
 
   def process_error(self, **errdict):
+    from nectwiz.model.error.error_handler import ErrorHandler
     errdict['uuid'] = utils.rand_str(20)
     tone, reason = errdict.pop('tone', None), errdict.pop('reason', None)
     self.errdicts.append(errdict)
     if self.blame_item_id and self.item(self.blame_item_id):
-      diagnosable = error_handler.is_err_diagnosable(errdict)
+      diagnosable = ErrorHandler.is_err_diagnosable(errdict)
       self.set_item_status(self.blame_item_id, 'negative')
       self.cancel_blamed_subitems()
       self.merge_prop(self.blame_item_id, 'error', dict(

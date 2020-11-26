@@ -1,9 +1,7 @@
-from typing import List, Optional, TypeVar, Dict
+from typing import List, TypeVar, Dict
 
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.variable.generic_variable import GenericVariable
@@ -27,15 +25,18 @@ class Field(WizModel):
   @cached_property
   def variable(self) -> GenericVariable:
     """
-    Inflate child variable using 'variable' KoD or own configuration
-    if 'variable' not defined.
+    Inflate child variable using 'variable' KoD. If not present,
+    construct synthetic GenericVariable using own config.
     @return: GenericVariable instance
     """
     return self.inflate_child(
       GenericVariable,
       prop=self.VARIABLE_KEY,
       safely=True
-    ) or GenericVariable({'id': self.id()})
+    ) or self.inflate_child(
+      GenericVariable,
+      kod=self.variable_bound_config_subset()
+    )
 
   @cached_property
   def show_condition_predicate(self) -> Predicate:
@@ -57,25 +58,15 @@ class Field(WizModel):
   def target(self):
     return self.get_prop(self.TARGET_KEY, self.DEFAULT_TARGET)
 
-  def validate(self, value: str) -> PredEval:
-    """
-    Delegates validate() to child GenericVariable.
-    @param value: value to use as challenge in child Predicate
-    @return: PredEval result
-    """
-    return self.variable.validate(value)
-
-  def default_value(self) -> Optional[str]:
-    return self.variable.default_value()
+  def variable_bound_config_subset(self):
+    pool = self.config.items()
+    relevant = GenericVariable.COPYABLE_KEYS
+    return {k: v for k, v in pool if k in relevant}
 
   def compute_visibility(self) -> bool:
     if self.show_condition_predicate:
       return self.show_condition_predicate.evaluate()
     return True
-
-  def current_or_default(self) -> Optional[str]:
-    current = config_man.manifest_vars().get(self.id())
-    return current or self.default_value()
 
   def serialize_options(self) -> List[Dict]:
     return self.variable.input_model.serialize_options()
@@ -91,4 +82,3 @@ class Field(WizModel):
 
   def is_state_var(self) -> bool:
     return self.target == self.TARGET_STATE
-

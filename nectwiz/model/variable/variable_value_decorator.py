@@ -14,7 +14,7 @@ class VariableValueDecorator(WizModel):
   def output_template(self) -> str:
     return self.get_prop(self.KEY_TEMPLATE, '')
 
-  def decorate(self, value: Any, operation_state: OperationState):
+  def decorate(self, value: Any, operation_state: OperationState) -> Any:
     subs = self.compute(value, operation_state) or {}
     return self.output_template.format(**subs)
 

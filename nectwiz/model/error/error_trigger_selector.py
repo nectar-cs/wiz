@@ -1,17 +1,27 @@
-from functools import lru_cache
 from typing import Dict, Optional
 
-from nectwiz.core.core.types import KoD
+from werkzeug.utils import cached_property
+
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.error.error_context import ErrCtx
 
 
 class ErrorTriggerSelector(WizModel):
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.prop_selector: Dict = config.get('property_selector', {})
-    self.res_sel_kod: KoD = config.get('resource_selector', {})
+  PROP_SELECTOR_KEY = 'property_selector'
+  RES_SELECTOR_KEY = 'resource_selector'
+
+  @cached_property
+  def prop_selector(self) -> Dict:
+    return self.get_prop(self.PROP_SELECTOR_KEY, {})
+
+  @cached_property
+  def res_selector(self) -> ResourceSelector:
+    return self.inflate_child(
+      ResourceSelector,
+      prop=self.RES_SELECTOR_KEY,
+      safely=True
+    ) or self.inflate_child(ResourceSelector, kod="*:*")
 
   def match_confidence_score(self, errctx: ErrCtx) -> int:
     prop_match_result = self.prop_match_score(errctx)
@@ -25,7 +35,7 @@ class ErrorTriggerSelector(WizModel):
       return 0
 
   def prop_match_score(self, errctx: ErrCtx) -> Optional[int]:
-    challenge = errctx.selectable_properties()
+    challenge = errctx.selectable_properties
     matches = 0
     for prop, check_against in self.prop_selector.items():
       if prop in challenge.keys():
@@ -36,16 +46,10 @@ class ErrorTriggerSelector(WizModel):
     return matches
 
   def res_match_score(self, errctx: ErrCtx) -> Optional[int]:
-    if self.res_selector():
-      if errctx.resource_dict():
-        selector, resource = self.res_selector(), errctx.resource_dict()
-        if selector.selects_res(resource, {}):
+    if self.res_selector:
+      if errctx.resource_dict:
+        if self.res_selector.selects_res(errctx.resource_dict):
           return 1
       return None
     else:
       return 0
-
-  @lru_cache(maxsize=1)
-  def res_selector(self) -> ResourceSelector:
-    if self.res_sel_kod:
-      return ResourceSelector.inflate(self.res_sel_kod)

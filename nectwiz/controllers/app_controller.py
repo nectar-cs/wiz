@@ -6,7 +6,6 @@ from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
 from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
-from nectwiz.model.error.errors_man import errors_man
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
 from nectwiz.model.predicate.system_check import SystemCheck, master_syscheck_id
@@ -79,11 +78,9 @@ def run_hook(hook_id):
 def job_progress(job_id):
   progress = job_client.job_progress(job_id)
   status = job_client.ternary_job_status(job_id)
-  errdicts = job_client.job_errdicts(job_id)
   result = None
   if status == 'positive':
     result = job_client.job_result(job_id)
-  errors_man.add_errors(errdicts)
   return jsonify(
     data=dict(
       status=status,

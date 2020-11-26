@@ -14,26 +14,26 @@ class TestErrorHandler(Base.TestWizModel):
 
   def test_find_handler_apply_err(self):
     models_man.clear(restore_defaults=True)
-    handler = error_handler.find_handler(ErrDict(event_type='apply_manifest'))
+    handler = ErrorHandler.find_handler(dict(type='manifest_apply_failed'))
     self.assertIsNotNone(handler)
     self.assertEqual('nectar.error-handler.apply-failed', handler.id())
 
   def test_find_handler_await_failed(self):
     models_man.clear(restore_defaults=True)
-    handler = error_handler.find_handler(ErrDict(event_type='await_settled'))
+    handler = ErrorHandler.find_handler(dict(type='res_settle_failed'))
     self.assertIsNotNone(handler)
     self.assertEqual('nectar.error-handler.await-failed', handler.id())
 
   def test_find_handler_general(self):
     models_man.clear(restore_defaults=False)
     models_man.add_descriptors(testing_error_handlers)
-    handler = error_handler.find_handler(dict(
+    handler = ErrorHandler.find_handler(dict(
       prop1='prop1-foo',
       prop2='prop2-foo'
     ))
     self.assertEqual('eh1', handler.id())
 
-    handler = error_handler.find_handler(dict(
+    handler = ErrorHandler.find_handler(dict(
       prop1='prop1-foo',
       prop2='prop2-baz'
     ))
@@ -41,11 +41,11 @@ class TestErrorHandler(Base.TestWizModel):
 
   def test_compute_diagnoses_ids(self):
     models_man.add_descriptors(testing_error_handlers)
-    actual = error_handler.compute_diagnoses_ids('eh1')
-    self.assertEqual('d11,d12', actual)
+    actual = ErrorHandler.compute_diagnoses_ids('eh1')
+    self.assertEqual(['d11', 'd12'], actual)
 
-    actual = error_handler.compute_diagnoses_ids('eh2')
-    self.assertEqual('d22', actual)
+    actual = ErrorHandler.compute_diagnoses_ids('eh2')
+    self.assertEqual(['d22'], actual)
 
 
 testing_error_handlers = [

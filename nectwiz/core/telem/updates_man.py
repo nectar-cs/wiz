@@ -121,7 +121,7 @@ def fetch_update(update_id: str) -> Optional[UpdateDict]:
     else:
       print(f"[nectwiz::updates_man] err requesting update {resp.status_code}")
   else:
-    model = MockUpdate.inflate_with_key(update_id)
+    model = MockUpdate.inflate_with_id(update_id)
     return model.as_bundle()
 
 
@@ -131,7 +131,7 @@ def next_available() -> Optional[UpdateDict]:
     data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
-    model = MockUpdate.inflate_with_key(next_mock_update_id)
+    model = MockUpdate.inflate_with_id(next_mock_update_id)
     return model.as_bundle()
 
 

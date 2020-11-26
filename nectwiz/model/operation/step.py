@@ -2,12 +2,10 @@ from typing import List, Dict, Optional
 
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core.utils import flat2deep
-from nectwiz.model.error.errors_man import errors_man
-
 from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import CommitOutcome, PredEval
+from nectwiz.core.core.utils import flat2deep
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation_state import OperationState
@@ -60,7 +58,7 @@ class Step(WizModel):
       prop=self.FIELDS_KEY,
       id=field_id,
       patches=patch
-    ).validate(value)
+    ).variable.validate(value)
 
   def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
     patch = dict(context=resolution_context(op_state, flat_user_values))
@@ -168,8 +166,6 @@ class Step(WizModel):
   def compute_status(state: TSS = None) -> Dict:
     if state.is_running():
       action_job = job_client.find_job(state.job_id)
-      errdicts = job_client.job_errdicts(state.job_id)
-      errors_man.add_errors(errdicts)
       if action_job:
         progress = job_client.job_progress(state.job_id)
         if action_job.is_finished or action_job.is_failed:

@@ -1,7 +1,7 @@
-from functools import lru_cache
 from typing import Optional, Dict
 
 from k8kat.res.base.kat_res import KatRes
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ErrDict
@@ -11,7 +11,7 @@ class ErrCtx:
   def __init__(self, errdict: ErrDict):
     self._errdict: Dict = errdict
 
-  @lru_cache(maxsize=1)
+  @cached_property
   def selectable_properties(self) -> Dict:
     all_keys = self._errdict.keys()
     avoid_keys = ['uuid', 'resource']
@@ -20,18 +20,19 @@ class ErrCtx:
     extras_level = self._errdict.get('extras', {})
     return {**base_level, **extras_level}
 
-  @lru_cache(maxsize=1)
+  @cached_property
   def event_type(self):
     return self._errdict.get('event_type')
 
-  @lru_cache(maxsize=1)
-  def resolve_resource(self) -> Optional[KatRes]:
+  @cached_property
+  def kubernetes_resource(self) -> Optional[KatRes]:
     res_dict = self._errdict.get('resource')
     return self.extract_kat_res(res_dict) if res_dict else None
 
+  @cached_property
   def resource_dict(self) -> Dict:
-    if self.resolve_resource():
-      return self.resolve_resource().raw
+    if self.kubernetes_resource:
+      return self.kubernetes_resource.raw
     else:
       return self._errdict.get('resource')
 

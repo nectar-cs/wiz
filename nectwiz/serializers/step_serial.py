@@ -8,19 +8,20 @@ from nectwiz.model.operation.step import Step
 
 
 def ser_embedded_field(field: Field, value, state: OperationState) -> Dict:
+  current_or_default = field.variable.current_or_default_value()
   decorated_value = None
-  if field.variable:
-    decorator = field.delegate_variable().value_decorator()
-    if decorator:
-      value = field.current_or_default() if value is None else value
-      decorated_value = decorator.decorate(value, state)
+  decorator = field.variable.value_decorator
+
+  if decorator:
+    value = current_or_default if not value else value
+    decorated_value = decorator.decorate(value, state)
 
   return dict(
     id=field.id(),
     title=field.title,
     info=field.info,
     is_inline=field.is_inline_chart_var(),
-    default=field.current_or_default(),
+    default=current_or_default,
     decorated_value=decorated_value,
     **input_serializer.in_variable(field.variable.input_model),
   )
