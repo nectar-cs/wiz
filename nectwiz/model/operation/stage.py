@@ -35,7 +35,7 @@ class Stage(WizModel):
     matcher = lambda step: step.id() == step_id
     return next(filter(matcher, self.steps), None)
 
-  def first_step_key(self) -> Optional[str]:
+  def first_step_id(self) -> Optional[str]:
     """
     Returns the key of the first associated Step, if present.
     :return: Step key or None.

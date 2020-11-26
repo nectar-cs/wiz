@@ -1,4 +1,4 @@
-from typing import Type, Any
+from typing import Type, Any, List, Tuple
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel, models_man
@@ -25,9 +25,18 @@ class Base:
     def model_class(cls) -> Type[WizModel]:
       raise NotImplementedError
 
+    @classmethod
+    def has_many_tuples(cls) -> List[Tuple[str, Type]]:
+      return []
+
     @property
     def kind(self) -> str:
       return self.model_class().__name__
+
+    def test_has_many_associations(self):
+      inst = self.model_class()({})
+      for (prop, cls) in self.has_many_tuples():
+        inst.inflate_children(cls, prop=prop)
 
     def test_try_as_iftt_when_not_iftt(self):
       config = dict(kind=self.model_class().kind(), id='foo')
@@ -130,9 +139,9 @@ class Base:
 
     def test_inflate_with_type_key(self):
       class Custom(self.model_class()):
-        def __init__(self, config):
-          super().__init__(config)
-          self.info = 'baz'
+        @property
+        def info(self):
+          return 'baz'
 
       models_man.add_classes([Custom])
       result = self.model_class().inflate_with_key(Custom.__name__, None)
@@ -159,26 +168,30 @@ class Base:
       self.assertEqual('yours', actual.title)
 
     def test_inflate_with_config_inherit_hard(self):
-      class SubModel(self.model_class()):
-        def __init__(self, config):
-          super().__init__(config)
-          self.info = 'grandpas'
+      class DonorModel(self.model_class()):
+        pass
 
-      models_man.add_classes([SubModel])
-      models_man.add_descriptors([{
-        'kind': SubModel.__name__,
-        'id': 'parent',
-        'title': 'yours',
-        'info': 'yours'
-      }])
+      donor_config = {
+        'kind': DonorModel.__name__,
+        'id': 'donor-id',
+        'title': 'donor-title',
+        'info': 'donor-info'
+      }
 
-      inheritor_config = {'id': 'mine', 'inherit': 'parent'}
+      inheritor_config = {
+        'id': 'inheritor-id',
+        'inherit': 'donor-id',
+        'title': 'inheritor-title',
+      }
 
-      actual = self.model_class().inflate_with_config(inheritor_config, None, None)
-      self.assertEqual(SubModel, actual.__class__)
-      self.assertEqual('mine', actual.id())
-      self.assertEqual('yours', actual.title)
-      self.assertEqual('grandpas', actual.info)
+      models_man.add_classes([DonorModel])
+      models_man.add_descriptors([donor_config])
+
+      inheritor = self.model_class().inflate(inheritor_config)
+      self.assertEqual(DonorModel, inheritor.__class__)
+      self.assertEqual('inheritor-id', inheritor.id())
+      self.assertEqual('inheritor-title', inheritor.title)
+      self.assertEqual('donor-info', inheritor.info)
 
     def test_inflate_with_config_expl_cls(self):
       class SubModel(self.model_class()):
@@ -247,7 +260,7 @@ class Base:
       models_man.add_classes([ChildClass])
       parent_inst = self.model_class().inflate('parent')
       sig = lambda inst: {'id': inst.id(), 'cls': inst.__class__}
-      result = parent_inst.inflate_children('children', ChildClass)
+      result = parent_inst.inflate_children(ChildClass, prop='children')
       exp = [
         {'id': 'independent-child', 'cls': ChildClass},
         {'id': 'embedded-child', 'cls': ChildClass}
@@ -275,20 +288,20 @@ class Base:
       models_man.add_descriptors([parent_config])
 
       parent_inst: WizModel = self.model_class().inflate('parent')
-      child = parent_inst.inflate_children('children', ChildClass)[0]
+      child = parent_inst.inflate_children(ChildClass, prop='children')[0]
       self.assertEqual(dict(parent='context'), child.context)
 
       child = parent_inst.inflate_children(
-        'children',
         ChildClass,
-        dict(more='context')
+        prop='children',
+        patches=dict(more='context')
       )[0]
       self.assertEqual('context', child.config.get('more'))
 
       child = parent_inst.inflate_children(
-        'children',
         ChildClass,
-        dict(
+        prop='children',
+        patches=dict(
           context=dict(
             resolvers=dict(
               extra_foo=lambda s: f"{s}-2"

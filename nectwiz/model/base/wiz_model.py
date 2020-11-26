@@ -56,6 +56,8 @@ class WizModel:
   ID_KEY = 'id'
   CONTEXT_KEY = 'context'
   TITLE_KEY = 'title'
+  INHERIT_KEY = 'inherit'
+  KIND_KEY = 'kind'
   INFO_KEY = 'info'
   ASSET_PREFIX = 'file::'
 
@@ -260,10 +262,11 @@ class WizModel:
                           def_cls: Optional[Type]) -> T:
     host_class = cls or def_cls
 
-    inherit_id, expl_kind = config.get('inherit'), config.get('kind')
+    inherit_id = config.get(cls.INHERIT_KEY)
+    explicit_kind = config.get(cls.KIND_KEY)
 
-    if expl_kind and not expl_kind == host_class.__name__:
-      host_class = cls.kind2cls(expl_kind)
+    if explicit_kind and not explicit_kind == host_class.__name__:
+      host_class = cls.kind2cls(explicit_kind)
 
     if inherit_id:
       other = cls.inflate_with_key(inherit_id, patches)
@@ -392,7 +395,6 @@ def default_asset_paths() -> List[str]:
 def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
   from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
-  from nectwiz.model.action.actions.flush_telem_action import FlushTelemAction
   from nectwiz.model.adapters.deletion_spec import DeletionSpec
   from nectwiz.model.variable.manifest_variable import ManifestVariable
   from nectwiz.model.input.input import GenericInput
@@ -475,7 +477,6 @@ def default_model_classes() -> List[Type[T]]:
     MultiAction,
     CmdExecAction,
     ApplyManifestAction,
-    FlushTelemAction,
     DeleteResourcesAction,
     AppStatusComputer,
     RunPredicatesAction,

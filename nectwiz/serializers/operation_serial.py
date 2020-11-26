@@ -26,7 +26,7 @@ def ser_embedded_stage(stage: Stage):
     id=stage.id(),
     title=stage.title,
     description=stage.info,
-    first_step_id=stage.first_step_key()
+    first_step_id=stage.first_step_id()
   )
 
 
