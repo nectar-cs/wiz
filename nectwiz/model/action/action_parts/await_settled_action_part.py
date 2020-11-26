@@ -87,7 +87,7 @@ class AwaitSettledActionPart:
             type='res_settle_failed',
             resource=dict(
               name=original_res_sel.name,
-              kind=original_res_sel.k8s_kind
+              kind=original_res_sel.res_kind
             ),
             extras=dict(
               predicate_id=culprit_pred.id(),

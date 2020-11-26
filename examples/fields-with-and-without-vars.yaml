@@ -4,7 +4,7 @@ input:
   kind: CheckboxesInput
   option_source:
     kind: ResourceSelector
-    k8s_kind: Deployment
+    res_kind: Deployment
     namespace: $vars/monitoring.namespace
 
 ---

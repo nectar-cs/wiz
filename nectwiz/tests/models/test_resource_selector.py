@@ -13,12 +13,8 @@ class TestResourceSelector(Base.TestWizModel):
 
   def test_inflate_with_expr(self):
     selector: ResourceSelector = ResourceSelector.inflate("Pod:nginx")
-    self.assertEqual("Pod", selector.k8s_kind)
-    self.assertEqual("nginx", selector.name)
-
-  def test_kind_conversion(self):
-
-    ResourceSelector.inflate("deployments:foo")
+    self.assertEqual("Pod", selector.res_kind)
+    self.assertEqual("nginx", selector.res_name)
 
   def test_selects_res(self):
     res = dict(
@@ -38,7 +34,7 @@ class TestResourceSelector(Base.TestWizModel):
     )
 
     selector = ResourceSelector(dict(
-      k8s_kind='NotPod',
+      res_kind='NotPod',
       label_selector=dict(
         app='nectar'
       )
@@ -46,7 +42,7 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertFalse(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
-      k8s_kind='*',
+      res_kind='*',
       label_selector=dict(
         app='nectar'
       )
@@ -54,7 +50,7 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
-      k8s_kind='Pod',
+      res_kind='Pod',
       label_selector=dict(
         app='nectar'
       )
@@ -62,7 +58,7 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
-      k8s_kind='Pod',
+      res_kind='Pod',
       label_selector=dict(
         app='nectar',
         tier='backend'
@@ -71,7 +67,7 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertFalse(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
-      k8s_kind='Pod',
+      res_kind='Pod',
       label_selector=dict(
         app='nectar',
         tier='testware'
@@ -83,7 +79,7 @@ class TestResourceSelector(Base.TestWizModel):
     self.assertTrue(selector.selects_res(res))
 
     selector = ResourceSelector(dict(
-      k8s_kind='Pod',
+      res_kind='Pod',
       label_selector=dict(
         app='nectar',
         tier='testware'
@@ -97,7 +93,7 @@ class TestResourceSelector(Base.TestWizModel):
 
   def test_build_k8kat_query(self):
     config_man._ns = 'irrelevant'
-    selector = ResourceSelector(dict(
+    selector_config = dict(
       name='nginx:{version}',
       label_selector=dict(
         app='nectar-{flavor}'
@@ -105,7 +101,7 @@ class TestResourceSelector(Base.TestWizModel):
       field_selector={
         'metadata.uuid': '{secrets/123}'
       }
-    ))
+    )
 
     context = dict(
       version='3.2.1',
@@ -125,6 +121,11 @@ class TestResourceSelector(Base.TestWizModel):
         app='nectar-peach'
       ),
       not_labels={}
+    )
+
+    selector = ResourceSelector.inflate(
+      selector_config,
+      patches=dict(context=context)
     )
 
     actual = selector.build_k8kat_query()

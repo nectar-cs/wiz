@@ -14,6 +14,13 @@ class ResourcesSupplier(ValueSupplier):
   RESOURCE_SELECTOR_KEY = 'selector'
 
   @cached_property
+  def output_format(self):
+    if self.desired_output_format == 'options_format':
+      return dict(id='name', title='name')
+    else:
+      return super(ResourcesSupplier, self).output_format
+
+  @cached_property
   def resource_selector(self) -> ResourceSelector:
     return self.inflate_child(
       ResourceSelector,
@@ -25,10 +32,3 @@ class ResourcesSupplier(ValueSupplier):
 
   def serialize_prop(self):
     pass
-
-  @lru_cache(maxsize=1)
-  def output_format(self):
-    if self.desired_output_format == 'options_format':
-      return dict(id='name', title='name')
-    else:
-      return super(ResourcesSupplier, self).output_format()

@@ -2,6 +2,7 @@ from typing import List, Dict, TypeVar, Optional
 
 from k8kat.res.base.kat_res import KatRes
 from k8kat.utils.main.api_defs_man import api_defs_man
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.subs import interp_dict_vals
@@ -13,45 +14,72 @@ T = TypeVar('T', bound='ResourceSelector')
 
 
 class ResourceSelector(WizModel):
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.k8s_kind = config.get('k8s_kind')
-    self.name: str = config.get('name')
-    self.label_selector: Dict = config.get('label_selector') or {}
-    self.not_label_selector: Dict = config.get('not_label_selector') or {}
-    self.field_selector: Dict = config.get('field_selector') or {}
-    self.kat_prop_selector: Dict = config.get('prop_selector') or {}
-    self.explicit_ns: str = config.get('namespace')
+
+  RES_KIND_KEY = 'res_kind'
+  RES_NAME_KEY = 'name'
+  RES_NS_KEY = 'namespace'
+  LABEL_SEL_KEY = 'label_selector'
+  NOT_LABEL_SEL_KEY = 'not_label_selector'
+  FIELD_SEL_KEY = 'field_selector'
+  PROP_SEL_KEY = 'prop_selector'
+
+  @cached_property
+  def res_kind(self) -> str:
+    return self.resolve_prop(self.RES_KIND_KEY, warn=True)
+
+  @cached_property
+  def res_name(self) -> str:
+    return self.resolve_prop(self.RES_NAME_KEY, warn=True)
+
+  @cached_property
+  def res_namespace(self) -> str:
+    return self.get_prop(self.RES_NS_KEY, config_man.ns())
+
+  @cached_property
+  def label_selector(self) -> Dict:
+    return self.get_prop(self.LABEL_SEL_KEY) or {}
+
+  @cached_property
+  def not_label_selector(self) -> Dict:
+    return self.get_prop(self.NOT_LABEL_SEL_KEY) or {}
+
+  @cached_property
+  def field_selector(self) -> Dict:
+    return self.get_prop(self.FIELD_SEL_KEY) or {}
+
+  @cached_property
+  def kat_prop_selector(self):
+    return self.get_prop(self.PROP_SEL_KEY) or {}
 
   @classmethod
   def inflate_with_key(cls, _id: str, patches: Optional[Dict]) -> T:
     if ":" in _id:
       parts = _id.split(':')
       return cls.inflate_with_config(dict(
-        k8s_kind=parts[len(parts) - 2],
+        res_kind=parts[len(parts) - 2],
         name=parts[len(parts) - 1],
       ), None, None)
     else:
       return super().inflate_with_key(_id, patches)
 
   def query_cluster(self) -> List[KatRes]:
-    kat_class: KatRes = KatRes.class_for(self.k8s_kind)
+    kat_class: KatRes = KatRes.class_for(self.res_kind)
     if kat_class:
       query_params = self.build_k8kat_query()
       if not kat_class.is_namespaced():
         del query_params['ns']
       return kat_class.list(**query_params)
     else:
-      print(f"[nectwiz::resourceselector] DANGER no kat for {self.k8s_kind}")
+      print(f"[nectwiz::resourceselector] DANGER no kat for {self.res_kind}")
       return []
 
   def selects_res(self, res: K8sResDict) -> bool:
     res = fluff_resdict(res)
 
-    kinds1 = api_defs_man.kind2plurname(self.k8s_kind)
+    kinds1 = api_defs_man.kind2plurname(self.res_kind)
     kinds2 = api_defs_man.kind2plurname(res['kind'])
 
-    if kinds1 == kinds2 or self.k8s_kind == '*':
+    if kinds1 == kinds2 or self.res_kind == '*':
       query_dict = self.build_k8kat_query()
       res_labels = (res.get('metadata') or {}).get('labels') or {}
       labels_match = query_dict['labels'].items() <= res_labels.items()
@@ -65,16 +93,16 @@ class ResourceSelector(WizModel):
     context = self.context
     field_selector = self.field_selector
 
-    if self.name and self.name != '*':
+    if self.res_name and self.res_name != '*':
       field_selector = {
-        'metadata.name': self.name,
+        'metadata.name': self.res_name,
         **(field_selector or {}),
       }
 
     field_selector = interp_dict_vals(field_selector, context)
     label_selector = interp_dict_vals(self.label_selector, context)
     not_label_selector = interp_dict_vals(self.not_label_selector, context)
-    namespace = self.explicit_ns or config_man.ns()
+    namespace = self.res_namespace
 
     return dict(
       ns=namespace,

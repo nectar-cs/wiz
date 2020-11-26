@@ -40,7 +40,7 @@ class TestErrorTriggerSelector(ClusterTest):
     config_man._ns, = ns_factory.request(1)
     selector: ErrorTriggerSelector = ErrorTriggerSelector.inflate(dict(
       resource_selector=dict(
-        k8s_kind='ConfigMap',
+        res_kind='ConfigMap',
         name='foo'
       )
     ))

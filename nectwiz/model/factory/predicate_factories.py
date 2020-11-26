@@ -29,7 +29,7 @@ class PredicateFactory:
         output='ternary_status',
         many=True,
         selector=dict(
-          k8s_kind=ktl_out['kind'],
+          res_kind=ktl_out['kind'],
           name=ktl_out['name'],
           api_group=ktl_out['api_group']
         )

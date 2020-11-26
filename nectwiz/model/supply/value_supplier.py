@@ -1,5 +1,6 @@
-from functools import lru_cache
 from typing import Any, Dict, Union, Optional
+
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils
 from nectwiz.core.core.utils import listlike
@@ -34,7 +35,7 @@ class ValueSupplier(WizModel):
         item = computed_value[0] if len(computed_value) > 0 else None
         return self.serialize_item(item) if item else None
 
-  @lru_cache(maxsize=1)
+  @cached_property
   def output_format(self) -> Union[Dict, str]:
     return self.desired_output_format
 
@@ -42,7 +43,7 @@ class ValueSupplier(WizModel):
     raise NotImplementedError
 
   def serialize_item(self, item: Any) -> Union[Dict, str]:
-    fmt = self.output_format()
+    fmt = self.output_format
     if not fmt or type(fmt) == str:
       return self.serialize_item_prop(item, fmt)
     elif type(fmt) == dict:
@@ -51,7 +52,7 @@ class ValueSupplier(WizModel):
       return ''
 
   def serialize_dict_item(self, item):
-    fmt: Dict = self.output_format()
+    fmt: Dict = self.output_format
     serialized = {}
     for key, value in list(fmt.items()):
       serialized[key] = self.serialize_item_prop(item, value)

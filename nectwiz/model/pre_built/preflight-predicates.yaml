@@ -34,7 +34,7 @@ tone: error
 check_against: positive
 selector:
   namespace: kube-system
-  k8s_kind: Deployment
+  res_kind: Deployment
   label_selector:
     k8s-app: metrics-server
 
@@ -56,7 +56,7 @@ challenge:
   kind: ResourcesSupplier
   output: __count__
   selector:
-    k8s_kind: Pod
+    res_kind: Pod
     namespace: kube-system
     label_selector:
       app: calico

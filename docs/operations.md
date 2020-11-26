@@ -26,7 +26,7 @@ preflight_checks:
 	  tone: warning
 	  reason: "It looks like the service you want to change does not exist."
 	  selector:
-	  	k8s_kind: services
+	  	res_kind: services
 	  	label_selector:
 	  		app: chatbot
 	  check_against: 0
@@ -45,7 +45,7 @@ stages:
 		  	  	parts:
 	  		  		- kind: DeleteResourcesAction
 					  selector:
-					  	k8s_kind: services
+					  	res_kind: services
 				  		label_selector:
 				  			app: chatbot
 			  		- ApplyManifestAction

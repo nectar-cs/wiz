@@ -76,5 +76,5 @@ steps:
             kind: ResourcesGetter
             output: options_format
             selector:
-              k8s_kind: Service
+              res_kind: Service
               namespace: "{input/monitoring.service_namespace}"
