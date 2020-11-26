@@ -24,9 +24,6 @@ class Field(WizModel):
   TARGET_TYPES = [TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS]
   DEFAULT_TARGET = TARGET_CHART
 
-  def id(self) -> str:
-    return self.variable.id()
-
   @cached_property
   def variable(self) -> GenericVariable:
     """
@@ -34,11 +31,11 @@ class Field(WizModel):
     if 'variable' not defined.
     @return: GenericVariable instance
     """
-    variable_kod = self.config.get(self.VARIABLE_KEY) or self.config
     return self.inflate_child(
       GenericVariable,
-      kod=variable_kod
-    )
+      prop=self.VARIABLE_KEY,
+      safely=True
+    ) or GenericVariable({'id': self.id()})
 
   @cached_property
   def show_condition_predicate(self) -> Predicate:
@@ -50,11 +47,11 @@ class Field(WizModel):
 
   @cached_property
   def title(self) -> str:
-    return self.variable.title
+    return self.get_prop(self.TITLE_KEY) or self.variable.title
 
   @cached_property
   def info(self) -> str:
-    return self.variable.info
+    return self.get_prop(self.INFO_KEY) or self.variable.info
 
   @cached_property
   def target(self):

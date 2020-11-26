@@ -130,12 +130,12 @@ class Base:
       self.assertEqual(inflated.id(), 'a')
       self.assertEqual(inflated.title, 'a.title')
 
-    # def test_update_attrs(self):
-    #   config = {'title': 'foo'}
-    #   inflated = self.model_class().inflate_with_config(config, None, None)
-    #   self.assertEqual('foo', inflated.title)
-    #   inflated.update_attrs(dict(title='bar'))
-    #   self.assertEqual(inflated.title, 'bar')
+    def test_update_attrs(self):
+      config = {'title': 'foo'}
+      inflated = self.model_class().inflate_with_config(config, None, None)
+      self.assertEqual('foo', inflated.title)
+      inflated.update_attrs(dict(title='bar'))
+      self.assertEqual(inflated.title, 'bar')
 
     def test_inflate_with_type_key(self):
       class Custom(self.model_class()):

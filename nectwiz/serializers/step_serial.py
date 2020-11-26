@@ -9,7 +9,7 @@ from nectwiz.model.operation.step import Step
 
 def ser_embedded_field(field: Field, value, state: OperationState) -> Dict:
   decorated_value = None
-  if field.delegate_variable():
+  if field.variable:
     decorator = field.delegate_variable().value_decorator()
     if decorator:
       value = field.current_or_default() if value is None else value
@@ -22,7 +22,7 @@ def ser_embedded_field(field: Field, value, state: OperationState) -> Dict:
     is_inline=field.is_inline_chart_var(),
     default=field.current_or_default(),
     decorated_value=decorated_value,
-    **input_serializer.in_variable(field.input_spec()),
+    **input_serializer.in_variable(field.variable.input_model),
   )
 
 

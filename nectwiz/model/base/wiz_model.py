@@ -72,11 +72,11 @@ class WizModel:
 
   @cached_property
   def title(self) -> str:
-    return self.get_prop(self.TITLE_KEY, self.id())
+    return self.get_prop(self.TITLE_KEY)
 
   @cached_property
   def info(self) -> str:
-    return self.get_prop(self.INFO_KEY, self.title)
+    return self.get_prop(self.INFO_KEY)
 
   def to_dict(self):
     return dict(
