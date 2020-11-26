@@ -1,15 +1,19 @@
 import subprocess
 from typing import Dict
 
+from werkzeug.utils import cached_property
+
 from nectwiz.core.core import utils
 from nectwiz.model.action.base.action import Action
 
 
 class CmdExecAction(Action):
 
-  def __init__(self, config):
-    super().__init__(config)
-    self.cmd = self.get_prop('cmd', '')
+  CMD_KEY = 'cmd'
+
+  @cached_property
+  def cmd(self):
+    return self.get_prop(self.CMD_KEY, '')
 
   def perform(self, **kwargs) -> Dict:
     result = subprocess.check_output(self.cmd.split(" "))

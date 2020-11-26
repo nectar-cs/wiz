@@ -2,7 +2,7 @@ from typing import Type, Any
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel, models_man
-from nectwiz.model.field.field import Field
+from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.step import Step
 from nectwiz.model.predicate.common_predicates \
@@ -111,7 +111,7 @@ class Base:
       )
       result = self.model_class().inflate(config, None)
       self.assertEqual('actual', result.id())
-      self.assertEqual('Actual', result._title)
+      self.assertEqual('Actual', result.title)
 
     def test_inflate_with_id(self):
       a, b = [g_conf(k='a', i=self.kind), g_conf(k='b', i=self.kind)]
@@ -119,14 +119,14 @@ class Base:
       inflated = self.model_class().inflate('a')
       self.assertEqual(type(inflated), self.model_class())
       self.assertEqual(inflated.id(), 'a')
-      self.assertEqual(inflated._title, 'a.title')
+      self.assertEqual(inflated.title, 'a.title')
 
     # def test_update_attrs(self):
     #   config = {'title': 'foo'}
     #   inflated = self.model_class().inflate_with_config(config, None, None)
-    #   self.assertEqual('foo', inflated._title)
+    #   self.assertEqual('foo', inflated.title)
     #   inflated.update_attrs(dict(title='bar'))
-    #   self.assertEqual(inflated._title, 'bar')
+    #   self.assertEqual(inflated.title, 'bar')
 
     def test_inflate_with_type_key(self):
       class Custom(self.model_class()):
@@ -142,7 +142,7 @@ class Base:
     def test_inflate_with_config_simple(self):
       config = {'title': 'foo'}
       inflated = self.model_class().inflate_with_config(config, None, None)
-      self.assertEqual('foo', inflated._title)
+      self.assertEqual('foo', inflated.title)
       self.assertEqual(self.model_class(), inflated.__class__)
 
     def test_inflate_with_config_inherit_easy(self):
@@ -156,7 +156,7 @@ class Base:
       actual = self.model_class().inflate_with_config(inheritor_config, None, None)
       self.assertEqual(self.model_class(), actual.__class__)
       self.assertEqual('mine', actual.id())
-      self.assertEqual('yours', actual._title)
+      self.assertEqual('yours', actual.title)
 
     def test_inflate_with_config_inherit_hard(self):
       class SubModel(self.model_class()):
@@ -177,7 +177,7 @@ class Base:
       actual = self.model_class().inflate_with_config(inheritor_config, None, None)
       self.assertEqual(SubModel, actual.__class__)
       self.assertEqual('mine', actual.id())
-      self.assertEqual('yours', actual._title)
+      self.assertEqual('yours', actual.title)
       self.assertEqual('grandpas', actual.info)
 
     def test_inflate_with_config_expl_cls(self):

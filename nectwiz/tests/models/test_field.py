@@ -3,7 +3,7 @@ from typing import Type
 from nectwiz.model.input.input import GenericInput
 
 from nectwiz.model.base.wiz_model import WizModel, models_man
-from nectwiz.model.field.field import Field
+from nectwiz.model.operation.field import Field
 from nectwiz.tests.models.test_wiz_model import Base
 
 

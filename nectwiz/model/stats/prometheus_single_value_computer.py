@@ -1,6 +1,3 @@
-import traceback
-from typing import Dict, Optional
-
 from nectwiz.core.core import prom_api_client
 from nectwiz.model.stats.prometheus_computer import PrometheusComputer
 

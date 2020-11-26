@@ -1,20 +1,23 @@
 import traceback
-from typing import Dict
+from typing import List
 
-from nectwiz.core.core.config_man import config_man
+from werkzeug.utils import cached_property
+
 from nectwiz.core.core.types import ProgressItem
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.predicate.predicate import Predicate
 
 
 class RunPredicatesAction(Action):
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.predicates = self.inflate_children('predicates', Predicate)
-    self.observer.set_items(list(map(pred2subitem, self.predicates)))
+
+  PREDICATES_KEY = 'predicates'
+
+  @cached_property
+  def predicates(self) -> List[Predicate]:
+    return self.inflate_children(Predicate, prop=self.PREDICATES_KEY)
 
   def perform(self):
-    context = dict(resolvers=config_man.resolvers())
+    self.observer.set_items(list(map(pred2subitem, self.predicates)))
     error_count = 0
     for predicate in self.predicates:
       self.observer.set_item_running(predicate.id())
@@ -22,7 +25,7 @@ class RunPredicatesAction(Action):
       exc_dump = None
       # noinspection PyBroadException
       try:
-        result = predicate.evaluate(context)
+        result = predicate.evaluate()
       except:
         exc_dump = traceback.format_exc()
         print(traceback.format_exc())
@@ -50,7 +53,7 @@ class RunPredicatesAction(Action):
 def pred2subitem(predicate: Predicate) -> ProgressItem:
   return ProgressItem(
     id=predicate.id(),
-    title=predicate._title,
+    title=predicate.title,
     info=predicate.info,
     status='idle',
     sub_items=[],

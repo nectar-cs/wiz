@@ -1,24 +1,46 @@
-from typing import List
+from typing import List, Optional
 
-from nectwiz.model.base.wiz_model import WizModel, key_or_dict_to_key
+from werkzeug.utils import cached_property
+
+from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
 
 
 class Stage(WizModel):
 
+  STEPS_KEY = 'steps'
+
   def __init__(self, config):
     super().__init__(config)
-    self.description = config.get('description')
 
-  def first_step_key(self) -> str:
+  @cached_property
+  def description(self):
+    return self.get_prop('description')
+
+  @cached_property
+  def steps(self):
+    """
+    Loads the Steps associated with the Stage.
+    :return: List of Step instances.
+    """
+    return self.inflate_children(Step, prop=self.STEPS_KEY)
+
+  def step(self, step_id: str) -> Step:
+    """
+    Finds the Step by key and inflates (instantiates) into a Step instance.
+    :param step_id: identifier for desired Step.
+    :return: Step instance.
+    """
+    matcher = lambda step: step.id() == step_id
+    return next(filter(matcher, self.steps), None)
+
+  def first_step_key(self) -> Optional[str]:
     """
     Returns the key of the first associated Step, if present.
     :return: Step key or None.
     """
-    step_descriptors = self.config.get('steps', [])
-    first = step_descriptors[0] if len(step_descriptors) else None
-    return key_or_dict_to_key(first) if first else None
+    return self.steps[0].id() if len(self.steps) > 0 else None
 
   def next_step_id(self, crt_step: Step, op_state: OperationState) -> str:
     """
@@ -30,26 +52,10 @@ class Stage(WizModel):
     if crt_step.has_explicit_next():
       return crt_step.next_step_id(op_state)
     else:
-      stage_steps = self.steps()
+      stage_steps = self.steps
       index = step_index(stage_steps, crt_step.id())
       is_not_last = index < len(stage_steps) - 1
       return stage_steps[index + 1].id() if is_not_last else 'done'
-
-  def steps(self) -> List[Step]:
-    """
-    Loads the Steps associated with the Stage.
-    :return: List of Step instances.
-    """
-    return self.inflate_children('steps', Step)
-
-  def step(self, _id: str) -> Step:
-    """
-    Finds the Step by key and inflates (instantiates) into a Step instance.
-    :param _id: identifier for desired Step.
-    :return: Step instance.
-    """
-    return self.inflate_child_in_list('steps', Step, _id)
-
 
 def step_index(steps: List[Step], step_id: str) -> int:
   """

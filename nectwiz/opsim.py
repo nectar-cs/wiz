@@ -14,7 +14,7 @@ def start():
   coerce_ns(simulator.force_ns)
   state = OperationState(utils.rand_str(), operation.id())
 
-  print(f"Operation[{operation._title or operation.id()}]")
+  print(f"Operation[{operation.title or operation.id()}]")
 
   stage_ind = 0
   step_id = None
@@ -36,12 +36,12 @@ def start():
 
   while simulator.stage_at(stage_ind) is not None:
     stage = simulator.stage_at(stage_ind)
-    print(f"  Stage [{stage._title}]:")
+    print(f"  Stage [{stage.title}]:")
     if step_id is None:
-      step_id = stage.steps()[0].id() if len(stage.steps()) > 0 else 'done'
+      step_id = stage.steps[0].id() if len(stage.steps) > 0 else 'done'
     while not step_id == 'done':
       step = stage.step(step_id)
-      print(f"    Step [{step._title}]:")
+      print(f"    Step [{step.title}]:")
       step_input = simulator.step_input(stage_ind, step_id)
       if simulator.validate_input:
         print("     Validation")

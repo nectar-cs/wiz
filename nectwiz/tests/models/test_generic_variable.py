@@ -21,7 +21,7 @@ class TestGenericVariable(Base.TestWizModel):
         )
       ]
     ))
-    actual = gv.validate('foo', {})
+    actual = gv.validate('foo')
     self.assertTrue(actual['met'])
 
   def test_validate_when_not_valid(self):
@@ -42,7 +42,7 @@ class TestGenericVariable(Base.TestWizModel):
       ]
     ))
 
-    actual = gv.validate('foo', {})
+    actual = gv.validate('foo')
     self.assertFalse(actual['met'])
     self.assertEqual('warning', actual['tone'])
     self.assertEqual('because', actual['reason'])

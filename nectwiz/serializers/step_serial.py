@@ -1,7 +1,7 @@
 from typing import Dict
 
 from nectwiz.core.core.config_man import config_man
-from nectwiz.model.field.field import Field
+from nectwiz.model.operation.field import Field
 from nectwiz.model.input import input_serializer
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
@@ -43,7 +43,7 @@ def ser_refreshed(step: Step, values: Dict, state: OperationState) -> Dict:
   )
   return dict(
     id=step.id(),
-    title=step._title,
+    title=step.title,
     info=step.info,
     flags=[],
     fields=list(map(serialize_field, visible_fields))

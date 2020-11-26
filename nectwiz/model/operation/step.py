@@ -1,5 +1,7 @@
 from typing import List, Dict, Optional
 
+from werkzeug.utils import cached_property
+
 from nectwiz.core.core.utils import flat2deep
 from nectwiz.model.error.errors_man import errors_man
 
@@ -7,8 +9,7 @@ from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.field.field import Field, TARGET_CHART, \
-  TARGET_STATE, TARGET_INLIN, TARGET_PREFS
+from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step_state import StepState
 
@@ -20,13 +21,17 @@ TCO = CommitOutcome
 
 class Step(WizModel):
 
+  ACTION_KEY = 'action'
+  NEXT_STEP_KEY = 'next'
+  FIELDS_KEY = 'fields'
+
   def __init__(self, config):
     super().__init__(config)
-    self.next_step_kod = self.config.get('next')
-    self.reassignment_descs = config.get('reassignments', [])
-    self.exit_predicate_descs = self.config.get('exit', {})
-    self.expl_applies_manifest = config.get('applies_manifest')
     self.action_kod = config.get('action')
+
+  @cached_property
+  def reassignment_descs(self):
+    return self.get_prop('reassignments', [])
 
   def sig(self) -> str:
     parent_id = self.parent.id() if self.parent else 'orphan'
@@ -36,28 +41,38 @@ class Step(WizModel):
     return self.action_kod
 
   def next_step_id(self, op_state: TOS) -> Optional[str]:
+    patch = dict(context=resolution_context(op_state, {}))
     return self.resolve_prop(
-      'next',
-      context_patch=dict(context=resolution_context(op_state, {}))
+      self.NEXT_STEP_KEY,
+      context_patch=patch
     )
 
   def has_explicit_next(self) -> bool:
-    if self.next_step_kod:
-      return not self.next_step_kod == 'default'
+    next_step_kod = self.config.get('next')
+    if next_step_kod:
+      return not next_step_kod == 'default'
     return False
 
   def validate_field(self, field_id: str, value: str, op_state: TOS) -> PredEval:
     patch = dict(context=resolution_context(op_state, {field_id: value}))
-    field = self.inflate_child_in_list('fields', Field, field_id, patch)
-    return field.validate(value)
+    return self.inflate_list_child(
+      Field,
+      prop=self.FIELDS_KEY,
+      id=field_id,
+      patches=patch
+    ).validate(value)
 
   def visible_fields(self, flat_user_values, op_state: TOS) -> List[Field]:
     patch = dict(context=resolution_context(op_state, flat_user_values))
-    fields = self.inflate_children('fields', Field, patch)
+    fields = self.inflate_children(
+      Field,
+      prop=self.FIELDS_KEY,
+      patches=patch
+     )
     return [f for f in fields if f.compute_visibility()]
 
   def state_recall_descriptors(self, target: str):
-    predicate = lambda d: d.get('to', TARGET_CHART) == target
+    predicate = lambda d: d.get('to', Field.TARGET_CHART) == target
     return filter(predicate, self.reassignment_descs)
 
   def comp_recalled_asgs(self, target: str, prev_state: TSS) -> Dict:
@@ -71,20 +86,32 @@ class Step(WizModel):
 
     return new_assigns
 
-  def finalize_chart_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
-    recalled_from_state = self.comp_recalled_asgs(TARGET_CHART, prev_state)
+  def gen_chart_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(
+      Field.TARGET_CHART,
+      prev_state
+    )
     return {**recalled_from_state, **assigns}
 
-  def finalize_inline_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
-    recalled_from_state = self.comp_recalled_asgs(TARGET_INLIN, prev_state)
+  def gen_inline_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(
+      Field.TARGET_INLIN,
+      prev_state
+    )
     return {**recalled_from_state, **assigns}
 
-  def finalize_state_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
-    recalled_from_state = self.comp_recalled_asgs(TARGET_STATE, prev_state)
+  def gen_state_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(
+      Field.TARGET_STATE,
+      prev_state
+    )
     return {**recalled_from_state, **assigns}
 
-  def finalize_prefs_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
-    recalled_from_state = self.comp_recalled_asgs(TARGET_PREFS, prev_state)
+  def gen_prefs_asgs(self, assigns: Dict, prev_state: TSS) -> Dict:
+    recalled_from_state = self.comp_recalled_asgs(
+      Field.TARGET_PREFS,
+      prev_state
+    )
     return {**recalled_from_state, **assigns}
 
   def run(self, assigns: Dict, state: StepState):
@@ -108,10 +135,11 @@ class Step(WizModel):
     @return: un-IFTT'ed config dict for the action
     """
     from nectwiz.model.action.base.action import Action
+    patch = dict(context=resolution_context(state.parent_op, {}))
     resolved_action = self.inflate_child(
       Action,
-      self.action_kod,
-      dict(context=resolution_context(state.parent_op, {}))
+      prop=self.ACTION_KEY,
+      patches=patch
     )
 
     return dict(
@@ -130,11 +158,11 @@ class Step(WizModel):
       return {k: v for (k, v) in flat_assigns.items() if gate(k)}
 
     return {
-        TARGET_CHART: self.finalize_chart_asgs(seg(TARGET_CHART), ps),
-        TARGET_INLIN: self.finalize_inline_asgs(seg(TARGET_INLIN), ps),
-        TARGET_STATE: self.finalize_state_asgs(seg(TARGET_STATE), ps),
-        TARGET_PREFS: self.finalize_prefs_asgs(seg(TARGET_PREFS), ps),
-      }
+      Field.TARGET_CHART: self.gen_chart_asgs(seg(Field.TARGET_CHART), ps),
+      Field.TARGET_INLIN: self.gen_inline_asgs(seg(Field.TARGET_INLIN), ps),
+      Field.TARGET_STATE: self.gen_state_asgs(seg(Field.TARGET_STATE), ps),
+      Field.TARGET_PREFS: self.gen_prefs_asgs(seg(Field.TARGET_PREFS), ps)
+    }
 
   @staticmethod
   def compute_status(state: TSS = None) -> Dict:
@@ -163,8 +191,8 @@ class Step(WizModel):
 
   @staticmethod
   def commit_pertinent_assignments(buckets: Dict):
-    flat_manifest_assigns = buckets[TARGET_CHART]
-    flat_pref_assigns = buckets[TARGET_PREFS]
+    flat_manifest_assigns = buckets[Field.TARGET_CHART]
+    flat_pref_assigns = buckets[Field.TARGET_PREFS]
 
     if len(flat_manifest_assigns) > 0:
       config_man.patch_manifest_vars(flat2deep(flat_manifest_assigns))

@@ -3,6 +3,7 @@ from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar, Any
 
 from k8kat.utils.main.utils import deep_merge
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
@@ -52,22 +53,33 @@ models_man = ModelsMan()
 
 class WizModel:
 
+  ID_KEY = 'id'
+  CONTEXT_KEY = 'context'
+  TITLE_KEY = 'title'
+  INFO_KEY = 'info'
+  ASSET_PREFIX = 'file::'
+
   def __init__(self, config: Dict):
     self.config: Dict = config
-    self._id: str = config.get('id')
-    self._title: str = config.get('title')
-    self.info: str = config.get('info')
-    self.context: Dict = config.get('context', {})
-    self.choice_items: List[Dict] = config.get('items', [])
-    self.parent = None
+    self._id: str = config.get(self.ID_KEY)
+    self.context: Dict = config.get(self.CONTEXT_KEY, {})
+    self.parent: Optional[T] = None
 
-  def id(self):
+  def id(self) -> str:
     return self._id
+
+  @cached_property
+  def title(self) -> str:
+    return self.get_prop(self.TITLE_KEY, self.id())
+
+  @cached_property
+  def info(self) -> str:
+    return self.get_prop(self.INFO_KEY, self.title)
 
   def to_dict(self):
     return dict(
       id=self.id(),
-      title=self._title,
+      title=self.title,
       info=self.info
     )
 
@@ -102,7 +114,8 @@ class WizModel:
       patches = dict(context=self.context)
       value = self.try_iftt_intercept(value, patches)
       value = self.try_value_getter_intercept(value, patches)
-      return self.interpolate_prop(value, context_patch)
+      value = self.interpolate_prop(value, context_patch)
+      return self.try_read_from_asset(value)
     else:
       return value
 
@@ -142,61 +155,57 @@ class WizModel:
   def kind(cls):
     return cls.__name__
 
-  def inflate_children(self,
-                       config_key: str,
-                       child_class: Type[T],
-                       patches: Dict = None) -> List[T]:
-    kods = self.config.get(config_key, [])
-    return self._inflate_children(kods, child_class, patches)
-
-  def _inflate_children(self,
-                        kods_or_provider_kod: Union[List[KoD], KoD],
-                        child_class: Type[T],
-                        patches: Dict = None) -> List[T]:
+  def inflate_children(self, child_class: Type[T], **kwargs):
     """
-    Bottleneck function for a parent model to inflate children.
+    Bottleneck function for a parent model to inflate a list of children.
     In the normal case, kods_or_provider_kod is a list of WizModels KoDs.
     In the special case, kods_or_provider_kod is ListGetter model
     that produces the actual children.
     case,
-    @param kods_or_provider_kod: list of children KoDs or child-producing KoD
     @param child_class: class all children must a subclass of
-    @param patches: extra properties to inject into all children
     @return: resolved list of WizModel children
     """
+    kods_or_provider_kod: Union[List[KoD], KoD] = kwargs.get('kod')
+    if kods_or_provider_kod is None:
+      kods_or_provider_kod = self.config.get(kwargs.get('prop'))
+    patches: Optional[Dict] = kwargs.get('patches')
+
     if type(kods_or_provider_kod) == list:
-      to_child = lambda obj: self._kod2child(obj, child_class, patches)
+      to_child = lambda obj: self.kod2child(obj, child_class, patches)
       return list(map(to_child, kods_or_provider_kod))
     else:
       from nectwiz.model.supply.value_supplier import ValueSupplier
       provider: ValueSupplier = self.inflate(kods_or_provider_kod)
       actual_kods = provider.resolve()
-      return self._inflate_children(
-        actual_kods,
+      return self.inflate_children(
         child_class,
-        patches
+        kod=actual_kods,
+        patches=patches
       )
 
-  def inflate_child_in_list(self,
-                            list_id: str,
-                            child_cls: Type[T],
-                            child_id: str,
-                            patches: Dict = None) -> T:
-    descriptor_list = self.config.get(list_id, [])
+  def inflate_list_child(self, child_cls: Type[T], **kwargs) -> Optional[T]:
+    list_kod: KoD = kwargs.get('kod', self.config.get(kwargs.get('prop')))
+    child_id: str = kwargs.get('id')
+    patches: Optional[Dict] = kwargs.get('patches')
+
     predicate = lambda obj: key_or_dict_matches(obj, child_id)
-    match = next((obj for obj in descriptor_list if predicate(obj)), None)
-    return self.inflate_child(child_cls, match, patches) if match else None
+    child_kod = next((obj for obj in list_kod if predicate(obj)), None)
+    if child_kod:
+      return self.inflate_child(child_cls, kod=child_kod, patches=patches)
+    else:
+      return None
 
-  def inflate_child(self,
-                    child_cls: Type[T],
-                    kod: KoD,
-                    patches: Dict = None) -> T:
-    return self._kod2child(kod, child_cls, patches)
+  def inflate_child(self, child_cls: Type[T], **kwargs) -> Optional[T]:
+    kod: KoD = kwargs.get('kod', self.config.get(kwargs.get('prop')))
+    patches: Optional[Dict] = kwargs.get('patches')
+    try:
+      return self.kod2child(kod, child_cls, patches)
+    except:
+      if kwargs.get('safely'):
+        return None
+      raise
 
-  def _kod2child(self,
-                 kod: KoD,
-                 child_cls: Type[T],
-                 patches: Dict = None) -> T:
+  def kod2child(self, kod: KoD, child_cls: Type[T], patches: Dict = None) -> T:
     patches = self.assemble_downstream_patches(patches)
     inflated = child_cls.inflate(kod, patches)
     inflated.parent = self
@@ -324,11 +333,11 @@ class WizModel:
     return find_class_by_name(kind, subclasses)
 
   @staticmethod
-  def asset_attr(value):
-    if value and type(value) == str and value.startswith("file::"):
-      return read_from_asset(value)
-    else:
-      return value
+  def try_read_from_asset(value):
+    if value and type(value) == str:
+      if value.startswith(WizModel.ASSET_PREFIX):
+        return read_from_asset(value)
+    return value
 
 
 def read_from_asset(descriptor: str) -> str:
@@ -393,7 +402,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.operation.operation import Operation
   from nectwiz.model.operation.stage import Stage
   from nectwiz.model.operation.step import Step
-  from nectwiz.model.field.field import Field
+  from nectwiz.model.operation.field import Field
   from nectwiz.model.variable.generic_variable import GenericVariable
   from nectwiz.model.base.resource_selector import ResourceSelector
   from nectwiz.model.operation.operation_run_simulator import OperationRunSimulator

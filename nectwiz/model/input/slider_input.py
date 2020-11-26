@@ -1,16 +1,27 @@
 import traceback
 from typing import Dict, Any
 
+from werkzeug.utils import cached_property
+
 from nectwiz.model.input.input import GenericInput
 
 
 class SliderInput(GenericInput):
-  def __init__(self, config):
-    super().__init__(config)
-    self.min: int = config.get('min')
-    self.max: int = config.get('max')
-    self.step: int = config.get('step', 1)
-    self.suffix: str = config.get('suffix', '')
+  @cached_property
+  def min(self) -> int:
+    return self.get_prop('min', 0)
+
+  @cached_property
+  def max(self) -> int:
+    return self.get_prop('max', 10)
+
+  @cached_property
+  def step(self) -> int:
+    return self.get_prop('step', 1)
+
+  @cached_property
+  def suffix(self):
+    return self.get_prop('suffix', '')
 
   def extras(self) -> Dict[str, any]:
     return dict(

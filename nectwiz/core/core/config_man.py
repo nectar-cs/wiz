@@ -55,19 +55,25 @@ class ConfigMan:
       return None
 
   def read_entry(self, key: str, reload=True) -> any:
-    # if utils.is_in_cluster():
-    #   fname = f"{mounted_cmap_root_path}/{key}"
-    #   try:
-    #     with open(fname, 'r') as file:
-    #       return file.read()
-    #   except FileNotFoundError:
-    #     return None
-    # else:
+    """
+    Read in master ConfigMap from Kubernetes API or from
+    cache, return entry in data.
+    @param key: name of entry in ConfigMap.data
+    @param reload: force re-read ConfigMap if one is already cached
+    @return: value at ConfigMap.data[key] or None
+    """
     cmap = self.load_master_cmap(reload)
     return cmap.raw.data.get(key) if cmap else None
 
-  def read_dict(self, outer_key: str, reload=True) -> Dict:
-    raw_val = self.read_entry(outer_key, reload) or '{}'
+  def read_dict(self, key: str, reload=True) -> Dict:
+    """
+    Read entry from master ConfigMap, treat value as JSON,
+    return value in Dict form.
+    @param key: name of entry in ConfigMap.data
+    @param reload: force re-read ConfigMap if one is already cached
+    @return:
+    """
+    raw_val = self.read_entry(key, reload) or '{}'
     return json.loads(raw_val)
 
   def patch_master_cmap(self, outer_key: str, value: any):
@@ -195,6 +201,13 @@ config_man = ConfigMan()
 
 
 def read_ns() -> Optional[str]:
+  """
+  Reads application namespace from a file. If in-cluster, path
+  will be Kubernetes default
+  /var/run/secrets/kubernetes.io/serviceaccount/namespace. Else,
+  wiz must be running in dev or training mode and tmp path will be used.
+  @return: name of new namespace
+  """
   path = ns_path if utils.is_in_cluster() else dev_ns_path
   try:
     with open(path, 'r') as file:
@@ -208,7 +221,13 @@ def read_ns() -> Optional[str]:
     return None
 
 
-def coerce_ns(new_ns):
+def coerce_ns(new_ns: str):
+  """
+  For out-of-cluster Dev mode only. Changes global ns variable
+  to new val, and also writes new val to file so that other processes
+  (e.g worker queues) use the same value.
+  @param new_ns: name of new namespace
+  """
   if utils.is_out_of_cluster():
     config_man._ns = new_ns
     with open(dev_ns_path, 'w') as file:

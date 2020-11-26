@@ -1,6 +1,7 @@
 from typing import Dict
 
 from k8kat.res.base.kat_res import KatRes
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem
@@ -12,9 +13,10 @@ key_main = 'delete_resources'
 
 class DeleteResourcesAction(Action):
 
+  RES_SELECTORS_KEY = 'resource_selectors'
+
   def __init__(self, config: Dict):
     super().__init__(config)
-    self.selector_descs = config.get('resource_selectors')
     self.observer.progress = ProgressItem(
       sub_items=[
         ProgressItem(
@@ -27,13 +29,19 @@ class DeleteResourcesAction(Action):
       ]
     )
 
+  @cached_property
+  def resource_selectors(self):
+    return self.inflate_children(
+      ResourceSelector,
+      prop=self.RES_SELECTORS_KEY
+    )
+
   def perform(self, *args, **kwargs) -> bool:
     self.observer.set_item_status(key_main, 'running')
     context = dict(resolvers=config_man.resolvers())
     victims = []
 
-    for selector_desc in self.selector_descs:
-      selector = ResourceSelector.inflate(selector_desc)
+    for selector in self.resource_selectors:
       victims += selector.query_cluster(context)
 
     for victim in victims:

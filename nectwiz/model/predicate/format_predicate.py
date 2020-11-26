@@ -1,15 +1,14 @@
-from typing import Dict
-
 import validators
+from werkzeug.utils import cached_property
 
 from nectwiz.model.predicate.predicate import Predicate
 
 
 class FormatPredicate(Predicate):
 
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.reason = f"Must be a(n) {self.check_against}"
+  @cached_property
+  def reason(self) -> str:
+    return f"Must be a(n) {self.check_against}"
 
   def evaluate(self) -> bool:
     check = self.check_against
@@ -22,4 +21,3 @@ class FormatPredicate(Predicate):
       return validators.email(challenge)
     elif check == 'domain':
       return validators.domain(challenge)
-

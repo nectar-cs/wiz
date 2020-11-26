@@ -1,16 +1,24 @@
 from typing import Dict, List, Any
 
-from nectwiz.core.core.types import KoD
-from nectwiz.model.base.resource_selector import ResourceSelector
+from werkzeug.utils import cached_property
+
 from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.input.select_option import SelectOption
 
 
 class GenericInput(WizModel):
 
+  KEY_OPTIONS = 'options'
+
+  @cached_property
+  def option_models(self):
+    return self.inflate_children(
+      SelectOption,
+      prop=self.KEY_OPTIONS
+    )
+
   def serialize_options(self) -> List:
-    from nectwiz.model.input.select_option import SelectOption
-    option_models = self.inflate_children('options', SelectOption)
-    return list(map(SelectOption.serialize, option_models))
+    return list(map(SelectOption.serialize, self.option_models))
 
   def extras(self) -> Dict[str, any]:
     return {}

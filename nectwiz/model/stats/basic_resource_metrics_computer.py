@@ -51,7 +51,7 @@ class BasicResourceMetricsComputer(MetricsComputer):
 
   def _compute_child(self, kod: KoD) -> Optional[Any]:
     if kod:
-      computer = self.inflate_child(MetricsComputer, kod)
+      computer = self.inflate_child(MetricsComputer, kod=kod)
       computer.update_attrs(dict(step='1h', t0_offset=dict(days=1)))
       return computer.compute()
     else:

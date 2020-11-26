@@ -67,6 +67,7 @@ class UpdateLastCheckedAction(Action):
       )
     ]
 
+  # noinspection PyBroadException
   def perform(self):
     set_sub = lambda *args: self.observer.set_crt_subitem_status(*args)
     self.observer.set_item_running('update_last_checked')

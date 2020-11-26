@@ -5,7 +5,7 @@ from k8kat.utils.testing import ns_factory
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel, models_man
-from nectwiz.model.field.field import TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS
+from nectwiz.model.operation.field import TARGET_CHART, TARGET_INLIN, TARGET_STATE, TARGET_PREFS
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step import Step
 from nectwiz.model.predicate.common_predicates import TruePredicate

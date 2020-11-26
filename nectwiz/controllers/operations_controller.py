@@ -5,8 +5,8 @@ from flask import Blueprint, jsonify, request
 from nectwiz.controllers.ctrl_utils import jparse
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_man
-from nectwiz.model.field import field
-from nectwiz.model.field.field import Field, TARGET_CHART
+from nectwiz.model.operation import field
+from nectwiz.model.operation.field import TARGET_CHART
 from nectwiz.model.operation.operation import Operation
 from nectwiz.model.operation.operation_state import OperationState, operation_states
 from nectwiz.model.operation.stage import Stage
@@ -34,7 +34,7 @@ def operations_index():
   Lists all existing Operations for a local app, except system ones.
   :return: list of minimally serialized Operation objects.
   """
-  operations_list = [o for o in Operation.inflate_all() if not o.is_system]
+  operations_list = list(filter(Operation.is_system, Operation.inflate_all()))
   dicts = [operation_serial.ser_standard(c) for c in operations_list]
   return jsonify(data=dicts)
 

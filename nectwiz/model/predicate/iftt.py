@@ -5,6 +5,7 @@ from nectwiz.model.base.wiz_model import WizModel
 
 
 T = TypeVar('T', bound='WizModel')
+
 class Iftt(WizModel):
 
   def __init__(self, config: Dict):
@@ -16,7 +17,7 @@ class Iftt(WizModel):
     for it in self.choice_items:
       predicate_kod, value = it.get('predicate'), it.get('value')
       if predicate_kod:
-        predicate = self.inflate_child(Predicate, predicate_kod)
+        predicate = self.inflate_child(Predicate, kod=predicate_kod)
         if predicate.evaluate():
           return value
     print(f"[nectwiz:iftt_matrix] {self.config} all predicates negative")

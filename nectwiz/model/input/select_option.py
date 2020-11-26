@@ -10,5 +10,5 @@ class SelectOption(WizModel):
   def serialize(self) -> Dict:
     return {
       'id': self.id(),
-      'title': self._title
+      'title': self.title
     }

@@ -1,6 +1,8 @@
 from functools import lru_cache
 from typing import List, TypeVar, Optional, Any
 
+from werkzeug.utils import cached_property
+
 from nectwiz.core.core.types import PredEval
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.input.input import GenericInput
@@ -12,34 +14,43 @@ T = TypeVar('T', bound='ManifestVariable')
 validations_key = 'validation'
 
 class GenericVariable(WizModel):
-  def __init__(self, config):
-    super().__init__(config)
-    self.explicit_default: str = config.get('default')
-    self.decorator_kod: str = config.get('value_decorator')
-    self.validation_predicate_kods: List[str] = config.get('validation', [])
 
-  @lru_cache(maxsize=1)
-  def input_spec(self) -> GenericInput:
-    kod = self.config.get('input', GenericInput.__name__)
-    return GenericInput.inflate(kod)
+  DEFAULT_VALUE_KEY = 'default'
+  DECORATOR_KEY = 'decorator'
+  INPUT_MODEL_KEY = 'input'
+  VALIDATION_PREDS_KEY = 'validation'
 
-  @lru_cache(maxsize=1)
-  def validators(self) -> List[Predicate]:
-    return self.inflate_children('validation', Predicate)
+  @cached_property
+  def default_value(self) -> Optional[Any]:
+    return self.get_prop(self.DEFAULT_VALUE_KEY)
 
-  def default_value(self) -> str:
-    return self.explicit_default
+  @cached_property
+  def input_model(self) -> GenericInput:
+    return self.inflate_child(
+      GenericInput,
+      prop=self.INPUT_MODEL_KEY
+    )
 
-  @lru_cache(maxsize=1)
-  def value_decorator(self) -> Optional[VariableValueDecorator]:
-    if self.decorator_kod:
-      return VariableValueDecorator.inflate(self.decorator_kod)
+  @cached_property
+  def value_decorator(self) -> VariableValueDecorator:
+    return self.inflate_child(
+      VariableValueDecorator,
+      prop=self.DECORATOR_KEY
+    )
 
-  def validate(self, value: any) -> PredEval:
+  @lru_cache(maxsize=5)
+  def value_injected_validators(self, value) -> List[Predicate]:
     value = self.sanitize_for_validation(value)
     patch = dict(challenge=value, context=dict(value=value))
-    predicates = self.inflate_children('validation', Predicate, patch)
-    for predicate in predicates:
+
+    return self.inflate_children(
+      Predicate,
+      prop=self.VALIDATION_PREDS_KEY,
+      patches=patch
+    )
+
+  def validate(self, value: Any) -> PredEval:
+    for predicate in self.value_injected_validators(value):
       if not predicate.evaluate():
         return PredEval(
           predicate_id=predicate.id(),
@@ -54,4 +65,4 @@ class GenericVariable(WizModel):
     )
 
   def sanitize_for_validation(self, value: Any) -> Any:
-    return self.input_spec().sanitize_for_validation(value)
+    return self.input_model.sanitize_for_validation(value)

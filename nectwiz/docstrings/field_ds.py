@@ -1,4 +1,4 @@
-from nectwiz.model.field.field import Field
+from nectwiz.model.operation.field import Field
 
 def document():
   Field.is_manifest_bound.__doc__ = """
