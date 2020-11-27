@@ -32,6 +32,10 @@ class Predicate(WizModel):
   def is_optimist(self) -> bool:
     return self.get_prop(self.CASCADES_FAILURE, False)
 
+  @property
+  def is_pessimist(self) -> bool:
+    return not self.is_optimist
+
   @cached_property
   def tone(self) -> str:
     return self.get_prop(self.TONE_KEY, 'error')

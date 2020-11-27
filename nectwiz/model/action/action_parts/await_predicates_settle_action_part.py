@@ -77,7 +77,7 @@ class AwaitPredicatesSettleActionPart:
         fatal=True,
         tone='error',
         reason='One or more resources failed to settle',
-        type='res_settle_failed',
+        type='preds_settle_failed',
         resource=predicate.culprit_res_signature(),
         extras=predicate.error_extras()
       )

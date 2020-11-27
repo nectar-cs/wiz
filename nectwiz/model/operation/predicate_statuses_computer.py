@@ -57,11 +57,11 @@ class PredicateStatusesComputer:
     return [p for p in self.predicates if not p.is_optimist]
 
   def optimist_evaluations(self) -> List[PredEval]:
-    decider = lambda e: self.find_predicate(e).is_optimist
+    decider = lambda e: self.find_predicate(e['predicate_id']).is_optimist
     return list(filter(decider, self.evaluations))
 
   def pessimist_evaluations(self) -> List[PredEval]:
-    decider = lambda e: self.find_predicate(e).is_optimist
+    decider = lambda e: not self.find_predicate(e['predicate_id']).is_optimist
     return list(filter(decider, self.evaluations))
 
   def conclude(self, success: bool):
@@ -74,8 +74,7 @@ class PredicateStatusesComputer:
     return self.did_finish() and not self._did_succeed
 
   def culprit_predicate(self) -> Predicate:
-    culprit_eval_finder = lambda e: not e['met']
-    filterer = filter(culprit_eval_finder, self.pessimist_evaluations())
+    filterer = filter(lambda e: e['met'], self.pessimist_evaluations())
     return self.find_predicate(next(filterer)['predicate_id'])
 
 
