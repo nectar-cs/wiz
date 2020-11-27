@@ -1,5 +1,5 @@
 kind: SystemCheck
-id: system-check
+id: nectar.system-check
 predicates:
   - nectar.predicate.is-tam-in-sync
   - nectar.predicate.all-deployments-green
@@ -11,23 +11,25 @@ kind: Predicate
 id: nectar.predicate.is-tam-in-sync
 title: Ensure manifest image belongs to vendor
 info: A non-vendor manifest image could mean that your application is compormised.
-check_against: gcr.io/nectar-bazaar/ice-cream-tami
+check_against: https://api.codenectar.com/manifest_servers/nectar/ice-cream
 challenge: "{tam_config/uri}"
 tone: error
-reason: The manifest image should be gcr.io/nectar-bazaar/ice-cream-tami but it is not.
+reason: "The manifest image should
+ be https://api.codenectar.com/manifest_servers/nectar/ice-cream/1.0.0
+  but it is not."
 
 ---
 
-kind: ResourcePropertyPredicate
+kind: Predicate
 id: nectar.predicate.all-deployments-green
-title: Ensure all deployments are green
+title: Ensure all pods are running normally
 info: "Ensure no pods are pending morbidly or unschedulable"
-property: ternary_status
 check_against: positive
+operator: only
+challenge:
+  kind: ResourcesSupplier
+  selector: "Pod:*"
+  output: ternary_status
 tone: error
-reason: "One or more pending morbidly or unschedulable
-  (e.g crash loop, image pull err, insufficient CPU)."
-selector:
-  res_kind: Deployment
-  not_label_selector:
-    app: nectar-wiz
+reason: "One or more pods are pending morbidly or
+are unschedulable (e.g crash loop, image pull err, insufficient CPU)."

@@ -96,6 +96,7 @@ class Observer:
 
   def add_subitem(self, outer_id, subitem):
     self.item(outer_id)['sub_items'].append(subitem)
+    self.notify_job()
 
   def on_succeeded(self):
     self.progress['status'] = 'positive'

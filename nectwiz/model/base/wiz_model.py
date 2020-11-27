@@ -449,6 +449,7 @@ def default_model_classes() -> List[Type[T]]:
   from nectwiz.model.supply.value_supplier import ValueSupplier
   from nectwiz.model.supply.http_data_supplier import HttpDataSupplier
   from nectwiz.model.supply.resources_supplier import ResourcesSupplier
+  from nectwiz.model.predicate.system_check import SystemCheck
   return [
     Operation,
     Stage,
@@ -483,11 +484,13 @@ def default_model_classes() -> List[Type[T]]:
     HttpDataSupplier,
     ResourcesSupplier,
 
+    AppStatusComputer,
+    SystemCheck,
+
     MultiAction,
     CmdExecAction,
     ApplyManifestAction,
     DeleteResourcesAction,
-    AppStatusComputer,
     RunPredicatesAction,
     UpdateAction,
     BackupConfigAction,

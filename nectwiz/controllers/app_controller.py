@@ -8,7 +8,7 @@ from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
-from nectwiz.model.predicate.system_check import SystemCheck, master_syscheck_id
+from nectwiz.model.predicate.system_check import SystemCheck
 
 controller = Blueprint('app_controller', __name__)
 
@@ -17,7 +17,7 @@ BASE_PATH = '/api/app'
 
 @controller.route(f'{BASE_PATH}/start-system-check', methods=['POST'])
 def run_system_check():
-  sys_check: SystemCheck = SystemCheck.inflate(master_syscheck_id)
+  sys_check: SystemCheck = SystemCheck.inflate_singleton()
   if sys_check and sys_check.is_non_empty():
     action_config = sys_check.multi_predicate_action_config()
     job_id = job_client.enqueue_action(action_config)

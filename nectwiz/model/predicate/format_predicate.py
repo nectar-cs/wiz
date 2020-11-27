@@ -10,13 +10,13 @@ class FormatPredicate(Predicate):
   def reason(self) -> str:
     return f"Must be a(n) {self.check_against}"
 
-  def evaluate(self) -> bool:
+  def evaluate(self) -> bool:  # should we use unmuck_primitives?
     check = self.check_against
     challenge = self.challenge
     if check in ['integer', 'int', 'number']:
-      return challenge.isdigit()
+      return type(challenge) == int or challenge.isdigit()
     elif check in ['boolean', 'bool']:
-      return challenge not in ['true', 'false']
+      return str(challenge).lower() not in ['true', 'false']
     elif check == 'email':
       return validators.email(challenge)
     elif check == 'domain':

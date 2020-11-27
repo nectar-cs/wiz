@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List
 
 from k8kat.res.base.kat_res import KatRes
@@ -41,15 +42,22 @@ class DeleteResourcesAction(Action):
     for selector in self.resource_selectors:
       victims += selector.query_cluster()
 
-    print("GONNA KILL")
-    print([v.name for v in victims])
-
     for victim in victims:
       item = make_item(victim)
       self.observer.add_subitem(key_main, item)
       victim.delete()
       self.observer.subitem(key_main, item['id'])['status'] = 'positive'
     self.observer.set_item_status(key_main, 'positive')
+
+    if len(victims) > 0:
+      self.observer.add_subitem(key_main, dict(
+        id='wait',
+        title='15 Sec cool off period',
+        status='running'
+      ))
+
+      time.sleep(15)
+      self.observer.set_subitem_status(key_main, 'wait', 'positive')
 
     return True
 

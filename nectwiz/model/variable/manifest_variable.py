@@ -28,12 +28,13 @@ class ManifestVariable(GenericVariable):
   def tags(self):
     return self.get_prop(self.TAGS_KEY, [])
 
-  def default_value(self, reload=True) -> str:
+  @cached_property
+  def default_value(self) -> str:
     hardcoded = super().default_value
     if hardcoded:
       return hardcoded
     else:
-      defaults = config_man.manifest_defaults(reload)
+      defaults = config_man.manifest_defaults()
       return utils.deep_get2(defaults, self.id())
 
   def is_safe_to_set(self) -> bool:
