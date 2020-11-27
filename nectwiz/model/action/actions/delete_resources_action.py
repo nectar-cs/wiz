@@ -1,13 +1,11 @@
-from typing import Dict
+from typing import Dict, List
 
 from k8kat.res.base.kat_res import KatRes
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import ProgressItem
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.resource_selector import ResourceSelector
-
 
 key_main = 'delete_resources'
 
@@ -30,7 +28,7 @@ class DeleteResourcesAction(Action):
     )
 
   @cached_property
-  def resource_selectors(self):
+  def resource_selectors(self) -> List[ResourceSelector]:
     return self.inflate_children(
       ResourceSelector,
       prop=self.RES_SELECTORS_KEY
@@ -38,11 +36,13 @@ class DeleteResourcesAction(Action):
 
   def perform(self, *args, **kwargs) -> bool:
     self.observer.set_item_status(key_main, 'running')
-    context = dict(resolvers=config_man.resolvers())
     victims = []
 
     for selector in self.resource_selectors:
-      victims += selector.query_cluster(context)
+      victims += selector.query_cluster()
+
+    print("GONNA KILL")
+    print([v.name for v in victims])
 
     for victim in victims:
       item = make_item(victim)

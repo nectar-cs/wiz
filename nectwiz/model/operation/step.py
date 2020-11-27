@@ -127,8 +127,8 @@ class Step(WizModel):
   def assemble_action_config(self, state: StepState) -> Dict:
     """
     In case action is wrapped by IFTT, we must resolve it
-    before it runs in the background process. Also merge in
-    event-telem config.
+    before it runs in the background process. Also merges in
+    event-telem config. Omits the unmarshalable 'context' of the config.
     @param state: step state that IFTT might use to make resolution
     @return: un-IFTT'ed config dict for the action
     """
@@ -140,8 +140,12 @@ class Step(WizModel):
       patches=patch
     )
 
+    src_items = list(resolved_action.config.items())
+    filterer = lambda k: not k == self.CONTEXT_KEY
+    config_no_ctx = {k: v for k, v in src_items if filterer(k)}
+
     return dict(
-      **resolved_action.config,
+      **config_no_ctx,
       **self.last_minute_action_config(state)
     )
 

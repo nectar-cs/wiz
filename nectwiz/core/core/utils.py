@@ -5,7 +5,6 @@ import random
 import string
 import subprocess
 import sys
-from collections.abc import Iterable
 from functools import reduce
 from os import listdir
 from os.path import isfile, join

@@ -37,7 +37,7 @@ def ser_full(operation: Operation):
   :param operation: Operation instance.
   :return: serialized Operation dict.
   """
-  stage_dicts = list(map(ser_embedded_stage, operation.stages()))
+  stage_dicts = list(map(ser_embedded_stage, operation.stages))
 
   return dict(
     **ser_standard(operation),
