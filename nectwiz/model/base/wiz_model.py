@@ -8,6 +8,7 @@ from werkzeug.utils import cached_property
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KoD
+from nectwiz.model.base.default_models import default_model_classes
 
 T = TypeVar('T', bound='WizModel')
 
@@ -175,7 +176,7 @@ class WizModel:
     patches: Optional[Dict] = kwargs.get('patches')
 
     if type(kods_or_provider_kod) == list:
-      to_child = lambda obj: self.kod2child(obj, child_class, patches)
+      to_child = lambda obj: self.kod2child(obj, child_class, patches=patches)
       return list(map(to_child, kods_or_provider_kod))
     else:
       from nectwiz.model.supply.value_supplier import ValueSupplier
@@ -200,19 +201,15 @@ class WizModel:
       return None
 
   def inflate_child(self, child_cls: Type[T], **kwargs) -> Optional[T]:
-    kod: KoD = kwargs.get('kod', self.config.get(kwargs.get('prop')))
-    patches: Optional[Dict] = kwargs.get('patches')
-    try:
-      return self.kod2child(kod, child_cls, patches)
-    except:
-      if kwargs.get('safely'):
-        return None
-      raise
+    kod: KoD = kwargs.pop('kod', self.config.get(kwargs.pop('prop', None)))
+    return self.kod2child(kod, child_cls, **kwargs)
 
-  def kod2child(self, kod: KoD, child_cls: Type[T], patches: Dict = None) -> T:
+  def kod2child(self, kod: KoD, child_cls: Type[T], **kwargs) -> T:
+    patches: Dict = kwargs.pop('patches', None)
     patches = self.assemble_downstream_patches(patches)
-    inflated = child_cls.inflate(kod, patches)
-    inflated.parent = self
+    inflated = child_cls.inflate(kod, patches=patches, **kwargs)
+    if inflated:
+      inflated.parent = self
     return inflated
 
   def assemble_downstream_patches(self, extra_patches: Dict) -> Dict:
@@ -223,22 +220,25 @@ class WizModel:
   def inflate_all(cls, patches: Dict = None) -> List[T]:
     cls_pool = cls.lteq_classes(models_man.classes())
     configs = configs_for_kinds(models_man.descriptors(), cls_pool)
-    return [cls.inflate(config, patches) for config in configs]
+    return [cls.inflate(config, patches=patches) for config in configs]
 
   @classmethod
-  def inflate(cls: T, key_or_dict: KoD, patches: Dict = None) -> Optional[T]:
-    skip_intercept = (patches or {}).get('__skip_intercept')
+  def inflate(cls: T, kod: KoD, **kwargs) -> Optional[T]:
+    patches: Dict = kwargs.get('patches')
+    skip_intercept = kwargs.get('skip_intercept')
     if not skip_intercept:
-      key_or_dict = cls.try_iftt_intercept(kod=key_or_dict, patches=patches)
+      kod = cls.try_iftt_intercept(kod=kod, patches=patches)
 
     try:
-      if isinstance(key_or_dict, str):
-        return cls.inflate_with_id(key_or_dict, patches)
-      elif isinstance(key_or_dict, Dict):
-        return cls.inflate_with_config(key_or_dict, patches=patches)
-      raise RuntimeError(f"Bad input {key_or_dict}")
+      if isinstance(kod, str):
+        return cls.inflate_with_id(kod, patches)
+      elif isinstance(kod, Dict):
+        return cls.inflate_with_config(kod, patches=patches)
+      raise RuntimeError(f"Bad input {kod}")
     except Exception as err:
-      raise err
+      if not kwargs.get('safely'):
+        print(f"[nectwiz:{cls.kind()} inflation error below for {kod}]")
+        raise err
 
   @classmethod
   def inflate_with_id(cls, _id: str, patches: Optional[Dict]) -> T:
@@ -278,14 +278,6 @@ class WizModel:
     return host_class({**config, **(patches or {})})
 
   @classmethod
-  def inflate_safely(cls, *args):
-    # noinspection PyBroadException
-    try:
-      return cls.inflate(*args)
-    except:
-      return None
-
-  @classmethod
   def id_exists(cls, _id: str) -> bool:
     return True
 
@@ -315,8 +307,12 @@ class WizModel:
     patches: Optional[Dict] = kwargs.get('patches')
 
     if cls.is_interceptor_candidate(intercept_cls, prefix, kod):
-      patches = {**(patches or {}), '__skip_intercept': True}
-      interceptor = intercept_cls.inflate_safely(kod, patches)
+      interceptor = intercept_cls.inflate(
+        kod,
+        patches=patches,
+        skip_intercept=True,
+        safely=True
+      )
       if interceptor:
         return interceptor.resolve()
     return kod
@@ -399,111 +395,3 @@ def default_descriptors() -> List[Dict]:
 def default_asset_paths() -> List[str]:
   pwd = os.path.join(os.path.dirname(__file__))
   return [f"{pwd}/../../model/pre_built"]
-
-
-def default_model_classes() -> List[Type[T]]:
-  from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
-  from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
-  from nectwiz.model.adapters.deletion_spec import DeletionSpec
-  from nectwiz.model.variable.manifest_variable import ManifestVariable
-  from nectwiz.model.input.input import GenericInput
-  from nectwiz.model.input.select_input import SelectInput
-  from nectwiz.model.input.slider_input import SliderInput
-  from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
-  from nectwiz.model.operation.operation import Operation
-  from nectwiz.model.operation.stage import Stage
-  from nectwiz.model.operation.step import Step
-  from nectwiz.model.operation.field import Field
-  from nectwiz.model.variable.generic_variable import GenericVariable
-  from nectwiz.model.base.resource_selector import ResourceSelector
-  from nectwiz.model.operation.operation_run_simulator import OperationRunSimulator
-  from nectwiz.model.action.actions.delete_resources_action import DeleteResourcesAction
-  from nectwiz.model.action.actions.multi_action import MultiAction
-  from nectwiz.model.action.actions.run_predicates_action import RunPredicatesAction
-  from nectwiz.model.input.checkboxes_input import CheckboxesInput
-  from nectwiz.model.input.checkboxes_input import CheckboxInput
-  from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
-  from nectwiz.model.variable.pod_scaling_decorator import FixedReplicasDecorator
-  from nectwiz.model.error.error_handler import ErrorHandler
-  from nectwiz.model.error.error_trigger_selector import ErrorTriggerSelector
-  from nectwiz.model.error.error_diagnosis import ErrorDiagnosis
-  from nectwiz.model.error.diagnosis_actionable import DiagnosisActionable
-  from nectwiz.model.predicate.format_predicate import FormatPredicate
-  from nectwiz.model.predicate.multi_predicate import MultiPredicate
-  from nectwiz.model.predicate.common_predicates import TruePredicate
-  from nectwiz.core.telem.updates_man import UpdateAction
-  from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
-  from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
-  from nectwiz.core.telem.updates_man import WizUpdateAction
-  from nectwiz.model.adapters.app_status_computer import AppStatusComputer
-  from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
-
-  from nectwiz.model.stats.prometheus_computer import PrometheusComputer
-  from nectwiz.model.stats.metrics_computer import MetricsComputer
-  from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
-  from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
-
-  from nectwiz.model.predicate.iftt import Iftt
-  from nectwiz.model.predicate.common_predicates import FalsePredicate
-  from nectwiz.model.hook.hook import Hook
-  from nectwiz.model.supply.value_supplier import ValueSupplier
-  from nectwiz.model.supply.http_data_supplier import HttpDataSupplier
-  from nectwiz.model.supply.resources_supplier import ResourcesSupplier
-  from nectwiz.model.predicate.system_check import SystemCheck
-  return [
-    Operation,
-    Stage,
-    Step,
-    Field,
-    Hook,
-
-    GenericVariable,
-    ManifestVariable,
-    VariableValueDecorator,
-    FixedReplicasDecorator,
-
-    ErrorHandler,
-    ErrorTriggerSelector,
-    ErrorDiagnosis,
-    DiagnosisActionable,
-
-    GenericInput,
-    SliderInput,
-    SelectInput,
-    CheckboxesInput,
-    CheckboxInput,
-
-    ResourceSelector,
-    FormatPredicate,
-    MultiPredicate,
-    TruePredicate,
-    FalsePredicate,
-
-    Iftt,
-    ValueSupplier,
-    HttpDataSupplier,
-    ResourcesSupplier,
-
-    AppStatusComputer,
-    SystemCheck,
-
-    MultiAction,
-    CmdExecAction,
-    ApplyManifestAction,
-    DeleteResourcesAction,
-    RunPredicatesAction,
-    UpdateAction,
-    BackupConfigAction,
-    UpdateLastCheckedAction,
-    WizUpdateAction,
-
-    ResourceQueryAdapter,
-    DeletionSpec,
-    PrometheusComputer,
-    MetricsComputer,
-    PrometheusScalarComputer,
-    PrometheusSeriesComputer,
-    BasicResourceMetricsComputer,
-
-    OperationRunSimulator
-  ]

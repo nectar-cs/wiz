@@ -21,7 +21,7 @@ class TestHttpSupplier(Base.TestWizModel):
     endpoint = f"{helper.ci_tams_name()}/1.0.0"
     instance = HttpDataSupplier(dict(
       endpoint=endpoint,
-      output='body.'
+      output='body'
     ))
     self.assertIsNotNone(instance.resolve())
 

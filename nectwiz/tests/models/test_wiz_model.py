@@ -118,7 +118,7 @@ class Base:
           ))
         ]
       )
-      result = self.model_class().inflate(config, None)
+      result = self.model_class().inflate(config)
       self.assertEqual('actual', result.id())
       self.assertEqual('Actual', result.title)
 
