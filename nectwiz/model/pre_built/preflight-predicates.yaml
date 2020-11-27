@@ -22,6 +22,7 @@ check_against: docker
 challenge:
   kind: ResourcesSupplier
   selector: "nodes:*"
+  many: false
   output: raw.status.node_info.container_runtime_version
 
 ---
@@ -31,12 +32,16 @@ id: nectar.predicate.metrics-server-running
 title: Ensure the Metrics Server is running
 info: "Most telemetry requires the metrics server to be running."
 tone: error
-check_against: positive
-selector:
-  namespace: kube-system
-  res_kind: Deployment
-  label_selector:
-    k8s-app: metrics-server
+operator: gte
+check_against: 1
+challenge:
+  kind: ResourcesSupplier
+  output: __count__
+  selector:
+    namespace: kube-system
+    res_kind: Pod
+    label_selector:
+      k8s-app: metrics-server
 
 ---
 
@@ -50,8 +55,8 @@ reason: "This check was performed by scanning for Calico pods in
 the kube-system namespace. If you know that Network Policies have
 a different backend, you can ignore this check. Otherwise, start
 the remediation wizard."
-operator: greater-than
-check_against: 0
+operator: gte
+check_against: 1
 challenge:
   kind: ResourcesSupplier
   output: __count__
@@ -60,28 +65,3 @@ challenge:
     namespace: kube-system
     label_selector:
       app: calico
-
----
-
-kind: ErrorHandler
-id: bullshit-handler
-selector:
-  property_selector:
-    predicate_id: nectar.predicate.calico-pods-present-for-netpol
-diagnoses:
-  - id: bullshit-diagnosis
-    title: "The bullshit diagnosis"
-    info: "This check was performed by scanning for Calico pods in
-           the kube-system namespace. If you know that Network Policies have
-           a different backend, you can ignore this check. Otherwise, start
-           the remediation wizard."
-    predicate: TruePredicate
-    actionables:
-      - id: brush-teeth
-        title: Brush your teeth
-        info: "This check was performed by scanning for Calico pods in
-               the kube-system namespace. If you know that Network."
-      - id: clean-room
-        title: Clean your room
-        info: "This check was performed by scanning for Calico pods in
-               the kube-system namespace. If you know that Network."

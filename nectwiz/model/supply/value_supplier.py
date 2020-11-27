@@ -9,10 +9,16 @@ from nectwiz.model.base.wiz_model import WizModel
 
 class ValueSupplier(WizModel):
 
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.treat_as_list = self.get_prop('many', None)
-    self.desired_output_format = self.get_prop('output', None)
+  IS_MANY_KEY = 'many'
+  OUTPUT_FMT_KEY = 'output'
+
+  @cached_property
+  def treat_as_list(self):
+    return self.get_prop(self.IS_MANY_KEY)
+
+  @cached_property
+  def output_format(self):
+    return self.get_prop(self.OUTPUT_FMT_KEY)
 
   def resolve(self) -> Any:
     computed_value = self._compute()
@@ -23,21 +29,17 @@ class ValueSupplier(WizModel):
     if treat_as_list in [None, 'auto']:
       treat_as_list = listlike(computed_value)
 
-    if treat_as_list:
+    if treat_as_list and not self.output_format == '__count__':
       if listlike(computed_value):
         return [self.serialize_item(item) for item in computed_value]
       else:
         return [self.serialize_item(computed_value)]
     else:
-      if not listlike(computed_value):
+      if not listlike(computed_value) or self.output_format == '__count__':
         return self.serialize_item(computed_value)
       else:
         item = computed_value[0] if len(computed_value) > 0 else None
         return self.serialize_item(item) if item else None
-
-  @cached_property
-  def output_format(self) -> Union[Dict, str]:
-    return self.desired_output_format
 
   def _compute(self) -> Any:
     raise NotImplementedError
@@ -67,12 +69,9 @@ class ValueSupplier(WizModel):
           return len(item)
         except:
           return 0
-      elif type(item) == dict:
-        return utils.deep_get2(item, deep_key=prop_name)
       else:
         try:
-          attr = getattr(item, prop_name)
-          return attr() if callable(attr) else attr
+          return utils.pluck_or_getattr_deep(item, prop_name)
         except:
           return None
     else:

@@ -16,7 +16,7 @@ class TestResourcesSupplier(Base.TestWizModel):
   def model_class(cls) -> Type[WizModel]:
     return ResourcesSupplier
 
-  def test_produce(self):
+  def test_produce_dict(self):
     config_man._ns, = ns_factory.request(1)
     create_base_master_map(config_man.ns())
     simple_pod.create(name='p1', ns=config_man.ns())
@@ -30,3 +30,17 @@ class TestResourcesSupplier(Base.TestWizModel):
 
     result = inst.resolve()
     self.assertEqual({'id': 'p1', 'title': 'p1'},  result)
+
+  def test_produce_str(self):
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man.ns())
+    simple_pod.create(name='p1', ns=config_man.ns())
+
+    inst = ResourcesSupplier(dict(
+      output='raw.status.phase',
+      selector='Pod:*',
+      many=True
+    ))
+
+    result = inst.resolve()
+    self.assertEqual(["Pending"], result)

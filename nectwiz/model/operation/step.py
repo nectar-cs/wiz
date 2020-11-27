@@ -163,29 +163,6 @@ class Step(WizModel):
     }
 
   @staticmethod
-  def compute_status(state: TSS = None) -> Dict:
-    if state.is_running():
-      action_job = job_client.find_job(state.job_id)
-      if action_job:
-        progress = job_client.job_progress(state.job_id)
-        if action_job.is_finished or action_job.is_failed:
-          if action_job.is_finished:
-            telem = job_client.job_telem(state.job_id)
-            state.notify_terminated(action_job.result, telem)
-          else:
-            state.notify_failed()
-          return dict(status=state.status, progress=progress)
-        else:
-          return dict(status='running', progress=progress)
-      else:
-        print(f"[nectwiz::step] danger job {state.job_id} lost!")
-        return dict(status='negative', progress={})
-    else:
-      print(f"[nectwiz::step] danger compute_status called when not running")
-      state.notify_succeeded()
-      return dict(status='negative', progress={})
-
-  @staticmethod
   def commit_pertinent_assignments(buckets: Dict):
     flat_manifest_assigns = buckets[Field.TARGET_CHART]
     flat_pref_assigns = buckets[Field.TARGET_PREFS]

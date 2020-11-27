@@ -2,6 +2,8 @@ import traceback
 from datetime import datetime
 from typing import Dict, Any
 
+import inflection
+
 from nectwiz.core.core import utils
 from nectwiz.core.telem import telem_man
 from nectwiz.model.action.base.observer import Observer
@@ -16,7 +18,10 @@ class Action(WizModel):
     self.event_id = config.get('event_id')
     self.static_telem_extras = config.get('telem_extras', {})
     self.store_telem = config.get('store_telem', False)
-    self.event_type = config.get('event_type', self.__class__.__name__)
+    self.event_type = config.get(
+      'event_type',
+      inflection.underscore(self.__class__.__name__)
+    )
     self.event_name = config.get('event_name')
     self.outcome = None
     self.halt_on_exc = config.get('treat_exception_as_fatal', True)

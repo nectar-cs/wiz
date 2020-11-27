@@ -8,6 +8,7 @@ from nectwiz.model.base.wiz_model import WizModel
 
 class Predicate(WizModel):
 
+  CHALLENGE_KEY = 'challenge'
   OPERATOR_KEY = 'operator'
   CHECK_AGAINST_KEY = 'check_against'
   TONE_KEY = 'tone'
@@ -18,7 +19,7 @@ class Predicate(WizModel):
   @property   # caching it breaks status_computer's logic. need
   def challenge(self) -> Any:
     # we need a new @wiz_property with custom caching logic
-    return self.get_prop('challenge')
+    return self.get_prop(self.CHALLENGE_KEY)
 
   @cached_property
   def check_against(self) -> Optional[Any]:

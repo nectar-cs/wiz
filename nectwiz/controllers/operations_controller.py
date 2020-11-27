@@ -150,7 +150,7 @@ def step_run(operation_id, stage_id, step_id):
 def step_compute_settle_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
   prev_state = find_op_state().find_step_state(step)
-  status = step.compute_status(prev_state)
+  status = prev_state.inform_status_from_worker()
   return jsonify(
     status=status.get('status'),
     progress=status.get('progress')

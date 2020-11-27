@@ -29,7 +29,7 @@ class ResourceSelector(WizModel):
 
   @cached_property
   def res_name(self) -> str:
-    return self.resolve_prop(self.RES_NAME_KEY, warn=True)
+    return self.resolve_prop(self.RES_NAME_KEY)
 
   @cached_property
   def res_namespace(self) -> str:
@@ -55,10 +55,10 @@ class ResourceSelector(WizModel):
   def inflate_with_id(cls, _id: str, patches: Optional[Dict]) -> T:
     if ":" in _id:
       parts = _id.split(':')
-      return cls.inflate_with_config(dict(
-        res_kind=parts[len(parts) - 2],
-        name=parts[len(parts) - 1],
-      ))
+      return cls.inflate_with_config({
+        cls.RES_KIND_KEY: parts[len(parts) - 2],
+        cls.RES_NAME_KEY: parts[len(parts) - 1]
+      })
     else:
       return super().inflate_with_id(_id, patches)
 

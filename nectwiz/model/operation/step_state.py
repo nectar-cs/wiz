@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
-from nectwiz.core.core.types import PredEval, ExitStatuses, ActionOutcome
+from nectwiz.core.core import job_client
+from nectwiz.core.core.types import ExitStatuses, ActionOutcome
 
 IDLE = 'idle'
 RUNNING = 'running'
@@ -66,6 +67,23 @@ class StepState:
       **self.state_assigns,
       **self.pref_assigns
     )
+
+  def inform_status_from_worker(self) -> Dict:
+    action_job = job_client.find_job(self.job_id)
+    if action_job:
+      progress = job_client.job_progress(self.job_id)
+      if action_job.is_finished or action_job.is_failed:
+        if action_job.is_finished:
+          telem = job_client.job_telem(self.job_id)
+          self.notify_terminated(action_job.result, telem)
+        else:
+          self.notify_failed()
+        return dict(status=self.status, progress=progress)
+      else:
+        return dict(status='running', progress=progress)
+    else:
+      print(f"[nectwiz::step] danger job {self.job_id} lost!")
+      return dict(status='negative', progress={})
 
 
 def default_exit_statuses() -> ExitStatuses:

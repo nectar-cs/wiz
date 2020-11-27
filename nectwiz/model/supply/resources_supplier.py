@@ -1,10 +1,8 @@
-from functools import lru_cache
-from typing import List, Dict
+from typing import List
 
 from k8kat.res.base.kat_res import KatRes
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core.types import KoD
 from nectwiz.model.base.resource_selector import ResourceSelector
 from nectwiz.model.supply.value_supplier import ValueSupplier
 
@@ -15,10 +13,10 @@ class ResourcesSupplier(ValueSupplier):
 
   @cached_property
   def output_format(self):
-    if self.desired_output_format == 'options_format':
+    super_value = super(ResourcesSupplier, self).output_format
+    if super_value == 'options_format':
       return dict(id='name', title='name')
-    else:
-      return super(ResourcesSupplier, self).output_format
+    return super_value
 
   @cached_property
   def resource_selector(self) -> ResourceSelector:
@@ -28,7 +26,8 @@ class ResourcesSupplier(ValueSupplier):
     )
 
   def _compute(self) -> List[KatRes]:
-    return self.resource_selector.query_cluster()
+    result = self.resource_selector.query_cluster()
+    return result
 
   def serialize_prop(self):
     pass

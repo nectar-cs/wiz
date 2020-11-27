@@ -135,7 +135,7 @@ def deep_get(dict_root: Dict, keys: List[str]) -> Any:
     return dict_root
 
 
-def getattr_deep(obj, attr):
+def pluck_or_getattr_deep(obj, attr):
   """
   Deep attribute supply.
   :param obj: Object from which to get the attribute.
@@ -143,8 +143,11 @@ def getattr_deep(obj, attr):
   :return: value of the attribute if found, else None.
   """
   def _getattr(_obj, _attr):
-    returned = getattr(_obj, _attr)
-    return returned() if callable(returned) else returned
+    if type(_obj) == dict:
+      return _obj[_attr]
+    else:
+      returned = getattr(_obj, _attr)
+      return returned() if callable(returned) else returned
   try:
     return functools.reduce(_getattr, [obj] + attr.split('.'))
   except AttributeError:
