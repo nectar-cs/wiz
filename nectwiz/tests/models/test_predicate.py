@@ -18,6 +18,9 @@ class TestPredicate(Base.TestWizModel):
 
   def test_perform_comparison(self):
     self.assertTrue(comp('=', 1, 1))
+    self.assertTrue(comp('=', True, True))
+    self.assertTrue(comp('=', True, 'True'))
+    self.assertTrue(comp('=', 'true', True))
     self.assertTrue(comp('=', 1, '1'))
     self.assertTrue(comp('=', '1', 1))
     self.assertFalse(comp('=', '1', '2'))

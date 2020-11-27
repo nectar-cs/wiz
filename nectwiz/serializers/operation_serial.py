@@ -12,6 +12,7 @@ def ser_standard(operation: Operation):
     id=operation.id(),
     title=operation.title,
     info=operation.info,
+    tags=operation.tags,
     synopsis=operation.synopsis
   )
 

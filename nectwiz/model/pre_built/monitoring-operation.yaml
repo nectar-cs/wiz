@@ -1,10 +1,24 @@
+kind: Operation
+id: nectar.operations.locate-monitoring
+title: Locate Monitoring Server
+info: "Point the application to your cluster's monitoring server"
+synopsis: <p>"Point the application to your cluster's monitoring server"</p>
+tags: ['monitoring']
+stages:
+  - nectar.stages.monitoring
+
+---
+
 kind: Stage
 id: nectar.stages.monitoring
 title: Locate Monitoring Server
-info: The wiz gets better when it can read monitoring data.
+info: "If you have a monitoring service inside
+ or outside in your cluster,
+you can point this application to it in order to give
+Nectar data capabilities"
 steps:
   - id: nectar.steps.monitoring-step-1
-
+    title: Monitoring server type
     fields:
       - id: monitoring.type
         target: prefs
@@ -45,7 +59,7 @@ steps:
           - kind: FormatPredicate
             check_against: domain
           - challenge:
-              kind: HttpGetter
+              kind: HttpDataSupplier
               endpoint: "{value}"
               property: status_code
             check_against: 200
@@ -55,15 +69,17 @@ steps:
         target: prefs
         title: Namespace containing Prometheus Operator
         show_condition:
-          challenge: "{input/monitoring.proxy}"
+          challenge: true
           check_against: true
-        default: "{app/ns}"
-        input:
-          kind: SelectInput
-          options:
-            kind: ResourcesGetter
-            selector: "ns:*"
-            output: options_format
+        variable:
+          id: monitoring.service_namespace
+          default: "{app/ns}"
+          input:
+            kind: SelectInput
+            options:
+              kind: ResourcesSupplier
+              selector: "namespaces:*"
+              output: options_format
 
       - id: monitoring.service_name
         target: prefs
@@ -74,7 +90,7 @@ steps:
         input:
           kind: SelectInput
           options:
-            kind: ResourcesGetter
+            kind: ResourcesSupplier
             output: options_format
             selector:
               res_kind: Service

@@ -60,7 +60,7 @@ class UpdateManifestDefaultsActionPart:
     nested = utils.keyed2dict(keyed)
     config_man.patch_manifest_defaults(nested)
     config_man.patch_manifest_vars(nested)
-    return tam_client().apply([])
+    return tam_client().apply(rules=[], inlines={})
 
   @classmethod
   def on_mfst_vars_committed(cls, observer: Observer):

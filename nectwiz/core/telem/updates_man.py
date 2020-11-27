@@ -4,12 +4,17 @@ from typing import Dict, List, Optional
 from nectwiz.core.core import hub_api_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict, ProgressItem
-from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.action_parts.await_predicates_settle_action_part import AwaitPredicatesSettleActionPart
-from nectwiz.model.action.action_parts.run_hooks_action_part import RunHookGroupActionPart
-from nectwiz.model.action.action_parts.update_manifest_defaults_action_part import UpdateManifestDefaultsActionPart
+from nectwiz.model.action.action_parts.apply_manifest_action_part \
+  import ApplyManifestActionPart
+from nectwiz.model.action.action_parts.await_predicates_settle_action_part \
+  import AwaitPredicatesSettleActionPart
+from nectwiz.model.action.action_parts.run_hooks_action_part \
+  import RunHookGroupActionPart
+from nectwiz.model.action.action_parts.update_manifest_defaults_action_part \
+  import UpdateManifestDefaultsActionPart
 from nectwiz.model.action.base.action import Action
-from nectwiz.model.adapters.mock_update import MockUpdate, next_mock_update_id
+from nectwiz.model.adapters.mock_update \
+  import MockUpdate, next_mock_update_id
 from nectwiz.model.hook.hook import Hook
 
 TYPE_RELEASE = 'release'
@@ -121,7 +126,7 @@ def fetch_update(update_id: str) -> Optional[UpdateDict]:
     else:
       print(f"[nectwiz::updates_man] err requesting update {resp.status_code}")
   else:
-    model = MockUpdate.inflate_with_id(update_id)
+    model = MockUpdate.inflate(update_id)
     return model.as_bundle()
 
 
@@ -131,7 +136,7 @@ def next_available() -> Optional[UpdateDict]:
     data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
-    model = MockUpdate.inflate_with_id(next_mock_update_id)
+    model = MockUpdate.inflate(next_mock_update_id)
     return model.as_bundle()
 
 

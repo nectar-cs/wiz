@@ -3,7 +3,7 @@ from typing import Dict
 from flask import Blueprint, jsonify, request
 
 from nectwiz.controllers.ctrl_utils import jparse
-from nectwiz.core.core import job_client
+from nectwiz.core.core import job_client, utils
 from nectwiz.core.telem import telem_man
 from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation import Operation
@@ -33,7 +33,8 @@ def operations_index():
   Lists all existing Operations for a local app, except system ones.
   :return: list of minimally serialized Operation objects.
   """
-  operations_list = list(filter(Operation.is_system, Operation.inflate_all()))
+  all_ops = Operation.inflate_all()
+  operations_list = [op for op in all_ops if not op.is_system()]
   dicts = [operation_serial.ser_standard(c) for c in operations_list]
   return jsonify(data=dicts)
 
@@ -98,7 +99,7 @@ def step_refresh(operation_id, stage_id, step_id):
   :return: serialized Step object.
   """
   values: Dict = jparse()['values']
-  op_state = find_op_state()
+  op_state = find_op_state(operation_id=operation_id)
   step = find_step(operation_id, stage_id, step_id)
   synth_step_state = find_op_state().gen_step_state(step, keep=False)
   asgs = step.partition_flat_user_asgs(values, synth_step_state)
@@ -120,8 +121,9 @@ def step_preview_chart_assigns(operation_id, stage_id, step_id):
   :return: dictionary with chart assigns.
   """
   values = jparse()['values']
+  op_state = find_op_state(operation_id=operation_id)
   step = find_step(operation_id, stage_id, step_id)
-  synth_step_state = find_op_state().gen_step_state(step, keep=False)
+  synth_step_state = op_state.gen_step_state(step, keep=False)
   asgs = step.partition_flat_user_asgs(values, synth_step_state)
   return jsonify(data=asgs[Field.TARGET_CHART])
 
@@ -141,7 +143,8 @@ def step_run(operation_id, stage_id, step_id):
   """
   values = jparse()['values']
   step = find_step(operation_id, stage_id, step_id)
-  step_state = find_op_state().gen_step_state(step)
+  op_state = find_op_state(operation_id=operation_id)
+  step_state = op_state.gen_step_state(step)
   step.run(values, step_state)
   return jsonify(status=step_state.status)
 
@@ -149,8 +152,9 @@ def step_run(operation_id, stage_id, step_id):
 @controller.route(f"{STEP_PATH}/status")
 def step_compute_settle_status(operation_id, stage_id, step_id):
   step = find_step(operation_id, stage_id, step_id)
-  prev_state = find_op_state().find_step_state(step)
-  status = prev_state.inform_status_from_worker()
+  op_state = find_op_state(operation_id=operation_id)
+  step_state = op_state.gen_step_state(step)
+  status = step_state.inform_status_from_worker()
   return jsonify(
     status=status.get('status'),
     progress=status.get('progress')
@@ -177,7 +181,7 @@ def steps_next_id(operation_id, stage_id, step_id):
 def step_field_validate(operation_id, stage_id, step_id, field_id):
   value = jparse()['value']
   step = find_step(operation_id, stage_id, step_id)
-  op_state = find_op_state()
+  op_state = find_op_state(operation_id=operation_id)
   eval_result = step.validate_field(field_id, value, op_state)
   status = 'valid' if eval_result['met'] else eval_result['tone']
   message = None if eval_result['met'] else eval_result['reason']
@@ -232,8 +236,19 @@ def find_step(operation_id, stage_id, step_id) -> Step:
   return stage.step(step_id)
 
 
-def find_op_state(raise_on_fail=True) -> OperationState:
+def find_op_state(**kwargs) -> OperationState:
+  op_id = kwargs.get('operation_id')
+  raise_on_fail = kwargs.get('raise_on_fail', True)
+
   token = request.headers.get('Ostid')
-  if not token and raise_on_fail:
-    raise RuntimeError('OST ID not provided in headers!')
-  return OperationState.find(token) if token else None
+  op_state = OperationState.find(token) if token else None
+
+  if not op_state:
+    if utils.is_in_cluster():
+      if raise_on_fail:
+        raise RuntimeError('OST ID not provided in headers!')
+    else:
+      uuid = OperationState.gen(op_id)
+      op_state = OperationState.find(uuid)
+
+  return op_state

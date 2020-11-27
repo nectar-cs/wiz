@@ -1,16 +1,23 @@
-from typing import Dict, Any
+from typing import Any
 
 import requests
+from werkzeug.utils import cached_property
 
 from nectwiz.model.supply.value_supplier import ValueSupplier
 
 
 class HttpDataSupplier(ValueSupplier):
 
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.endpoint = config.get('endpoint')
-    self.desired_output_format = self.get_prop('output', 'status_code')
+  ENDPOINT_KEY = 'endpoint'
+
+  @cached_property
+  def endpoint(self):
+    return self.resolve_prop(self.ENDPOINT_KEY, warn=True)
+
+  @cached_property
+  def output_format(self):
+    super_value = super(HttpDataSupplier, self).output_format
+    return super_value or 'status_code'
 
   # noinspection PyBroadException
   def _compute(self) -> Any:

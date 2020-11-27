@@ -46,6 +46,7 @@ class Predicate(WizModel):
     return self.get_prop(self.REASON_KEY, '')
 
   def evaluate(self) -> bool:
+    print(f"Compare {self.challenge} ?= {self.check_against}")
     return self.perform_comparison(
       self.operator,
       self.challenge,
