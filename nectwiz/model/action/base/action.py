@@ -22,8 +22,6 @@ class Action(WizModel):
     self.halt_on_exc = config.get('treat_exception_as_fatal', True)
 
   def run(self, **kwargs) -> Any:
-    print("HEY ALIVE")
-    print(kwargs)
     try:
       self.outcome = self.perform(**kwargs)
     except ActionHalt as err:

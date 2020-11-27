@@ -14,7 +14,7 @@ def g_conf(**kwargs):
     **kwargs
   )
 
-def good_cmap_kao(ns: str) -> KAOs:
+def tam_apply_cmap(ns: str) -> KAOs:
   return TamClient.kubectl_apply([
     dict(
       apiVersion='v1',
@@ -34,17 +34,20 @@ def bad_cmap_kao(ns: str) -> KAOs:
     )
   ])
 
-def bad_pod_kao(ns: str) -> KAOs:
+def tam_apply_pod(**kwargs) -> KAOs:
   return TamClient.kubectl_apply([
     dict(
       apiVersion='v1',
       kind='Pod',
-      metadata=dict(name='pod-bad', namespace=ns),
+      metadata=dict(
+        name=kwargs.get('name', 'pod'),
+        namespace=kwargs['ns']
+      ),
       spec=dict(
         containers=[
           dict(
             name='main',
-            image=f"not-an-image-{utils.rand_str(10)}"
+            image=kwargs.get('image', 'nginx')
           )
         ]
       )

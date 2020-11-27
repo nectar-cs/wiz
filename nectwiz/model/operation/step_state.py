@@ -56,22 +56,6 @@ class StepState:
   def notify_failed(self):
     self.status = SETTLED_NEG
 
-  def notify_exit_status_computed(self, charge, new_eval: PredEval):
-    # noinspection PyTypedDict
-    existing: List[PredEval] = self.exit_statuses[charge]
-    key = 'predicate_id'
-    matcher = lambda old_eval: old_eval[key] == new_eval[key]
-    entry = next(filter(matcher, existing), None)
-    if entry:
-      entry['met'] = new_eval['met']
-      entry['name'] = new_eval.get('name')
-      entry['reason'] = new_eval.get('reason')
-    else:
-      existing.append(new_eval)
-
-  def all_exit_statuses(self) -> List[PredEval]:
-    return self.exit_statuses['positive'] + self.exit_statuses['negative']
-
   def all_assigns(self):
     """
     Merges chart assigns and state assigns extracted from the commit outcome.

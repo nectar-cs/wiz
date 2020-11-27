@@ -1,6 +1,6 @@
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.predicate.predicate import Predicate
-from nectwiz.model.operation.status_computer import eval_preds, compute
+from nectwiz.model.operation.predicate_statuses_computer import eval_preds, compute
 from nectwiz.model.operation.step import Step
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 

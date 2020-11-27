@@ -39,12 +39,11 @@ class RunPredicatesAction(Action):
           fatal=False,
           type='internal_error' if exc_dump else 'negative_predicate',
           event_type='predicate_eval',
-          predicate_id=predicate.id(),
-          predicate_kind=predicate.kind(),
           tone=predicate.tone,
           reason=predicate.reason,
           logs=[exc_dump] if exc_dump else [],
-          **predicate.error_extras()
+          extras=predicate.error_extras(),
+          resource=predicate.culprit_res_signature()
         )
     self.observer.on_ended(error_count == 0)
     return error_count == 0

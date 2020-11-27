@@ -3,9 +3,10 @@ from typing import Optional
 from nectwiz.core.core.types import TamDict, ProgressItem
 from nectwiz.model.action.action_parts.apply_manifest_action_part \
   import ApplyManifestActionPart
-from nectwiz.model.action.action_parts.await_settled_action_part \
-  import AwaitSettledActionPart
+from nectwiz.model.action.action_parts.await_predicates_settle_action_part \
+  import AwaitPredicatesSettleActionPart
 from nectwiz.model.action.base.action import Action
+from nectwiz.model.factory.predicate_factories import PredicateFactory
 
 
 class ApplyManifestAction(Action):
@@ -18,7 +19,7 @@ class ApplyManifestAction(Action):
       info="Updates the manifest and waits for a settled state",
       sub_items=[
         *ApplyManifestActionPart.progress_items(),
-        *AwaitSettledActionPart.progress_items()
+        *AwaitPredicatesSettleActionPart.progress_items()
       ]
     )
 
@@ -42,9 +43,9 @@ class ApplyManifestAction(Action):
       inlines=self.inlines
     )
 
-    AwaitSettledActionPart.perform(
+    AwaitPredicatesSettleActionPart.perform(
       self.observer,
-      outcomes
+      PredicateFactory.from_apply_outcome(outcomes)
     )
 
     self.observer.on_succeeded()

@@ -5,7 +5,7 @@ from nectwiz.core.core import hub_api_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict, ProgressItem
 from nectwiz.model.action.action_parts.apply_manifest_action_part import ApplyManifestActionPart
-from nectwiz.model.action.action_parts.await_settled_action_part import AwaitSettledActionPart
+from nectwiz.model.action.action_parts.await_predicates_settle_action_part import AwaitPredicatesSettleActionPart
 from nectwiz.model.action.action_parts.run_hooks_action_part import RunHookGroupActionPart
 from nectwiz.model.action.action_parts.update_manifest_defaults_action_part import UpdateManifestDefaultsActionPart
 from nectwiz.model.action.base.action import Action
@@ -50,7 +50,7 @@ class UpdateAction(Action):
       sub_items=[
         *UpdateManifestDefaultsActionPart.progress_items(),
         *ApplyManifestActionPart.progress_items(),
-        *AwaitSettledActionPart.progress_items(),
+        *AwaitPredicatesSettleActionPart.progress_items(),
       ]
     )
 
@@ -87,7 +87,7 @@ class UpdateAction(Action):
 
     outcomes = ApplyManifestActionPart.perform()
 
-    AwaitSettledActionPart.perform(
+    AwaitPredicatesSettleActionPart.perform(
       self.observer,
       outcomes
     )

@@ -12,9 +12,12 @@ class Predicate(WizModel):
   CHECK_AGAINST_KEY = 'check_against'
   TONE_KEY = 'tone'
   REASON_KEY = 'reason'
+  BLAME_RES_SIG = 'culprit_resource_signature'
+  CASCADES_FAILURE = 'optimistic'
 
-  @cached_property
-  def challenge(self):
+  @property   # caching it breaks status_computer's logic. need
+  def challenge(self) -> Any:
+    # we need a new @wiz_property with custom caching logic
     return self.get_prop('challenge')
 
   @cached_property
@@ -22,16 +25,20 @@ class Predicate(WizModel):
     return self.resolve_prop(self.CHECK_AGAINST_KEY, warn=True)
 
   @cached_property
-  def operator(self):
+  def operator(self) -> str:
     return self.get_prop(self.OPERATOR_KEY, '==')
 
   @cached_property
-  def tone(self):
+  def is_optimist(self) -> bool:
+    return self.get_prop(self.CASCADES_FAILURE, False)
+
+  @cached_property
+  def tone(self) -> str:
     return self.get_prop(self.TONE_KEY, 'error')
 
   @cached_property
-  def reason(self):
-    return self.get_prop(self.REASON_KEY)
+  def reason(self) -> str:
+    return self.get_prop(self.REASON_KEY, '')
 
   def evaluate(self) -> bool:
     return self.perform_comparison(
@@ -40,9 +47,14 @@ class Predicate(WizModel):
       self.check_against
     )
 
-  # noinspection PyMethodMayBeStatic
   def error_extras(self) -> Dict:
-    return {}
+    return dict(
+      predicate_id=self.id(),
+      predicate_kind=self.kind()
+    )
+
+  def culprit_res_signature(self) -> Dict:
+    return self.get_prop(self.BLAME_RES_SIG)
 
   # noinspection PyBroadException
   @staticmethod
