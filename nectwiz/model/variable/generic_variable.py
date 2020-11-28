@@ -20,7 +20,11 @@ class GenericVariable(WizModel):
 
   @cached_property
   def default_value(self) -> Optional[Any]:
-    return self.get_prop(self.DEFAULT_VALUE_KEY)
+    default_value = self.get_prop(self.DEFAULT_VALUE_KEY)
+    if default_value is None:
+      if self.input_model:
+        default_value = self.input_model.compute_inferred_default()
+    return default_value
 
   @cached_property
   def input_model(self) -> GenericInput:

@@ -19,6 +19,10 @@ Nectar data capabilities"
 steps:
   - id: nectar.steps.monitoring-step-1
     title: Monitoring server type
+#    action:
+#      kind: RunPredicatesAction
+#      predicates:
+
     fields:
       - id: monitoring.type
         target: prefs
@@ -69,7 +73,7 @@ steps:
         target: prefs
         title: Namespace containing Prometheus Operator
         show_condition:
-          challenge: true
+          challenge: "{input/monitoring.proxy}"
           check_against: true
         variable:
           id: monitoring.service_namespace
@@ -78,8 +82,7 @@ steps:
             kind: SelectInput
             options:
               kind: ResourcesSupplier
-              selector:
-                res_kind: Namespace
+              selector: "namespaces:*"
               output: options_format
 
       - id: monitoring.service_name

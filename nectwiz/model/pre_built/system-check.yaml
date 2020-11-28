@@ -33,3 +33,8 @@ challenge:
 tone: error
 reason: "One or more pods are pending morbidly or
 are unschedulable (e.g crash loop, image pull err, insufficient CPU)."
+
+---
+
+kind: Predicate
+id: nectar.predicate.is-monitoring-working

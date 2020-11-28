@@ -4,7 +4,6 @@ def default_model_classes():
   from nectwiz.model.adapters.deletion_spec import DeletionSpec
   from nectwiz.model.variable.manifest_variable import ManifestVariable
   from nectwiz.model.input.generic_input import GenericInput
-  from nectwiz.model.input.select_input import SelectInput
   from nectwiz.model.input.slider_input import SliderInput
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
   from nectwiz.model.operation.operation import Operation
@@ -48,6 +47,8 @@ def default_model_classes():
   from nectwiz.model.supply.resources_supplier import ResourcesSupplier
   from nectwiz.model.predicate.system_check import SystemCheck
   from nectwiz.model.supply.unit_supplier import UnitSupplier
+  from nectwiz.model.input.checkboxes_input import SelectInput
+  from nectwiz.model.input.select_option import InputOption
   return [
     Operation,
     Stage,
@@ -70,6 +71,7 @@ def default_model_classes():
     SelectInput,
     CheckboxesInput,
     CheckboxInput,
+    InputOption,
 
     ResourceSelector,
     FormatPredicate,

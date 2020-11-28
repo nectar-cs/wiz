@@ -11,11 +11,19 @@ from k8kat.res.svc.kat_svc import KatSvc
 
 from nectwiz.core.core.config_man import config_man
 
-_cache_obj = dict(
-  prom_config={},
-  svc=None
-)
 
+URL_KEY = 'url'
+IS_PROXY_KEY = 'proxy'
+SVC_NS_KEY = 'service_namespace'
+SVC_NAME_KEY = 'service_name'
+
+CACHE_CONFIG_KEY = 'prom_config'
+CACHE_SVC_KEY = 'svc'
+
+_cache_obj = {
+  CACHE_CONFIG_KEY: {},
+  CACHE_SVC_KEY: None
+}
 
 def compute_instant(*args):
   path, args = instant_path_and_args(*args)
@@ -28,18 +36,15 @@ def compute_series(*args):
 
 
 def do_invoke(path: str, args: Dict) -> Optional[Dict]:
-  _conn_type = conn_type()
-  if _conn_type == 'proxy':
+  if is_proxy():
     svc = find_prom_svc()
     return invoke_svc(svc, path, args) if svc else None
-  elif _conn_type == 'url':
-    return invoke_url(path, args)
   else:
-    return None
+    return invoke_url(path, args)
 
 
 def invoke_url(path, args: Dict) -> Optional[Dict]:
-  base_url = prom_config().get('url')
+  base_url = prom_config().get(URL_KEY)
   full_url = f"{base_url}{path}?{dict_args2str(args)}"
   resp = requests.get(full_url)
   if resp.ok:
@@ -110,26 +115,24 @@ def fmt_time(timestamp: datetime):
 
 
 def find_prom_svc() -> Optional[KatSvc]:
-  if not _cache_obj['svc']:
+  if not _cache_obj[CACHE_SVC_KEY]:
     prefs = prom_config()
-    prom_ns = prefs.get('ns', def_svc_ns)
-    prom_name = prefs.get('name', def_svc_name)
-    _cache_obj['svc'] = KatSvc.find(prom_name, prom_ns)
+    prom_ns = prefs.get(SVC_NS_KEY)
+    prom_name = prefs.get(SVC_NAME_KEY)
+    _cache_obj[CACHE_SVC_KEY] = KatSvc.find(prom_name, prom_ns)
     if not _cache_obj['svc']:
       print(f"[nectwiz:prom_client] svc [{prefs}] not found")
-  return _cache_obj['svc']
+  return _cache_obj[CACHE_SVC_KEY]
 
 
 def prom_config() -> Dict:
-  if not _cache_obj['prom_config']:
-    root = config_man.prefs().get('prom_config') or {}
-    _cache_obj['prom_config'] = root
-  return _cache_obj['prom_config'] or {}
+  if not _cache_obj[CACHE_CONFIG_KEY]:
+    root = config_man.prefs().get('monitoring') or {}
+    print(CACHE_CONFIG_KEY)
+    print(root)
+    _cache_obj[CACHE_CONFIG_KEY] = root
+  return _cache_obj[CACHE_CONFIG_KEY] or {}
 
 
-def conn_type() -> str:
-  return prom_config().get('type')
-
-
-def_svc_ns = "monitoring"
-def_svc_name = "prometheus-prometheus-oper-prometheus"
+def is_proxy() -> bool:
+  return prom_config().get('proxy', False)

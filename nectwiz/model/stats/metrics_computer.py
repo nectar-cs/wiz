@@ -13,5 +13,8 @@ class MetricsComputer(WizModel):
       print(traceback.format_exc())
       print(f"[metrics_computer:compute] runtime err ^")
 
+  def is_connected(self) -> bool:
+    pass
+
   def _do_compute(self):
     raise NotImplementedError
