@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 
 from nectwiz.core.core.types import PredEval
 from nectwiz.model.base.wiz_model import WizModel
-from nectwiz.model.input.input import GenericInput
+from nectwiz.model.input.generic_input import GenericInput
 from nectwiz.model.predicate.predicate import Predicate
 from nectwiz.model.variable.variable_value_decorator import VariableValueDecorator
 

@@ -38,12 +38,12 @@ items:
 
 ---
 
-kind: PrefsVariablePredicate
+kind: Predicate
 id: nectar.predicate.check-telem-is-disabled
 title: Ensure telemetry storage is currently disabled
 info: "Ensure that telemetry storage is disabled before enabling it."
-variable: telem_db.strategy
 operator: in
+challenge: "{prefs/telem_db.strategy}"
 check_against: [disabled, __undefined__]
 reason: "It seems that telemetry storage is already enabled. Instead
     of proceeding, disable it safely using the appropriate operation."
@@ -51,12 +51,12 @@ tone: error
 
 ---
 
-kind: PrefsVariablePredicate
+kind: Predicate
 id: nectar.predicate.check-telem-is-pvc
 title: Ensure Telemetry is currently stored in-cluster
 info: "Ensure it makes sense to perform this operation by checking
 the current configurations."
-variable: telem_db.strategy
+challenge: "{prefs/telem_db.strategy}"
 check_against: managed_pvc
 reason: "It seems that telemetry is not
 currently saved to an internal PVC. Proceeding will not do harm but

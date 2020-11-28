@@ -1,6 +1,6 @@
 from typing import Optional
 
-from nectwiz.model.input.input import GenericInput
+from nectwiz.model.input.generic_input import GenericInput
 
 
 class SelectInput(GenericInput):

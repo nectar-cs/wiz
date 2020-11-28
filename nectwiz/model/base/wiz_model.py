@@ -170,18 +170,22 @@ class WizModel:
     @param child_class: class all children must a subclass of
     @return: resolved list of WizModel children
     """
-    kods_or_provider_kod: Union[List[KoD], KoD] = kwargs.get('kod')
-    if kods_or_provider_kod is None:
-      kods_or_provider_kod = self.config.get(kwargs.get('prop')) or []
+    kods_or_supplier: Union[List[KoD], KoD] = kwargs.get('kod')
+    if kods_or_supplier is None:
+      kods_or_supplier = self.config.get(kwargs.get('prop')) or []
     patches: Optional[Dict] = kwargs.get('patches')
 
-    if type(kods_or_provider_kod) == list:
+    kods_or_supplier = kods_or_supplier or []
+
+    if type(kods_or_supplier) == list:
+      children_kods = kods_or_supplier
       to_child = lambda obj: self.kod2child(obj, child_class, patches=patches)
-      return list(map(to_child, kods_or_provider_kod))
+      return list(map(to_child, children_kods))
     else:
       from nectwiz.model.supply.value_supplier import ValueSupplier
-      provider: ValueSupplier = self.inflate(kods_or_provider_kod)
-      actual_kods = provider.resolve()
+      supplier_kod = kods_or_supplier
+      supplier = self.kod2child(supplier_kod, ValueSupplier, patches=patches)
+      actual_kods = supplier.resolve()
       return self.inflate_children(
         child_class,
         kod=actual_kods,
@@ -228,7 +232,6 @@ class WizModel:
     skip_intercept = kwargs.get('skip_intercept')
     if not skip_intercept:
       kod = cls.try_iftt_intercept(kod=kod, patches=patches)
-
     try:
       if isinstance(kod, str):
         return cls.inflate_with_id(kod, patches)
@@ -237,7 +240,7 @@ class WizModel:
       raise RuntimeError(f"Bad input {kod}")
     except Exception as err:
       if not kwargs.get('safely'):
-        print(f"[nectwiz:{cls.kind()} inflation error below for {kod}]")
+        print(f"[nectwiz:{cls.kind()}] inflation error below for {kod}")
         raise err
 
   @classmethod

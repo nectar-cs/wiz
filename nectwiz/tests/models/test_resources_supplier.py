@@ -1,4 +1,3 @@
-import time
 from typing import Type
 
 from k8kat.utils.testing import simple_pod, ns_factory

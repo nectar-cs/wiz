@@ -78,7 +78,8 @@ steps:
             kind: SelectInput
             options:
               kind: ResourcesSupplier
-              selector: "namespaces:*"
+              selector:
+                res_kind: Namespace
               output: options_format
 
       - id: monitoring.service_name

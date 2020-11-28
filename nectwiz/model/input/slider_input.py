@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 from werkzeug.utils import cached_property
 
-from nectwiz.model.input.input import GenericInput
+from nectwiz.model.input.generic_input import GenericInput
 
 
 class SliderInput(GenericInput):

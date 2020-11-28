@@ -1,12 +1,9 @@
-from typing import List, Type
-
-
 def default_model_classes():
   from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
   from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
   from nectwiz.model.adapters.deletion_spec import DeletionSpec
   from nectwiz.model.variable.manifest_variable import ManifestVariable
-  from nectwiz.model.input.input import GenericInput
+  from nectwiz.model.input.generic_input import GenericInput
   from nectwiz.model.input.select_input import SelectInput
   from nectwiz.model.input.slider_input import SliderInput
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
@@ -50,6 +47,7 @@ def default_model_classes():
   from nectwiz.model.supply.http_data_supplier import HttpDataSupplier
   from nectwiz.model.supply.resources_supplier import ResourcesSupplier
   from nectwiz.model.predicate.system_check import SystemCheck
+  from nectwiz.model.supply.unit_supplier import UnitSupplier
   return [
     Operation,
     Stage,
@@ -83,6 +81,7 @@ def default_model_classes():
     ValueSupplier,
     HttpDataSupplier,
     ResourcesSupplier,
+    UnitSupplier,
 
     AppStatusComputer,
     SystemCheck,

@@ -8,6 +8,7 @@ from nectwiz.model.operation.step import Step
 from nectwiz.model.predicate.common_predicates \
   import TruePredicate, FalsePredicate
 from nectwiz.model.predicate.iftt import Iftt
+from nectwiz.model.supply.unit_supplier import UnitSupplier
 from nectwiz.model.supply.value_supplier import ValueSupplier
 from nectwiz.tests.models.helpers import g_conf
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
@@ -191,6 +192,42 @@ class Base:
       self.assertEqual('inheritor-id', inheritor.id())
       self.assertEqual('inheritor-title', inheritor.title)
       self.assertEqual('donor-info', inheritor.info)
+
+    def test_inflate_children_with_supplier(self):
+      class MockChildClass(WizModel):
+        pass
+
+      supplier_config = {
+        'kind': UnitSupplier.__name__,
+        UnitSupplier.DATA_KEY: [
+          {'my-id-key': 'foo1', 'my-title-key': 'bar1'},
+          {'my-id-key': 'foo2', 'my-title-key': 'bar2'}
+        ],
+        ValueSupplier.OUTPUT_FMT_KEY: {
+          'id': 'my-id-key',
+          'title': 'my-title-key'
+        }
+      }
+
+      instance = self.model_class()({
+        'mock-children': supplier_config
+      })
+
+      models_man.clear(restore_defaults=True)
+      models_man.add_classes([MockChildClass])
+
+      children = instance.inflate_children(
+        MockChildClass,
+        prop='mock-children'
+      )
+
+      self.assertEqual(2, len(children))
+
+      self.assertEqual('foo1', children[0].id())
+      self.assertEqual('bar1', children[0].title)
+
+      self.assertEqual('foo2', children[1].id())
+      self.assertEqual('bar2', children[1].title)
 
     def test_inflate_with_config_expl_cls(self):
       class SubModel(self.model_class()):

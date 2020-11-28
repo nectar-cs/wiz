@@ -1,4 +1,4 @@
-from nectwiz.model.input.input import GenericInput
+from nectwiz.model.input.generic_input import GenericInput
 
 
 def in_variable(ginput: GenericInput):
