@@ -60,6 +60,8 @@ def coerce_sub_tokens(string: str):
 def interp(value: Any, context: Dict) -> Any:
   if type(value) == str:
     fmt_string = coerce_sub_tokens(value)
-    return fmt_string.format(SubsGetter(context or {}))
+    actual = fmt_string.format(SubsGetter(context or {}))
+    actual = None if actual == 'None' else actual
+    return actual
   else:
     return value

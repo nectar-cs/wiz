@@ -34,12 +34,7 @@ class AccessPointAdapter(WizModel):
   def underlying_svc(self) -> Optional[KatSvc]:
     if self.resource_selector:
       matches = self.resource_selector.query_cluster()
-      print(f"MATCHES {matches}")
       res = next(iter(matches), None)
-      if res:
-        print("WINNER")
-        print(res.kind)
-        print(res.name)
       if res and isinstance(res, KatSvc):
         return res
     return None
@@ -51,8 +46,6 @@ class AccessPointAdapter(WizModel):
   @cached_property
   def url(self) -> Optional[str]:
     explicit = self.get_prop(self.URL_KEY)
-    print(f"{self.title} EXPLICIT URL {explicit}")
-    print(f"INDERRED {self.infer_url()}")
     return explicit or self.infer_url()
 
   @cached_property
@@ -84,13 +77,9 @@ class AccessPointAdapter(WizModel):
     return None
 
   def infer_url(self):
-    print("INFER TIME")
-    print(self.underlying_svc)
     if self.underlying_svc:
-      val = self.underlying_svc.external_ip or \
+      return self.underlying_svc.external_ip or \
              self.underlying_svc.internal_ip
-      print(f"INFERRED {val}")
-      return val
     return None
 
   def infer_port(self) -> str:
