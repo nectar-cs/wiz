@@ -64,7 +64,6 @@ def dict_args2str(args: Dict) -> str:
 
 def invoke_svc(svc, path, args) -> Optional[Dict]:
   resp = svc.proxy_get(path, args) or {}
-  print(args)
   if resp.get('status', 500) < 300:
     try:
       return json.loads(resp.get('body'))
@@ -128,8 +127,6 @@ def find_prom_svc() -> Optional[KatSvc]:
 def prom_config() -> Dict:
   if not _cache_obj[CACHE_CONFIG_KEY]:
     root = config_man.prefs().get('monitoring') or {}
-    print(CACHE_CONFIG_KEY)
-    print(root)
     _cache_obj[CACHE_CONFIG_KEY] = root
   return _cache_obj[CACHE_CONFIG_KEY] or {}
 

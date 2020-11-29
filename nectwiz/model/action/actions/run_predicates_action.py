@@ -16,7 +16,7 @@ class RunPredicatesAction(Action):
   def predicates(self) -> List[Predicate]:
     return self.inflate_children(Predicate, prop=self.PREDICATES_KEY)
 
-  def perform(self):
+  def perform(self, **kwargs):
     self.observer.set_items(list(map(pred2subitem, self.predicates)))
     error_count = 0
     for predicate in self.predicates:

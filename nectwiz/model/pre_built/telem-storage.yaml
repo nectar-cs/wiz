@@ -82,7 +82,14 @@ steps:
       - id: telem_db.strategy
         target: prefs
         title: Database Strategy
-        default: managed_pvc
+        default: disabled
+        decorator:
+          template: "<p>A MongoDB deployment backed by a PersistentVolumeClaim
+          will be create in the {app/ns} namespace.</p><br/> <p>You will be able to
+          resize, delete, and backup the database later.</p>"
+          show_condition:
+            challenge: "{input/telem_db.strategy}"
+            check_against: managed_pvc
         input:
           kind: SelectInput
           options:
@@ -107,6 +114,7 @@ steps:
             operator: =/=
             tone: error
             reason: "Not available for your current plan"
+
       - id: telem_db.host
         title: MongoDB database host
         target: prefs
@@ -116,6 +124,7 @@ steps:
         show_condition:
           challenge: "{input/telem_db.strategy}"
           check_against: self_managed
+
       - id: telem_db.port
         title: MongoDB database host
         target: prefs
@@ -175,7 +184,6 @@ stages:
             title: I have read and understood the above.
             target: state
             input: CheckboxInput
-            default: false
             validation:
-              check_against: True
-              reason: "Check to continue"
+              - check_against: true
+                reason: "Check to continue"

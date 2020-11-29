@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_man
-from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsAdapter
+from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
 from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
@@ -108,6 +108,5 @@ def application_endpoints():
   Returns a list of application endpoint adapters.
   :return: list of serialized adapters.
   """
-  adapter = AccessPointsAdapter.descendent_or_self()
-  aps = [ap for ap in adapter.access_points() if ap is not None]
-  return jsonify(data=aps)
+  adapter = AccessPointsProvider.inflate_singleton()
+  return jsonify(data=adapter.serialize_access_points())

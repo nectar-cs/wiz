@@ -49,6 +49,9 @@ def default_model_classes():
   from nectwiz.model.supply.unit_supplier import UnitSupplier
   from nectwiz.model.input.checkboxes_input import SelectInput
   from nectwiz.model.input.select_option import InputOption
+  from nectwiz.model.adapters.app_endpoints_adapter import AccessPointAdapter
+  from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
+
   return [
     Operation,
     Stage,
@@ -87,6 +90,8 @@ def default_model_classes():
 
     AppStatusComputer,
     SystemCheck,
+    AccessPointsProvider,
+    AccessPointAdapter,
 
     MultiAction,
     CmdExecAction,

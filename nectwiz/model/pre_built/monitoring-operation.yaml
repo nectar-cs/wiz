@@ -19,10 +19,18 @@ Nectar data capabilities"
 steps:
   - id: nectar.steps.monitoring-step-1
     title: Monitoring server type
-#    action:
-#      kind: RunPredicatesAction
-#      predicates:
-
+    action:
+      kind: RunPredicatesAction
+      predicates:
+        - id: ping-monitoring
+          title: Monitoring Service is Reachable
+          challenge:
+            kind: HttpDataSupplier
+            endpoint: "{prefs/monitoring.url}"
+            property: status_code
+            check_against: 200
+            tone: error
+            reason: "Endpoint did not return status code 200"
     fields:
       - id: monitoring.type
         target: prefs

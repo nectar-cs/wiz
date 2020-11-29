@@ -12,7 +12,7 @@ def ser_embedded_field(field: Field, value, state: OperationState) -> Dict:
   decorated_value = None
   decorator = field.variable.value_decorator
 
-  if decorator:
+  if decorator and decorator.compute_visibility():
     value = current_or_default if not value else value
     decorated_value = decorator.decorate(value, state)
 

@@ -1,7 +1,8 @@
 import json
-from typing import Optional, Any, List, Dict
+from typing import Optional, Any, List, Dict, Callable
 
 from rq import Queue
+from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
 from nectwiz.core.core.types import ProgressItem, KoD, ErrDict
@@ -10,17 +11,20 @@ from nectwiz.worker import conn
 
 queue = Queue(connection=conn)
 
-def enqueue_action(key_or_dict: KoD, **kwargs):
+def enqueue_action(key_or_dict: KoD, **kwargs) -> str:
   return enqueue_func(load_and_perform_action, key_or_dict, **kwargs)
 
 
-def enqueue_func(func, *args, **kwargs):
+def enqueue_func(func: Callable, *args, **kwargs) -> str:
   job = queue.enqueue(func, *args, **kwargs)
   return job.get_id()
 
 
-def find_job(job_id: str) -> Job:
-  return Job.fetch(job_id, connection=conn)
+def find_job(job_id: str) -> Optional[Job]:
+  try:
+    return Job.fetch(job_id, connection=conn)
+  except NoSuchJobError:
+    return None
 
 
 def ternary_job_status(job_id: str) -> Optional[str]:
