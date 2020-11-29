@@ -156,7 +156,7 @@ def upload_events_and_errors():
         patch = {'$set': {key_synced: True}}
         get_db()[collection_name].update_one(query, patch)
       else:
-        print(f"[nectwiz:telem_man] failed ${collection_name} ${item}: ")
+        print(f"[nectwiz:telem_man] failed {collection_name} {item}: ")
         print(resp)
 
 

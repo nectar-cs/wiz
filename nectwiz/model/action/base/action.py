@@ -37,7 +37,6 @@ class Action(WizModel):
       print(f"[nectwiz::action] fatal uncaught exception {err}")
       print(traceback.format_exc())
       self.observer.process_error(
-        id='internal-error',
         type='internal_error',
         fatal=self.halt_on_exc,
         tone='error',
