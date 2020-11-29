@@ -1,10 +1,8 @@
-import traceback
-from typing import Dict
-
 from werkzeug.utils import cached_property
 
 from nectwiz.core.core.config_man import config_man
 from nectwiz.model.base.wiz_model import WizModel
+from nectwiz.model.predicate.common_predicates import FalsePredicate
 from nectwiz.model.predicate.predicate import Predicate
 
 
@@ -22,8 +20,9 @@ class AppStatusComputer(WizModel):
   def predicate(self) -> Predicate:
     return self.inflate_child(
       Predicate,
-      prop=self.PREDICATE_KEY
-    )
+      prop=self.PREDICATE_KEY,
+      safely=True
+    ) or self.inflate_child(Predicate, kod=FalsePredicate.__name__)
 
   def compute_status(self) -> str:
     eval_result = self.predicate.evaluate()

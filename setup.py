@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="nectwiz",
-  version="0.0.304",
+  version="0.0.308",
   author="Nectar Cloud Software",
   author_email="xavier@codenectar.com",
   description="App Wizard",

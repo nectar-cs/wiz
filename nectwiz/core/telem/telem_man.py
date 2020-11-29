@@ -116,7 +116,7 @@ def upload_status() -> bool:
     return False
 
   from nectwiz.model.adapters.app_status_computer import AppStatusComputer
-  status_computer: AppStatusComputer = AppStatusComputer.descendent_or_self()
+  status_computer = AppStatusComputer.inflate_singleton()
   status_computer.compute_and_commit_status()
 
   tam = config_man.tam()

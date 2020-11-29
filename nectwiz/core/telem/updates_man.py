@@ -15,6 +15,7 @@ from nectwiz.model.action.action_parts.update_manifest_defaults_action_part \
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.adapters.mock_update \
   import MockUpdate, next_mock_update_id
+from nectwiz.model.factory.predicate_factories import PredicateFactory
 from nectwiz.model.hook.hook import Hook
 
 TYPE_RELEASE = 'release'
@@ -90,11 +91,13 @@ class UpdateAction(Action):
       update
     )
 
-    outcomes = ApplyManifestActionPart.perform()
+    outcomes = ApplyManifestActionPart.perform(
+      observer=self.observer
+    )
 
     AwaitPredicatesSettleActionPart.perform(
       self.observer,
-      outcomes
+      PredicateFactory.from_apply_outcome(outcomes)
     )
 
     RunHookGroupActionPart.perform(
