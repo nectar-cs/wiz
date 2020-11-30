@@ -90,20 +90,22 @@ steps:
             kind: SelectInput
             options:
               kind: ResourcesSupplier
-              selector: "namespaces:*"
+              selector: "Namespace:*"
               output: options_format
 
       - id: monitoring.service_name
         target: prefs
         title: Prometheus Operator Service
         show_condition:
-          challenge: "{input/monitoring.proxy}"
-          check_against: true
+          challenge: "{input/monitoring.service_namespace}"
+          operator: presence
         input:
           kind: SelectInput
           options:
             kind: ResourcesSupplier
-            output: options_format
             selector:
               res_kind: Service
               namespace: "{input/monitoring.service_namespace}"
+            output: options_format
+        validation:
+          - operator: presence

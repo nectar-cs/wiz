@@ -64,7 +64,6 @@ class Field(WizModel):
     return {k: v for k, v in pool if k in relevant}
 
   def compute_visibility(self) -> bool:
-    print(f"My Turn {self.id()}")
     if self.show_condition_predicate:
       return self.show_condition_predicate.evaluate()
     return True
