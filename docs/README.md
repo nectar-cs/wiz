@@ -27,41 +27,35 @@ applications are expected to generate their manifests by
 interpolating template files with variables from variables files
 and command line args. 
 
-Any templating engine works as long as it conforms to a simple protocol 
-(next section). Three ingredient are necessary:
-1. A template file (e.g a chart) with some substitution scheme
-2. A values file for all substitutions
-3. Some Templating Engine that prints out the interpolated result:
-
-Like Helm, Nectar creates a ConfigMap/Secret to store the current
+Also like Helm, Nectar creates a ConfigMap/Secret to store the current
 state of the `values` the user passes to the templating engine.
 
 ### <u>Unlike Helm</u>: Bring your own Templating Engine
 
 Unlike Helm, with Nectar, application distribution is decoupled
-from manifest templating. That means Nectar is **not bound to
+from manifest templating entirely. That means Nectar is **not bound to
  any one templating engine**. 
-Instead, it works with any **container image** or **API** that, when invoked, 
-outputs templated YAML/JSON given a collection of values for substitution.
-We call this abstraction the **Templatable Application Manifest** 
-or **TAM** for short.   
 
-#### TAMs as Containers
+Instead, Nectar expects the vendor to supply it with url to an **API
+or a Docker image** that  will perform the templating work on demand. 
+We call this abstraction the 
+[**TAM: Templatable Application Manifest**](http://localhost:3000/#/key-concepts?id=templating-with-tams).
 
-Any container image that performs the following works:
-1. `docker run <my-tam> values` => dump of default values in YAML/JSON
-2. `docker run <my-tam> template -f <values-file-path> --set var=val` => 
-	dump templated manifest as YAML/JSON
+This means that vendors free to ship apps with any templating strategy
+they want, as long as it conforms to one of two easy protocols list below.
+Check out the [Full Tutorial](/tams). 
 
-If you use Helm today, you can grab the `helm2nectar` 
-docker image to do this automatically.
-Otherwise, you can roll out your own by hacking a simple script together.
-
-#### TAMs as APIs
+#### API-based Templating
 
 Any API that performs the following works:
-1. `GET https://<my-tam-host>/values` => dump of default values as JSON
-2. `POST https://<my-tam-host>/template {values: <values as JSON>}` => dump templated manifest as JSON
+1. `GET` to `https://<my-api>/values`
+2. `POST` to `https://<my-api>/template {values: <values as JSON>}`
+
+#### Container-based Templating
+
+Any container image that performs the following works:
+1. `docker run` to `<my-image> values`
+2. `docker run` to `<my-image> template -f <values-file-path> --set var=val`
 
 
 ### <u>Like Operators</u>: Encoding Operational Knowledge

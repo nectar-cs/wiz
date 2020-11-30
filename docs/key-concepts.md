@@ -68,6 +68,17 @@ At install time, time the client application will **create
 a `ServiceAccount` for the `wiz` bound to those policies**. 
 
 
+
+## Templating with TAMs
+
+Templating resource manifests is central to Kubernetes application development.
+While the templating logic itself can vary widely in shape and complexity,
+the **templating contract** is always the same and is always simple: 
+provide variables as input, get Kubernetes-ready YAML/JSON back as output.   
+As such, Nectar mandates a very simple **standard templating contract** while
+making no assumptions about the templating method. We call this contract the **TAM:
+Templatable Application Manifest**. 
+
 ## The Client Application
 
 Users have two client programs to choose from: Nectop the desktop
@@ -79,51 +90,6 @@ over HTTP using the Kubernetes cluster's `proxy` feature.
 Client applications offload as much functionality to an application's
 `wiz` as possible, so as keep vendors in control of their apps. The client
 applications themselves, while open-source, cannot be customized by vendors.
-
-
-## TAMs
-
-Nectar gives vendors the freedom to do manifest templating however they choose.
-The only requirements are that that their template generators 1) may 
-be invoked as docker commands or APIs calls, and that 2) they conform 
-to the basic protocols below.
-
-
-#### Container-based TAM Protocol
-
-There must be a publicly accessible container that supports two commands:
-```
-docker run <tam-container-uri> values
-docker run <tam-container-uri> template -v <values_fname> --set <var>=<val>
-```
-
-When the `wiz` invokes a container-based TAM, it programatically creates a `Pod`
-in the application's namespace with one the two commands above as its `command`. 
-The pod will have a few seconds to execute and is given no RBAC permissions.
-
-Because the TAM container runs inside the cluster, Nectar mounts 
-the application's `master ConfigMap` as a volume whose path resolves to `/etc/values.yaml`.
-Therefore, beyond needing to be able to interpret inline `--set x=y` assignments,
-your container-based TAM must also be alle to load up a YAML file afrom the
-value of `-v`.
-
-> **Note:** Container based TAMs are more secure 
-but are also **slower** due to the Pod-creation overhead.
-
-
-#### API-based TAM Protocol
-
-There must be a publicly accessible server that supports two API calls:
-```
-GET https://<tam-api-uri>/api/values
-POST https://<tam-api-uri>/api/template {values: <JSON value dump>}
-```
-
-When the `wiz` invokes a remote API-based TAM, it will be `POST`ing 
-values over the web, so the API **must be behind HTTPS**.
-
-> **Note:** Container based TAMs are more secure 
-but are also **slower** due to the Pod-creation overhead.
 
 
 //## Wiz's

@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
 </head>
 <body>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-docker.min.js"></script>
   <div id="app"></div>
   <script>
     window.$docsify = {
@@ -16,7 +18,16 @@
       repo: '',
       loadSidebar: true,
       subMaxLevel: 2,
-      auto2top: true
+      auto2top: true,
+      plugins: [
+        function (hook, vm) {
+          hook.doneEach(function (html) {
+            Prism.highlightAll()
+            console.log('mounted,', Prism, Prism.languages.flow)
+          })
+
+        }
+      ]
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>

@@ -1,7 +1,7 @@
 * Overview
     * [Shipping apps on a Red Carpet](README.md)
-    * [Main Featurs for Users](features.md)
-    * [Key Concepts for Publishers](key-concepts.md)        
+    * [Key Concepts for Publishers](key-concepts.md)
+    * [Manifest APIs & Images](tams.md)        
     * [Getting Started For Publishers](getting-started.md)
 * Wiz Models
     * [Models Ovewview](models-overview.md)

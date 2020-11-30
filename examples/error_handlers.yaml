@@ -1,6 +1,7 @@
 kind: ErrorHandler
 selector:
-  kind: ErrorFilter
+  property_selector:
+    type: predicate
   matches:
     initiator: update
     event: kubectl_apply
@@ -12,18 +13,3 @@ selector:
   - kubectl_apply
   - predicate_eval
   - template_error
-
----
-
-tic-tac:
-  diagnosis:
-    text: "It looks like "
-    fixes:
-      - "Delete the application, do this"
-      - "Try removing this or that"
-
-  - what: kubectl-apply-error
-    when:
-      - operation
-      - apply variable
-      - apply update

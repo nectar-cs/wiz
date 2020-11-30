@@ -52,6 +52,7 @@ def default_model_classes():
   from nectwiz.model.adapters.app_endpoints_adapter import AccessPointAdapter
   from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
 
+  from nectwiz.model.supply.random_string_supplier import RandomStringSupplier
   return [
     Operation,
     Stage,
@@ -87,6 +88,7 @@ def default_model_classes():
     HttpDataSupplier,
     ResourcesSupplier,
     UnitSupplier,
+    RandomStringSupplier,
 
     AppStatusComputer,
     SystemCheck,
