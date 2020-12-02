@@ -4,9 +4,10 @@
     * [Manifest APIs & Images](tams.md)        
     * [Getting Started For Publishers](getting-started.md)
 * Wiz Models
-    * [Models Ovewview](models-overview.md)
+    * [Models Overview](models-overview.md)
     * [Operations](operations.md)
     * [Variables](templating.md)
+    * [Value Suppliers](templating.md)
     * [Predicates](code-org.md)
     * [Actions](code-org.md)
     * [Hooks](code-org.md)

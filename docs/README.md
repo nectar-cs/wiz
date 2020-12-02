@@ -45,19 +45,6 @@ This means that vendors free to ship apps with any templating strategy
 they want, as long as it conforms to one of two easy protocols list below.
 Check out the [Full Tutorial](/tams). 
 
-#### API-based Templating
-
-Any API that performs the following works:
-1. `GET` to `https://<my-api>/values`
-2. `POST` to `https://<my-api>/template {values: <values as JSON>}`
-
-#### Container-based Templating
-
-Any container image that performs the following works:
-1. `docker run` to `<my-image> values`
-2. `docker run` to `<my-image> template -f <values-file-path> --set var=val`
-
-
 ### <u>Like Operators</u>: Encoding Operational Knowledge
 
 Transfering application-specific infrastructure knowledge is

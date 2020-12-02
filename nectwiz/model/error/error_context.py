@@ -31,10 +31,10 @@ class ErrCtx:
 
   @cached_property
   def resource_dict(self) -> Dict:
-    if self.kubernetes_resource:
-      return self.kubernetes_resource.raw
-    else:
-      return self._errdict.get('resource')
+    # if self.kubernetes_resource:
+    #   return self.kubernetes_resource.raw
+    # else:
+    return self._errdict.get('resource')
 
   @staticmethod
   def extract_kat_res(res_desc: Dict) -> Optional[KatRes]:
