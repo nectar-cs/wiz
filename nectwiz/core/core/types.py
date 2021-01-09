@@ -3,6 +3,11 @@ from typing import Optional, Dict, List, Union
 from typing_extensions import TypedDict
 
 
+class TemplateArgs(TypedDict, total=False):
+  flat_inlines: Dict
+  values: Dict
+
+
 class ProgressItem(TypedDict, total=False):
   id: Optional[str]
   title: str

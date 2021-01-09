@@ -1,9 +1,11 @@
 import json
+from typing import Dict, List
 
 from k8kat.auth.kube_broker import broker
 from kubernetes.client import V1ConfigMap, V1ObjectMeta
 
 from nectwiz.core.core.config_man import config_man, tam_config_key, tam_vars_key
+from nectwiz.core.tam.virtual_tam_client import VirtualTamClient
 from nectwiz.model.operation.operation_state import OperationState
 from nectwiz.model.operation.step_state import StepState
 
@@ -52,3 +54,23 @@ def foo_bar_setup(ns):
     ('foo', 'bar'),
     ('bar.foo', 'baz')
   ])
+
+
+class TrivialVirtualTam(VirtualTamClient):
+  def _template(self, values: Dict) -> List[Dict]:
+    return [
+      {
+        'apiVersion': 'v1',
+        'kind': 'ConfigMap',
+        'metadata': {
+          'name': 'foo',
+          'namespace': self.release_name()
+        },
+        'data': {
+          'k': f"v-{values.get('k')}"
+        }
+      }
+    ]
+
+  def _default_values(self) -> Dict:
+    return {'k': 1}

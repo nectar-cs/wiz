@@ -78,7 +78,7 @@ def status():
 @controller.route('/api/status/templated_manifest')
 def templated_manifest():
   return jsonify(
-    data=tam_client().load_templated_manifest()
+    data=tam_client().template_manifest()
   )
 
 

@@ -66,6 +66,14 @@ def keyed2dict(keyed_assigns: List[Tuple[str, any]]) -> Dict:
   return root
 
 
+def deep_merge(*dicts):
+  from k8kat.utils.main.utils import deep_merge as k8kat_deep_merge
+  merged = {}
+  for _dict in dicts:
+    merged = k8kat_deep_merge(merged, _dict)
+  return merged
+
+
 def flat2deep(flat_dict: Dict) -> Dict:
   return keyed2dict(list(flat_dict.items()))
 
@@ -114,6 +122,10 @@ def deep_get2(dict_root: Dict, deep_key) -> Any:
   return deep_get(dict_root, deep_key.split('.'))
 
 
+def deep_set2(dict_root: Dict, deep_key: str, value: Any):
+  deep_set(dict_root, deep_key.split("."), value)
+
+
 def deep_get(dict_root: Dict, keys: List[str]) -> Any:
   """
   Iterates over items in keys list, using them as keys to go deeper into the
@@ -132,6 +144,21 @@ def deep_get(dict_root: Dict, keys: List[str]) -> Any:
     )
   else:
     return dict_root
+
+
+def exclusive_deep_merge(**kwargs) -> Dict:
+  old_dict = kwargs['old_dict']
+  new_dict = kwargs['new_dict']
+  weak_var_keys = kwargs['weak_var_keys']
+
+  merged = deep_merge(old_dict, new_dict)
+  old_dict_deep_keys = list(dict2flat(old_dict).keys())
+  for deep_key in old_dict_deep_keys:
+    if deep_key not in weak_var_keys:
+      original_value = deep_get2(old_dict, deep_key)
+      deep_set2(merged, deep_key, original_value)
+
+  return merged
 
 
 def pluck_or_getattr_deep(obj, attr):

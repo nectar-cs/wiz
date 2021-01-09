@@ -142,8 +142,8 @@ class ConfigMan:
   def patch_keyed_manifest_vars(self, assignments: List[Tuple[str, any]]):
     self.patch_manifest_vars(utils.keyed2dict(assignments))
 
-  def patch_manifest_vars(self, assignments: Dict[str, any]):
-    merged = deep_merge(self.manifest_vars(), assignments)
+  def patch_manifest_vars(self, deep_assignments: Dict[str, any]):
+    merged = deep_merge(self.manifest_vars(), deep_assignments)
     self.patch_cmap_with_dict(tam_vars_key, merged)
 
   def patch_keyed_prefs(self, assignments: List[Tuple[str, any]]):

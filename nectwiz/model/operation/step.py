@@ -6,6 +6,7 @@ from nectwiz.core.core import job_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import CommitOutcome, PredEval
 from nectwiz.core.core.utils import flat2deep
+from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel
 from nectwiz.model.operation.field import Field
 from nectwiz.model.operation.operation_state import OperationState
@@ -115,7 +116,7 @@ class Step(WizModel):
   def run(self, assigns: Dict, state: StepState):
     buckets = self.partition_flat_user_asgs(assigns, state)
     state.notify_vars_assigned(buckets)
-    self.commit_pertinent_assignments(buckets)
+    self.commit_persistable_assignments(buckets)
 
     if self.runs_action():
       action_config = self.assemble_action_config(state)
@@ -126,8 +127,8 @@ class Step(WizModel):
 
   def assemble_action_config(self, state: StepState) -> Dict:
     """
-    In case action is wrapped by IFTT, we must resolve it
-    before it runs in the background process. Also merges in
+    In case the action has dynamic parts to it , we must resolve it
+    before it runs in a different process (no shared memory). Also merges in
     event-telem config. Omits the unmarshalable 'context' of the config.
     @param state: step state that IFTT might use to make resolution
     @return: un-IFTT'ed config dict for the action
@@ -140,12 +141,8 @@ class Step(WizModel):
       patches=patch
     )
 
-    src_items = list(resolved_action.config.items())
-    filterer = lambda k: not k == self.CONTEXT_KEY
-    config_no_ctx = {k: v for k, v in src_items if filterer(k)}
-
     return dict(
-      **config_no_ctx,
+      **resolved_action.serialize(),
       **self.last_minute_action_config(state)
     )
 
@@ -167,9 +164,9 @@ class Step(WizModel):
     }
 
   @staticmethod
-  def commit_pertinent_assignments(buckets: Dict):
-    flat_manifest_assigns = buckets[Field.TARGET_CHART]
-    flat_pref_assigns = buckets[Field.TARGET_PREFS]
+  def commit_persistable_assignments(buckets: Dict):
+    flat_manifest_assigns: Dict = buckets[Field.TARGET_CHART]
+    flat_pref_assigns: Dict = buckets[Field.TARGET_PREFS]
 
     if len(flat_manifest_assigns) > 0:
       config_man.patch_manifest_vars(flat2deep(flat_manifest_assigns))
@@ -180,18 +177,22 @@ class Step(WizModel):
   @staticmethod
   def last_minute_action_config(state: StepState) -> Dict:
     op_state = state.parent_op if state else None
-    return dict(
-      store_telem=False,
-      event_type='operation_step',
-      event_name=state.step_sig if state else None,
-      event_id=op_state.uuid if op_state else None
-    )
+    # reconstructor_id = 'nectar.value_suppliers.step_context_reconstructor'
+
+    return {
+      Action.KEY_STORE_TELEM: False,
+      Action.KEY_EVENT_TYPE: 'operation_step',
+      Action.KEY_EVENT_NAME: state.step_sig if state else None,
+      Action.KEY_EVENT_ID: op_state.uuid if op_state else None,
+      # Action.CONTEXT_RECONSTRUCTION_DATA_KEY: op_state.all_assigns(),
+      # Action.CONTEXT_RECONSTRUCTOR_KEY: reconstructor_id
+    }
 
 
 def resolution_context(op_state: OperationState, user_input: Dict):
   return dict(
     resolvers=dict(
       input=lambda n: user_input.get(n),
-      operation=lambda n: op_state.all_assigns().get(n)
+      operation=lambda n: op_state.all_assigns().get(n),
     )
   )

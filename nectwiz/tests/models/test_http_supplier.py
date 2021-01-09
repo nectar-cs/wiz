@@ -24,4 +24,3 @@ class TestHttpSupplier(Base.TestWizModel):
       output='body'
     ))
     self.assertIsNotNone(instance.resolve())
-

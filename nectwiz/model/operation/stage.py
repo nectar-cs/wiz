@@ -19,7 +19,7 @@ class Stage(WizModel):
     return self.get_prop('description')
 
   @cached_property
-  def steps(self):
+  def steps(self) -> List[Step]:
     """
     Loads the Steps associated with the Stage.
     :return: List of Step instances.

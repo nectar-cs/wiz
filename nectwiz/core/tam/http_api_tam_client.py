@@ -3,21 +3,18 @@ from urllib.parse import quote_plus
 
 import requests
 
-from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.utils import flat2deep
-from nectwiz.core.tam.tam_client import TamClient
 from nectwiz.core.core.types import K8sResDict
+from nectwiz.core.tam.tam_client import TamClient
 
 
-class TamsClient(TamClient):
+class HttpApiTamClient(TamClient):
 
-  def load_manifest_defaults(self) -> Dict[str, str]:
+  def load_default_values(self) -> Dict[str, str]:
     return self.http_get(f"/values?{self.any_cmd_args()}")
 
-  def load_templated_manifest(self, inlines: Dict) -> List[K8sResDict]:
+  def template_manifest(self, values: Dict) -> List[K8sResDict]:
     endpoint = f"/template?{self.template_cmd_args()}"
-    payload = self.compute_values(flat2deep(inlines or {}))
-    return self.http_post(endpoint, payload)
+    return self.http_post(endpoint, values)
 
   def base_url(self):
     tam = self.tam
@@ -27,9 +24,6 @@ class TamsClient(TamClient):
 
   def http_post(self, endpoint, payload):
     url = f'{self.base_url()}{endpoint}'
-    print("FINAL URL")
-    print(url)
-    print(payload)
     response = requests.post(url, json=payload)
     return response.json().get('data')
 
@@ -46,8 +40,8 @@ class TamsClient(TamClient):
 
   def template_cmd_args(self, *args) -> str:
     std_part = self.any_cmd_args()
-    if not config_man.ns():
+    if not self.release_name():
       print("[nectwiz:tams+client] fatal ns is blank")
-    ns_part = f"release_name={config_man.ns()}"
+    ns_part = f"release_name={self.release_name()}"
     std_part = f"&{std_part}" if std_part else ""
     return f"{ns_part}{std_part}"

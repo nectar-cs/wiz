@@ -40,7 +40,7 @@ def manifest_variables_commit_injections():
 
 @controller.route(f'{BASE}/populate-defaults')
 def chart_vars_populate_defaults():
-  defaults = tam_client().load_manifest_defaults()
+  defaults = tam_client().load_default_values()
   config_man.write_manifest_defaults(defaults)
   return jsonify(data=defaults)
 
@@ -67,6 +67,7 @@ s  Updates the chart variable with new value.
   assignments = list(assignments_dict.items())
   if len(assignments) > 0:
     config_man.patch_keyed_manifest_vars(assignments)
+
   action_config = dict(
     kind=ApplyManifestAction.__name__,
     event_type='update_variables',

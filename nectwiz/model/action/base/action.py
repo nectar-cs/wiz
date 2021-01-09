@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 import inflection
+from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils
 from nectwiz.core.telem import telem_man
@@ -12,19 +13,45 @@ from nectwiz.model.error.controller_error import ActionHalt
 
 
 class Action(WizModel):
+
+  KEY_EVENT_ID = 'event_id'
+  KEY_STORE_TELEM = 'store_telem'
+  KEY_EVENT_TYPE = 'event_type'
+  KEY_EVENT_NAME = 'event_name'
+  KEY_HALT_ON_EXEC = 'treat_exception_as_fatal'
+  KEY_TELEM_EXTRAS = 'telem_extras'
+
   def __init__(self, config: Dict):
     super().__init__(config)
     self.observer = Observer()
-    self.event_id = config.get('event_id')
-    self.static_telem_extras = config.get('telem_extras', {})
-    self.store_telem = config.get('store_telem', False)
-    self.event_type = config.get(
-      'event_type',
+    self.outcome = None
+
+  @cached_property
+  def event_id(self) -> str:
+    return self.get_prop(self.KEY_EVENT_ID)
+
+  @cached_property
+  def store_telem(self) -> bool:
+    return self.get_prop(self.KEY_STORE_TELEM, False)
+
+  @cached_property
+  def event_type(self) -> str:
+    return self.get_prop(
+      self.KEY_EVENT_TYPE,
       inflection.underscore(self.__class__.__name__)
     )
-    self.event_name = config.get('event_name')
-    self.outcome = None
-    self.halt_on_exc = config.get('treat_exception_as_fatal', True)
+
+  @cached_property
+  def event_name(self) -> str:
+    return self.get_prop(self.KEY_EVENT_NAME)
+
+  @cached_property
+  def halt_on_exception(self) -> bool:
+    return self.get_prop(self.KEY_HALT_ON_EXEC, True)
+
+  @cached_property
+  def static_telem_extras(self) -> Dict:
+    return self.get_prop(self.KEY_TELEM_EXTRAS, {})
 
   def run(self, **kwargs) -> Any:
     try:
@@ -38,7 +65,7 @@ class Action(WizModel):
       print(traceback.format_exc())
       self.observer.process_error(
         type='internal_error',
-        fatal=self.halt_on_exc,
+        fatal=self.halt_on_exception,
         tone='error',
         reason='Internal error',
         logs=[traceback.format_exc()]

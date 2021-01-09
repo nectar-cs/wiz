@@ -27,10 +27,8 @@ def default_model_classes():
   from nectwiz.model.predicate.format_predicate import FormatPredicate
   from nectwiz.model.predicate.multi_predicate import MultiPredicate
   from nectwiz.model.predicate.common_predicates import TruePredicate
-  from nectwiz.core.telem.updates_man import UpdateAction
   from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
-  from nectwiz.core.telem.updates_man import WizUpdateAction
   from nectwiz.model.adapters.app_status_computer import AppStatusComputer
   from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
 
@@ -53,6 +51,7 @@ def default_model_classes():
   from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
 
   from nectwiz.model.supply.random_string_supplier import RandomStringSupplier
+  from nectwiz.model.supply.config_value_supplier import ConfigValueSupplier
   return [
     Operation,
     Stage,
@@ -89,6 +88,7 @@ def default_model_classes():
     ResourcesSupplier,
     UnitSupplier,
     RandomStringSupplier,
+    ConfigValueSupplier,
 
     AppStatusComputer,
     SystemCheck,
@@ -100,10 +100,10 @@ def default_model_classes():
     ApplyManifestAction,
     DeleteResourcesAction,
     RunPredicatesAction,
-    UpdateAction,
+    # UpdateAction,
     BackupConfigAction,
     UpdateLastCheckedAction,
-    WizUpdateAction,
+    # WizUpdateAction,
 
     ResourceQueryAdapter,
     DeletionSpec,

@@ -1,3 +1,5 @@
+import time
+
 import yaml
 
 from nectwiz.core.core import utils
@@ -7,6 +9,7 @@ from nectwiz.model.action.base.observer import Observer
 
 key_load_manifest = 'load_manifest'
 key_apply_manifest = 'apply_manifest'
+
 
 class ApplyManifestActionPart:
   @staticmethod
@@ -31,27 +34,31 @@ class ApplyManifestActionPart:
 
   @classmethod
   def perform(cls, **kwargs):
-    constructor_kwargs = kwargs.get('constructor_kwargs', {})
-    observer: Observer = kwargs.get('observer')
-
-    inlines = kwargs.get('inlines')
-    selectors = kwargs.get('selectors')
-
-    client = tam_client(**constructor_kwargs)
+    """
+    Keyword Args:
+      observer Observer: parent observer
+      values Dict: values to be passed to the templating engine
+      selectors List[ResSelector] list of resource discriminators
+      tam TamDict: templating engine descriptor
+    """
+    observer: Observer = kwargs['observer']
+    values = kwargs['values']
+    selectors = kwargs['selectors']
+    client = tam_client(tam=kwargs['tam'])
 
     observer.set_item_running(key_load_manifest)
-    manifestds = client.load_templated_manifest(inlines)
-    manifestds = client.filter_res(manifestds, selectors)
+    res_descs = client.template_manifest(values)
+    res_descs = client.filter_res(res_descs, selectors)
     observer.set_item_status(key_load_manifest, 'positive')
-    observer.log(list(map(yaml.dump, manifestds)))
+    observer.log(list(map(yaml.dump, res_descs)))
 
     observer.set_item_running(key_apply_manifest)
-    k_apply_outcomes = client.kubectl_apply(manifestds)
+    k_apply_outcomes = client.kubectl_apply(res_descs)
     cls.on_apply_finished(observer, k_apply_outcomes)
     observer.log(list(map(utils.kao2log, k_apply_outcomes)))
     cls.check_kao_failures(observer, k_apply_outcomes)
 
-    # time.sleep(2) #todo source of safety?
+    time.sleep(1)
     return k_apply_outcomes
 
   @classmethod

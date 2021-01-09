@@ -61,6 +61,21 @@ class TestValueSupplier(Base.TestWizModel):
     result = instance.serialize_item({'one': {'two': 'three'}})
     self.assertEqual('three', result)
 
+  def test_serialize_item_deep_dict2(self):
+    instance = ValueSupplier(dict(output='one'))
+    result = instance.serialize_item({'one': {'two': 'three'}})
+    self.assertEqual({'two': 'three'}, result)
+
+  def test_serialize_item_deep_dict3(self):
+    instance = ValueSupplier(dict(output=''))
+    result = instance.serialize_item({'one': {'two': 'three'}})
+    self.assertEqual({'one': {'two': 'three'}}, result)
+
+  def test_serialize_item_deep_dict4(self):
+    instance = ValueSupplier(dict())
+    result = instance.serialize_item({'one': {'two': 'three'}})
+    self.assertEqual({'one': {'two': 'three'}}, result)
+
   def test_serialize_explicit_many(self):
     instance = ValueSupplier({'many': True})
     result = instance.serialize_computed_value('Letter')

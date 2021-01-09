@@ -5,8 +5,6 @@ from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict
 from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.action.base.observer import Observer
-from nectwiz.model.variable.manifest_variable import ManifestVariable
-
 
 update_defaults_key = 'update_defaults'
 
@@ -47,11 +45,12 @@ class UpdateManifestDefaultsActionPart:
 
   @classmethod
   def perform_release(cls, update_dict: UpdateDict):
-    config_man.patch_tam(updated_release_tam(update_dict))
-    new_manifest_defaults = tam_client().load_manifest_defaults()
-    overwritten_vars = compute_overwritten_vars(new_manifest_defaults)
-    config_man.patch_keyed_manifest_vars(overwritten_vars)
-    config_man.patch_manifest_defaults(new_manifest_defaults)
+    # config_man.patch_tam(updated_release_tam(update_dict))
+    # new_manifest_defaults = tam_client().load_manifest_defaults()
+    # overwritten_vars = compute_overwritten_vars(new_manifest_defaults)
+    # config_man.patch_keyed_manifest_vars(overwritten_vars)
+    # config_man.patch_manifest_defaults(new_manifest_defaults)
+    pass
 
   @classmethod
   def perform_injection_update(cls, update_dict: UpdateDict):
@@ -67,16 +66,3 @@ class UpdateManifestDefaultsActionPart:
     observer.set_item_status('update_defaults', 'positive')
 
 
-def compute_overwritten_vars(manifest_defaults: Dict):
-  target_var_ids = [cv.id() for cv in ManifestVariable.release_dpdt_vars()]
-  new_keyed_defaults = utils.dict2keyed(manifest_defaults)
-  return [e for e in new_keyed_defaults if e[0] in target_var_ids]
-
-
-def updated_release_tam(release: UpdateDict) -> Dict:
-  tam_patches = dict(version=release['version'])
-  if release.get('tam_type'):
-    tam_patches['type'] = release.get('tam_type')
-  if release.get('tam_uri'):
-    tam_patches['uri'] = release.get('tam_uri')
-  return tam_patches

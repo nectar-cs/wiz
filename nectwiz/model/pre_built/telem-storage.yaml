@@ -13,8 +13,15 @@ tam:
   type: server
   uri: https://api.codenectar.com/manifest_servers/nectar/nectarine-telem-database
   version: 1.0.0
-values_source_key: prefs
-values_root_key: telem_db
+values:
+  - kind: ConfigValueSupplier
+    field_key: defaults
+    output: ''
+  - kind: ConfigValueSupplier
+    field_key: prefs
+    output: telem_db
+  - kind: ValueSupplier
+    source: "{inlines}"
 
 ---
 

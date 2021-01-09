@@ -2,12 +2,12 @@ import os
 from os.path import isfile
 from typing import Type, Optional, Dict, Union, List, TypeVar, Any
 
-from k8kat.utils.main.utils import deep_merge
 from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import KoD
+from nectwiz.core.core.utils import deep_merge
 from nectwiz.model.base.default_models import default_model_classes
 
 T = TypeVar('T', bound='WizModel')
@@ -61,6 +61,8 @@ class WizModel:
   KIND_KEY = 'kind'
   INFO_KEY = 'info'
   ASSET_PREFIX = 'file::'
+  CONTEXT_RECONSTRUCTOR_KEY = 'context_reconstructor'
+  CONTEXT_RECONSTRUCTION_DATA_KEY = 'context_reconstruction_data'
 
   def __init__(self, config: Dict):
     self.config: Dict = config
@@ -109,44 +111,50 @@ class WizModel:
     @param kwargs:
     @return: fully resolved property value or backup if given
     """
-    backup: Any = kwargs.get('backup')
-    context_patch: Optional[Dict] = kwargs.get('context_patch')
+    if key in list(self.config.keys()):
+      value = self.config[key]
+    else:
+      value = kwargs.pop('backup', None)
+      if kwargs.get('warn'):
+        print(f"[nectwiz:{self.__class__.__name__}] undefined prop '{key}'")
 
-    value = self.config.get(key, backup)
-    if value is None and kwargs.get('warn'):
-      print(f"[nectwiz:{self.__class__.__name__}] undefined prop '{key}'")
+    return self.resolve_prop_value(value)
 
-    if value and type(value) in [str, dict]:
+  def resolve_prop_value(self, value: Any):
+    if type(value) in [str, dict]:
       patches = dict(context=self.context)
       value = self.try_iftt_intercept(kod=value, patches=patches)
-      value = self.try_value_getter_intercept(kod=value, patches=patches)
-      value = self.interpolate_prop(value, context_patch)
+      value = self.try_supplier_intercept(kod=value, patches=patches)
+      value = self.interpolate_prop(value)
       return self.try_read_from_asset(value)
     else:
       return value
 
-  def interpolate_prop(self, value: str, extra_ctx: Optional[Dict]) -> Any:
+  def interpolate_prop(self, value: str) -> Any:
     """
     Performs string substitutions on input. Combines substitution context
     from instance's self.context and any additional context passed as
     parameters. Returns unchanged input if property is not a string.
     @param value: value of property to interpolate
-    @param extra_ctx: context-dict to be merged in to perform string subs
     @return: interpolated string if input is string else unchanged input
     """
     if value and type(value) == str:
-      return subs.interp(value, self.assemble_eval_context(extra_ctx))
+      return subs.interp(value, self.assemble_eval_context())
     return value
 
-  def assemble_eval_context(self, extra_context) -> Dict:
-    """
-    @param extra_context:
-    @return:
-    """
+  def assemble_eval_context(self) -> Dict:
     config_man_context = dict(resolvers=config_man.resolvers())
-    self_ctx_merge = deep_merge(config_man_context, self.context or {})
-    extra_ctx_merge = deep_merge(self_ctx_merge, extra_context or {})
-    return extra_ctx_merge
+    # reconstructed_context = self.gen_reconstructed_context()
+    return deep_merge(
+      # reconstructed_context,
+      config_man_context,
+      self.context or {}
+    )
+
+  # def gen_reconstructed_context(self):
+  #   if self.context_reconstructor:
+  #     data = context_reconstruction_data
+  #     self.context_reconstructor.generate(data)
 
   @classmethod
   def singleton_id(cls):
@@ -159,6 +167,10 @@ class WizModel:
   @classmethod
   def kind(cls):
     return cls.__name__
+
+  def serialize(self) -> Dict:
+    src_items = list(self.config.items())
+    return {k: v for k, v in src_items if not k == self.CONTEXT_KEY}
 
   def inflate_children(self, child_class: Type[T], **kwargs):
     """
@@ -285,7 +297,7 @@ class WizModel:
     return True
 
   @classmethod
-  def try_value_getter_intercept(cls, **kwargs) -> Any:
+  def try_supplier_intercept(cls, **kwargs) -> Any:
     from nectwiz.model.supply.value_supplier import ValueSupplier
     return cls._try_as_interceptor(
       intercept_cls=ValueSupplier,
@@ -310,8 +322,10 @@ class WizModel:
     patches: Optional[Dict] = kwargs.get('patches')
 
     if cls.is_interceptor_candidate(intercept_cls, prefix, kod):
+      trimmed_kod = kod.replace(prefix, "") if isinstance(kod, str) else kod
+
       interceptor = intercept_cls.inflate(
-        kod,
+        trimmed_kod,
         patches=patches,
         skip_intercept=True,
         safely=True

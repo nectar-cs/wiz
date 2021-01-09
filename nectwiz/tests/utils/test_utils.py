@@ -1,7 +1,7 @@
 import unittest
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.utils import unmuck_primitives
+from nectwiz.core.core.utils import unmuck_primitives, exclusive_deep_merge
 
 
 class TestUtils(unittest.TestCase):
@@ -131,3 +131,16 @@ class TestUtils(unittest.TestCase):
 
     actual = dict(x=[[dict(x=False)]], y=[True])
     self.assertEqual(actual, unmuck_primitives(actual))
+
+  def test_excluding_deep_merge(self):
+    old_dict = dict(ingress=dict(on=True), dep=(dict(v=1)))
+    new_dict = dict(ingress=dict(on=False), dep=(dict(v=2)))
+    exp = dict(ingress=dict(on=True), dep=(dict(v=2)))
+
+    result = exclusive_deep_merge(
+      old_dict=old_dict,
+      new_dict=new_dict,
+      weak_var_keys=['dep.v']
+    )
+
+    self.assertEqual(exp, result)

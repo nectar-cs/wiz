@@ -6,12 +6,12 @@ from typing import List, Optional, Dict
 import yaml
 from k8kat.auth.kube_broker import broker
 from k8kat.utils.main.api_defs_man import api_defs_man
+from typing_extensions import TypedDict
 
 from nectwiz.core.core import utils
-from nectwiz.core.core.config_man import config_man, tam_vars_key
+from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import K8sResDict, TamDict, KAO
 from nectwiz.model.base.resource_selector import ResourceSelector
-
 
 tmp_file_mame = '/tmp/man.yaml'
 ktl_apply_cmd_base = f"kubectl apply -f {tmp_file_mame}"
@@ -19,39 +19,30 @@ RESD = K8sResDict
 RESDs = List[K8sResDict]
 SELs = List[ResourceSelector]
 
+class TamClientConstructorArgs(TypedDict):
+  tam: TamDict
+
 
 class TamClient:
 
-  def __init__(self, **kwargs):
+  def __init__(self, **kwargs: TamClientConstructorArgs):
     self.tam: TamDict = kwargs.get('tam') or config_man.tam()
-    self.values_key: str = kwargs.get('values_source_key') or tam_vars_key
-    self.values_root: str = kwargs.get('values_root_key') or ''
 
-  def compute_values(self, merge_with=None) -> Dict:
-    root = config_man.read_dict(self.values_key)
-    subtree = utils.deep_get2(root, self.values_root) or {}
-    merged_subtree = {**subtree, **(merge_with or {})}
-    if len(merged_subtree.keys()) == 0:
-      pre = f"[{self.values_key}/{self.values_root}]"
-      print(f"[nectwiz:tam_client] zero values in {pre} + inlines")
-    return merged_subtree
-
-  def load_manifest_defaults(self):
+  def load_default_values(self):
     raise NotImplemented
 
-  def load_templated_manifest(self, inlines: Dict) -> List[K8sResDict]:
+  def template_manifest(self, values: Dict) -> List[K8sResDict]:
     raise NotImplemented
 
-  def apply(self, rules: SELs, inlines: Dict) -> List[KAO]:
+  def apply(self, **kwargs) -> List[KAO]:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local
     file (filtering resources by rules), and runs kubectl apply -f on it.
-    :param rules: rules to filter the manifest, if any.
-    :param inlines: inline values to be applied together with the manifest, if any.
     :return: any generated terminal output from kubectl apply.
     """
-    res_dicts = self.load_templated_manifest(inlines)
-    res_dicts = self.filter_res(res_dicts, rules)
+
+    res_dicts = self.template_manifest(kwargs['values'])
+    res_dicts = self.filter_res(res_dicts, kwargs.get('rules', []))
     return self.kubectl_apply(res_dicts)
 
   def any_cmd_args(self) -> str:
@@ -124,6 +115,10 @@ class TamClient:
         print(f"[nectwiz:tam_client] non-primitive {key_expr} -> {value}")
     return " ".join(expr_array)
 
+  @staticmethod
+  def release_name():
+    return config_man.ns()
+
 
 def log2outcome(succs: bool, resdict: RESD, output) -> Optional[KAO]:
   raw_log = output.decode('utf-8') if output else ''
@@ -159,7 +154,8 @@ class short_lived_resfile:
 
   def __exit__(self, exc_type, exc_val, exc_tb):
     if os.path.isfile(tmp_file_mame):
-      os.remove(tmp_file_mame)
+      if utils.is_prod():
+        os.remove(tmp_file_mame)
 
 
 def ktl_apply_cmd() -> str:

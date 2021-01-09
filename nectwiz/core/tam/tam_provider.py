@@ -1,20 +1,19 @@
+from nectwiz.core.core import consts
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import TamDict
-from nectwiz.core.tam.tamle_client import TamleClient
-from nectwiz.core.tam.tam_client import TamClient
-from nectwiz.core.tam.tami_client import TamiClient
-from nectwiz.core.tam.tams_client import TamsClient
+from nectwiz.core.tam.local_exec_tam_client import LocalExecTamClient
+from nectwiz.core.tam.tam_client import TamClient, TamClientConstructorArgs
+from nectwiz.core.tam.http_api_tam_client import HttpApiTamClient
 
 
-def tam_client(**kwargs) -> TamClient:
+def tam_client(**kwargs: TamClientConstructorArgs) -> TamClient:
   tam = kwargs.pop('tam', None) or config_man.tam()
   tam_type = tam['type']
 
-  if tam_type == 'image':
-    return TamiClient(tam=tam, **kwargs)
-  elif tam_type == 'server':
-    return TamsClient(tam=tam, **kwargs)
-  elif tam_type == 'local_executable':
-    return TamleClient(tam=tam, **kwargs)
+  if tam_type == consts.http_api_tam:
+    return HttpApiTamClient(tam=tam, **kwargs)
+  elif tam_type == consts.local_exec_tam:
+    return LocalExecTamClient(tam=tam, **kwargs)
+  elif tam_type == consts.virtual_tam:
+    return tam['uri'](**kwargs)
   else:
     raise RuntimeError(f"Illegal TAM type {tam_type}")

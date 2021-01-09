@@ -1,0 +1,15 @@
+kind: ConfigValueSupplier
+id: nectar.suppliers.app_manifest_defaults
+field_key: manifest_defaults
+
+---
+
+kind: ConfigValueSupplier
+id: nectar.suppliers.app_manifest_variables
+field_key: manifest_variables
+
+---
+
+kind: ValueSupplier
+id: nectar.suppliers.current_step_inlines
+field_key: manifest_variables

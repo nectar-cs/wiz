@@ -46,6 +46,7 @@ class StepState:
     self.chart_assigns = bundle.get('chart')
     self.state_assigns = bundle.get('state')
     self.pref_assigns = bundle.get('prefs')
+    self.pref_assigns = bundle.get('prefs')
 
   def notify_terminated(self, success: bool, telem):
     self.status = SETTLED_POS if success else SETTLED_NEG

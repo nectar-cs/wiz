@@ -26,13 +26,13 @@ class Base:
 
     def test_load_manifest_defaults(self):
       time.sleep(3)
-      values = self.client_instance().load_manifest_defaults()
+      values = self.client_instance().load_default_values()
       self.assertEqual(exp_default_values, values)
 
     def test_load_tpd_manifest(self):
       time.sleep(3)
       config_man.patch_manifest_vars(manifest_vars)
-      result = self.client_instance().load_templated_manifest(flat_inlines)
+      result = self.client_instance().template_manifest(flat_inlines)
 
       kinds = sorted([r['kind'] for r in result])
       svc = [r for r in result if r['kind'] == 'Service'][0]

@@ -346,7 +346,7 @@ class Base:
         )
       )[0]
 
-      child_ctx = child.assemble_eval_context(None)
+      child_ctx = child.assemble_eval_context()
       self.assertEqual(
         'bar-2',
         child_ctx.get('resolvers').get('extra_foo')('bar')

@@ -12,7 +12,7 @@ T = TypeVar('T', bound='ManifestVariable')
 
 class ManifestVariable(GenericVariable):
 
-  RELEASE_OVERRIDE_KEY = 'release_overridable'
+  RELEASE_OVERRIDE_KEY = 'publisher_overridable'
   MODE_KEY = 'mode'
   TAGS_KEY = 'tags'
 
@@ -21,7 +21,7 @@ class ManifestVariable(GenericVariable):
     return self.get_prop(self.MODE_KEY, 'internal')
 
   @cached_property
-  def release_overridable(self):
+  def is_publisher_overridable(self):
     return self.get_prop(self.RELEASE_OVERRIDE_KEY, False)
 
   @cached_property
@@ -65,12 +65,13 @@ class ManifestVariable(GenericVariable):
     return models
 
   @classmethod
-  def release_dpdt_vars(cls) -> List[T]:
-    matcher = lambda cv: cv.release_overridable
+  def publisher_overridable_vars(cls) -> List[T]:
+    matcher = lambda cv: cv.is_publisher_overridable
     return list(filter(matcher, ManifestVariable.inflate_all()))
 
-  @classmethod
-  def inject_server_defaults(cls) -> bool:
+  @staticmethod
+  def inject_server_defaults() -> bool:
+    route = f'/installs/injections'
     install_uuid = config_man.install_uuid()
     if install_uuid:
       route = f'/installs/{install_uuid}/injections'
