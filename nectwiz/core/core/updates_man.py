@@ -55,12 +55,26 @@ def find_hooks(which: str, update: UpdateDict) -> List[Hook]:
 
 
 def preview(update_dict: UpdateDict) -> Dict:
+  old_defaults = config_man.manifest_defaults()
+  old_manifest = tam_client().template_manifest_std()
+
   new_tam = updated_release_tam(update_dict)
   new_tam_client = tam_client(tam=new_tam)
+
   new_defaults = new_tam_client.load_default_values()
   new_manifest_vars = deep_merge(new_defaults, config_man.manifest_vars())
   new_manifest = new_tam_client.template_manifest(new_manifest_vars)
-  return dict(defaults=new_defaults, manifest=new_manifest)
+
+  return dict(
+    defaults=dict(
+      old=old_defaults,
+      new=new_defaults
+    ),
+    manifest=dict(
+      old=old_manifest,
+      new=new_manifest
+    )
+  )
 
 
 def commit_new_tam(update_dict: UpdateDict):
@@ -80,4 +94,4 @@ def updated_release_tam(update: UpdateDict) -> Dict:
     tam['type'] = update.get('tam_type')
   if update.get('tam_uri'):
     tam['uri'] = update.get('tam_uri')
-  return tam
+  return {**config_man.tam(), **tam}

@@ -5,8 +5,6 @@ from k8kat.utils.testing import ns_factory
 from nectwiz.core.core import updates_man, consts
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.tam.virtual_tam_client import VirtualTamClient
-from nectwiz.model.base.wiz_model import models_man
-from nectwiz.model.variable.manifest_variable import ManifestVariable
 from nectwiz.tests.t_helpers.cluster_test import ClusterTest
 from nectwiz.tests.t_helpers.helper import create_base_master_map
 

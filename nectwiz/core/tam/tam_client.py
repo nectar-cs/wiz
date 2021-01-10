@@ -34,6 +34,12 @@ class TamClient:
   def template_manifest(self, values: Dict) -> List[K8sResDict]:
     raise NotImplemented
 
+  def template_manifest_std(self) -> List[K8sResDict]:
+    return self.template_manifest({
+      **config_man.manifest_defaults(),
+      **config_man.manifest_vars()
+    })
+
   def apply(self, **kwargs) -> List[KAO]:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local

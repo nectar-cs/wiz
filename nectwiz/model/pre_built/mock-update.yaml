@@ -1,6 +1,6 @@
 kind: MockUpdate
 id: vendor.mock-updates.release
-type: release
+type: tam
 version: 2.0.0
 note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
 
@@ -8,7 +8,7 @@ note_url: https://raw.githubusercontent.com/eivindml/template-release-note/maste
 
 kind: MockUpdate
 id: vendor.mock-updates.partial
-type: release
+type: tam
 version: ''
 note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
 
@@ -16,7 +16,7 @@ note_url: https://raw.githubusercontent.com/eivindml/template-release-note/maste
 
 kind: MockUpdate
 id: vendor.mock-updates.wiz-update
-type: wiz_update
+type: wiz
 wiz_type: image
 version: ''
 note_url: https://raw.githubusercontent.com/eivindml/template-release-note/master/README.md
