@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import KoD
+from nectwiz.core.core.types import KoD, ErrDict
 from nectwiz.core.core.utils import deep_merge
 from nectwiz.model.base.default_models import default_model_classes
 
@@ -172,7 +172,7 @@ class WizModel:
     src_items = list(self.config.items())
     return {k: v for k, v in src_items if not k == self.CONTEXT_KEY}
 
-  def inflate_children(self, child_class: Type[T], **kwargs):
+  def inflate_children(self, child_class: Type[T], **kwargs: ErrDict):
     """
     Bottleneck function for a parent model to inflate a list of children.
     In the normal case, kods_or_provider_kod is a list of WizModels KoDs.

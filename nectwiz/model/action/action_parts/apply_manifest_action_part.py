@@ -49,7 +49,7 @@ class ApplyManifestActionPart:
     observer.set_item_running(key_load_manifest)
     res_descs = client.template_manifest(values)
     res_descs = client.filter_res(res_descs, selectors)
-    observer.set_item_status(key_load_manifest, 'positive')
+    observer.set_item_succeeded(key_load_manifest)
     observer.log(list(map(yaml.dump, res_descs)))
 
     observer.set_item_running(key_apply_manifest)
@@ -64,7 +64,7 @@ class ApplyManifestActionPart:
   @classmethod
   def on_apply_finished(cls, observer: Observer, outcomes: KAOs):
     observer.set_prop(key_apply_manifest, 'data', {'outcomes': outcomes})
-    observer.set_item_status(key_apply_manifest, 'positive')
+    observer.set_item_succeeded(key_apply_manifest)
 
   @classmethod
   def check_kao_failures(cls, observer: Observer, outcomes: KAOs):

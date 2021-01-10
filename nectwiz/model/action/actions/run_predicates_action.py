@@ -35,18 +35,23 @@ class RunPredicatesAction(Action):
       if not result:
         self.observer.blame_item_id = predicate.id()
         error_count += 1
-        self.observer.process_error(
-          fatal=False,
-          type='internal_error' if exc_dump else 'negative_predicate',
-          event_type='predicate_eval',
-          tone=predicate.tone,
-          reason=predicate.reason,
-          logs=[exc_dump] if exc_dump else [],
-          extras=predicate.error_extras(),
-          resource=predicate.culprit_res_signature()
-        )
+        error_bundle = mk_error_bundle(predicate, exc_dump)
+        self.observer.process_error(**error_bundle)
     self.observer.on_ended(error_count == 0)
     return error_count == 0
+
+
+def mk_error_bundle(predicate: Predicate, exc_dump):
+  return dict(
+    fatal=False,
+    type='internal_error' if exc_dump else 'negative_predicate',
+    event_type='predicate_eval',
+    tone=predicate.tone,
+    reason=predicate.reason,
+    logs=[exc_dump] if exc_dump else [],
+    extras=predicate.error_extras(),
+    resource=predicate.culprit_res_signature()
+  )
 
 
 def pred2subitem(predicate: Predicate) -> ProgressItem:

@@ -72,6 +72,12 @@ class Observer:
   def set_item_outcome(self, _id: str, outcome: bool):
     self.set_item_status(_id, 'positive' if outcome else 'negative')
 
+  def set_item_succeeded(self, _id: str):
+    self.set_item_outcome(_id, True)
+
+  def set_item_failed(self, _id: str):
+    self.set_item_status(_id, False)
+
   def subitem(self, item_id: str, sub_id: str) -> Optional[ProgressItem]:
     outer_item = self.item(item_id)
     if outer_item:
@@ -140,3 +146,15 @@ class Observer:
     for subitem in subitems:
       if subitem.get('status') == 'running':
         subitem['status'] = 'negative'
+
+
+class simple_action_eval:
+  def __init__(self, observer: Observer, action_part_key: str):
+    self.observer: Observer = observer
+    self.action_part_key: str = action_part_key
+
+  def __enter__(self):
+    self.observer.set_item_running(self.action_part_key)
+
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    self.observer.set_item_succeeded(self.action_part_key)

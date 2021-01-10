@@ -48,11 +48,10 @@ class TamClient:
   def any_cmd_args(self) -> str:
     return self.tam.get('args') or ''
 
-  def template_cmd_args(self, inlines: Dict, vars_path: str) -> str:
+  def template_cmd_args(self, vars_path: str) -> str:
     values_flag: str = f"-f {vars_path}"
-    inline_flags: str = self.fmt_inline_assigns(inlines)
     ns = config_man.ns()
-    return f"{ns} . {values_flag} {inline_flags} {self.any_cmd_args()}"
+    return f"{ns} . {values_flag} {self.any_cmd_args()}"
 
   @staticmethod
   def kubectl_apply(res_dicts: RESDs) -> List[KAO]:
@@ -97,23 +96,6 @@ class TamClient:
       return list(filter(decide_res, res_list))
     else:
       return res_list
-
-  @staticmethod
-  def fmt_inline_assigns(inlines: Dict) -> str:
-    """
-    Transforms in-memory assignments represented as tuples into a formatted
-    assignment string following the --set = format usable for Tami's command line
-    arguments.
-    :param inlines: desired inline assigns.
-    :return: command for the Tami image to apply inline assigns.
-    """
-    expr_array = []
-    for key_expr, value in list((inlines or {}).items()):
-      if not type(value) in [dict, list]:
-        expr_array.append(f"--set {key_expr}={value}")
-      else:
-        print(f"[nectwiz:tam_client] non-primitive {key_expr} -> {value}")
-    return " ".join(expr_array)
 
   @staticmethod
   def release_name():

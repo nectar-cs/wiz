@@ -15,13 +15,8 @@ tam:
   version: 1.0.0
 values:
   - kind: ConfigValueSupplier
-    field_key: defaults
-    output: ''
-  - kind: ConfigValueSupplier
     field_key: prefs
     output: telem_db
-  - kind: ValueSupplier
-    source: "{inlines}"
 
 ---
 

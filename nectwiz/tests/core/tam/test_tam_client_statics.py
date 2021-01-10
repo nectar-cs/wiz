@@ -53,11 +53,6 @@ class TestTamClientStatics(ClusterTest):
         loaded = yaml.load(file.read())
         self.assertEqual(dict(foo='bar'), loaded)
 
-  def test_fmt_inline_assigns(self):
-    ass = {'foo.bar': 'baz', 'x': 'y'}
-    actual = TamClient.fmt_inline_assigns(ass)
-    self.assertEqual(actual, "--set foo.bar=baz --set x=y")
-
   def test_filter_res(self):
     res_list = g_res_list(('k1', 'n1'), ('k1', 'n2'))
     selector = ResourceSelector.inflate("k1:n1")

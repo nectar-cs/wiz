@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from nectwiz.core.core import hub_api_client, utils
+from nectwiz.core.core import hub_api_client
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import UpdateDict
 from nectwiz.core.core.utils import deep_merge
@@ -9,7 +9,6 @@ from nectwiz.core.tam.tam_provider import tam_client
 from nectwiz.model.adapters.mock_update \
   import MockUpdate, next_mock_update_id
 from nectwiz.model.hook.hook import Hook
-from nectwiz.model.variable.manifest_variable import ManifestVariable
 
 TYPE_RELEASE = 'release'
 TYPE_UPDATE = 'update'
@@ -47,11 +46,11 @@ def _gen_injection_telem(keys: List[str]):
   return {k: all_vars[k] for k in keys}
 
 
-def find_hooks(which: str, update_type: str) -> List[Hook]:
+def find_hooks(which: str, update: UpdateDict) -> List[Hook]:
   return Hook.by_trigger(
     event='software-update',
-    update_type=update_type,
-    timing=which
+    when=which,
+    **update
   )
 
 
@@ -64,12 +63,15 @@ def preview(update_dict: UpdateDict) -> Dict:
   return dict(defaults=new_defaults, manifest=new_manifest)
 
 
-def swap(update_dict: UpdateDict):
-  config_man.patch_tam(updated_release_tam(update_dict))
-  new_manifest_defaults = tam_client().load_default_values()
-  overwritten_vars = compute_new_manifest_vars(new_manifest_defaults)
-  config_man.patch_keyed_manifest_vars(overwritten_vars)
-  config_man.patch_manifest_defaults(new_manifest_defaults)
+def commit_new_tam(update_dict: UpdateDict):
+  new_tam = updated_release_tam(update_dict)
+  config_man.patch_tam(new_tam)
+
+
+def commit_new_defaults(update_dict: UpdateDict):
+  new_tam = updated_release_tam(update_dict)
+  new_defaults = tam_client(tam=new_tam).load_default_values()
+  config_man.patch_manifest_defaults(new_defaults)
 
 
 def updated_release_tam(update: UpdateDict) -> Dict:
@@ -79,14 +81,3 @@ def updated_release_tam(update: UpdateDict) -> Dict:
   if update.get('tam_uri'):
     tam['uri'] = update.get('tam_uri')
   return tam
-
-
-def compute_new_manifest_vars(new_manifest_defaults: Dict):
-  overriables = ManifestVariable.publisher_overridable_vars()
-  overridable_keys = list(map(ManifestVariable.id, overriables))
-  current_manifest_vars = config_man.manifest_vars()
-  return utils.exclusive_deep_merge(
-    old_dict=current_manifest_vars,
-    new_dict=new_manifest_defaults,
-    weak_var_keys=overridable_keys
-  )

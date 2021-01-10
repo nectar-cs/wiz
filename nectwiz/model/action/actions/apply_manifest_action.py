@@ -2,6 +2,7 @@ from typing import List, Dict, Union
 
 from werkzeug.utils import cached_property
 
+from nectwiz.core.core import consts
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import TamDict, ProgressItem, KoD
 from nectwiz.core.core.utils import deep_merge
@@ -19,12 +20,6 @@ class ApplyManifestAction(Action):
   KEY_TAM = 'tam'
   KEY_VALUES = 'values'
   KEY_IN_MEMORY_VALUES = 'in_memory_values'
-
-  DEFAULT_VALUE_SOURCES = [
-    'id::nectar.suppliers.app_manifest_defaults',
-    'id::nectar.suppliers.app_manifest_variables'
-    # 'id::nectar.suppliers.current_step_inlines'
-  ]
 
   def __init__(self, config):
     super().__init__(config)
@@ -48,7 +43,7 @@ class ApplyManifestAction(Action):
 
   @cached_property
   def value_sources(self) -> Union[KoD, List[KoD]]:
-    return self.get_prop(self.KEY_VALUES, self.DEFAULT_VALUE_SOURCES)
+    return self.get_prop(self.KEY_VALUES, consts.TAM_VALUE_SOURCES)
 
   @cached_property
   def tam(self) -> TamDict:

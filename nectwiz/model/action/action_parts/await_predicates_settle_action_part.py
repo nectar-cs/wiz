@@ -2,7 +2,7 @@ import time
 from typing import List
 
 from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.base.observer import Observer
+from nectwiz.model.action.base.observer import Observer, simple_action_eval
 from nectwiz.model.operation.predicate_statuses_computer import PredicateStatusesComputer
 from nectwiz.model.predicate.predicate import Predicate
 
@@ -23,23 +23,22 @@ class AwaitPredicatesSettleActionPart:
 
   @classmethod
   def perform(cls, observer: Observer, predicates: List[Predicate]):
-    observer.set_item_running(key_await_settled)
-    computer = PredicateStatusesComputer(predicates)
-    did_time_out = True
-    for i in range(120):
-      computer.perform_iteration()
+    with simple_action_eval(observer, key_await_settled):
+      computer = PredicateStatusesComputer(predicates)
+      did_time_out = True
+      for i in range(120):
+        computer.perform_iteration()
 
-      cls.update_observer(observer=observer, computer=computer)
-      cls.scan_settle_failures(observer=observer, computer=computer)
+        cls.update_observer(observer=observer, computer=computer)
+        cls.scan_settle_failures(observer=observer, computer=computer)
 
-      if computer.did_finish():
-        did_time_out = False
-        break
-      else:
-        time.sleep(2)
+        if computer.did_finish():
+          did_time_out = False
+          break
+        else:
+          time.sleep(2)
 
-    cls.scan_timeout_failure(observer, did_time_out)
-    observer.set_item_status(key_await_settled, 'positive')
+      cls.scan_timeout_failure(observer, did_time_out)
 
   @classmethod
   def update_observer(cls, **kwargs):

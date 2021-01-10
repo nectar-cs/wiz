@@ -15,11 +15,9 @@ class LocalExecTamClient(TamClient):
     raw = exec_cmd(self.tam, f"show values . {self.any_cmd_args()}")
     return yaml.load(raw, Loader=yaml.FullLoader)
 
-  def template_manifest(self, **kwargs) -> List[K8sResDict]:
-    flat_inlines: Dict = kwargs.get('flat_inlines', {})
-    deep_values: Dict = kwargs.get('values', self.compute_values(None))
-    write_values_to_tmpfile(deep_values)
-    cmd_args = self.template_cmd_args(flat_inlines, tmp_vars_path)
+  def template_manifest(self, values) -> List[K8sResDict]:
+    write_values_to_tmpfile(values)
+    cmd_args = self.template_cmd_args(tmp_vars_path)
     raw = exec_cmd(self.tam, f"template {cmd_args}")
     return list(yaml.load_all(raw, Loader=yaml.FullLoader))
 

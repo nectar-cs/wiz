@@ -12,39 +12,32 @@ from nectwiz.tests.t_helpers.helper import create_base_master_map
 
 
 class TestUpdatesMan(ClusterTest):
+
+  def test_commit_new_tam(self):
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man._ns)
+
   def test_preview(self):
+    config_man._ns, = ns_factory.request(1)
+    create_base_master_map(config_man._ns)
+
     update = dict(
       version='1',
       tam_type=consts.virtual_tam,
       tam_uri=VirtualTamV2
     )
-    updates_man.preview(update)
 
-  def test_compute_new_manifest_vars(self):
-    config_man._ns, = ns_factory.request(1)
-
-    create_base_master_map(config_man._ns)
-
-    config_man.patch_manifest_vars(dict(
-      ingress=dict(on=True),
+    config_man.patch_manifest_defaults(dict(
+      ingress=dict(on=False),
       dep=dict(v=1)
     ))
 
-    models_man.add_descriptors([
-      {
-        'kind': ManifestVariable.kind(),
-        'id': 'dep.v',
-        ManifestVariable.RELEASE_OVERRIDE_KEY: True
-      }
-    ])
-
-    exp = dict(ingress=dict(on=True), dep=(dict(v=2)))
-    result = updates_man.compute_new_manifest_vars(dict(
+    config_man.patch_manifest_vars(dict(
       ingress=dict(on=False),
-      dep=(dict(v=2))
+      dep=dict(v=1)
     ))
 
-    self.assertEqual(exp, result)
+    updates_man.preview(update)
 
 
 class VirtualTamV1(VirtualTamClient):
