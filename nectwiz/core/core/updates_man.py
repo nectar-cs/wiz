@@ -46,10 +46,10 @@ def _gen_injection_telem(keys: List[str]):
   return {k: all_vars[k] for k in keys}
 
 
-def find_hooks(which: str, update: UpdateDict) -> List[Hook]:
+def find_hooks(timing: str, update: UpdateDict) -> List[Hook]:
   return Hook.by_trigger(
     event='software-update',
-    when=which,
+    timing=timing,
     **update
   )
 

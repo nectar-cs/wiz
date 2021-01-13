@@ -13,39 +13,39 @@ BASE_PATH = '/api/updates'
 @controller.route(f'{BASE_PATH}/next-available')
 def fetch_next_available():
   telem_man.upload_status()
-  bundle = updates_man.next_available()
-  return jsonify(data=bundle)
+  update_or_none = updates_man.next_available()
+  return jsonify(data=update_or_none)
 
 
 @controller.route(f'{BASE_PATH}/<update_id>')
 def show_update(update_id):
-  bundle = updates_man.fetch_update(update_id)
-  return jsonify(data=bundle)
+  update = updates_man.fetch_update(update_id)
+  return jsonify(data=update)
 
 
 @controller.route(f'{BASE_PATH}/<update_id>/preview')
 def preview_update(update_id):
   update = updates_man.fetch_update(update_id)
-  bundle = updates_man.preview(update)
-  return jsonify(bundle)
+  preview_bundle = updates_man.preview(update)
+  return jsonify(preview_bundle)
 
 
 @controller.route(f'{BASE_PATH}/<update_id>/apply', methods=['POST'])
 def install_update(update_id):
-  job_id = job_client.enqueue_action(dict(
-    kind=ApplyUpdateAction.kind(),
-    update_id=update_id,
-  ))
+  job_id = job_client.enqueue_action({
+    ApplyUpdateAction.KIND_KEY: ApplyUpdateAction.kind(),
+    ApplyUpdateAction.UPDATE_ID_KEY: update_id}
+  )
   return jsonify(data=(dict(job_id=job_id)))
 
 
-@controller.route(f'{BASE_PATH}/<update_id>/run_hooks/<_when>', methods=['POST'])
-def run_pre_wiz_update_hooks(update_id: str, _when: str):
-  job_id = job_client.enqueue_action(dict(
-    kind=RunUpdateHooksAction.kind(),
-    update_id=update_id,
-    when=_when
-  ))
+@controller.route(f'{BASE_PATH}/<update_id>/hooks/<timing>/run', methods=['POST'])
+def run_pre_wiz_update_hooks(update_id: str, timing: str):
+  job_id = job_client.enqueue_action({
+    RunUpdateHooksAction.KIND_KEY: RunUpdateHooksAction.kind(),
+    RunUpdateHooksAction.UPDATE_ID_KEY: update_id,
+    RunUpdateHooksAction.TIMING_KEY: timing
+  })
   return jsonify(data=(dict(job_id=job_id)))
 
 

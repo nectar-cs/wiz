@@ -31,12 +31,10 @@ def default_model_classes():
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
   from nectwiz.model.adapters.app_status_computer import AppStatusComputer
   from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
-
   from nectwiz.model.stats.prometheus_computer import PrometheusComputer
   from nectwiz.model.stats.metrics_computer import MetricsComputer
   from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
   from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
-
   from nectwiz.model.predicate.iftt import Iftt
   from nectwiz.model.predicate.common_predicates import FalsePredicate
   from nectwiz.model.hook.hook import Hook
@@ -47,11 +45,17 @@ def default_model_classes():
   from nectwiz.model.supply.unit_supplier import UnitSupplier
   from nectwiz.model.input.checkboxes_input import SelectInput
   from nectwiz.model.input.select_option import InputOption
-  from nectwiz.model.adapters.app_endpoints_adapter import AccessPointAdapter
-  from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
-
+  from nectwiz.model.supply.endpoint_supplier import EndpointSupplier
   from nectwiz.model.supply.random_string_supplier import RandomStringSupplier
   from nectwiz.model.supply.config_value_supplier import ConfigValueSupplier
+  from nectwiz.model.action.base.action import Action
+  from nectwiz.model.action.actions.apply_update_action import ApplyUpdateAction
+  from nectwiz.model.action.actions.run_update_hooks_action import RunUpdateHooksAction
+  from nectwiz.model.glance.glance import Glance
+  from nectwiz.model.glance.endpoint_glance import EndpointGlance
+  from nectwiz.model.glance.predicate_glance import PredicateGlance
+  from nectwiz.model.glance.battery_glance import BatteryGlance
+
   return [
     Operation,
     Stage,
@@ -89,21 +93,21 @@ def default_model_classes():
     UnitSupplier,
     RandomStringSupplier,
     ConfigValueSupplier,
+    EndpointSupplier,
 
     AppStatusComputer,
     SystemCheck,
-    AccessPointsProvider,
-    AccessPointAdapter,
 
+    Action,
     MultiAction,
     CmdExecAction,
     ApplyManifestAction,
     DeleteResourcesAction,
     RunPredicatesAction,
-    # UpdateAction,
+    ApplyUpdateAction,
+    RunUpdateHooksAction,
     BackupConfigAction,
     UpdateLastCheckedAction,
-    # WizUpdateAction,
 
     ResourceQueryAdapter,
     DeletionSpec,
@@ -112,6 +116,11 @@ def default_model_classes():
     PrometheusScalarComputer,
     PrometheusSeriesComputer,
     BasicResourceMetricsComputer,
+
+    Glance,
+    EndpointGlance,
+    PredicateGlance,
+    BatteryGlance,
 
     OperationRunSimulator
   ]

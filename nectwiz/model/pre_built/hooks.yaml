@@ -3,7 +3,8 @@ id: nectar.hooks.backup-configs-before-update
 trigger_selector:
   event: software-update
   timing: before
-action: BackupConfigAction
+actions:
+  - BackupConfigAction
 
 ---
 
@@ -12,4 +13,5 @@ id: nectar.hooks.write-last-updated-after-update
 trigger_selector:
   event: software-update
   timing: after
-action: UpdateLastCheckedAction
+actions:
+  - UpdateLastCheckedAction

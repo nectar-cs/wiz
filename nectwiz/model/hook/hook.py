@@ -1,28 +1,24 @@
-from typing import List, TypeVar, Dict, Any
+from typing import List, TypeVar, Dict
 
 from werkzeug.utils import cached_property
 
 from nectwiz.model.action.base.action import Action
 from nectwiz.model.base.wiz_model import WizModel
 
-
 T = TypeVar('T', bound='Hook')
 
 class Hook(WizModel):
 
-  ACTION_KEY = 'action'
+  ACTIONS_KEY = 'actions'
   TRIGGER_SELECTOR_KEY = 'trigger_selector'
 
   @cached_property
-  def action(self) -> Action:
-    return self.inflate_child(Action, prop=self.ACTION_KEY)
+  def actions(self) -> List[Action]:
+    return self.inflate_children(Action, prop=self.ACTIONS_KEY)
 
   @cached_property
   def trigger_selector(self) -> Dict:
     return self.get_prop(self.TRIGGER_SELECTOR_KEY) or {}
-
-  def run(self) -> Any:
-    return self.action.run()
 
   def subscribes_to(self, **labels) -> bool:
     selector_items = self.trigger_selector.items()

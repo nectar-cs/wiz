@@ -1,31 +1,32 @@
-from typing import Dict
+from typing import Dict, List
 
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core import updates_man
-from nectwiz.core.core.types import ProgressItem
-from nectwiz.model.action.action_parts.run_hooks_action_part import RunHookGroupActionPart
+from nectwiz.core.core import updates_man, utils
+from nectwiz.core.core.types import ProgressItem, UpdateDict
+from nectwiz.model.action.actions.multi_action import MultiAction
 from nectwiz.model.action.base.action import Action
+from nectwiz.model.hook.hook import Hook
 
 
-class RunUpdateHooksAction(Action):
-  def __init__(self, config: Dict):
-    super().__init__(config)
-    self.timing = config['when']
-    self.observer.progress = ProgressItem(
-      id=f'wiz-{self.timing}-update-action',
-      status='running',
-      info=f"Runs {self.timing}-installation hooks",
-      sub_items=[]
-    )
+class RunUpdateHooksAction(MultiAction):
+
+  UPDATE_ID_KEY = 'update_id'
+  TIMING_KEY = 'timing'
 
   @cached_property
-  def store_telem(self) -> bool:
-    return True
+  def timing(self) -> str:
+    return self.get_prop(self.TIMING_KEY)
 
-  def perform(self):
-    hooks = updates_man.find_hooks(self.timing, 'wiz_update')
-    progress_items = RunHookGroupActionPart.progress_items(self.timing, hooks)
-    self.observer.progress['sub_items'] = progress_items
-    RunHookGroupActionPart.perform(self.observer, hooks)
-    return True
+  @cached_property
+  def update_bundle(self) -> UpdateDict:
+    update_id = self.get_prop(self.UPDATE_ID_KEY)
+    return updates_man.fetch_update(update_id)
+
+  @cached_property
+  def hooks(self) -> List[Hook]:
+    return updates_man.find_hooks(self.timing, self.update_bundle)
+
+  @cached_property
+  def sub_actions(self) -> List[Action]:
+    return utils.flatten([hook.actions for hook in self.hooks])

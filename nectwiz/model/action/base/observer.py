@@ -11,6 +11,7 @@ from nectwiz.model.error.errors_man import errors_man
 
 
 class Observer:
+
   def __init__(self):
     self.blame_item_id: Optional[str] = None
     self.errdicts: List[ErrDict] = []

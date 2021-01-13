@@ -2,10 +2,10 @@ from flask import Blueprint, jsonify
 
 from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_man
-from nectwiz.model.adapters.app_endpoints_adapter import AccessPointsProvider
 from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
 from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
+from nectwiz.model.glance.glance import Glance
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
 from nectwiz.model.predicate.system_check import SystemCheck
@@ -102,11 +102,18 @@ def app_resource_usage():
   pass
 
 
-@controller.route(f'{BASE_PATH}/access-points', methods=["GET"])
-def application_endpoints():
+@controller.route(f'{BASE_PATH}/glance-ids', methods=["GET"])
+def glance_ids():
   """
   Returns a list of application endpoint adapters.
   :return: list of serialized adapters.
   """
-  adapter = AccessPointsProvider.inflate_singleton()
-  return jsonify(data=adapter.serialize_access_points())
+  glances = Glance.inflate_all()
+  serialized = list(map(Glance.fast_serialize, glances))
+  return jsonify(data=serialized)
+
+
+@controller.route(f'{BASE_PATH}/glances/<glance_id>', methods=["GET"])
+def get_glance(glance_id: str):
+  glance = Glance.inflate(glance_id)
+  return jsonify(data=glance.compute_and_serialize())

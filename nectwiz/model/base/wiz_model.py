@@ -172,7 +172,7 @@ class WizModel:
     src_items = list(self.config.items())
     return {k: v for k, v in src_items if not k == self.CONTEXT_KEY}
 
-  def inflate_children(self, child_class: Type[T], **kwargs: ErrDict):
+  def inflate_children(self, child_class: Type[T], **kwargs):
     """
     Bottleneck function for a parent model to inflate a list of children.
     In the normal case, kods_or_provider_kod is a list of WizModels KoDs.

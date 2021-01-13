@@ -1,3 +1,4 @@
+
 from typing import Any, Dict, Union, Optional
 
 from werkzeug.utils import cached_property
@@ -11,6 +12,7 @@ class ValueSupplier(WizModel):
 
   IS_MANY_KEY = 'many'
   OUTPUT_FMT_KEY = 'output'
+  ON_RAISE_KEY = 'on_error'
 
   @cached_property
   def treat_as_list(self):
@@ -20,9 +22,20 @@ class ValueSupplier(WizModel):
   def output_format(self):
     return self.get_prop(self.OUTPUT_FMT_KEY)
 
+  @cached_property
+  def on_raise(self):
+    return self.get_prop(self.ON_RAISE_KEY)
+
+  # noinspection PyBroadException
   def resolve(self) -> Any:
-    computed_value = self._compute()
-    return self.serialize_computed_value(computed_value)
+    try:
+      computed_value = self._compute()
+      return self.serialize_computed_value(computed_value)
+    except:
+      if self.ON_RAISE_KEY in self.config.keys():
+        return self.on_raise
+      else:
+        raise
 
   def serialize_computed_value(self, computed_value) -> Any:
     treat_as_list = self.treat_as_list

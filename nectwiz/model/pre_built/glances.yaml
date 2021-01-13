@@ -1,0 +1,32 @@
+
+---
+
+kind: BatteryGlance
+id: nectar.glance.cpu_request_pct
+title: CPU Used vs Limit
+pct: id::something_provider
+
+---
+
+kind: PredicateGlance
+id: nectar.glance.telem_enabled_check
+title: Telem Database Connected?
+predicate: some-pred-id
+
+---
+
+kind: PieGlance
+id: nectar.glance.telem_db_disk_usage
+title: Telem DB Disk
+pct: id::something_provider
+info: somehow-get-pvc-name
+
+---
+
+kind: ChartGlance
+id: nectar.glance.grafana-endpoint
+title: Website Address
+center:
+  type: image
+  name: grafana-logo-png
+info: id::something_provider

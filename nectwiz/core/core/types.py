@@ -20,6 +20,18 @@ class ProgressItem(TypedDict, total=False):
   logs: List[str]
 
 
+class TimeSeriesDataPoint(TypedDict):
+  timestamp: str
+  value: float
+
+
+class EndpointDict(TypedDict):
+  name: str
+  url: Optional[str]
+  type: str
+  online: bool
+
+
 class UpdateDict(TypedDict):
   id: str
   type: str

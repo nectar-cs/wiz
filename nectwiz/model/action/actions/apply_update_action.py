@@ -17,7 +17,7 @@ key_replace_defaults = 'replace_defaults'
 
 
 class ApplyUpdateAction(Action):
-  KEY_UPDATE_ID = 'update_id'
+  UPDATE_ID_KEY = 'update_id'
 
   def __init__(self, config: Dict):
     super().__init__(config)
@@ -26,24 +26,16 @@ class ApplyUpdateAction(Action):
       status='running',
       info=f"Updates default values, re-applies manifest",
       sub_items=[
-        ProgressItem(
-          id=key_patch_tam,
-          status='idle',
-          title='Commit TAM with new version/type',
-          info="Patch master ConfigMap entry for TAM definition",
-        ),
-        ProgressItem(
-          id=key_replace_defaults,
-          status='idle',
-          title='Update manifest variable defaults',
-          info='Load defaults from new TAM, commit them to master ConfigMap'
-        )
+        patch_tam_progress_item,
+        update_defaults_progress_item,
+        *ApplyManifestActionPart.progress_items(),
+        *AwaitPredicatesSettleActionPart.progress_items()
       ]
     )
 
   @cached_property
   def update(self) -> UpdateDict:
-    update_id = self.get_prop(self.KEY_UPDATE_ID)
+    update_id = self.get_prop(self.UPDATE_ID_KEY)
     return updates_man.fetch_update(update_id)
 
   @cached_property
@@ -80,3 +72,19 @@ class ApplyUpdateAction(Action):
     suppliers = consts.TAM_VALUE_SOURCES
     value_bundles = [self.resolve_prop_value(s) for s in suppliers]
     return deep_merge(*value_bundles)
+
+
+patch_tam_progress_item = ProgressItem(
+  id=key_patch_tam,
+  status='idle',
+  title='Commit TAM with new version/type',
+  info="Patch master ConfigMap entry for TAM definition",
+)
+
+
+update_defaults_progress_item = ProgressItem(
+  id=key_replace_defaults,
+  status='idle',
+  title='Update manifest variable defaults',
+  info='Load defaults from new TAM, commit them to master ConfigMap'
+)

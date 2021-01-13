@@ -13,17 +13,17 @@ class MultiAction(Action):
   def sub_actions(self) -> List[Action]:
     return self.inflate_children(Action, prop=self.SUB_ACTIONS_KEY)
 
+  def perform(self, **kwargs) -> Any:
+    self.rewire_observers()
+    did_fail = False
+    for sub_action in self.sub_actions:
+      result = sub_action.perform()
+      if not result:
+        did_fail = True
+    return not did_fail
+
   def rewire_observers(self):
     for sub_action in self.sub_actions:
-      sub_action_progress = sub_action.observer.progress
-      sub_action_progress_items = sub_action_progress.get('sub_items', [])
-      self.observer.progress['sub_items'] += sub_action_progress_items
-
-  def run(self, **kwargs) -> Any:
-    self.rewire_observers()
-    for sub_action in self.sub_actions:
-      sub_action.observer.progress = self.observer.progress
-      exec_outcome = sub_action.run(**kwargs)
-      if not exec_outcome:
-        return False
-    return True
+      progress_items = sub_action.observer.progress.get('sub_items', [])
+      self.observer.progress['sub_items'] += progress_items
+      sub_action.observer = self.observer
