@@ -49,7 +49,7 @@ def default_model_classes():
   from nectwiz.model.glance.glance import Glance
   from nectwiz.model.glance.endpoint_glance import EndpointGlance
   from nectwiz.model.glance.predicate_glance import PredicateGlance
-  from nectwiz.model.glance.battery_glance import BatteryGlance
+  from nectwiz.model.glance.percentage_glance import PercentageGlance
   from nectwiz.model.supply.prometheus_scalar_value_supplier import PrometheusScalarSupplier
   from nectwiz.model.supply.prometheus_time_series_supplier import PrometheusTimeSeriesSupplier
 
@@ -119,7 +119,7 @@ def default_model_classes():
     Glance,
     EndpointGlance,
     PredicateGlance,
-    BatteryGlance,
+    PercentageGlance,
     TimeSeriesGlance,
 
     QuantityHumanizer,

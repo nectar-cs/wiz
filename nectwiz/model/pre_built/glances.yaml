@@ -7,22 +7,43 @@ time_series_data:
   query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
 
 
-#---
-#
-#kind: BatteryGlance
-#id: nectar.glance.cpu_request_pct
-#title: CPU Used vs Limit
-#numerator:
-#  kind: PrometheusScalarSupplier
-#  query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
+---
+
+kind: PercentageGlance
+id: nectar.glance.cpu_request_pct
+title: CPU Used vs Limit
+numerator: 2.23
+denominator: 4
+view_type: battery
+
+---
+
+kind: PercentageGlance
+id: nectar.glance.cpu_request_pct2
+title: Memory Used vs Limit
+numerator: 1.23
+denominator: 4
+view_type: battery
 
 
-#---
-#
-#kind: PredicateGlance
-#id: nectar.glance.telem_enabled_check
-#title: Telem Database Connected?
-#predicate: some-pred-id
+---
+
+kind: PercentageGlance
+id: nectar.glance.cpu_request_pct3
+title: Telem Disk Usage
+numerator: 1.23
+denominator: 4
+view_type: pct_pie
+
+---
+
+kind: PredicateGlance
+id: nectar.glance.telem_enabled_check
+title: Workload Statuses
+info: All pods running
+pass_text: 100% Running
+fail_text: Pods Down
+predicate: nectar.predicate.all-deployments-green
 
 ---
 

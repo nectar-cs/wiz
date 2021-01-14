@@ -6,7 +6,7 @@ from nectwiz.model.glance.glance import Glance
 from nectwiz.model.humanizer.quantity_humanizer import QuantityHumanizer
 
 
-class BatteryGlance(Glance):
+class PercentageGlance(Glance):
 
   PCT_KEY = 'pct'
   FRACTION_KEY = 'fraction'
@@ -14,10 +14,6 @@ class BatteryGlance(Glance):
   DENOMINATOR_KEY = 'denominator'
   ABS_HUMANIZER = 'parts_humanizer'
   PCT_HUMANIZER = 'pct_humanizer'
-
-  @cached_property
-  def view_type(self):
-    return 'battery'
 
   @cached_property
   def abs_humanizer(self):
@@ -54,7 +50,7 @@ class BatteryGlance(Glance):
 
   @cached_property
   def pct_text(self) -> str:
-    return f"{str(round(self.pct, 1))}%"
+    return f"{str(round(self.pct, 0))}%"
 
   def content_spec(self) -> Dict:
     return {

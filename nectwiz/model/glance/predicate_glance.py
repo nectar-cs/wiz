@@ -10,6 +10,10 @@ class PredicateGlance(Glance):
   FAIL_TEXT_KEY = 'fail_text'
 
   @cached_property
+  def view_type(self) -> str:
+    return "graphic_and_text"
+
+  @cached_property
   def predicate(self):
     return self.inflate_child(
       Predicate,
@@ -31,5 +35,6 @@ class PredicateGlance(Glance):
     success = self.eval_result()
     return {
       'icon': 'done_all' if success else 'help_outline',
+      'icon_emotion': 'milGreen' if success else 'warning2',
       'value': self.pass_text if success else self.fail_text
     }

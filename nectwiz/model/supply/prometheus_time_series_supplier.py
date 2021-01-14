@@ -11,8 +11,8 @@ class PrometheusTimeSeriesSupplier(PrometheusSupplier):
     result = self.fetch_value()
     if result:
       aggregated = agg_series(result)
-      print("AGGREGATED FINAL")
-      print(aggregated)
+      # print("AGGREGATED FINAL")
+      # print(aggregated)
       return aggregated
     else:
       return None
