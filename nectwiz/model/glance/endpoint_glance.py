@@ -25,30 +25,31 @@ class EndpointGlance(Glance):
 
   @cached_property
   def url_intent(self) -> str:
-    return self.endpoint_data['url']
+    return self.endpoint_data.get('url')
 
   @cached_property
   def endpoint_data(self) -> EndpointDict:
     return self.get_prop(self.ENDPOINT_DATA_KEY)
 
   @cached_property
-  def info(self):
-    return self.endpoint_data['url']
+  def info(self) -> str:
+    if self.endpoint_data and self.endpoint_data.get('url'):
+      return self.endpoint_data['url']
+    else:
+      return 'Endpoint not working'
 
   def content_spec(self):
     result = self.endpoint_data
-    is_external = result['type'] == 'external'
     if result and result['online']:
+      is_external = result['type'] == 'external'
       return {
         'icon': 'public' if is_external else 'vpn_lock',
-        'legend': result['url'] or 'Address N/A',
         'value': result['name'] or self.title,
-        'icon_emotion': 'milGreen'
+        'icon_emotion': 'pleasant'
       }
     else:
       return {
         'icon': 'public_off',
-        'legend': 'Endpoint not working',
         'value': (result or {}).get('name') or self.title,
         'icon_emotion': 'warning2'
       }

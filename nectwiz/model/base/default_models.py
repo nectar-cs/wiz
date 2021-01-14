@@ -30,11 +30,6 @@ def default_model_classes():
   from nectwiz.model.action.actions.backup_config_action import BackupConfigAction
   from nectwiz.model.action.actions.backup_config_action import UpdateLastCheckedAction
   from nectwiz.model.adapters.app_status_computer import AppStatusComputer
-  from nectwiz.model.stats.prometheus_single_value_computer import PrometheusScalarComputer
-  from nectwiz.model.stats.prometheus_computer import PrometheusComputer
-  from nectwiz.model.stats.metrics_computer import MetricsComputer
-  from nectwiz.model.stats.prometheus_series_computer import PrometheusSeriesComputer
-  from nectwiz.model.stats.basic_resource_metrics_computer import BasicResourceMetricsComputer
   from nectwiz.model.predicate.iftt import Iftt
   from nectwiz.model.predicate.common_predicates import FalsePredicate
   from nectwiz.model.hook.hook import Hook
@@ -55,6 +50,13 @@ def default_model_classes():
   from nectwiz.model.glance.endpoint_glance import EndpointGlance
   from nectwiz.model.glance.predicate_glance import PredicateGlance
   from nectwiz.model.glance.battery_glance import BatteryGlance
+  from nectwiz.model.supply.prometheus_scalar_value_supplier import PrometheusScalarSupplier
+  from nectwiz.model.supply.prometheus_time_series_supplier import PrometheusTimeSeriesSupplier
+
+  from nectwiz.model.glance.time_series_glance import TimeSeriesGlance
+  from nectwiz.model.humanizer.quantity_humanizer import QuantityHumanizer
+  from nectwiz.model.humanizer.cores_humanizer import CoresHumanizer
+  from nectwiz.model.humanizer.bytes_humanizer import BytesHumanizer
 
   return [
     Operation,
@@ -94,6 +96,8 @@ def default_model_classes():
     RandomStringSupplier,
     ConfigValueSupplier,
     EndpointSupplier,
+    PrometheusTimeSeriesSupplier,
+    PrometheusScalarSupplier,
 
     AppStatusComputer,
     SystemCheck,
@@ -111,16 +115,16 @@ def default_model_classes():
 
     ResourceQueryAdapter,
     DeletionSpec,
-    PrometheusComputer,
-    MetricsComputer,
-    PrometheusScalarComputer,
-    PrometheusSeriesComputer,
-    BasicResourceMetricsComputer,
 
     Glance,
     EndpointGlance,
     PredicateGlance,
     BatteryGlance,
+    TimeSeriesGlance,
+
+    QuantityHumanizer,
+    BytesHumanizer,
+    CoresHumanizer,
 
     OperationRunSimulator
   ]

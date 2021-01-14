@@ -92,5 +92,10 @@ class TestValueSupplier(Base.TestWizModel):
     self.assertEqual([dict(foo='bar')], result)
 
     instance = ValueSupplier({'output': {'Bar': 'bar'}})
-    result = instance.serialize_computed_value(dict(foo='bar', bar='baz'))
+    result = instance.serialize_computed_value({'foo': 'bar', 'bar': 'baz'})
     self.assertEqual({'Bar': 'baz'}, result)
+
+  def test_serialize_explicit_transform(self):
+    instance = ValueSupplier({'bytes': 'auto_unit'})
+    result = instance.serialize_computed_value([{'bytes': 1000}])
+    self.assertEqual([{'bytes': 1}], result)

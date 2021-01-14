@@ -6,7 +6,7 @@ from k8kat.auth.kube_broker import BrokerConnException, broker
 
 from nectwiz.controllers import operations_controller, status_controller, \
   app_controller, manifest_variables_controller, resources_controller, updates_controller, errors_controller, \
-  telem_controller, stats_controller
+  telem_controller
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import coerce_ns
 
@@ -21,8 +21,7 @@ controllers = [
   telem_controller,
   updates_controller,
   manifest_variables_controller,
-  errors_controller,
-  stats_controller
+  errors_controller
 ]
 
 for controller in controllers:

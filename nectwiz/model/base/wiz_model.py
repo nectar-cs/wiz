@@ -114,7 +114,11 @@ class WizModel:
     if key in list(self.config.keys()):
       value = self.config[key]
     else:
-      value = kwargs.pop('backup', None)
+      lazy_backup = kwargs.pop('lazy_backup', None)
+      if lazy_backup is not None:
+        value = lazy_backup()
+      else:
+        value = kwargs.pop('backup', None)
       if kwargs.get('warn'):
         print(f"[nectwiz:{self.__class__.__name__}] undefined prop '{key}'")
 

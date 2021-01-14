@@ -1,5 +1,5 @@
 import traceback
-from typing import Dict, List, TypeVar
+from typing import List, TypeVar
 
 from k8kat.res.base.kat_res import KatRes
 from k8kat.utils.main.types import IntelDict

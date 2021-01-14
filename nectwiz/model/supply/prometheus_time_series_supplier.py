@@ -2,28 +2,29 @@ from datetime import datetime
 from typing import Dict, List
 
 from nectwiz.core.core import prom_api_client
-from nectwiz.model.stats.prometheus_computer import PrometheusComputer
+from nectwiz.model.supply.prometheus_supplier import PrometheusSupplier
 
 
-class PrometheusSeriesComputer(PrometheusComputer):
+class PrometheusTimeSeriesSupplier(PrometheusSupplier):
 
-  def _do_compute(self):
+  def _compute(self):
     result = self.fetch_value()
-    # print("RESULT")
-    # print(result)
     if result:
-      return agg_series(result)
+      aggregated = agg_series(result)
+      print("AGGREGATED FINAL")
+      print(aggregated)
+      return aggregated
     else:
       return None
 
   def fetch_value(self):
-    raw = prom_api_client.compute_series(
+    response = prom_api_client.compute_series(
       self.query_expr,
       self.step,
       self.t0,
       self.tn
     )
-    return self.fetch_server_computed_result(raw)
+    return self.extract_datapoints(response)
 
 
 def infer_series_key(metric: Dict) -> str:
@@ -82,7 +83,13 @@ def agg_series(query_result: List[Dict]) -> List:
       if len(datapoint) == 2:
         epoch, computed_val = datapoint
         entry = find_or_create_entry(output, epoch)
-        entry[key] = computed_val
+        entry[key] = float(computed_val)
       else:
         print(f"[nectwiz:prom_series_computer] !=2 entry val {datapoint}")
+
+  for datapoint in output:
+    epoch = datapoint['epoch']
+    del datapoint['epoch']
+    datapoint['timestamp'] = str(datetime.fromtimestamp(epoch))
+
   return output

@@ -4,7 +4,6 @@ from nectwiz.core.core import job_client
 from nectwiz.core.telem import telem_man
 from nectwiz.model.adapters.app_status_computer import AppStatusComputer
 from nectwiz.model.adapters.deletion_spec import DeletionSpec
-from nectwiz.model.adapters.res_consumption_adapter import ResourceConsumptionAdapter
 from nectwiz.model.glance.glance import Glance
 from nectwiz.model.hook import hook_serial
 from nectwiz.model.hook.hook import Hook
@@ -88,18 +87,6 @@ def job_progress(job_id):
       result=result
     )
   )
-
-
-@controller.route(f'{BASE_PATH}/resource-stats', methods=["GET"])
-def app_resource_usage():
-  """
-  Returns the Base Consumption adapter.
-  :return: serialized adapter object.
-  """
-  adapter = ResourceConsumptionAdapter.descendent_or_self()
-  output = adapter.serialize()
-  return jsonify(data=output)
-  pass
 
 
 @controller.route(f'{BASE_PATH}/glance-ids', methods=["GET"])
