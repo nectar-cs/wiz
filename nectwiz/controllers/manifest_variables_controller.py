@@ -32,12 +32,6 @@ def manifest_variables_defaults():
   return jsonify(data=as_dict)
 
 
-@controller.route(f'{BASE}/commit-injections', methods=['POST'])
-def manifest_variables_commit_injections():
-  result = ManifestVariable.inject_server_defaults()
-  return jsonify(data=result)
-
-
 @controller.route(f'{BASE}/populate-defaults')
 def chart_vars_populate_defaults():
   defaults = tam_client().load_default_values()

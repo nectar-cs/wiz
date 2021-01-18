@@ -8,6 +8,8 @@ class PredicateGlance(Glance):
   PREDICATE_KEY = 'predicate'
   PASS_TEXT_KEY = 'pass_text'
   FAIL_TEXT_KEY = 'fail_text'
+  PASS_ICON_KEY = 'pass_icon'
+  FAIL_ICON_KEY = 'fail_icon'
 
   @cached_property
   def view_type(self) -> str:
@@ -28,13 +30,21 @@ class PredicateGlance(Glance):
   def fail_text(self):
     return self.get_prop(self.FAIL_TEXT_KEY, 'Failing')
 
-  def eval_result(self):
+  @cached_property
+  def pass_icon(self) -> str:
+    return self.get_prop(self.PASS_ICON_KEY, 'done_all')
+
+  @cached_property
+  def fail_icon(self) -> str:
+    return self.get_prop(self.FAIL_ICON_KEY, 'help_outline')
+
+  def eval_result(self) -> bool:
     return self.predicate.evaluate()
 
   def content_spec(self):
     success = self.eval_result()
     return {
-      'icon': 'done_all' if success else 'help_outline',
+      'icon': self.pass_icon if success else self.fail_icon,
       'icon_emotion': 'milGreen' if success else 'warning2',
       'value': self.pass_text if success else self.fail_text
     }

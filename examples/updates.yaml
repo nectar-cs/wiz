@@ -1,5 +1,3 @@
 kind: MockUpdate
 id: vendor.mock-updates.next
 inherit: vendor.mock-updates.partial
-injections:
-  frontend.image: 1.0.1

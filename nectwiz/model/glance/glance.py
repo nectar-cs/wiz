@@ -12,6 +12,7 @@ class Glance(WizModel):
   LEGEND_ICON_KEY = 'legend_icon'
   LEGEND_EMOTION_KEY = 'legend_emotion'
   URL_INTENT_KEY = 'url'
+  PATH_INTENT_KEY = 'path'
 
   @cached_property
   def view_type(self) -> str:
@@ -29,6 +30,10 @@ class Glance(WizModel):
   def url_intent(self) -> Optional[str]:
     return self.get_prop(self.URL_INTENT_KEY)
 
+  @cached_property
+  def path_intent(self) -> Optional[str]:
+    return self.get_prop(self.PATH_INTENT_KEY)
+
   def fast_serialize(self) -> Dict:
     return {'id': self.id(), 'title': self.title}
 
@@ -39,6 +44,7 @@ class Glance(WizModel):
       'content_spec': self.content_spec(),
       'view_type': self.view_type,
       'url': self.url_intent,
+      'path': self.path_intent,
       'legend_icon': self.legend_icon,
       'legend_emotion': self.legend_emotion
     }

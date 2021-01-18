@@ -13,4 +13,4 @@ class BytesHumanizer(QuantityHumanizer):
   def _humanize_expr(self, raw_value: float) -> str:
     _, unit = units.mem_quant_mult(raw_value or 0)
     value_str = self.humanize_quantity(raw_value)
-    return f"{value_str}{unit}"
+    return f"{value_str}{unit}b"

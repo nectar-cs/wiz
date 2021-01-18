@@ -1,16 +1,15 @@
 kind: TimeSeriesGlance
-id: nectar.glance.memory_usage_time_series
+id: nectar.glances.memory_usage_time_series
 title: Memory Used
 humanizer: BytesHumanizer
 time_series_data:
   kind: PrometheusTimeSeriesSupplier
   query: sum(container_memory_usage_bytes<<namespace='{app/ns}'>>)
 
-
 ---
 
 kind: PercentageGlance
-id: nectar.glance.cpu_request_pct
+id: nectar.glances.cpu_request_pct
 title: CPU Used vs Limit
 numerator: 2.23
 denominator: 4
@@ -19,17 +18,16 @@ view_type: battery
 ---
 
 kind: PercentageGlance
-id: nectar.glance.cpu_request_pct2
+id: nectar.glances.cpu_request_pct2
 title: Memory Used vs Limit
 numerator: 1.23
 denominator: 4
 view_type: battery
 
-
 ---
 
 kind: PercentageGlance
-id: nectar.glance.cpu_request_pct3
+id: nectar.glances.cpu_request_pct3
 title: Telem Disk Usage
 numerator: 1.23
 denominator: 4
@@ -38,7 +36,7 @@ view_type: pct_pie
 ---
 
 kind: PredicateGlance
-id: nectar.glance.telem_enabled_check
+id: nectar.glances.telem_enabled_check
 title: Workload Statuses
 info: All pods running
 pass_text: 100% Running
@@ -48,9 +46,22 @@ predicate: nectar.predicate.all-deployments-green
 ---
 
 kind: ChartGlance
-id: nectar.glance.grafana-endpoint
+id: nectar.glances.grafana-endpoint
 title: Website Address
 center:
   type: image
   name: grafana-logo-png
 info: id::something_provider
+
+---
+
+kind: PredicateGlance
+id: nectar.glances.injections_up_to_date_check
+title: Injections up to date
+info: Last injected {app/last_injected_relative}
+pass_text: Up to date
+fail_text: Injection Available
+pass_icon: update
+fail_icon: update
+predicate: TruePredicate
+path: /settings/injections

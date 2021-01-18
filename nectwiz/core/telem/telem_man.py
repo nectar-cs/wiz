@@ -128,7 +128,7 @@ def upload_status() -> bool:
     'tam_uri': tam.get('uri'),
     'tam_version': tam.get('version'),
     'wiz_version': wiz.get('version'),
-    'synced_at': str(config_man.last_updated())
+    'synced_at': str(config_man.last_updated()),
   }
 
   print(f"[nectwiz:telem_man] stat -> {hub_api_client.backend_host()} {payload}")

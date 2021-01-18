@@ -6,7 +6,7 @@ from werkzeug.utils import cached_property
 
 from nectwiz.core.core import utils, subs
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import KoD, ErrDict
+from nectwiz.core.core.types import KoD
 from nectwiz.core.core.utils import deep_merge
 from nectwiz.model.base.default_models import default_model_classes
 

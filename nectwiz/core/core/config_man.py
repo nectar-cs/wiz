@@ -3,6 +3,7 @@ import traceback
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple, Callable
 
+import humanize
 from k8kat.res.config_map.kat_map import KatMap
 from k8kat.utils.main.utils import deep_merge
 
@@ -19,6 +20,7 @@ wiz_config_key = 'wiz'
 status_key = 'status'
 prefs_config_key = 'prefs'
 key_last_updated = 'last_updated'
+key_last_synced = 'last_synced'
 tam_vars_key = 'manifest_variables'
 manifest_defaults_key = 'manifest_defaults'
 update_checked_at_key = 'update_checked_at'
@@ -64,6 +66,16 @@ class ConfigMan:
     """
     cmap = self.load_master_cmap(reload)
     return cmap.raw.data.get(key) if cmap else None
+
+  def read_datetime(self, key: str, reload=True) -> Optional[datetime]:
+    serialized = self.read_entry(key, reload)
+    if serialized:
+      try:
+        return datetime.fromisoformat(serialized)
+      except TypeError:
+        return None
+    else:
+      return None
 
   def read_dict(self, key: str, reload=True) -> Dict:
     """
@@ -111,8 +123,15 @@ class ConfigMan:
   def flat_manifest_vars(self, reload=True) -> Dict:
     return utils.dict2flat(self.manifest_vars(reload))
 
-  def last_updated(self) -> datetime:
-    return self.read_entry(key_last_updated)
+  def last_updated(self, reload=True) -> datetime:
+    return self.read_datetime(key_last_updated, reload)
+
+  def last_injected(self, or_ancient=True, reload=True) -> datetime:
+    result = self.read_datetime(key_last_synced, reload)
+    if result:
+      return result
+    else:
+      return ancient_dt() if or_ancient else None
 
   def manifest_var(self, deep_key: str, reload=True) -> Optional[str]:
     return utils.deep_get2(self.manifest_vars(reload), deep_key)
@@ -125,7 +144,8 @@ class ConfigMan:
     def app_cont(n: str) -> str:
       return dict(
         install_uuid=self.install_uuid(),
-        ns=self.ns()
+        ns=self.ns(),
+        last_injected_relative=humanize.naturaltime(self.last_injected())
       )[n]
 
     return dict(
@@ -155,6 +175,9 @@ class ConfigMan:
 
   def write_last_synced(self, timestamp: datetime):
     self.patch_master_cmap(key_last_updated, str(timestamp))
+
+  def write_last_injected(self, timestamp: datetime):
+    self.patch_master_cmap(key_last_synced, str(timestamp))
 
   def write_tam(self, new_tam: TamDict):
     self.patch_cmap_with_dict(tam_config_key, new_tam)
@@ -236,7 +259,7 @@ def coerce_ns(new_ns: str):
     print(f"[nectwiz::configman] illegal ns coerce!")
 
 
-def distant_past_timestamp() -> datetime:
+def ancient_dt() -> datetime:
   date_time_str = '2000-01-01 00:00:00.000000'
   fmt = '%Y-%m-%d %H:%M:%S.%f'
   return datetime.strptime(date_time_str, fmt)

@@ -1,3 +1,5 @@
+
+
 def default_model_classes():
   from nectwiz.model.action.actions.cmd_exec_action import CmdExecAction
   from nectwiz.model.action.actions.apply_manifest_action import ApplyManifestAction
@@ -7,6 +9,8 @@ def default_model_classes():
   from nectwiz.model.input.slider_input import SliderInput
   from nectwiz.model.adapters.list_resources_adapter import ResourceQueryAdapter
   from nectwiz.model.operation.operation import Operation
+  from nectwiz.model.action.actions.sync_injections_action import SyncInjectionsAction
+  from nectwiz.model.adapters.injection_orchestrator import InjectionOrchestrator
   from nectwiz.model.operation.stage import Stage
   from nectwiz.model.operation.step import Step
   from nectwiz.model.operation.field import Field
@@ -112,9 +116,11 @@ def default_model_classes():
     RunUpdateHooksAction,
     BackupConfigAction,
     UpdateLastCheckedAction,
+    SyncInjectionsAction,
 
     ResourceQueryAdapter,
     DeletionSpec,
+    InjectionOrchestrator,
 
     Glance,
     EndpointGlance,

@@ -5,7 +5,7 @@ import yaml
 from nectwiz.core.core import utils
 from nectwiz.core.core.types import ProgressItem, KAOs
 from nectwiz.core.tam.tam_provider import tam_client
-from nectwiz.model.action.base.observer import Observer
+from nectwiz.model.action.base.observer import Observer, simple_action_eval
 
 key_load_manifest = 'load_manifest'
 key_apply_manifest = 'apply_manifest'
@@ -46,25 +46,19 @@ class ApplyManifestActionPart:
     selectors = kwargs['selectors']
     client = tam_client(tam=kwargs['tam'])
 
-    observer.set_item_running(key_load_manifest)
-    res_descs = client.template_manifest(values)
-    res_descs = client.filter_res(res_descs, selectors)
-    observer.set_item_succeeded(key_load_manifest)
-    observer.log(list(map(yaml.dump, res_descs)))
+    with simple_action_eval(observer, key_load_manifest):
+      res_descs = client.template_manifest(values)
+      res_descs = client.filter_res(res_descs, selectors)
+      observer.log(list(map(yaml.dump, res_descs)))
 
-    observer.set_item_running(key_apply_manifest)
-    k_apply_outcomes = client.kubectl_apply(res_descs)
-    cls.on_apply_finished(observer, k_apply_outcomes)
-    observer.log(list(map(utils.kao2log, k_apply_outcomes)))
-    cls.check_kao_failures(observer, k_apply_outcomes)
+    with simple_action_eval(observer, key_apply_manifest):
+      outkomes = client.kubectl_apply(res_descs)
+      observer.set_prop(key_apply_manifest, 'data', {'outcomes': outkomes})
+      observer.log(list(map(utils.kao2log, outkomes)))
+      cls.check_kao_failures(observer, outkomes)
 
     time.sleep(1)
-    return k_apply_outcomes
-
-  @classmethod
-  def on_apply_finished(cls, observer: Observer, outcomes: KAOs):
-    observer.set_prop(key_apply_manifest, 'data', {'outcomes': outcomes})
-    observer.set_item_succeeded(key_apply_manifest)
+    return outkomes
 
   @classmethod
   def check_kao_failures(cls, observer: Observer, outcomes: KAOs):

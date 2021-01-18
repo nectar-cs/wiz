@@ -3,6 +3,11 @@ from typing import Optional, Dict, List, Union
 from typing_extensions import TypedDict
 
 
+class InjectionDesc(TypedDict):
+  chart: Dict
+  inlines: Dict
+
+
 class TemplateArgs(TypedDict, total=False):
   flat_inlines: Dict
   values: Dict
@@ -34,15 +39,10 @@ class EndpointDict(TypedDict):
 
 class UpdateDict(TypedDict):
   id: str
-  type: str
   version: str
   tam_type: Optional[str]
   tam_uri: Optional[str]
-  wiz_type: Optional[str]
-  wiz_uri: Optional[str]
   note: str
-  injections: Dict[str, str]
-  manual: bool
 
 
 class JobStatusPart(TypedDict):

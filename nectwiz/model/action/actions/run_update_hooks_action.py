@@ -13,6 +13,11 @@ class RunUpdateHooksAction(MultiAction):
 
   UPDATE_ID_KEY = 'update_id'
   TIMING_KEY = 'timing'
+  IS_INJECTION_KEY = 'is_injection'
+
+  @cached_property
+  def is_injection(self) -> bool:
+    return self.get_prop(self.IS_INJECTION_KEY)
 
   @cached_property
   def timing(self) -> str:
@@ -25,7 +30,10 @@ class RunUpdateHooksAction(MultiAction):
 
   @cached_property
   def hooks(self) -> List[Hook]:
-    return updates_man.find_hooks(self.timing, self.update_bundle)
+    if self.is_injection:
+      return updates_man.find_injection_hooks(self.timing)
+    else:
+      return updates_man.find_hooks(self.timing, self.update_bundle)
 
   @cached_property
   def sub_actions(self) -> List[Action]:

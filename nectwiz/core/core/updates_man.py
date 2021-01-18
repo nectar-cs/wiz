@@ -1,22 +1,41 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from nectwiz.core.core import hub_api_client
+from nectwiz.core.core import hub_api_client, utils
 from nectwiz.core.core.config_man import config_man
-from nectwiz.core.core.types import UpdateDict
+from nectwiz.core.core.types import UpdateDict, InjectionDesc, K8sResDict
 from nectwiz.core.core.utils import deep_merge
 from nectwiz.core.tam.tam_provider import tam_client
+from nectwiz.model.adapters import mock_update
+from nectwiz.model.adapters.injection_orchestrator import InjectionOrchestrator
 from nectwiz.model.adapters.mock_update \
-  import MockUpdate, next_mock_update_id
+  import MockUpdate
 from nectwiz.model.hook.hook import Hook
 
-TYPE_RELEASE = 'release'
-TYPE_UPDATE = 'update'
+
+def is_using_latest_injection() -> bool:
+  bundle = latest_injection_bundle()
+  return bundle is None
 
 
 def fetch_next_update() -> Optional[UpdateDict]:
   config_man.write_last_update_checked(str(datetime.now()))
   return None
+
+
+def latest_injection_bundle() -> Optional[InjectionDesc]:
+  if config_man.is_real_deployment():
+    last_injected = str(config_man.last_injected(True, True))
+    endpoint = f'/injections/latest?last_injected={last_injected}'
+    resp = hub_api_client.get(endpoint)
+    if resp.ok:
+      return resp.json()['bundle']
+    else:
+      print(f"[nectwiz::updates_man] err requesting injection {resp.status_code}")
+      return None
+  else:
+    model = MockUpdate.inflate(mock_update.injection_bundle_id)
+    return model.as_injection_bundle()
 
 
 def fetch_update(update_id: str) -> Optional[UpdateDict]:
@@ -37,7 +56,7 @@ def next_available() -> Optional[UpdateDict]:
     data = resp.json() if resp.status_code < 205 else None
     return data['bundle'] if data else None
   else:
-    model = MockUpdate.inflate(next_mock_update_id)
+    model = MockUpdate.inflate(mock_update.app_update_id)
     return model.as_bundle()
 
 
@@ -51,6 +70,55 @@ def find_hooks(timing: str, update: UpdateDict) -> List[Hook]:
     event='software-update',
     timing=timing,
     **update
+  )
+
+
+def find_injection_hooks(timing: str) -> List[Hook]:
+  return Hook.by_trigger(
+    event='injection',
+    timing=timing
+  )
+
+
+def preview_injection(injection: InjectionDesc) -> Dict:
+  old_defaults = config_man.manifest_defaults()
+  old_manifest = tam_client().template_manifest_std()
+
+  orchestrator = InjectionOrchestrator.inflate_singleton()
+  new_defaults = deep_merge(old_defaults, injection['chart'])
+
+  new_resources = []
+  if len(injection['inlines']) > 0:
+    new_resources = tam_client().dry_run(
+      values=injection['inlines'],
+      rules=orchestrator.apply_selectors
+    )
+
+  new_manifest = [r for r in old_manifest]
+
+  def find_twin(res: K8sResDict) -> Optional[int]:
+    for (i, _res) in enumerate(new_manifest):
+      if utils.same_res(res, _res):
+        return i
+    return None
+
+  for new_res in new_resources:
+    old_version_ind = find_twin(new_res)
+    if old_version_ind:
+      old_version = new_manifest[old_version_ind]
+      new_manifest[old_version_ind] = deep_merge(old_version, new_res)
+    else:
+      new_manifest.append(new_res)
+
+  return dict(
+    defaults=dict(
+      old=old_defaults,
+      new=new_defaults
+    ),
+    manifest=dict(
+      old=old_manifest,
+      new=new_manifest
+    )
   )
 
 

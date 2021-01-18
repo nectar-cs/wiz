@@ -13,6 +13,7 @@ from typing import Dict, List, Tuple, Optional, Any
 
 import yaml
 from k8kat.auth.kube_broker import broker
+from k8kat.utils.main.api_defs_man import api_defs_man
 from yaml import scanner
 
 from nectwiz.core.core.types import KAO
@@ -386,6 +387,14 @@ def kao2log(kao: KAO) -> str:
     return f"{identity} {kao.get('verb')}"
   else:
     return f"{identity} {kao.get('error')}"
+
+
+def same_res(r1: Dict, r2: Dict):
+  kinds_eq = api_defs_man.kind2plurname(r1['kind']) and \
+             api_defs_man.kind2plurname(r2['kind'])
+  names_eq = r1['name'] == r2['name']
+  return kinds_eq and names_eq
+
 
 
 def logs2outkomes(logs: List[str]) -> List[KAO]:

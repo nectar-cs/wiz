@@ -1,0 +1,5 @@
+kind: InjectionOrchestrator
+id: nectar.injection-orchestrators.main
+apply_selectors:
+  - res_kind: secrets
+    name: "*"

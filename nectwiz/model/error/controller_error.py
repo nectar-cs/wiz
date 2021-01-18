@@ -6,5 +6,3 @@ class ActionHalt(Exception):
   def __init__(self, errdict: ErrDict):
     super().__init__('def')
     self.errdict = errdict
-
-

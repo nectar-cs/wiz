@@ -11,13 +11,11 @@ from typing_extensions import TypedDict
 from nectwiz.core.core import utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.types import K8sResDict, TamDict, KAO
-from nectwiz.model.base.resource_selector import ResourceSelector
 
 tmp_file_mame = '/tmp/man.yaml'
 ktl_apply_cmd_base = f"kubectl apply -f {tmp_file_mame}"
 RESD = K8sResDict
 RESDs = List[K8sResDict]
-SELs = List[ResourceSelector]
 
 class TamClientConstructorArgs(TypedDict):
   tam: TamDict
@@ -40,16 +38,22 @@ class TamClient:
       **config_man.manifest_vars()
     })
 
+  def dry_run(self, **kwargs) -> List[Dict]:
+    """
+    Retrieves the manifest from Tami, writes its contents to a temporary local
+    file (filtering resources by rules), and runs kubectl apply -f on it.
+    :return: any generated terminal output from kubectl apply.
+    """
+    res_dicts = self.template_manifest(kwargs['values'])
+    return self.filter_res(res_dicts, kwargs.get('rules', []))
+
   def apply(self, **kwargs) -> List[KAO]:
     """
     Retrieves the manifest from Tami, writes its contents to a temporary local
     file (filtering resources by rules), and runs kubectl apply -f on it.
     :return: any generated terminal output from kubectl apply.
     """
-
-    res_dicts = self.template_manifest(kwargs['values'])
-    res_dicts = self.filter_res(res_dicts, kwargs.get('rules', []))
-    return self.kubectl_apply(res_dicts)
+    return self.kubectl_apply(self.dry_run(**kwargs))
 
   def any_cmd_args(self) -> str:
     return self.tam.get('args') or ''
@@ -85,7 +89,7 @@ class TamClient:
     return [o for o in outcomes if o]
 
   @staticmethod
-  def filter_res(res_list: RESDs, selectors: SELs) -> RESDs:
+  def filter_res(res_list: RESDs, selectors) -> RESDs:
     """
     Filters the list of parsed kubernetes resources from the tami-generated
     application manifest according to the passed rule-set.

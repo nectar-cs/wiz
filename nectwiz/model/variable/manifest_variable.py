@@ -2,7 +2,7 @@ from typing import Optional, List, TypeVar
 
 from werkzeug.utils import cached_property
 
-from nectwiz.core.core import config_man, utils, hub_api_client
+from nectwiz.core.core import config_man, utils
 from nectwiz.core.core.config_man import config_man
 from nectwiz.core.core.utils import dict2keyed
 from nectwiz.model.variable.generic_variable import GenericVariable
@@ -68,20 +68,6 @@ class ManifestVariable(GenericVariable):
   def publisher_overridable_vars(cls) -> List[T]:
     matcher = lambda cv: cv.is_publisher_overridable
     return list(filter(matcher, ManifestVariable.inflate_all()))
-
-  @staticmethod
-  def inject_server_defaults() -> bool:
-    route = f'/installs/injections'
-    install_uuid = config_man.install_uuid()
-    if install_uuid:
-      route = f'/installs/{install_uuid}/injections'
-      resp = hub_api_client.get(route)
-      if resp.status_code < 300:
-        injections = resp.json().get('data')
-        if injections:
-          config_man.commit_mfst_vars(injections)
-          return True
-    return False
 
   # noinspection PyBroadException
   @classmethod

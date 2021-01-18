@@ -50,7 +50,7 @@ class PercentageGlance(Glance):
 
   @cached_property
   def pct_text(self) -> str:
-    return f"{str(round(self.pct, 0))}%"
+    return f"{str(int(self.pct))}%"
 
   def content_spec(self) -> Dict:
     return {
