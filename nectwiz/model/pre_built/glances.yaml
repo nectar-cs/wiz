@@ -42,6 +42,7 @@ info: All pods running
 pass_text: 100% Running
 fail_text: Pods Down
 predicate: nectar.predicate.all-deployments-green
+path: /system-check
 
 ---
 
@@ -64,4 +65,4 @@ fail_text: Injection Available
 pass_icon: update
 fail_icon: update
 predicate: TruePredicate
-path: /settings/injections
+path: /updates

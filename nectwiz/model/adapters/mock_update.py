@@ -9,6 +9,7 @@ from nectwiz.model.base.wiz_model import WizModel
 
 app_update_id = "nectar.mock-updates.app-update"
 injection_bundle_id = "nectar.mock-updates.injection"
+initial_injection_bundle_id = "nectar.mock-updates.initial-injection"
 
 
 class MockUpdate(WizModel):
@@ -33,4 +34,3 @@ class MockUpdate(WizModel):
 
   def as_injection_bundle(self):
     return self.config.get('bundle')
-
